@@ -172,7 +172,7 @@ export default function ClientProfilePage() {
         Clients
       </button>
 
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className={`flex flex-col ${tab === "overview" ? "lg:flex-row" : ""} gap-6`}>
         {/* Left column */}
         <div className="flex-1 min-w-0">
           {score < 80 && (
