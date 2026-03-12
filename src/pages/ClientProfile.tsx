@@ -402,14 +402,14 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
   const handleSave = async () => {
     if (!form.service.trim()) return;
     setSaving(true);
-    const { error } = await supabase.from("client_credentials").insert({
+    const { error } = await supabase.from("client_credentials").insert([{
       client_id: clientId,
       service: form.service.trim(),
       url: form.url || null,
       username: form.username || null,
       password: form.password || null,
       notes: form.notes || null,
-    } as Record<string, unknown>);
+    }] as never);
     setSaving(false);
     if (error) {
       toast.error("Failed to save credential");
