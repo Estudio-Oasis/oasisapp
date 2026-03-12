@@ -16,15 +16,33 @@ export default {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
+      fontSize: {
+        display: ["32px", { lineHeight: "1.2", fontWeight: "700" }],
+        h1: ["24px", { lineHeight: "1.3", fontWeight: "700" }],
+        h2: ["20px", { lineHeight: "1.3", fontWeight: "600" }],
+        h3: ["16px", { lineHeight: "1.4", fontWeight: "600" }],
+        body: ["15px", { lineHeight: "1.6", fontWeight: "400" }],
+        small: ["13px", { lineHeight: "1.5", fontWeight: "400" }],
+        micro: ["11px", { lineHeight: "1.4", fontWeight: "500", letterSpacing: "0.05em" }],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        background: {
+          DEFAULT: "hsl(var(--background))",
+          secondary: "hsl(var(--background-secondary))",
+          tertiary: "hsl(var(--background-tertiary))",
+        },
+        foreground: {
+          DEFAULT: "hsl(var(--foreground))",
+          secondary: "hsl(var(--foreground-secondary))",
+          muted: "hsl(var(--foreground-muted))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          hover: "hsl(var(--primary-hover))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -33,10 +51,12 @@ export default {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+          light: "hsl(var(--destructive-light))",
         },
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
+          light: "hsl(var(--success-light))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -45,6 +65,7 @@ export default {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+          light: "hsl(var(--accent-light))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -67,8 +88,9 @@ export default {
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "var(--radius-sm)",
+        sm: "calc(var(--radius-sm) - 2px)",
+        pill: "var(--radius-pill)",
       },
       spacing: {
         "18": "4.5rem",
