@@ -32,6 +32,8 @@ interface StartTimerModalProps {
   mode?: "start" | "switch" | "manual";
   prefillStartTime?: string;
   prefillEndTime?: string;
+  prefillClientId?: string;
+  prefillTaskId?: string;
 }
 
 export function StartTimerModal({
@@ -40,6 +42,8 @@ export function StartTimerModal({
   mode = "start",
   prefillStartTime,
   prefillEndTime,
+  prefillClientId,
+  prefillTaskId,
 }: StartTimerModalProps) {
   const { startTimer, switchTask } = useTimer();
   const [clients, setClients] = useState<Client[]>([]);
@@ -57,14 +61,14 @@ export function StartTimerModal({
   // Reset on open
   useEffect(() => {
     if (open) {
-      setSelectedClientId("");
+      setSelectedClientId(prefillClientId || "");
       setSelectedProjectId("");
-      setSelectedTaskId("");
+      setSelectedTaskId(prefillTaskId || "");
       setDescription("");
       setManualStart(prefillStartTime || "");
       setManualEnd(prefillEndTime || "");
     }
-  }, [open, prefillStartTime, prefillEndTime]);
+  }, [open, prefillStartTime, prefillEndTime, prefillClientId, prefillTaskId]);
 
   // Load clients
   useEffect(() => {

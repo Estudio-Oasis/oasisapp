@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ArrowLeft, Pencil, X, AlertTriangle, Loader2, Eye, EyeOff, Copy, Key } from "lucide-react";
+import { ArrowLeft, Pencil, X, AlertTriangle, Loader2, Eye, EyeOff, Copy, Key, CheckSquare } from "lucide-react";
 import { getClientColor, formatDuration, formatTime } from "@/lib/timer-utils";
 import {
   calculateCompleteness,
@@ -172,7 +172,7 @@ export default function ClientProfilePage() {
         Clients
       </button>
 
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className={`flex flex-col ${tab === "overview" ? "lg:flex-row" : ""} gap-6`}>
         {/* Left column */}
         <div className="flex-1 min-w-0">
           {score < 80 && (
@@ -315,9 +315,7 @@ export default function ClientProfilePage() {
             </TabsContent>
 
             <TabsContent value="tasks" className="mt-6">
-              <div className="flex flex-col items-center py-16 text-center">
-                <p className="text-sm text-foreground-muted">Tasks coming in Phase 4</p>
-              </div>
+              <ClientTasksTab clientId={client.id} clientName={client.name} />
             </TabsContent>
 
             <TabsContent value="credentials" className="mt-6">
@@ -336,47 +334,49 @@ export default function ClientProfilePage() {
           </Tabs>
         </div>
 
-        {/* Right column */}
-        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4">
-          <div className="border border-border rounded-lg p-5">
-            <p className="text-micro text-foreground-muted mb-3">Quick stats</p>
-            <div className="flex flex-col gap-3">
-              <div>
-                <p className="text-h2 text-foreground">{stats.weekHours}h</p>
-                <p className="text-small text-foreground-secondary">This week</p>
-              </div>
-              <div>
-                <p className="text-h2 text-foreground">{stats.monthHours}h</p>
-                <p className="text-small text-foreground-secondary">This month</p>
-              </div>
-              <div>
-                <p className="text-h2 text-foreground">{stats.totalHours}h</p>
-                <p className="text-small text-foreground-secondary">All time</p>
+        {/* Right column - only in Overview */}
+        {tab === "overview" && (
+          <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4">
+            <div className="border border-border rounded-lg p-5">
+              <p className="text-micro text-foreground-muted mb-3">Quick stats</p>
+              <div className="flex flex-col gap-3">
+                <div>
+                  <p className="text-h2 text-foreground">{stats.weekHours}h</p>
+                  <p className="text-small text-foreground-secondary">This week</p>
+                </div>
+                <div>
+                  <p className="text-h2 text-foreground">{stats.monthHours}h</p>
+                  <p className="text-small text-foreground-secondary">This month</p>
+                </div>
+                <div>
+                  <p className="text-h2 text-foreground">{stats.totalHours}h</p>
+                  <p className="text-small text-foreground-secondary">All time</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="border border-border rounded-lg p-5">
-            <p className="text-micro text-foreground-muted mb-3">Contact</p>
-            <div className="flex flex-col gap-2 text-sm">
-              {client.contact_name && <p><span className="text-foreground-secondary">Contact:</span> {client.contact_name}</p>}
-              {client.email && <p><span className="text-foreground-secondary">Email:</span> {client.email}</p>}
-              {client.phone && <p><span className="text-foreground-secondary">Phone:</span> {client.phone}</p>}
-              {client.website && <p><span className="text-foreground-secondary">Web:</span> <a href={client.website} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{client.website}</a></p>}
-              {client.communication_channel && <p><span className="text-foreground-secondary">Channel:</span> {client.communication_channel}</p>}
+            <div className="border border-border rounded-lg p-5">
+              <p className="text-micro text-foreground-muted mb-3">Contact</p>
+              <div className="flex flex-col gap-2 text-sm">
+                {client.contact_name && <p><span className="text-foreground-secondary">Contact:</span> {client.contact_name}</p>}
+                {client.email && <p><span className="text-foreground-secondary">Email:</span> {client.email}</p>}
+                {client.phone && <p><span className="text-foreground-secondary">Phone:</span> {client.phone}</p>}
+                {client.website && <p><span className="text-foreground-secondary">Web:</span> <a href={client.website} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{client.website}</a></p>}
+                {client.communication_channel && <p><span className="text-foreground-secondary">Channel:</span> {client.communication_channel}</p>}
+              </div>
             </div>
-          </div>
 
-          <div className="border border-border rounded-lg p-5">
-            <p className="text-micro text-foreground-muted mb-3">Payment</p>
-            <div className="flex flex-col gap-2 text-sm">
-              <p><span className="text-foreground-secondary">Rate:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
-              <p><span className="text-foreground-secondary">Frequency:</span> {client.payment_frequency || "monthly"}</p>
-              <p><span className="text-foreground-secondary">Method:</span> {client.payment_method || "—"}</p>
-              {client.billing_entity && <p><span className="text-foreground-secondary">Billed by:</span> {client.billing_entity}</p>}
+            <div className="border border-border rounded-lg p-5">
+              <p className="text-micro text-foreground-muted mb-3">Payment</p>
+              <div className="flex flex-col gap-2 text-sm">
+                <p><span className="text-foreground-secondary">Rate:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
+                <p><span className="text-foreground-secondary">Frequency:</span> {client.payment_frequency || "monthly"}</p>
+                <p><span className="text-foreground-secondary">Method:</span> {client.payment_method || "—"}</p>
+                {client.billing_entity && <p><span className="text-foreground-secondary">Billed by:</span> {client.billing_entity}</p>}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {editOpen && <EditClientPanel client={client} onClose={() => setEditOpen(false)} onSaved={() => { setEditOpen(false); fetchClient(); }} />}
@@ -384,7 +384,151 @@ export default function ClientProfilePage() {
   );
 }
 
-/* ─── Credentials Tab ─── */
+/* ─── Client Tasks Tab ─── */
+function ClientTasksTab({ clientId, clientName }: { clientId: string; clientName: string }) {
+  const [tasks, setTasks] = useState<{ id: string; title: string; status: string; priority: string; due_date: string | null; description: string | null }[]>([]);
+  const [filter, setFilter] = useState<"active" | "done" | "all">("active");
+  const [newTaskOpen, setNewTaskOpen] = useState(false);
+
+  const fetchTasks = useCallback(async () => {
+    const { data } = await supabase.from("tasks").select("id, title, status, priority, due_date, description")
+      .eq("client_id", clientId).order("created_at", { ascending: false });
+    setTasks(data || []);
+  }, [clientId]);
+
+  useEffect(() => { fetchTasks(); }, [fetchTasks]);
+
+  const filtered = tasks.filter((t) => {
+    if (filter === "done") return t.status === "done";
+    if (filter === "active") return t.status !== "done";
+    return true;
+  });
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const isOverdue = (t: { due_date: string | null; status: string }) =>
+    t.due_date && new Date(t.due_date) < today && t.status !== "done";
+
+  const STATUS_COLORS: Record<string, string> = {
+    backlog: "border-foreground-muted border-dashed",
+    todo: "border-foreground-secondary",
+    in_progress: "border-accent",
+    review: "border-foreground-secondary",
+    done: "border-success bg-success",
+  };
+
+  const STATUSES_ORDER = ["backlog", "todo", "in_progress", "review", "done"];
+  const cycleStatus = async (task: typeof tasks[0]) => {
+    const idx = STATUSES_ORDER.indexOf(task.status);
+    const next = STATUSES_ORDER[(idx + 1) % STATUSES_ORDER.length];
+    await supabase.from("tasks").update({ status: next as "backlog" | "todo" | "in_progress" | "review" | "done" }).eq("id", task.id);
+    setTasks((prev) => prev.map((t) => t.id === task.id ? { ...t, status: next } : t));
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-1">
+          {(["active", "done", "all"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                filter === f ? "bg-primary text-primary-foreground" : "border border-border text-foreground-secondary hover:bg-background-secondary"
+              }`}
+            >
+              {f === "active" ? "Active" : f === "done" ? "Done" : "All"}
+            </button>
+          ))}
+        </div>
+        <Button variant="secondary" size="sm" onClick={() => setNewTaskOpen(true)}>
+          + New task for {clientName}
+        </Button>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center py-16 text-center">
+          <CheckSquare className="h-8 w-8 text-border mb-3" />
+          <p className="text-sm text-foreground-muted">No tasks for this client yet</p>
+          <Button variant="secondary" size="sm" className="mt-3" onClick={() => setNewTaskOpen(true)}>
+            + New task
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-col">
+          {filtered.map((task) => {
+            const overdue = isOverdue(task);
+            const isDone = task.status === "done";
+            return (
+              <div key={task.id} className="flex items-center gap-3 py-3 border-b border-border">
+                <button
+                  onClick={() => cycleStatus(task)}
+                  className={`h-6 w-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${STATUS_COLORS[task.status] || ""}`}
+                >
+                  {task.status === "in_progress" && <div className="h-2 w-2 rounded-full bg-accent" />}
+                  {task.status === "review" && <div className="h-2 w-2 rounded-full bg-foreground-secondary" />}
+                  {task.status === "done" && (
+                    <svg className="h-3 w-3 text-success-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <span className={`text-sm font-medium ${isDone ? "line-through opacity-50" : "text-foreground"}`}>{task.title}</span>
+                  {overdue && <span className="ml-2 text-[11px] font-medium bg-destructive-light text-destructive px-2 py-0.5 rounded-full">Overdue</span>}
+                </div>
+                {(task.priority === "urgent" || task.priority === "high") && (
+                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
+                    task.priority === "urgent" ? "bg-destructive-light text-destructive" : "bg-accent-light text-accent-foreground"
+                  }`}>
+                    {task.priority === "urgent" ? "⚡ Urgent" : "↑ High"}
+                  </span>
+                )}
+                {task.due_date && (
+                  <span className={`text-small ${overdue ? "text-destructive" : "text-foreground-muted"}`}>
+                    {new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {newTaskOpen && (
+        <NewTaskModalInline clientId={clientId} onClose={() => setNewTaskOpen(false)} onCreated={() => { setNewTaskOpen(false); fetchTasks(); }} />
+      )}
+    </div>
+  );
+}
+
+/* Simple inline new task for client profile — uses Dialog */
+function NewTaskModalInline({ clientId, onClose, onCreated }: { clientId: string; onClose: () => void; onCreated: () => void }) {
+  const [title, setTitle] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!title.trim()) return;
+    setSaving(true);
+    await supabase.from("tasks").insert({ title: title.trim(), client_id: clientId, status: "todo" as const, priority: "medium" as const });
+    setSaving(false);
+    onCreated();
+  };
+
+  return (
+    <div className="border border-border rounded-lg p-4 mt-4 flex gap-3 items-end">
+      <div className="flex-1">
+        <label className="text-label mb-1 block">Task title</label>
+        <Input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs to be done?" onKeyDown={(e) => e.key === "Enter" && handleSave()} />
+      </div>
+      <Button size="sm" onClick={handleSave} disabled={saving || !title.trim()}>
+        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add"}
+      </Button>
+      <Button size="sm" variant="secondary" onClick={onClose}>Cancel</Button>
+    </div>
+  );
+}
+
+
 function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string; credentials: CredentialRow[]; onRefresh: () => void }) {
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState(false);
