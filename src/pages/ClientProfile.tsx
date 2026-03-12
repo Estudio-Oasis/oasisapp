@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ArrowLeft, Pencil, X, AlertTriangle, Loader2, Eye, EyeOff, Copy, Key } from "lucide-react";
+import { ArrowLeft, Pencil, X, AlertTriangle, Loader2, Eye, EyeOff, Copy, Key, CheckSquare } from "lucide-react";
 import { getClientColor, formatDuration, formatTime } from "@/lib/timer-utils";
 import {
   calculateCompleteness,
