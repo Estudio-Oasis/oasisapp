@@ -334,47 +334,49 @@ export default function ClientProfilePage() {
           </Tabs>
         </div>
 
-        {/* Right column */}
-        <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4">
-          <div className="border border-border rounded-lg p-5">
-            <p className="text-micro text-foreground-muted mb-3">Quick stats</p>
-            <div className="flex flex-col gap-3">
-              <div>
-                <p className="text-h2 text-foreground">{stats.weekHours}h</p>
-                <p className="text-small text-foreground-secondary">This week</p>
-              </div>
-              <div>
-                <p className="text-h2 text-foreground">{stats.monthHours}h</p>
-                <p className="text-small text-foreground-secondary">This month</p>
-              </div>
-              <div>
-                <p className="text-h2 text-foreground">{stats.totalHours}h</p>
-                <p className="text-small text-foreground-secondary">All time</p>
+        {/* Right column - only in Overview */}
+        {tab === "overview" && (
+          <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4">
+            <div className="border border-border rounded-lg p-5">
+              <p className="text-micro text-foreground-muted mb-3">Quick stats</p>
+              <div className="flex flex-col gap-3">
+                <div>
+                  <p className="text-h2 text-foreground">{stats.weekHours}h</p>
+                  <p className="text-small text-foreground-secondary">This week</p>
+                </div>
+                <div>
+                  <p className="text-h2 text-foreground">{stats.monthHours}h</p>
+                  <p className="text-small text-foreground-secondary">This month</p>
+                </div>
+                <div>
+                  <p className="text-h2 text-foreground">{stats.totalHours}h</p>
+                  <p className="text-small text-foreground-secondary">All time</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="border border-border rounded-lg p-5">
-            <p className="text-micro text-foreground-muted mb-3">Contact</p>
-            <div className="flex flex-col gap-2 text-sm">
-              {client.contact_name && <p><span className="text-foreground-secondary">Contact:</span> {client.contact_name}</p>}
-              {client.email && <p><span className="text-foreground-secondary">Email:</span> {client.email}</p>}
-              {client.phone && <p><span className="text-foreground-secondary">Phone:</span> {client.phone}</p>}
-              {client.website && <p><span className="text-foreground-secondary">Web:</span> <a href={client.website} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{client.website}</a></p>}
-              {client.communication_channel && <p><span className="text-foreground-secondary">Channel:</span> {client.communication_channel}</p>}
+            <div className="border border-border rounded-lg p-5">
+              <p className="text-micro text-foreground-muted mb-3">Contact</p>
+              <div className="flex flex-col gap-2 text-sm">
+                {client.contact_name && <p><span className="text-foreground-secondary">Contact:</span> {client.contact_name}</p>}
+                {client.email && <p><span className="text-foreground-secondary">Email:</span> {client.email}</p>}
+                {client.phone && <p><span className="text-foreground-secondary">Phone:</span> {client.phone}</p>}
+                {client.website && <p><span className="text-foreground-secondary">Web:</span> <a href={client.website} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{client.website}</a></p>}
+                {client.communication_channel && <p><span className="text-foreground-secondary">Channel:</span> {client.communication_channel}</p>}
+              </div>
             </div>
-          </div>
 
-          <div className="border border-border rounded-lg p-5">
-            <p className="text-micro text-foreground-muted mb-3">Payment</p>
-            <div className="flex flex-col gap-2 text-sm">
-              <p><span className="text-foreground-secondary">Rate:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
-              <p><span className="text-foreground-secondary">Frequency:</span> {client.payment_frequency || "monthly"}</p>
-              <p><span className="text-foreground-secondary">Method:</span> {client.payment_method || "—"}</p>
-              {client.billing_entity && <p><span className="text-foreground-secondary">Billed by:</span> {client.billing_entity}</p>}
+            <div className="border border-border rounded-lg p-5">
+              <p className="text-micro text-foreground-muted mb-3">Payment</p>
+              <div className="flex flex-col gap-2 text-sm">
+                <p><span className="text-foreground-secondary">Rate:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
+                <p><span className="text-foreground-secondary">Frequency:</span> {client.payment_frequency || "monthly"}</p>
+                <p><span className="text-foreground-secondary">Method:</span> {client.payment_method || "—"}</p>
+                {client.billing_entity && <p><span className="text-foreground-secondary">Billed by:</span> {client.billing_entity}</p>}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {editOpen && <EditClientPanel client={client} onClose={() => setEditOpen(false)} onSaved={() => { setEditOpen(false); fetchClient(); }} />}
