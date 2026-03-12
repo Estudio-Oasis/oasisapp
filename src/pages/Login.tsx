@@ -3,8 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -29,60 +27,66 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary px-6">
-      <Card className="w-full max-w-sm border-border shadow-none">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-            <span className="text-sm font-bold text-primary-foreground">OS</span>
+    <div className="flex min-h-screen items-center justify-center bg-background-secondary px-6">
+      <div className="w-full max-w-[400px] rounded-lg border border-border bg-card p-10">
+        {/* Logo */}
+        <div className="flex justify-center">
+          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-foreground">
+            <span className="text-[11px] font-bold tracking-widest text-background">OS</span>
           </div>
-          <CardTitle className="text-xl font-semibold">Welcome back</CardTitle>
-          <CardDescription>Sign in to OasisOS</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleLogin}>
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="rounded-md"
-              />
+        </div>
+
+        {/* Heading */}
+        <h1 className="text-h1 text-foreground text-center mt-4">Welcome back</h1>
+        <p className="text-sm text-foreground-secondary text-center mt-1">
+          Sign in to your workspace
+        </p>
+
+        {/* Form */}
+        <form onSubmit={handleLogin} className="mt-8 space-y-5">
+          {error && (
+            <div className="rounded-md bg-destructive-light px-3 py-2 text-small text-destructive">
+              {error}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="rounded-md"
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-3">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in…" : "Sign in"}
-            </Button>
-            <p className="text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/signup" className="font-medium text-foreground hover:text-accent">
-                Sign up
-              </Link>
-            </p>
-          </CardFooter>
+          )}
+
+          <div className="space-y-1.5">
+            <label htmlFor="email" className="text-label">Email</label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="password" className="text-label">Password</label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <Button type="submit" className="w-full h-11" disabled={loading}>
+            {loading ? "Signing in…" : "Sign in"}
+          </Button>
         </form>
-      </Card>
+
+        {/* Footer */}
+        <p className="text-small text-foreground-secondary text-center mt-6">
+          Don't have an account?{" "}
+          <Link to="/signup" className="font-semibold text-foreground hover:text-accent transition-colors">
+            Sign up
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
