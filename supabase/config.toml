@@ -2,3 +2,6 @@ project_id = "tualybcctwjpldtlewlu"
 
 [functions.extract-client]
 verify_jwt = false
+
+[functions.ai-field-helper]
+verify_jwt = false
