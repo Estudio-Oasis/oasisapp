@@ -61,14 +61,14 @@ export function StartTimerModal({
   // Reset on open
   useEffect(() => {
     if (open) {
-      setSelectedClientId("");
+      setSelectedClientId(prefillClientId || "");
       setSelectedProjectId("");
-      setSelectedTaskId("");
+      setSelectedTaskId(prefillTaskId || "");
       setDescription("");
       setManualStart(prefillStartTime || "");
       setManualEnd(prefillEndTime || "");
     }
-  }, [open, prefillStartTime, prefillEndTime]);
+  }, [open, prefillStartTime, prefillEndTime, prefillClientId, prefillTaskId]);
 
   // Load clients
   useEffect(() => {

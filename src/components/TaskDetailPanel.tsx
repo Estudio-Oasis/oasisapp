@@ -48,35 +48,23 @@ export function TaskDetailPanel({ taskId, onClose, onUpdated, onStartTimer }: Ta
     setDescDraft(data.description || "");
 
     // Fetch related data in parallel
-    const promises: Promise<void>[] = [];
     if (data.client_id) {
-      promises.push(
-        supabase.from("clients").select("id, name").eq("id", data.client_id).single()
-          .then(({ data: c }) => { if (c) setClient(c); })
-      );
+      const { data: c } = await supabase.from("clients").select("id, name").eq("id", data.client_id).single();
+      if (c) setClient(c);
     }
     if (data.project_id) {
-      promises.push(
-        supabase.from("projects").select("id, name").eq("id", data.project_id).single()
-          .then(({ data: p }) => { if (p) setProject(p); })
-      );
+      const { data: p } = await supabase.from("projects").select("id, name").eq("id", data.project_id).single();
+      if (p) setProject(p);
     }
     if (data.assignee_id) {
-      promises.push(
-        supabase.from("profiles").select("id, name, email").eq("id", data.assignee_id).single()
-          .then(({ data: a }) => { if (a) setAssignee(a as AssigneeInfo); })
-      );
+      const { data: a } = await supabase.from("profiles").select("id, name, email").eq("id", data.assignee_id).single();
+      if (a) setAssignee(a as AssigneeInfo);
     }
-    promises.push(
-      supabase.from("time_entries").select("id, started_at, duration_min")
-        .eq("task_id", taskId).order("started_at", { ascending: false }).limit(5)
-        .then(({ data: entries }) => {
-          const list = (entries || []) as TimeEntryInfo[];
-          setTimeEntries(list);
-          setTotalMinutes(list.reduce((acc, e) => acc + (e.duration_min || 0), 0));
-        })
-    );
-    await Promise.all(promises);
+    const { data: entries } = await supabase.from("time_entries").select("id, started_at, duration_min")
+      .eq("task_id", taskId).order("started_at", { ascending: false }).limit(5);
+    const list = (entries || []) as TimeEntryInfo[];
+    setTimeEntries(list);
+    setTotalMinutes(list.reduce((acc, e) => acc + (e.duration_min || 0), 0));
     setLoading(false);
   }, [taskId]);
 
