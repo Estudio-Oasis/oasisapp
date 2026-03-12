@@ -5,15 +5,16 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { X, Sparkles, Loader2 } from "lucide-react";
-import { extractClientFromText, type ExtractedClientData } from "@/lib/extractClient";
+import { X, Sparkles, Loader2, AlertTriangle } from "lucide-react";
+import { extractClientFromText, type ExtractedClientData, type AiSuggestion } from "@/lib/extractClient";
 import {
   calculateCompleteness,
   getMissingFields,
   getCompletenessLevel,
 } from "@/lib/clientCompleteness";
+import { AiFieldHelper } from "@/components/AiFieldHelper";
+import { RateBreakdown } from "@/components/RateBreakdown";
 import { toast } from "sonner";
 
 interface NewClientModalProps {
@@ -100,6 +101,8 @@ function ManualForm({
   const update = (field: keyof ClientFormData, value: string) =>
     setForm({ ...form, [field]: value });
 
+  const formContext = { ...form, monthly_rate: form.monthly_rate ? parseFloat(form.monthly_rate) : 0 };
+
   return (
     <div className="flex flex-col gap-6">
       {/* Basic info */}
@@ -140,8 +143,17 @@ function ManualForm({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-label mb-1 block">Monthly rate</label>
+            <div className="flex items-center gap-1.5 mb-1">
+              <label className="text-label">Monthly rate</label>
+              <AiFieldHelper
+                action="rate_context"
+                context={{ monthly_rate: form.monthly_rate ? parseFloat(form.monthly_rate) : 0, currency: form.currency, payment_frequency: form.payment_frequency }}
+                readOnly
+                label="Rate context"
+              />
+            </div>
             <Input type="number" value={form.monthly_rate} onChange={(e) => update("monthly_rate", e.target.value)} placeholder="0" />
+            <RateBreakdown monthlyRate={form.monthly_rate ? parseFloat(form.monthly_rate) : null} paymentFrequency={form.payment_frequency} currency={form.currency} />
           </div>
           <div>
             <label className="text-label mb-1 block">Currency</label>
@@ -175,7 +187,14 @@ function ManualForm({
       <div className="flex flex-col gap-4">
         <p className="text-micro text-foreground-muted">Communication</p>
         <div>
-          <label className="text-label mb-1 block">Main channel</label>
+          <div className="flex items-center gap-1.5 mb-1">
+            <label className="text-label">Main channel</label>
+            <AiFieldHelper
+              action="channel_tips"
+              context={{ communication_channel: form.communication_channel, name: form.name }}
+              label="Channel tips"
+            />
+          </div>
           <Input value={form.communication_channel} onChange={(e) => update("communication_channel", e.target.value)} placeholder="Slack, WhatsApp, Email..." />
         </div>
       </div>
@@ -184,7 +203,15 @@ function ManualForm({
 
       {/* Notes */}
       <div>
-        <label className="text-label mb-1 block">Notes</label>
+        <div className="flex items-center gap-1.5 mb-1">
+          <label className="text-label">Notes</label>
+          <AiFieldHelper
+            action="enrich_notes"
+            context={formContext}
+            onResult={(r) => update("notes", r)}
+            label="Enrich with AI"
+          />
+        </div>
         <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} placeholder="Any additional notes..." rows={4} />
       </div>
 
@@ -203,6 +230,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
   const [aiText, setAiText] = useState("");
   const [extracting, setExtracting] = useState(false);
   const [extracted, setExtracted] = useState<ExtractedClientData | null>(null);
+  const [suggestions, setSuggestions] = useState<AiSuggestion[]>([]);
   const [form, setForm] = useState<ClientFormData>(emptyForm);
   const [saving, setSaving] = useState(false);
 
@@ -210,6 +238,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
     if (!open) {
       setAiText("");
       setExtracted(null);
+      setSuggestions([]);
       setForm(emptyForm);
       setTab("ai");
     }
@@ -221,7 +250,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
     try {
       const data = await extractClientFromText(aiText);
       setExtracted(data);
-      // Also fill form for edit
+      setSuggestions(data.suggestions || []);
       setForm({
         name: data.name || "",
         contact_name: data.contact_name || "",
@@ -241,6 +270,23 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
     } finally {
       setExtracting(false);
     }
+  };
+
+  const applySuggestion = (suggestion: AiSuggestion) => {
+    if (!suggestion.suggested_value || !extracted) return;
+    const field = suggestion.field as keyof ExtractedClientData;
+
+    // Update extracted preview
+    const updated = { ...extracted, [field]: suggestion.suggested_value };
+    setExtracted(updated);
+
+    // Update form
+    if (field in form) {
+      setForm({ ...form, [field]: suggestion.suggested_value });
+    }
+
+    // Remove applied suggestion
+    setSuggestions((prev) => prev.filter((s) => s !== suggestion));
   };
 
   const saveClient = async () => {
@@ -382,51 +428,100 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
             </Button>
 
             {extracted && (
-              <div className="mt-4 bg-background-secondary border border-border rounded-lg p-4">
-                <div className="grid gap-2">
-                  {fields.map((f) => (
-                    <div key={f.label} className="flex items-baseline gap-2">
-                      <span className="text-micro text-foreground-muted w-28 shrink-0">{f.label}</span>
-                      <span className={`text-sm ${f.value ? "text-foreground" : "text-foreground-muted"}`}>
-                        {f.value ?? "—"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Completeness */}
-                <div className="mt-4">
-                  <div className="h-1.5 w-full rounded-full bg-border overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${
-                        extractedLevel === "complete"
-                          ? "bg-success"
-                          : extractedLevel === "incomplete"
-                          ? "bg-accent"
-                          : "bg-destructive"
-                      }`}
-                      style={{ width: `${extractedScore}%` }}
-                    />
+              <>
+                <div className="mt-4 bg-background-secondary border border-border rounded-lg p-4">
+                  <div className="grid gap-2">
+                    {fields.map((f) => (
+                      <div key={f.label} className="flex items-baseline gap-2">
+                        <span className="text-micro text-foreground-muted w-28 shrink-0">{f.label}</span>
+                        <span className={`text-sm ${f.value ? "text-foreground" : "text-foreground-muted"}`}>
+                          {f.value ?? "—"}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                  <p className="text-small text-foreground-secondary mt-1">
-                    Score: {extractedScore}/100
-                    {extractedMissing.length > 0 && ` · Missing: ${extractedMissing.join(", ")}`}
-                  </p>
+
+                  {/* Rate breakdown */}
+                  {extracted.monthly_rate && (
+                    <div className="mt-3 pt-3 border-t border-border">
+                      <RateBreakdown
+                        monthlyRate={extracted.monthly_rate}
+                        paymentFrequency={extracted.payment_frequency || "monthly"}
+                        currency={extracted.currency || "USD"}
+                      />
+                    </div>
+                  )}
+
+                  {/* Completeness */}
+                  <div className="mt-4">
+                    <div className="h-1.5 w-full rounded-full bg-border overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          extractedLevel === "complete"
+                            ? "bg-success"
+                            : extractedLevel === "incomplete"
+                            ? "bg-accent"
+                            : "bg-destructive"
+                        }`}
+                        style={{ width: `${extractedScore}%` }}
+                      />
+                    </div>
+                    <p className="text-small text-foreground-secondary mt-1">
+                      Score: {extractedScore}/100
+                      {extractedMissing.length > 0 && ` · Missing: ${extractedMissing.join(", ")}`}
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3 mt-4">
+                    <Button
+                      variant="secondary"
+                      className="flex-1"
+                      onClick={() => setTab("manual")}
+                    >
+                      Edit fields
+                    </Button>
+                    <Button className="flex-1" onClick={saveClient} disabled={saving || !form.name.trim()}>
+                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save client"}
+                    </Button>
+                  </div>
                 </div>
 
-                <div className="flex gap-3 mt-4">
-                  <Button
-                    variant="secondary"
-                    className="flex-1"
-                    onClick={() => setTab("manual")}
-                  >
-                    Edit fields
-                  </Button>
-                  <Button className="flex-1" onClick={saveClient} disabled={saving || !form.name.trim()}>
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save client"}
-                  </Button>
-                </div>
-              </div>
+                {/* Suggestions */}
+                {suggestions.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs font-semibold text-accent-foreground mb-2 flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" /> AI noticed
+                    </p>
+                    <div className="flex flex-col gap-1.5">
+                      {suggestions.map((s, i) => (
+                        <div
+                          key={i}
+                          className="flex items-start gap-2.5 bg-accent-light border border-accent rounded-lg px-3 py-2.5"
+                        >
+                          <AlertTriangle className="h-3.5 w-3.5 text-accent shrink-0 mt-0.5" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-micro text-accent-foreground">{s.field.replace(/_/g, " ")}</p>
+                            <p className="text-small text-foreground">{s.issue}</p>
+                            {s.suggested_value && (
+                              <p className="text-small text-success font-medium mt-0.5">
+                                Suggested: {s.suggested_value}
+                              </p>
+                            )}
+                          </div>
+                          {s.suggested_value && (
+                            <button
+                              onClick={() => applySuggestion(s)}
+                              className="shrink-0 text-xs font-medium bg-background border border-accent text-accent-foreground rounded-md px-2.5 py-1 hover:bg-accent-light transition-colors"
+                            >
+                              Apply
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </TabsContent>
 

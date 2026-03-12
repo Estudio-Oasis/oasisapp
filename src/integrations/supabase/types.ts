@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      client_credentials: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          password: string | null
+          service: string
+          url: string | null
+          username: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          password?: string | null
+          service: string
+          url?: string | null
+          username?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          password?: string | null
+          service?: string
+          url?: string | null
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_credentials_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_interactions: {
         Row: {
           body: string | null

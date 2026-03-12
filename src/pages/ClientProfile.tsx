@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ArrowLeft, Pencil, X, AlertTriangle, Loader2 } from "lucide-react";
+import { ArrowLeft, Pencil, X, AlertTriangle, Loader2, Eye, EyeOff, Copy, Key } from "lucide-react";
 import { getClientColor, formatDuration, formatTime } from "@/lib/timer-utils";
 import {
   calculateCompleteness,
   getMissingFields,
   getCompletenessLevel,
 } from "@/lib/clientCompleteness";
+import { AiFieldHelper } from "@/components/AiFieldHelper";
+import { RateBreakdown } from "@/components/RateBreakdown";
 import { toast } from "sonner";
 
 interface ClientFull {
@@ -51,6 +53,16 @@ interface InteractionRow {
   user_id: string;
 }
 
+interface CredentialRow {
+  id: string;
+  service: string;
+  url: string | null;
+  username: string | null;
+  password: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
 export default function ClientProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -61,6 +73,7 @@ export default function ClientProfilePage() {
   const [editOpen, setEditOpen] = useState(false);
   const [timeEntries, setTimeEntries] = useState<TimeEntryRow[]>([]);
   const [interactions, setInteractions] = useState<InteractionRow[]>([]);
+  const [credentials, setCredentials] = useState<CredentialRow[]>([]);
   const [stats, setStats] = useState({ weekHours: 0, monthHours: 0, totalHours: 0 });
 
   const fetchClient = useCallback(async () => {
@@ -84,7 +97,6 @@ export default function ClientProfilePage() {
       .limit(100);
     setTimeEntries((data as TimeEntryRow[]) || []);
 
-    // Compute stats
     const now = new Date();
     const weekStart = new Date(now);
     weekStart.setDate(now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1));
@@ -116,11 +128,22 @@ export default function ClientProfilePage() {
     setInteractions((data as InteractionRow[]) || []);
   }, [id]);
 
+  const fetchCredentials = useCallback(async () => {
+    if (!id) return;
+    const { data } = await supabase
+      .from("client_credentials")
+      .select("*")
+      .eq("client_id", id)
+      .order("created_at", { ascending: false });
+    setCredentials((data as CredentialRow[]) || []);
+  }, [id]);
+
   useEffect(() => {
     fetchClient();
     fetchTimeEntries();
     fetchInteractions();
-  }, [fetchClient, fetchTimeEntries, fetchInteractions]);
+    fetchCredentials();
+  }, [fetchClient, fetchTimeEntries, fetchInteractions, fetchCredentials]);
 
   if (loading) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Loading...</div>;
   if (!client) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Client not found.</div>;
@@ -144,7 +167,6 @@ export default function ClientProfilePage() {
 
   return (
     <div>
-      {/* Back nav */}
       <button onClick={() => navigate("/clients")} className="flex items-center gap-1.5 text-sm text-foreground-secondary hover:text-foreground mb-4">
         <ArrowLeft className="h-4 w-4" />
         Clients
@@ -153,7 +175,6 @@ export default function ClientProfilePage() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left column */}
         <div className="flex-1 min-w-0">
-          {/* Completeness alert */}
           {score < 80 && (
             <div className={`mb-6 border rounded-lg p-4 ${level === "critical" ? "bg-destructive-light border-destructive" : "bg-accent-light border-accent"}`}>
               <div className="flex items-start gap-3">
@@ -213,8 +234,8 @@ export default function ClientProfilePage() {
 
           {/* Tabs */}
           <Tabs value={tab} onValueChange={setTab}>
-            <TabsList className="bg-transparent border-b border-border rounded-none p-0 h-auto gap-4">
-              {["Overview", "Time", "Tasks", "Interactions", "Finances"].map((t) => (
+            <TabsList className="bg-transparent border-b border-border rounded-none p-0 h-auto gap-4 flex-wrap">
+              {["Overview", "Time", "Tasks", "Credentials", "Interactions", "Finances"].map((t) => (
                 <TabsTrigger
                   key={t}
                   value={t.toLowerCase()}
@@ -230,7 +251,10 @@ export default function ClientProfilePage() {
                 <div className="border border-border rounded-lg p-5">
                   <p className="text-micro text-foreground-muted mb-2">Rate</p>
                   {client.monthly_rate ? (
-                    <p className="text-h2 text-foreground">${client.monthly_rate.toLocaleString()}{freqLabel[client.payment_frequency || "monthly"]}</p>
+                    <>
+                      <p className="text-h2 text-foreground">${client.monthly_rate.toLocaleString()}{freqLabel[client.payment_frequency || "monthly"]}</p>
+                      <RateBreakdown monthlyRate={client.monthly_rate} paymentFrequency={client.payment_frequency || "monthly"} currency={client.currency} />
+                    </>
                   ) : (
                     <p className="text-sm text-foreground-muted">Not set</p>
                   )}
@@ -296,6 +320,10 @@ export default function ClientProfilePage() {
               </div>
             </TabsContent>
 
+            <TabsContent value="credentials" className="mt-6">
+              <CredentialsTab clientId={client.id} credentials={credentials} onRefresh={fetchCredentials} />
+            </TabsContent>
+
             <TabsContent value="interactions" className="mt-6">
               <InteractionsTab clientId={client.id} interactions={interactions} onRefresh={fetchInteractions} />
             </TabsContent>
@@ -351,8 +379,123 @@ export default function ClientProfilePage() {
         </div>
       </div>
 
-      {/* Edit slide-over */}
       {editOpen && <EditClientPanel client={client} onClose={() => setEditOpen(false)} onSaved={() => { setEditOpen(false); fetchClient(); }} />}
+    </div>
+  );
+}
+
+/* ─── Credentials Tab ─── */
+function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string; credentials: CredentialRow[]; onRefresh: () => void }) {
+  const [adding, setAdding] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({ service: "", url: "", username: "", password: "", notes: "" });
+  const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
+
+  const togglePassword = (id: string) =>
+    setVisiblePasswords((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  const copyPassword = async (pw: string) => {
+    await navigator.clipboard.writeText(pw);
+    toast.success("Password copied!");
+  };
+
+  const handleSave = async () => {
+    if (!form.service.trim()) return;
+    setSaving(true);
+    const { error } = await supabase.from("client_credentials").insert([{
+      client_id: clientId,
+      service: form.service.trim(),
+      url: form.url || null,
+      username: form.username || null,
+      password: form.password || null,
+      notes: form.notes || null,
+    }] as never);
+    setSaving(false);
+    if (error) {
+      toast.error("Failed to save credential");
+      return;
+    }
+    setAdding(false);
+    setForm({ service: "", url: "", username: "", password: "", notes: "" });
+    onRefresh();
+  };
+
+  const handleDelete = async (id: string) => {
+    await supabase.from("client_credentials").delete().eq("id", id);
+    onRefresh();
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-h3 text-foreground">Access & Credentials</h3>
+        <Button variant="secondary" size="sm" onClick={() => setAdding(!adding)}>
+          + Add credential
+        </Button>
+      </div>
+
+      {adding && (
+        <div className="border border-border rounded-lg p-4 mb-4 flex flex-col gap-3">
+          <Input value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} placeholder="Service (e.g. Slack, GitHub)" />
+          <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="URL (optional)" />
+          <div className="grid grid-cols-2 gap-3">
+            <Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="Username" />
+            <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Password" />
+          </div>
+          <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Notes (optional)" rows={2} />
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleSave} disabled={saving || !form.service.trim()}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => setAdding(false)}>Cancel</Button>
+          </div>
+        </div>
+      )}
+
+      {credentials.length === 0 && !adding ? (
+        <div className="flex flex-col items-center py-16 text-center">
+          <Key className="h-8 w-8 text-border mb-3" />
+          <p className="text-sm text-foreground-muted">No credentials saved yet</p>
+          <Button variant="secondary" size="sm" className="mt-3" onClick={() => setAdding(true)}>
+            + Add credential
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {credentials.map((c) => (
+            <div key={c.id} className="flex items-start gap-3 bg-background border border-border rounded-lg p-3.5">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-background-secondary text-sm font-semibold text-foreground-secondary">
+                {c.service.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">{c.service}</p>
+                {c.username && <p className="text-small text-foreground-secondary">{c.username}</p>}
+                {c.url && (
+                  <a href={c.url} target="_blank" rel="noopener noreferrer" className="text-small text-foreground-muted hover:text-accent truncate block">
+                    {c.url}
+                  </a>
+                )}
+                {c.notes && <p className="text-small text-foreground-muted mt-1">{c.notes}</p>}
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                {c.password && (
+                  <>
+                    <span className="text-sm text-foreground-secondary font-mono mr-1">
+                      {visiblePasswords[c.id] ? c.password : "••••••••"}
+                    </span>
+                    <button onClick={() => togglePassword(c.id)} className="h-7 w-7 flex items-center justify-center rounded text-foreground-muted hover:text-foreground">
+                      {visiblePasswords[c.id] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </button>
+                    <button onClick={() => copyPassword(c.password!)} className="h-7 w-7 flex items-center justify-center rounded text-foreground-muted hover:text-foreground">
+                      <Copy className="h-3.5 w-3.5" />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -494,6 +637,8 @@ function EditClientPanel({ client, onClose, onSaved }: { client: ClientFull; onC
     onSaved();
   };
 
+  const formContext = { ...form, monthly_rate: form.monthly_rate ? parseFloat(form.monthly_rate) : 0 };
+
   return (
     <>
       <div className="fixed inset-0 z-40 bg-foreground/20" onClick={onClose} />
@@ -543,8 +688,17 @@ function EditClientPanel({ client, onClose, onSaved }: { client: ClientFull; onC
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-label mb-1 block">Monthly rate</label>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <label className="text-label">Monthly rate</label>
+                  <AiFieldHelper
+                    action="rate_context"
+                    context={{ monthly_rate: formContext.monthly_rate, currency: form.currency, payment_frequency: form.payment_frequency }}
+                    readOnly
+                    label="Rate context"
+                  />
+                </div>
                 <Input type="number" value={form.monthly_rate} onChange={(e) => update("monthly_rate", e.target.value)} />
+                <RateBreakdown monthlyRate={form.monthly_rate ? parseFloat(form.monthly_rate) : null} paymentFrequency={form.payment_frequency} currency={form.currency} />
               </div>
               <div>
                 <label className="text-label mb-1 block">Currency</label>
@@ -567,14 +721,29 @@ function EditClientPanel({ client, onClose, onSaved }: { client: ClientFull; onC
               </div>
             </div>
             <div>
-              <label className="text-label mb-1 block">Channel</label>
+              <div className="flex items-center gap-1.5 mb-1">
+                <label className="text-label">Channel</label>
+                <AiFieldHelper
+                  action="channel_tips"
+                  context={{ communication_channel: form.communication_channel, name: form.name }}
+                  label="Channel tips"
+                />
+              </div>
               <Input value={form.communication_channel} onChange={(e) => update("communication_channel", e.target.value)} />
             </div>
 
             <div className="h-px bg-border" />
 
             <div>
-              <label className="text-label mb-1 block">Notes</label>
+              <div className="flex items-center gap-1.5 mb-1">
+                <label className="text-label">Notes</label>
+                <AiFieldHelper
+                  action="enrich_notes"
+                  context={formContext}
+                  onResult={(r) => update("notes", r)}
+                  label="Enrich with AI"
+                />
+              </div>
               <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={4} />
             </div>
 
