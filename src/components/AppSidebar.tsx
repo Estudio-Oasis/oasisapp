@@ -58,6 +58,11 @@ export function AppSidebar() {
         </nav>
       </SidebarContent>
 
+      {/* Notification bell */}
+      <div className="mt-2">
+        <NotificationBell />
+      </div>
+
       {/* Timer widget */}
       <TimerWidget />
 
