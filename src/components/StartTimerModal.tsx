@@ -42,6 +42,8 @@ export function StartTimerModal({
   mode = "start",
   prefillStartTime,
   prefillEndTime,
+  prefillClientId,
+  prefillTaskId,
 }: StartTimerModalProps) {
   const { startTimer, switchTask } = useTimer();
   const [clients, setClients] = useState<Client[]>([]);
