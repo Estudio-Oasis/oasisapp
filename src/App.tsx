@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import TimerPage from "./pages/Timer";
 import ClientsPage from "./pages/Clients";
+import ClientProfilePage from "./pages/ClientProfile";
 import TasksPage from "./pages/Tasks";
 import FinancesPage from "./pages/Finances";
 import NotFound from "./pages/NotFound";
@@ -39,6 +40,7 @@ const App = () => (
               >
                 <Route path="/timer" element={<TimerPage />} />
                 <Route path="/clients" element={<ClientsPage />} />
+                <Route path="/clients/:id" element={<ClientProfilePage />} />
                 <Route path="/tasks" element={<TasksPage />} />
                 <Route path="/finances" element={<FinancesPage />} />
               </Route>

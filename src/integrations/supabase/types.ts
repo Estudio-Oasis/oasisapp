@@ -57,7 +57,11 @@ export type Database = {
       }
       clients: {
         Row: {
+          billing_entity: string | null
           billing_type: Database["public"]["Enums"]["billing_type"]
+          communication_channel: string | null
+          completeness_score: number | null
+          contact_name: string | null
           created_at: string
           currency: string
           email: string | null
@@ -65,13 +69,19 @@ export type Database = {
           monthly_rate: number | null
           name: string
           notes: string | null
+          payment_frequency: string | null
+          payment_method: string | null
           phone: string | null
           status: Database["public"]["Enums"]["client_status"]
           updated_at: string
           website: string | null
         }
         Insert: {
+          billing_entity?: string | null
           billing_type?: Database["public"]["Enums"]["billing_type"]
+          communication_channel?: string | null
+          completeness_score?: number | null
+          contact_name?: string | null
           created_at?: string
           currency?: string
           email?: string | null
@@ -79,13 +89,19 @@ export type Database = {
           monthly_rate?: number | null
           name: string
           notes?: string | null
+          payment_frequency?: string | null
+          payment_method?: string | null
           phone?: string | null
           status?: Database["public"]["Enums"]["client_status"]
           updated_at?: string
           website?: string | null
         }
         Update: {
+          billing_entity?: string | null
           billing_type?: Database["public"]["Enums"]["billing_type"]
+          communication_channel?: string | null
+          completeness_score?: number | null
+          contact_name?: string | null
           created_at?: string
           currency?: string
           email?: string | null
@@ -93,6 +109,8 @@ export type Database = {
           monthly_rate?: number | null
           name?: string
           notes?: string | null
+          payment_frequency?: string | null
+          payment_method?: string | null
           phone?: string | null
           status?: Database["public"]["Enums"]["client_status"]
           updated_at?: string

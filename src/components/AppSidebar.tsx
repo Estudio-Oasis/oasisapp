@@ -2,6 +2,7 @@ import { Timer, Users, CheckSquare, DollarSign } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { TimerWidget } from "@/components/TimerWidget";
+import { NotificationBell } from "@/components/NotificationBell";
 import {
   Sidebar,
   SidebarContent,
@@ -56,6 +57,11 @@ export function AppSidebar() {
           })}
         </nav>
       </SidebarContent>
+
+      {/* Notification bell */}
+      <div className="mt-2">
+        <NotificationBell />
+      </div>
 
       {/* Timer widget */}
       <TimerWidget />
