@@ -4,8 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { TimerProvider } from "@/contexts/TimerContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
+import { TimerFAB } from "@/components/TimerFAB";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import TimerPage from "./pages/Timer";
@@ -23,24 +25,27 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/" element={<Navigate to="/timer" replace />} />
-            <Route
-              element={
-                <ProtectedRoute>
-                  <AppLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="/timer" element={<TimerPage />} />
-              <Route path="/clients" element={<ClientsPage />} />
-              <Route path="/tasks" element={<TasksPage />} />
-              <Route path="/finances" element={<FinancesPage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <TimerProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/" element={<Navigate to="/timer" replace />} />
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <AppLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/timer" element={<TimerPage />} />
+                <Route path="/clients" element={<ClientsPage />} />
+                <Route path="/tasks" element={<TasksPage />} />
+                <Route path="/finances" element={<FinancesPage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <TimerFAB />
+          </TimerProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
