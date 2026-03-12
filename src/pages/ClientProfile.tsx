@@ -127,7 +127,16 @@ export default function ClientProfilePage() {
 
   const score = client.completeness_score ?? 0;
   const level = getCompletenessLevel(score);
-  const missing = getMissingFields(client);
+  const missing = getMissingFields({
+    name: client.name,
+    email: client.email,
+    phone: client.phone,
+    monthly_rate: client.monthly_rate,
+    contact_name: client.contact_name,
+    payment_method: client.payment_method,
+    communication_channel: client.communication_channel,
+    billing_entity: client.billing_entity,
+  });
   const color = getClientColor(client.name);
   const initials = client.name.slice(0, 2).toUpperCase();
 
