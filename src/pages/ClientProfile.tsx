@@ -315,9 +315,7 @@ export default function ClientProfilePage() {
             </TabsContent>
 
             <TabsContent value="tasks" className="mt-6">
-              <div className="flex flex-col items-center py-16 text-center">
-                <p className="text-sm text-foreground-muted">Tasks coming in Phase 4</p>
-              </div>
+              <ClientTasksTab clientId={client.id} clientName={client.name} />
             </TabsContent>
 
             <TabsContent value="credentials" className="mt-6">
