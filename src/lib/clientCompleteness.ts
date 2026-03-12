@@ -7,6 +7,7 @@ interface ClientFields {
   payment_method?: string | null;
   communication_channel?: string | null;
   billing_entity?: string | null;
+  [key: string]: unknown;
 }
 
 export function calculateCompleteness(client: ClientFields): number {
