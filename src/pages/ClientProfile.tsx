@@ -127,7 +127,7 @@ export default function ClientProfilePage() {
 
   const score = client.completeness_score ?? 0;
   const level = getCompletenessLevel(score);
-  const missing = getMissingFields(client as Record<string, unknown>);
+  const missing = getMissingFields(client);
   const color = getClientColor(client.name);
   const initials = client.name.slice(0, 2).toUpperCase();
 

@@ -252,7 +252,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
       monthly_rate: form.monthly_rate ? parseFloat(form.monthly_rate) : null,
     });
 
-    const { error } = await supabase.from("clients").insert({
+    const insertData: Record<string, unknown> = {
       name: form.name.trim(),
       contact_name: form.contact_name || null,
       email: form.email || null,
@@ -266,7 +266,8 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
       communication_channel: form.communication_channel || null,
       notes: form.notes || null,
       completeness_score: score,
-    } as Record<string, unknown>);
+    };
+    const { error } = await supabase.from("clients").insert(insertData as never);
 
     setSaving(false);
 
