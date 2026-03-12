@@ -1,6 +1,7 @@
-import { Timer, Users, CheckSquare, DollarSign, LogOut } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { TimerWidget } from "@/components/TimerWidget";
 import {
   Sidebar,
   SidebarContent,
@@ -56,8 +57,11 @@ export function AppSidebar() {
         </nav>
       </SidebarContent>
 
+      {/* Timer widget */}
+      <TimerWidget />
+
       {/* User section */}
-      <SidebarFooter className="px-3 pb-4 mt-auto">
+      <SidebarFooter className="px-3 pb-4">
         <div className="flex items-center gap-2.5 px-3 py-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background-tertiary text-xs font-semibold text-foreground-secondary">
             {displayName.charAt(0).toUpperCase()}
