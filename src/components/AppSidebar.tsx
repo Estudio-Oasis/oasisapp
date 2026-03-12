@@ -1,6 +1,7 @@
 import { Timer, Users, CheckSquare, DollarSign, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { TimerWidget } from "@/components/TimerWidget";
 import {
   Sidebar,
   SidebarContent,
