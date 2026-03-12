@@ -23,15 +23,34 @@ Return this exact structure (use null for missing fields):
   "payment_method": string | null,
   "payment_frequency": "monthly" | "biweekly" | "weekly" | "project" | null,
   "communication_channel": string | null,
-  "notes": string | null
+  "notes": string | null,
+  "suggestions": [
+    {
+      "field": string,
+      "issue": string,
+      "suggested_value": string | null
+    }
+  ]
 }
 
-Rules:
-- If payment is described as "quincena" or "biweekly" or "every 2 weeks", set payment_frequency to "biweekly" and calculate monthly_rate as amount × 2.
-- billing_entity is ONLY set when the text explicitly mentions that a DIFFERENT company or person pays (not the client themselves).
-- Extract emails exactly as written.
-- For currency, default to "USD" unless another currency is mentioned.
-- Put any additional context that doesn't fit other fields into "notes".`;
+CRITICAL RULES:
+1. RATE RULE — "biweekly" means the amount stated IS the monthly total, paid in two installments. Do NOT multiply by 2.
+   Example: "$2,500 biweekly" → monthly_rate: 2500, payment_frequency: "biweekly"
+   The biweekly amount per payment = monthly_rate / 2.
+
+2. BILLING ENTITY — Only populate billing_entity when the text explicitly says a DIFFERENT company or person pays (not the client themselves).
+
+3. EMAIL — Extract exactly as written in the text.
+
+4. CURRENCY — Default to "USD" unless explicitly mentioned otherwise.
+
+5. SUGGESTIONS — Populate the suggestions array with any inconsistencies or improvements you detected. Examples:
+   - If contact_name says "Thomas Higgins" but email handle is "thomashiggs", add: { "field": "contact_name", "issue": "Email suggests last name may be 'Higgs' not 'Higgins'", "suggested_value": "Thomas Higgs" }
+   - If monthly_rate > 0 but payment_method is null, add: { "field": "payment_method", "issue": "Payment method not mentioned — worth confirming", "suggested_value": null }
+   - If communication_channel is filled but no credentials mentioned, add: { "field": "credentials", "issue": "Consider saving access details in the credentials vault", "suggested_value": null }
+   Return empty array [] if no suggestions.
+
+6. NOTES — Put any context that doesn't fit other fields into notes. Write notes in the same language as the input text.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -95,7 +114,6 @@ serve(async (req) => {
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content ?? "";
 
-    // Parse JSON from response (strip markdown fences if present)
     let cleaned = content.trim();
     if (cleaned.startsWith("```")) {
       cleaned = cleaned.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
