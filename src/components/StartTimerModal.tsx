@@ -32,6 +32,8 @@ interface StartTimerModalProps {
   mode?: "start" | "switch" | "manual";
   prefillStartTime?: string;
   prefillEndTime?: string;
+  prefillClientId?: string;
+  prefillTaskId?: string;
 }
 
 export function StartTimerModal({
