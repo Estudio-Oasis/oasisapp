@@ -1,142 +1,445 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { X } from "lucide-react";
 
-interface TourStep {
-  target: string; // CSS selector
+/* ─── Step definitions ─── */
+
+interface TourStepDef {
+  target: string;
   icon: string;
   title: string;
-  description: string;
+  body: string;
+  type: "profile" | "task" | "timer";
 }
 
-const STEPS: TourStep[] = [
+const STEPS: TourStepDef[] = [
   {
-    target: '[data-tour="profile"]',
+    target: "profile-btn",
     icon: "📸",
     title: "Tu perfil",
-    description:
-      "Agrega una foto y confirma tu nombre. Tu avatar aparece en tareas y registros de tiempo.",
+    body: "Agrega tu foto y confirma tu nombre. Tu avatar aparece en tareas y registros de tiempo para que el equipo sepa quién está trabajando en qué.",
+    type: "profile",
   },
   {
-    target: '[data-tour="tasks"]',
+    target: "new-task-btn",
     icon: "✅",
-    title: "Tus tareas",
-    description:
-      "Aquí están todas las tareas activas. Las que tienen tu avatar son las tuyas. Puedes crear nuevas o actualizar el estado.",
+    title: "Crea tu primera tarea",
+    body: "Las tareas son la base de todo. Cada hora que registres irá vinculada a una tarea. Puedes crearla de 3 formas:",
+    type: "task",
   },
   {
-    target: '[data-tour="timer"]',
+    target: "start-timer-btn",
     icon: "⚡",
     title: "Registra tu tiempo",
-    description:
-      "Cada vez que trabajes en algo, inicia el timer aquí. Selecciona el cliente y la tarea — así el tiempo queda correctamente vinculado.",
+    body: "Cada vez que trabajes en algo, activa el timer. Selecciona el cliente y la tarea — tu tiempo quedará vinculado automáticamente.\n\nAl final del día verás exactamente cuántas horas invertiste y en qué.",
+    type: "timer",
   },
 ];
+
+/* ─── Smart positioning ─── */
+
+function getTooltipPosition(rect: DOMRect, tooltipH = 300, tooltipW = 340) {
+  const padding = 16;
+  const spaceRight = window.innerWidth - rect.right;
+  const spaceBelow = window.innerHeight - rect.bottom;
+  const spaceAbove = rect.top;
+  const spaceLeft = rect.left;
+
+  if (spaceRight >= tooltipW + padding) {
+    return {
+      top: Math.max(padding, Math.min(rect.top, window.innerHeight - tooltipH - padding)),
+      left: rect.right + padding,
+      placement: "right" as const,
+    };
+  }
+  if (spaceBelow >= tooltipH + padding) {
+    return {
+      top: rect.bottom + padding,
+      left: Math.max(padding, Math.min(rect.left, window.innerWidth - tooltipW - padding)),
+      placement: "bottom" as const,
+    };
+  }
+  if (spaceAbove >= tooltipH + padding) {
+    return {
+      top: rect.top - tooltipH - padding,
+      left: Math.max(padding, Math.min(rect.left, window.innerWidth - tooltipW - padding)),
+      placement: "top" as const,
+    };
+  }
+  if (spaceLeft >= tooltipW + padding) {
+    return {
+      top: Math.max(padding, Math.min(rect.top, window.innerHeight - tooltipH - padding)),
+      left: rect.left - tooltipW - padding,
+      placement: "left" as const,
+    };
+  }
+  return {
+    top: window.innerHeight / 2 - tooltipH / 2,
+    left: window.innerWidth / 2 - tooltipW / 2,
+    placement: "center" as const,
+  };
+}
+
+/* ─── Mobile check ─── */
+function isMobile() {
+  return window.innerWidth < 640;
+}
+
+/* ─── Props ─── */
 
 interface OnboardingTourProps {
   active: boolean;
   onComplete: () => void;
+  onOpenProfile: () => void;
+  onOpenNewTask: () => void;
+  onOpenTimer: () => void;
 }
 
-export function OnboardingTour({ active, onComplete }: OnboardingTourProps) {
+export function OnboardingTour({
+  active,
+  onComplete,
+  onOpenProfile,
+  onOpenNewTask,
+  onOpenTimer,
+}: OnboardingTourProps) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [position, setPosition] = useState<{ top: number; left: number; placement: "right" | "bottom" }>({
-    top: 0,
-    left: 0,
-    placement: "right",
-  });
-  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const [paused, setPaused] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const rafRef = useRef<number>(0);
+
+  // Fade in
+  useEffect(() => {
+    if (active && !paused) {
+      requestAnimationFrame(() => setVisible(true));
+    } else {
+      setVisible(false);
+    }
+  }, [active, paused]);
+
+  // Track target element position
+  const updateRect = useCallback(() => {
+    const currentStep = STEPS[step];
+    if (!currentStep || !active || paused) return;
+    const el = document.querySelector(`[data-tour="${currentStep.target}"]`);
+    if (el) {
+      const r = el.getBoundingClientRect();
+      setRect(r);
+    }
+    rafRef.current = requestAnimationFrame(updateRect);
+  }, [step, active, paused]);
 
   useEffect(() => {
-    if (!active) return;
+    if (active && !paused) {
+      rafRef.current = requestAnimationFrame(updateRect);
+    }
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [active, paused, updateRect]);
 
-    const updatePosition = () => {
-      const target = document.querySelector(STEPS[step].target);
-      if (!target) return;
+  // Navigate to /tasks on step 2
+  useEffect(() => {
+    if (active && step === 1 && !paused) {
+      navigate("/tasks");
+    }
+  }, [active, step, paused, navigate]);
 
-      const rect = target.getBoundingClientRect();
-      // Position to the right of sidebar items
-      setPosition({
-        top: rect.top + rect.height / 2 - 80,
-        left: rect.right + 16,
-        placement: "right",
-      });
+  const handleSkip = async () => {
+    if (user) {
+      await supabase.from("profiles").update({ onboarded: true }).eq("id", user.id);
+    }
+    onComplete();
+  };
 
-      // Highlight target
-      target.classList.add("ring-2", "ring-accent", "ring-offset-2", "rounded-md", "z-50", "relative");
-    };
+  const handleNext = () => {
+    if (step < STEPS.length - 1) {
+      setStep((s) => s + 1);
+    }
+  };
 
-    updatePosition();
-    window.addEventListener("resize", updatePosition);
+  const handleBack = () => {
+    if (step > 0) {
+      setStep((s) => s - 1);
+    }
+  };
 
-    return () => {
-      // Clean up highlights
-      const target = document.querySelector(STEPS[step].target);
-      if (target) {
-        target.classList.remove("ring-2", "ring-accent", "ring-offset-2", "rounded-md", "z-50", "relative");
-      }
-      window.removeEventListener("resize", updatePosition);
-    };
-  }, [active, step]);
+  const handleFinish = async () => {
+    if (user) {
+      await supabase.from("profiles").update({ onboarded: true }).eq("id", user.id);
+    }
+    toast.success("¡Todo listo! Ya puedes usar OasisOS 🎉");
+    onComplete();
+  };
+
+  const handlePauseForAction = () => {
+    setPaused(true);
+  };
+
+  const handleResume = () => {
+    setPaused(false);
+  };
 
   if (!active) return null;
 
+  // Paused state: show floating "continue tour" button
+  if (paused) {
+    return (
+      <button
+        onClick={handleResume}
+        className="fixed bottom-6 right-6 z-[10001] rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:bg-primary-hover transition-colors"
+      >
+        Continuar tour →
+      </button>
+    );
+  }
+
   const currentStep = STEPS[step];
-  const isLast = step === STEPS.length - 1;
-  const isFirst = step === 0;
+  const mobile = isMobile();
+
+  // Calculate tooltip position
+  const tooltipPos = rect
+    ? getTooltipPosition(rect, mobile ? 400 : 300, mobile ? window.innerWidth - 32 : 340)
+    : { top: 100, left: 100, placement: "right" as const };
 
   return (
     <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-foreground/20 z-40" />
-
-      {/* Tooltip */}
+      {/* Dark overlay */}
       <div
-        ref={tooltipRef}
-        className="fixed z-50 w-[300px] rounded-xl border border-border bg-card p-5 shadow-lg"
-        style={{ top: position.top, left: position.left }}
-      >
-        {/* Arrow */}
+        className="fixed inset-0 z-[9998] transition-opacity duration-200"
+        style={{
+          background: "rgba(0,0,0,0.75)",
+          opacity: visible ? 1 : 0,
+        }}
+        onClick={handleSkip}
+      />
+
+      {/* Spotlight cutout */}
+      {rect && (
         <div
-          className="absolute -left-2 top-[80px] h-4 w-4 rotate-45 border-l border-b border-border bg-card"
+          className="fixed z-[9999] transition-all duration-300 ease-out pointer-events-none"
+          style={{
+            top: rect.top - 8,
+            left: rect.left - 8,
+            width: rect.width + 16,
+            height: rect.height + 16,
+            boxShadow: "0 0 0 9999px rgba(0,0,0,0.75)",
+            borderRadius: "10px",
+            background: "transparent",
+          }}
         />
+      )}
 
-        <div className="relative">
-          <span className="text-2xl">{currentStep.icon}</span>
-          <h3 className="text-h3 text-foreground mt-2">{currentStep.title}</h3>
-          <p className="text-sm text-foreground-secondary mt-1.5 leading-relaxed">
-            {currentStep.description}
-          </p>
+      {/* Tooltip card */}
+      {mobile ? (
+        /* Mobile: bottom sheet */
+        <div
+          className="fixed bottom-0 left-0 right-0 z-[10000] rounded-t-2xl bg-card border-t border-border p-6 pb-8 transition-transform duration-300"
+          style={{ transform: visible ? "translateY(0)" : "translateY(100%)" }}
+        >
+          <MobileTooltipContent
+            step={step}
+            stepDef={currentStep}
+            onNext={handleNext}
+            onBack={handleBack}
+            onSkip={handleSkip}
+            onFinish={handleFinish}
+            onPause={handlePauseForAction}
+            onOpenProfile={onOpenProfile}
+            onOpenNewTask={onOpenNewTask}
+            onOpenTimer={onOpenTimer}
+          />
+        </div>
+      ) : (
+        /* Desktop: floating card */
+        <div
+          className="fixed z-[10000] w-[340px] rounded-xl border border-border bg-card p-5 shadow-2xl transition-all duration-300 ease-out"
+          style={{
+            top: tooltipPos.top,
+            left: tooltipPos.left,
+            opacity: visible ? 1 : 0,
+          }}
+        >
+          <TooltipContent
+            step={step}
+            stepDef={currentStep}
+            onNext={handleNext}
+            onBack={handleBack}
+            onSkip={handleSkip}
+            onFinish={handleFinish}
+            onPause={handlePauseForAction}
+            onOpenProfile={onOpenProfile}
+            onOpenNewTask={onOpenNewTask}
+            onOpenTimer={onOpenTimer}
+          />
+        </div>
+      )}
+    </>
+  );
+}
 
-          <div className="flex items-center justify-between mt-5">
-            <span className="text-micro text-foreground-muted">
-              {step + 1} de {STEPS.length}
-            </span>
-            <div className="flex gap-2">
-              {!isFirst && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setStep((s) => s - 1)}
-                >
-                  Atrás
-                </Button>
-              )}
-              <Button
-                size="sm"
-                onClick={() => {
-                  if (isLast) {
-                    onComplete();
-                  } else {
-                    setStep((s) => s + 1);
-                  }
-                }}
-              >
-                {isLast ? "Listo ✓" : "Siguiente →"}
-              </Button>
-            </div>
+/* ─── Tooltip content (shared logic) ─── */
+
+interface TooltipContentProps {
+  step: number;
+  stepDef: TourStepDef;
+  onNext: () => void;
+  onBack: () => void;
+  onSkip: () => void;
+  onFinish: () => void;
+  onPause: () => void;
+  onOpenProfile: () => void;
+  onOpenNewTask: () => void;
+  onOpenTimer: () => void;
+}
+
+function TooltipContent(props: TooltipContentProps) {
+  const { step, stepDef, onNext, onBack, onSkip, onFinish, onPause } = props;
+  const isFirst = step === 0;
+  const isLast = step === STEPS.length - 1;
+
+  return (
+    <div>
+      <span className="text-2xl">{stepDef.icon}</span>
+      <h3 className="text-h3 text-foreground mt-2">{stepDef.title}</h3>
+      <p className="text-sm text-foreground-secondary mt-1.5 leading-relaxed whitespace-pre-line">
+        {stepDef.body}
+      </p>
+
+      {/* Step-specific content */}
+      {stepDef.type === "profile" && (
+        <div className="mt-4 space-y-2">
+          <Button
+            size="sm"
+            className="w-full"
+            onClick={() => {
+              onPause();
+              props.onOpenProfile();
+            }}
+          >
+            Completar perfil →
+          </Button>
+          <button
+            onClick={onNext}
+            className="w-full text-xs text-foreground-muted hover:text-foreground-secondary transition-colors py-1"
+          >
+            Siguiente →
+          </button>
+        </div>
+      )}
+
+      {stepDef.type === "task" && (
+        <div className="mt-4 space-y-2">
+          {/* Option cards */}
+          <TaskOptionCard
+            icon="✏️"
+            title="Llenar el formulario"
+            desc="Título, cliente, prioridad, fecha"
+            cta="Abrir →"
+            onClick={() => {
+              onPause();
+              props.onOpenNewTask();
+            }}
+          />
+          <TaskOptionCard
+            icon="⚡"
+            title="Iniciar timer ahora"
+            desc="Empieza a trabajar y completa los detalles después"
+            cta="Iniciar →"
+            onClick={() => {
+              onPause();
+              props.onOpenTimer();
+            }}
+          />
+          <button
+            onClick={onNext}
+            className="w-full text-xs text-foreground-muted hover:text-foreground-secondary transition-colors py-1 mt-1"
+          >
+            Siguiente, ya tengo tareas →
+          </button>
+        </div>
+      )}
+
+      {stepDef.type === "timer" && (
+        <div className="mt-4 space-y-2">
+          <Button
+            size="sm"
+            className="w-full"
+            onClick={() => {
+              onPause();
+              props.onOpenTimer();
+            }}
+          >
+            Iniciar mi primer timer →
+          </Button>
+          <Button size="sm" variant="outline" className="w-full" onClick={onFinish}>
+            Listo, ya entendí ✓
+          </Button>
+        </div>
+      )}
+
+      {/* Navigation row */}
+      <div className="flex items-center justify-between mt-5 pt-3 border-t border-border">
+        <button
+          onClick={onSkip}
+          className="flex items-center gap-1 text-xs text-foreground-muted hover:text-foreground-secondary transition-colors"
+        >
+          <X className="h-3 w-3" />
+          Saltar tour
+        </button>
+        <div className="flex items-center gap-3">
+          {/* Dots */}
+          <div className="flex gap-1.5">
+            {STEPS.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                  i <= step ? "bg-accent" : "bg-foreground-muted/30"
+                }`}
+              />
+            ))}
           </div>
+          {!isFirst && stepDef.type !== "profile" && (
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onBack}>
+              ← Atrás
+            </Button>
+          )}
         </div>
       </div>
-    </>
+    </div>
+  );
+}
+
+function MobileTooltipContent(props: TooltipContentProps) {
+  return <TooltipContent {...props} />;
+}
+
+/* ─── Task option card ─── */
+
+interface TaskOptionCardProps {
+  icon: string;
+  title: string;
+  desc: string;
+  cta: string;
+  onClick: () => void;
+}
+
+function TaskOptionCard({ icon, title, desc, cta, onClick }: TaskOptionCardProps) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-3 rounded-lg border border-border bg-background-secondary p-3 text-left hover:border-foreground/20 transition-colors"
+    >
+      <span className="text-lg shrink-0">{icon}</span>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-foreground">{title}</p>
+        <p className="text-xs text-foreground-muted mt-0.5">{desc}</p>
+      </div>
+      <span className="text-xs font-semibold text-accent shrink-0">{cta}</span>
+    </button>
   );
 }
