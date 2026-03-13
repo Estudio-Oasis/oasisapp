@@ -70,6 +70,9 @@ function isOverdue(inv: { status: string; due_date: string | null }): boolean {
   return inv.status === "overdue" || (inv.status === "sent" && !!inv.due_date && new Date(inv.due_date) < today);
 }
 
+const DISPLAY_CURRENCIES = ["USD", "MXN", "EUR", "COP"] as const;
+type DisplayCurrency = typeof DISPLAY_CURRENCIES[number];
+
 export default function FinancesPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
@@ -82,6 +85,8 @@ export default function FinancesPage() {
   const [newPayOpen, setNewPayOpen] = useState(false);
   const [bulkPayOpen, setBulkPayOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentRow | null>(null);
+  const [mrrCurrency, setMrrCurrency] = useState<DisplayCurrency>("USD");
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
 
   // Expense form
   const [expFormOpen, setExpFormOpen] = useState(false);
@@ -117,6 +122,16 @@ export default function FinancesPage() {
   }, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  // Fetch exchange rates from free API
+  useEffect(() => {
+    fetch("https://open.er-api.com/v6/latest/USD")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.rates) setExchangeRates(data.rates as Record<string, number>);
+      })
+      .catch(() => {});
+  }, []);
 
   // Invoice stats
   const stats = useMemo(() => {
@@ -232,7 +247,28 @@ export default function FinancesPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        <StatCard label="MRR" value={`$${stats.mrr.toLocaleString()}`} icon={<TrendingUp className="h-4 w-4" />} />
+        {/* MRR with currency toggle */}
+        <div className="border border-border rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-foreground-muted"><TrendingUp className="h-4 w-4" /></span>
+            <p className="text-micro text-foreground-muted">MRR</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <p className="text-h2 text-foreground">
+              {mrrCurrency === "USD" ? "$" : mrrCurrency === "EUR" ? "€" : "$"}
+              {(stats.mrr * (exchangeRates[mrrCurrency] || 1)).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            </p>
+            <button
+              onClick={() => {
+                const idx = DISPLAY_CURRENCIES.indexOf(mrrCurrency);
+                setMrrCurrency(DISPLAY_CURRENCIES[(idx + 1) % DISPLAY_CURRENCIES.length]);
+              }}
+              className="px-2 py-0.5 rounded-full border border-border bg-background-secondary text-[11px] font-semibold text-foreground-secondary hover:bg-background-tertiary hover:text-foreground transition-colors"
+            >
+              {mrrCurrency}
+            </button>
+          </div>
+        </div>
         <StatCard label="Collected this month" value={`$${stats.collected.toLocaleString()}`} icon={<CheckCircle className="h-4 w-4" />} />
         <StatCard label="Pending" value={`$${stats.pending.toLocaleString()}`} icon={<DollarSign className="h-4 w-4" />} />
         <StatCard label="Overdue" value={`$${stats.overdue.toLocaleString()}`} icon={<AlertTriangle className="h-4 w-4" />} danger={stats.overdue > 0} />
