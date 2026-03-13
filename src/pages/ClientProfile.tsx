@@ -256,7 +256,7 @@ export default function ClientProfilePage() {
           {/* Tabs */}
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="bg-transparent border-b border-border rounded-none p-0 h-auto gap-4 flex-wrap">
-              {["Overview", "Time", "Tasks", "Credentials", "Interactions", "Finances"].map((t) => (
+              {["Overview", "Time", "Tasks", "Credentials", "Interactions", ...(isAdmin ? ["Finances"] : [])].map((t) => (
                 <TabsTrigger
                   key={t}
                   value={t.toLowerCase()}
