@@ -41,7 +41,7 @@ export function TimerWidget() {
             {/* Row 1: client + time */}
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-foreground truncate max-w-[100px]">
-                {activeClient?.name || "Client"}
+                {activeClient?.name || "Cliente"}
               </span>
               <span className="text-small font-bold text-accent tabular-nums">
                 {formatElapsed(elapsedSeconds)}
