@@ -157,8 +157,8 @@ export function NewTaskModal({
           <div className="mt-4 flex flex-col gap-4">
             {/* Title */}
             <div>
-              <label className="text-label mb-1 block">Title *</label>
-              <Input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs to be done?" />
+              <label className="text-label mb-1 block">Título *</label>
+              <Input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="¿Qué hay que hacer?" />
             </div>
 
             {/* Client */}
