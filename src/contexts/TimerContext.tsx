@@ -39,6 +39,7 @@ interface TimerContextType extends TimerState {
     projectId?: string | null,
     description?: string | null
   ) => Promise<void>;
+  startBreakTimer: (breakType?: string) => Promise<void>;
   setManualStatus: (status: string) => Promise<void>;
 }
 
