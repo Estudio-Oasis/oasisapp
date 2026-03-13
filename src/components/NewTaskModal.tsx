@@ -192,9 +192,9 @@ export function NewTaskModal({
             {/* Project */}
             {projects.length > 0 && (
               <div>
-                <label className="text-label mb-1 block">Project (optional)</label>
+                <label className="text-label mb-1 block">Proyecto (opcional)</label>
                 <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-                  <SelectTrigger><SelectValue placeholder="No project" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Sin proyecto" /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                   </SelectContent>
