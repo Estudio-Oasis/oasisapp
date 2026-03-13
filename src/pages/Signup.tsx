@@ -100,6 +100,19 @@ export default function Signup() {
             />
           </div>
 
+          <div className="space-y-1.5">
+            <label htmlFor="confirmPassword" className="text-label">Confirm password</label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
+
           <Button type="submit" className="w-full h-11" disabled={loading}>
             {loading ? "Creating account…" : "Create account"}
           </Button>
