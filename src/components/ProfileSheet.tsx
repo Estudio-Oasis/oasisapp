@@ -28,6 +28,7 @@ interface TeamMember {
 export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, onSignOut }: ProfileSheetProps) {
   const { user } = useAuth();
   const { isAdmin } = useRole();
+  const { theme, setTheme } = useTheme();
   const [name, setName] = useState(profile.name);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
