@@ -149,9 +149,9 @@ export default function TimerPage() {
   };
 
   const renderEntry = (entry: EntryWithRelations) => {
-    const clientName = entry.clients?.name || "Unknown";
+    const clientName = entry.clients?.name || "Sin cliente";
     const taskTitle = entry.tasks?.title;
-    const loggerName = profileMap[entry.user_id]?.name || "Unknown";
+    const loggerName = profileMap[entry.user_id]?.name || "Sin nombre";
     const start = new Date(entry.started_at);
     const end = entry.ended_at ? new Date(entry.ended_at) : null;
     const dur = Number(entry.duration_min) || 0;
