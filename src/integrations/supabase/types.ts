@@ -754,6 +754,8 @@ export type Database = {
           onboarded: boolean
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string
+          work_start_hour: number
+          work_start_minute: number
         }
         Insert: {
           agency_id?: string | null
@@ -766,6 +768,8 @@ export type Database = {
           onboarded?: boolean
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
+          work_start_hour?: number
+          work_start_minute?: number
         }
         Update: {
           agency_id?: string | null
@@ -778,6 +782,8 @@ export type Database = {
           onboarded?: boolean
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
+          work_start_hour?: number
+          work_start_minute?: number
         }
         Relationships: [
           {

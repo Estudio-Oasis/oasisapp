@@ -46,6 +46,24 @@ export default function TimerPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"start" | "switch" | "manual">("start");
   const [gapPrefill, setGapPrefill] = useState<{ start: string; end: string } | null>(null);
+  const [workStartHour, setWorkStartHour] = useState(9);
+  const [workStartMinute, setWorkStartMinute] = useState(0);
+
+  // Fetch user's work schedule
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("work_start_hour, work_start_minute")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setWorkStartHour((data as any).work_start_hour ?? 9);
+          setWorkStartMinute((data as any).work_start_minute ?? 0);
+        }
+      });
+  }, [user]);
 
   const fetchProfiles = useCallback(async () => {
     const { data } = await supabase.from("profiles").select("id, name");
@@ -81,7 +99,7 @@ export default function TimerPage() {
     } else {
       setGaps([]);
     }
-  }, [user, view, entryFilter]);
+  }, [user, view, entryFilter, workStartHour, workStartMinute]);
 
   useEffect(() => {
     fetchProfiles();
@@ -97,20 +115,20 @@ export default function TimerPage() {
     const foundGaps: GapInfo[] = [];
     const THRESHOLD = 30;
 
-    const nineAm = new Date(today);
-    nineAm.setHours(9, 0, 0, 0);
+    const workdayStart = new Date(today);
+    workdayStart.setHours(workStartHour, workStartMinute, 0, 0);
 
-    if (today.getHours() >= 9) {
+    if (today.getTime() >= workdayStart.getTime()) {
       if (sorted.length === 0) {
-        const gapMin = Math.round((Date.now() - nineAm.getTime()) / 60000);
+        const gapMin = Math.round((Date.now() - workdayStart.getTime()) / 60000);
         if (gapMin > THRESHOLD) {
-          foundGaps.push({ startTime: nineAm, endTime: new Date(), durationMin: gapMin });
+          foundGaps.push({ startTime: workdayStart, endTime: new Date(), durationMin: gapMin });
         }
       } else {
         const firstStart = new Date(sorted[0].started_at);
-        const gapMin = Math.round((firstStart.getTime() - nineAm.getTime()) / 60000);
+        const gapMin = Math.round((firstStart.getTime() - workdayStart.getTime()) / 60000);
         if (gapMin > THRESHOLD) {
-          foundGaps.push({ startTime: nineAm, endTime: firstStart, durationMin: gapMin });
+          foundGaps.push({ startTime: workdayStart, endTime: firstStart, durationMin: gapMin });
         }
       }
     }

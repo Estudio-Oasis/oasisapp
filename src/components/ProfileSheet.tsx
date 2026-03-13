@@ -49,6 +49,9 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [resendingId, setResendingId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [workStartHour, setWorkStartHour] = useState(9);
+  const [workStartMinute, setWorkStartMinute] = useState(0);
+  const [savingSchedule, setSavingSchedule] = useState(false);
 
   const loadTeamData = async () => {
     const [{ data: members }, { data: invites }] = await Promise.all([
@@ -68,6 +71,38 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
       loadTeamData();
     }
   }, [open, isAdmin]);
+
+  // Load work schedule
+  useEffect(() => {
+    if (open && user) {
+      supabase
+        .from("profiles")
+        .select("work_start_hour, work_start_minute")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setWorkStartHour((data as any).work_start_hour ?? 9);
+            setWorkStartMinute((data as any).work_start_minute ?? 0);
+          }
+        });
+    }
+  }, [open, user]);
+
+  const handleSaveSchedule = async () => {
+    if (!user) return;
+    setSavingSchedule(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ work_start_hour: workStartHour, work_start_minute: workStartMinute } as any)
+      .eq("id", user.id);
+    setSavingSchedule(false);
+    if (error) {
+      toast.error("Error al guardar horario");
+    } else {
+      toast.success("Horario actualizado");
+    }
+  };
 
   const handleSaveName = async () => {
     if (!user || !name.trim()) return;
@@ -307,6 +342,41 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
                 )}
               </div>
             )}
+
+            {/* Work schedule */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-foreground-muted" />
+                <label className="text-label">Horario de trabajo</label>
+              </div>
+              <p className="text-xs text-foreground-muted">
+                Hora de inicio de tu jornada laboral (para detección de tiempo sin registrar)
+              </p>
+              <div className="flex items-center gap-2">
+                <select
+                  value={workStartHour}
+                  onChange={(e) => setWorkStartHour(Number(e.target.value))}
+                  className="rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground"
+                >
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <option key={i} value={i}>{String(i).padStart(2, "0")}</option>
+                  ))}
+                </select>
+                <span className="text-foreground-muted font-medium">:</span>
+                <select
+                  value={workStartMinute}
+                  onChange={(e) => setWorkStartMinute(Number(e.target.value))}
+                  className="rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground"
+                >
+                  {[0, 15, 30, 45].map((m) => (
+                    <option key={m} value={m}>{String(m).padStart(2, "0")}</option>
+                  ))}
+                </select>
+                <Button size="sm" onClick={handleSaveSchedule} disabled={savingSchedule}>
+                  {savingSchedule ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
+                </Button>
+              </div>
+            </div>
 
             {/* Theme */}
             <div className="space-y-1.5">
