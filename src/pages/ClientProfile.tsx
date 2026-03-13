@@ -73,6 +73,7 @@ export default function ClientProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isAdmin } = useRole();
   const [client, setClient] = useState<ClientFull | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("overview");
