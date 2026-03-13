@@ -81,7 +81,7 @@ export function NewInvoiceModal({ open, onOpenChange, onCreated, prefillClientId
     if (!clientId || !number.trim() || !amount) return;
     setSaving(true);
 
-    const { error } = await supabase.from("invoices").insert({
+    const insertData: Record<string, unknown> = {
       client_id: clientId,
       number: number.trim(),
       amount: parseFloat(amount),
@@ -90,8 +90,9 @@ export function NewInvoiceModal({ open, onOpenChange, onCreated, prefillClientId
       period_start: periodStart || null,
       period_end: periodEnd || null,
       notes: notes || null,
-      status: markSent ? "sent" : "draft",
-    } as Record<string, unknown>);
+      status: markSent ? "sent" as const : "draft" as const,
+    };
+    const { error } = await supabase.from("invoices").insert(insertData as never);
 
     setSaving(false);
     if (error) {
