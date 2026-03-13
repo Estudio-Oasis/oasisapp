@@ -27,6 +27,12 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
+    // Public anon client (no user auth) for auth email fallback flows
+    const publicClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!
+    );
+
     const { data: claims, error: claimsErr } = await anonClient.auth.getUser();
     if (claimsErr || !claims.user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -87,7 +93,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Try to invite via Supabase Auth (sends email to new users)
+    const redirectTo = `${req.headers.get("origin") || Deno.env.get("SUPABASE_URL")}/setup`;
+
+    // Try to invite via Auth (sends invitation email to new users)
     const { error: inviteErr } =
       await adminClient.auth.admin.inviteUserByEmail(email, {
         data: {
@@ -95,22 +103,45 @@ Deno.serve(async (req) => {
           job_title: job_title || null,
           invited_by_name: callerProfile.name || "Admin",
         },
-        redirectTo: `${req.headers.get("origin") || Deno.env.get("SUPABASE_URL")}/setup`,
+        redirectTo,
       });
 
-    // If user already exists, that's fine — invitation record was created above
-    if (inviteErr && !inviteErr.message.includes("already been registered")) {
-      // Rollback invitation record for unexpected errors
-      await adminClient
-        .from("agency_invitations")
-        .delete()
-        .eq("email", email)
-        .eq("status", "pending");
+    if (inviteErr) {
+      const isAlreadyRegistered = inviteErr.message.includes("already been registered");
 
-      return new Response(JSON.stringify({ error: inviteErr.message }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      if (isAlreadyRegistered) {
+        // Existing users don't receive invite emails from inviteUserByEmail.
+        // Fallback: send a magic link email so they still get a notification email.
+        const { error: magicLinkErr } = await publicClient.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: false,
+            emailRedirectTo: redirectTo,
+          },
+        });
+
+        if (magicLinkErr) {
+          return new Response(
+            JSON.stringify({ error: `Failed to send notification email: ${magicLinkErr.message}` }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            }
+          );
+        }
+      } else {
+        // Rollback invitation record for unexpected errors
+        await adminClient
+          .from("agency_invitations")
+          .delete()
+          .eq("email", email)
+          .eq("status", "pending");
+
+        return new Response(JSON.stringify({ error: inviteErr.message }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     return new Response(
