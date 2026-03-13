@@ -458,7 +458,7 @@ export function StartTimerModal({
                   ) : (
                     <Sparkles className="h-3 w-3" />
                   )}
-                  Rewrite
+                   Reescribir
                 </button>
               )}
             </div>
