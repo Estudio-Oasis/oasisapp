@@ -1,4 +1,4 @@
-import { Timer, Users, CheckSquare, DollarSign } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const navItems = [
@@ -6,6 +6,7 @@ const navItems = [
   { title: "Clients", url: "/clients", icon: Users },
   { title: "Tasks", url: "/tasks", icon: CheckSquare },
   { title: "Finances", url: "/finances", icon: DollarSign },
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function BottomNav() {

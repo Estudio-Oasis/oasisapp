@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      agencies: {
+        Row: {
+          allowed_email_domain: string | null
+          bank_account_number: string | null
+          bank_clabe: string | null
+          bank_name: string | null
+          bank_routing: string | null
+          bank_swift: string | null
+          base_currency: string
+          country: string | null
+          created_at: string
+          fiscal_address: string | null
+          id: string
+          legal_name: string | null
+          logo_url: string | null
+          name: string
+          tax_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          allowed_email_domain?: string | null
+          bank_account_number?: string | null
+          bank_clabe?: string | null
+          bank_name?: string | null
+          bank_routing?: string | null
+          bank_swift?: string | null
+          base_currency?: string
+          country?: string | null
+          created_at?: string
+          fiscal_address?: string | null
+          id?: string
+          legal_name?: string | null
+          logo_url?: string | null
+          name: string
+          tax_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allowed_email_domain?: string | null
+          bank_account_number?: string | null
+          bank_clabe?: string | null
+          bank_name?: string | null
+          bank_routing?: string | null
+          bank_swift?: string | null
+          base_currency?: string
+          country?: string | null
+          created_at?: string
+          fiscal_address?: string | null
+          id?: string
+          legal_name?: string | null
+          logo_url?: string | null
+          name?: string
+          tax_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      agency_invitations: {
+        Row: {
+          agency_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: string
+          status: string
+        }
+        Insert: {
+          agency_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          role?: string
+          status?: string
+        }
+        Update: {
+          agency_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          role?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_invitations_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_credentials: {
         Row: {
           client_id: string
@@ -360,6 +458,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          agency_id: string | null
           avatar_url: string | null
           created_at: string
           email: string | null
@@ -369,6 +468,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          agency_id?: string | null
           avatar_url?: string | null
           created_at?: string
           email?: string | null
@@ -378,6 +478,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          agency_id?: string | null
           avatar_url?: string | null
           created_at?: string
           email?: string | null
@@ -386,7 +487,15 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       projects: {
         Row: {
