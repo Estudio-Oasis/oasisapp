@@ -36,10 +36,10 @@ const PRIORITIES = ["low", "medium", "high", "urgent"] as const;
 
 const STATUS_LABELS: Record<string, string> = {
   backlog: "Backlog",
-  todo: "To do",
-  in_progress: "In progress",
-  review: "Review",
-  done: "Done",
+  todo: "Por hacer",
+  in_progress: "En progreso",
+  review: "Revisión",
+  done: "Listo",
 };
 
 const PRIORITY_LABELS: Record<string, string> = {
