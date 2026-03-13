@@ -159,6 +159,71 @@ export type Database = {
         }
         Relationships: []
       }
+      expense_categories: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          client_id: string | null
+          created_at: string
+          currency: string
+          date: string
+          description: string | null
+          id: string
+          recurring: boolean
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          client_id?: string | null
+          created_at?: string
+          currency?: string
+          date?: string
+          description?: string | null
+          id?: string
+          recurring?: boolean
+        }
+        Update: {
+          amount?: number
+          category?: string
+          client_id?: string | null
+          created_at?: string
+          currency?: string
+          date?: string
+          description?: string | null
+          id?: string
+          recurring?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           amount: number
@@ -170,6 +235,8 @@ export type Database = {
           notes: string | null
           number: string
           paid_at: string | null
+          period_end: string | null
+          period_start: string | null
           status: Database["public"]["Enums"]["invoice_status"]
           updated_at: string
         }
@@ -183,6 +250,8 @@ export type Database = {
           notes?: string | null
           number: string
           paid_at?: string | null
+          period_end?: string | null
+          period_start?: string | null
           status?: Database["public"]["Enums"]["invoice_status"]
           updated_at?: string
         }
@@ -196,6 +265,8 @@ export type Database = {
           notes?: string | null
           number?: string
           paid_at?: string | null
+          period_end?: string | null
+          period_start?: string | null
           status?: Database["public"]["Enums"]["invoice_status"]
           updated_at?: string
         }

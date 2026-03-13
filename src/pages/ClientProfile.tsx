@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { NewInvoiceModal } from "@/components/NewInvoiceModal";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -327,9 +328,7 @@ export default function ClientProfilePage() {
             </TabsContent>
 
             <TabsContent value="finances" className="mt-6">
-              <div className="flex flex-col items-center py-16 text-center">
-                <p className="text-sm text-foreground-muted">Finances coming in Phase 5</p>
-              </div>
+              <ClientFinancesTab clientId={client.id} clientName={client.name} monthlyRate={client.monthly_rate} currency={client.currency} monthHours={stats.monthHours} />
             </TabsContent>
           </Tabs>
         </div>
@@ -383,6 +382,115 @@ export default function ClientProfilePage() {
     </div>
   );
 }
+
+/* ─── Client Finances Tab ─── */
+function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthHours }: { clientId: string; clientName: string; monthlyRate: number | null; currency: string; monthHours: number }) {
+  const [invoices, setInvoices] = useState<{ id: string; number: string; amount: number; currency: string; status: string; due_date: string | null; paid_at: string | null; period_start: string | null; period_end: string | null; notes: string | null; created_at: string }[]>([]);
+  const [expenses, setExpenses] = useState<{ id: string; category: string; description: string | null; amount: number; currency: string; date: string }[]>([]);
+  const [newInvOpen, setNewInvOpen] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    const [invRes, expRes] = await Promise.all([
+      supabase.from("invoices").select("*").eq("client_id", clientId).order("created_at", { ascending: false }),
+      supabase.from("expenses").select("*").eq("client_id", clientId).order("date", { ascending: false }),
+    ]);
+    setInvoices((invRes.data || []) as typeof invoices);
+    setExpenses((expRes.data || []) as typeof expenses);
+  }, [clientId]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+
+  const totalInvoiced = invoices.reduce((s, i) => s + i.amount, 0);
+  const totalPaid = invoices.filter((i) => i.status === "paid").reduce((s, i) => s + i.amount, 0);
+  const outstanding = totalInvoiced - totalPaid;
+  const effectiveRate = monthlyRate && monthHours > 0 ? Math.round(monthlyRate / monthHours) : null;
+
+  const STATUS_BADGE: Record<string, string> = {
+    draft: "bg-background-tertiary text-foreground-secondary",
+    sent: "bg-accent-light text-accent-foreground",
+    paid: "bg-success-light text-success",
+    overdue: "bg-destructive-light text-destructive",
+  };
+
+  return (
+    <div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+        <div className="border border-border rounded-lg p-4">
+          <p className="text-micro text-foreground-muted mb-1">Total invoiced</p>
+          <p className="text-h2 text-foreground">${totalInvoiced.toLocaleString()}</p>
+        </div>
+        <div className="border border-border rounded-lg p-4">
+          <p className="text-micro text-foreground-muted mb-1">Outstanding</p>
+          <p className={`text-h2 ${outstanding > 0 ? "text-destructive" : "text-foreground"}`}>${outstanding.toLocaleString()}</p>
+        </div>
+        {effectiveRate && (
+          <div className="border border-border rounded-lg p-4">
+            <p className="text-micro text-foreground-muted mb-1">Effective $/hr</p>
+            <p className="text-h2 text-foreground">${effectiveRate}</p>
+            <p className="text-small text-foreground-muted">{monthHours}h this month</p>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-h3 text-foreground">Invoices</h3>
+        <Button variant="secondary" size="sm" onClick={() => setNewInvOpen(true)}>
+          + New invoice for {clientName}
+        </Button>
+      </div>
+
+      {invoices.length === 0 ? (
+        <p className="text-sm text-foreground-muted py-6 text-center">No invoices for this client yet.</p>
+      ) : (
+        <div className="flex flex-col mb-6">
+          {invoices.map((inv) => {
+            const isOD = inv.status === "overdue" || (inv.status === "sent" && inv.due_date && new Date(inv.due_date) < todayDate);
+            const ds = isOD ? "overdue" : inv.status;
+            return (
+              <div key={inv.id} className="flex items-center gap-3 py-3 border-b border-border">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">{inv.number}</p>
+                  {inv.period_start && inv.period_end && (
+                    <p className="text-small text-foreground-muted">
+                      {new Date(inv.period_start + "T00:00:00").toLocaleDateString("en-US", { month: "short" })} – {new Date(inv.period_end + "T00:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                    </p>
+                  )}
+                </div>
+                <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${STATUS_BADGE[ds] || ""}`}>{ds}</span>
+                <p className="text-sm font-semibold text-foreground shrink-0">{inv.currency} ${inv.amount.toLocaleString()}</p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {expenses.length > 0 && (
+        <>
+          <h3 className="text-h3 text-foreground mb-3">Linked expenses</h3>
+          <div className="flex flex-col">
+            {expenses.map((exp) => (
+              <div key={exp.id} className="flex items-center gap-3 py-3 border-b border-border">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">{exp.category}</p>
+                  <p className="text-small text-foreground-muted">{exp.description || "—"}</p>
+                </div>
+                <p className="text-sm font-semibold text-foreground">{exp.currency} ${exp.amount.toLocaleString()}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {newInvOpen && (
+        <NewInvoiceModal open={newInvOpen} onOpenChange={setNewInvOpen} onCreated={fetchData} prefillClientId={clientId} />
+      )}
+    </div>
+  );
+}
+
 
 /* ─── Client Tasks Tab ─── */
 function ClientTasksTab({ clientId, clientName }: { clientId: string; clientName: string }) {
