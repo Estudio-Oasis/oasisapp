@@ -212,8 +212,8 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
               <div className="flex flex-col gap-2">
                 <Textarea value={descDraft} onChange={(e) => setDescDraft(e.target.value)} rows={4} className="resize-none" />
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={saveDescription}>Save</Button>
-                  <Button size="sm" variant="secondary" onClick={() => { setEditingDesc(false); setDescDraft(task.description || ""); }}>Cancel</Button>
+                   <Button size="sm" onClick={saveDescription}>Guardar</Button>
+                   <Button size="sm" variant="secondary" onClick={() => { setEditingDesc(false); setDescDraft(task.description || ""); }}>Cancelar</Button>
                 </div>
               </div>
             ) : (
