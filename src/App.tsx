@@ -12,6 +12,7 @@ import { TimerFAB } from "@/components/TimerFAB";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import TimerPage from "./pages/Timer";
+import SetupPage from "./pages/Setup";
 import ClientsPage from "./pages/Clients";
 import ClientProfilePage from "./pages/ClientProfile";
 import TasksPage from "./pages/Tasks";
