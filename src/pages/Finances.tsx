@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -10,10 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, Plus } from "lucide-react";
+import { Loader2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, Plus, ArrowRightLeft } from "lucide-react";
 import { toast } from "sonner";
 import {
-  BarChart,
   Bar,
   XAxis,
   YAxis,
@@ -24,7 +22,11 @@ import {
 } from "recharts";
 import { NewInvoiceModal } from "@/components/NewInvoiceModal";
 import { InvoiceDetailPanel } from "@/components/InvoiceDetailPanel";
+import { LogPaymentModal } from "@/components/LogPaymentModal";
+import { PaymentDetailPanel } from "@/components/PaymentDetailPanel";
+import type { PaymentRow } from "@/components/PaymentDetailPanel";
 import type { Tables } from "@/integrations/supabase/types";
+import { getClientColor } from "@/lib/timer-utils";
 
 type Client = Tables<"clients">;
 
@@ -67,10 +69,13 @@ export default function FinancesPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
+  const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [invFilter, setInvFilter] = useState<"all" | "draft" | "sent" | "paid" | "overdue">("all");
   const [newInvOpen, setNewInvOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRow | null>(null);
+  const [newPayOpen, setNewPayOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentRow | null>(null);
 
   // Expense form
   const [expFormOpen, setExpFormOpen] = useState(false);
@@ -78,57 +83,80 @@ export default function FinancesPage() {
   const [expSaving, setExpSaving] = useState(false);
 
   const fetchAll = useCallback(async () => {
-    const [clientsRes, invoicesRes, expensesRes] = await Promise.all([
+    const [clientsRes, invoicesRes, expensesRes, paymentsRes] = await Promise.all([
       supabase.from("clients").select("*").order("name"),
       supabase.from("invoices").select("*").order("created_at", { ascending: false }),
       supabase.from("expenses").select("*").order("date", { ascending: false }),
+      supabase.from("payments").select("*").order("date_received", { ascending: false }),
     ]);
-    setClients(clientsRes.data || []);
-    const clientMap = new Map((clientsRes.data || []).map((c) => [c.id, c.name]));
+    const clientList = clientsRes.data || [];
+    setClients(clientList);
+    const clientMap = new Map(clientList.map((c) => [c.id, c.name]));
+
+    const invoiceList = (invoicesRes.data || []) as InvoiceRow[];
+    const invoiceMap = new Map(invoiceList.map((i) => [i.id, i.number]));
+
     setInvoices(
-      (invoicesRes.data || []).map((inv) => ({
-        ...inv,
-        client_name: clientMap.get(inv.client_id) || "Unknown",
-      })) as InvoiceRow[]
+      invoiceList.map((inv) => ({ ...inv, client_name: clientMap.get(inv.client_id) || "Unknown" }))
     );
     setExpenses((expensesRes.data || []) as ExpenseRow[]);
+    setPayments(
+      ((paymentsRes.data || []) as unknown as PaymentRow[]).map((p) => ({
+        ...p,
+        client_name: clientMap.get(p.client_id) || "Unknown",
+        invoice_number: p.invoice_id ? invoiceMap.get(p.invoice_id) || undefined : undefined,
+      }))
+    );
     setLoading(false);
   }, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  // Stats
+  // Invoice stats
   const stats = useMemo(() => {
     const activeClients = clients.filter((c) => c.status === "active");
     const mrr = activeClients.reduce((sum, c) => sum + (c.monthly_rate || 0), 0);
-
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    let collected = 0;
-    let pending = 0;
-    let overdue = 0;
-
+    let collected = 0, pending = 0, overdue = 0;
     invoices.forEach((inv) => {
-      if (inv.status === "paid" && inv.paid_at && new Date(inv.paid_at) >= monthStart) {
-        collected += inv.amount;
-      }
+      if (inv.status === "paid" && inv.paid_at && new Date(inv.paid_at) >= monthStart) collected += inv.amount;
       if (inv.status === "draft" || inv.status === "sent") {
-        if (isOverdue(inv)) {
-          overdue += inv.amount;
-        } else {
-          pending += inv.amount;
-        }
+        if (isOverdue(inv)) overdue += inv.amount;
+        else pending += inv.amount;
       }
-      if (inv.status === "overdue") {
-        overdue += inv.amount;
-      }
+      if (inv.status === "overdue") overdue += inv.amount;
     });
-
     return { mrr, collected, pending, overdue };
   }, [clients, invoices]);
 
-  // Chart data — last 6 months
+  // Payment stats
+  const paymentStats = useMemo(() => {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthPayments = payments.filter((p) => new Date(p.date_received + "T00:00:00") >= monthStart);
+
+    const usdThisMonth = monthPayments
+      .filter((p) => p.currency_received === "USD")
+      .reduce((s, p) => s + p.amount_received, 0);
+
+    const mxnThisMonth = monthPayments.reduce((s, p) => {
+      if (p.bank_currency === "MXN" && p.bank_amount) return s + p.bank_amount;
+      if (p.currency_received === "MXN") return s + p.amount_received;
+      return s;
+    }, 0);
+
+    const ratesThisMonth = monthPayments
+      .filter((p) => p.exchange_rate && p.exchange_rate > 0)
+      .map((p) => p.exchange_rate!);
+    const avgRate = ratesThisMonth.length > 0
+      ? ratesThisMonth.reduce((s, r) => s + r, 0) / ratesThisMonth.length
+      : null;
+
+    return { usdThisMonth, mxnThisMonth, avgRate };
+  }, [payments]);
+
+  // Chart data
   const chartData = useMemo(() => {
     const months: { label: string; revenue: number; expenses: number; net: number }[] = [];
     const now = new Date();
@@ -136,24 +164,17 @@ export default function FinancesPage() {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
       const label = d.toLocaleDateString("en-US", { month: "short" });
-
       const rev = invoices
         .filter((inv) => inv.status === "paid" && inv.paid_at && new Date(inv.paid_at) >= d && new Date(inv.paid_at) <= monthEnd)
         .reduce((s, inv) => s + inv.amount, 0);
-
       const exp = expenses
-        .filter((e) => {
-          const ed = new Date(e.date + "T00:00:00");
-          return ed >= d && ed <= monthEnd;
-        })
+        .filter((e) => { const ed = new Date(e.date + "T00:00:00"); return ed >= d && ed <= monthEnd; })
         .reduce((s, e) => s + e.amount, 0);
-
       months.push({ label, revenue: rev, expenses: exp, net: rev - exp });
     }
     return months;
   }, [invoices, expenses]);
 
-  // Filtered invoices
   const filteredInvoices = useMemo(() => {
     if (invFilter === "all") return invoices;
     if (invFilter === "overdue") return invoices.filter((inv) => isOverdue(inv));
@@ -174,10 +195,7 @@ export default function FinancesPage() {
       recurring: expForm.recurring,
     } as Record<string, unknown>);
     setExpSaving(false);
-    if (error) {
-      toast.error("Failed to add expense");
-      return;
-    }
+    if (error) { toast.error("Failed to add expense"); return; }
     toast.success("Expense added");
     setExpFormOpen(false);
     setExpForm({ category: "Other", description: "", amount: "", currency: "USD", date: new Date().toISOString().split("T")[0], client_id: "", recurring: false });
@@ -187,9 +205,7 @@ export default function FinancesPage() {
   const monthExpenses = useMemo(() => {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    return expenses
-      .filter((e) => new Date(e.date + "T00:00:00") >= monthStart)
-      .reduce((s, e) => s + e.amount, 0);
+    return expenses.filter((e) => new Date(e.date + "T00:00:00") >= monthStart).reduce((s, e) => s + e.amount, 0);
   }, [expenses]);
 
   const EXPENSE_CATEGORIES = ["Payroll", "AI Credits", "Software", "Ad Spend", "Freelancers", "Other"];
@@ -224,10 +240,7 @@ export default function FinancesPage() {
             <ComposedChart data={chartData}>
               <XAxis dataKey="label" tick={{ fontSize: 12, fill: "hsl(var(--foreground-muted))" }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: "hsl(var(--foreground-muted))" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
-              <Tooltip
-                contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 13 }}
-                formatter={(value: number) => [`$${value.toLocaleString()}`, undefined]}
-              />
+              <Tooltip contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 13 }} formatter={(value: number) => [`$${value.toLocaleString()}`, undefined]} />
               <Bar dataKey="revenue" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} name="Revenue" />
               <Bar dataKey="expenses" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} name="Expenses" />
               <Line type="monotone" dataKey="net" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} name="Net" />
@@ -236,7 +249,94 @@ export default function FinancesPage() {
         </div>
       </div>
 
-      {/* Invoices */}
+      {/* ─── PAYMENTS ─── */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-h2 text-foreground">Payments</h2>
+          <Button size="sm" onClick={() => setNewPayOpen(true)}>
+            <Plus className="h-3.5 w-3.5 mr-1" /> Log payment
+          </Button>
+        </div>
+
+        {/* Payment stats */}
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="border border-border rounded-lg p-4">
+            <p className="text-micro text-foreground-muted mb-1">USD this month</p>
+            <p className="text-h2 text-foreground">${paymentStats.usdThisMonth.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            <p className="text-small text-foreground-muted">USD direct</p>
+          </div>
+          <div className="border border-border rounded-lg p-4">
+            <p className="text-micro text-foreground-muted mb-1">MXN this month</p>
+            <p className="text-h2 text-foreground">${paymentStats.mxnThisMonth.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            <p className="text-small text-foreground-muted">MXN (converted + direct)</p>
+          </div>
+          <div className="border border-border rounded-lg p-4">
+            <p className="text-micro text-foreground-muted mb-1">Avg exchange rate</p>
+            <p className="text-h2 text-foreground">
+              {paymentStats.avgRate ? `${paymentStats.avgRate.toFixed(2)}` : "—"}
+            </p>
+            <p className="text-small text-foreground-muted">
+              {paymentStats.avgRate ? "1 USD = X MXN" : "No conversions"}
+            </p>
+          </div>
+        </div>
+
+        {/* Payment list */}
+        {payments.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-sm text-foreground-muted mb-1">No payments recorded yet</p>
+            <p className="text-small text-foreground-muted mb-3">Log your first payment to start tracking actual income</p>
+            <Button variant="secondary" size="sm" onClick={() => setNewPayOpen(true)}>Log payment</Button>
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            {payments.map((p) => {
+              const clientColor = getClientColor(p.client_name || "");
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setSelectedPayment(p)}
+                  className="flex items-center gap-3 py-3 border-b border-border text-left hover:bg-background-secondary transition-colors px-1 -mx-1 rounded"
+                >
+                  <div className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: clientColor }} />
+                  <div className="w-20 shrink-0">
+                    <p className="text-small text-foreground-muted">
+                      {new Date(p.date_received + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </p>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{p.sender_name || p.client_name}</p>
+                    {p.reference && <p className="text-small text-foreground-muted truncate">{p.reference}</p>}
+                  </div>
+                  {p.breakdown && Array.isArray(p.breakdown) && (p.breakdown as unknown[]).length > 0 && (
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-accent-light text-accent-foreground shrink-0">
+                      {(p.breakdown as unknown[]).length} items
+                    </span>
+                  )}
+                  {p.exchange_rate && (
+                    <span className="text-small text-foreground-muted shrink-0">{p.exchange_rate.toFixed(1)} MXN/USD</span>
+                  )}
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-semibold text-foreground">
+                      ${p.amount_received.toLocaleString(undefined, { minimumFractionDigits: 2 })} {p.currency_received}
+                    </p>
+                    {p.bank_amount && p.bank_currency && (
+                      <p className="text-small text-foreground-muted">≈ ${p.bank_amount.toLocaleString()} {p.bank_currency}</p>
+                    )}
+                  </div>
+                  {p.invoice_number && (
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-accent-light text-accent-foreground shrink-0">
+                      {p.invoice_number}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ─── INVOICES ─── */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-h2 text-foreground">Invoices</h2>
@@ -244,21 +344,13 @@ export default function FinancesPage() {
             <Plus className="h-3.5 w-3.5 mr-1" /> New invoice
           </Button>
         </div>
-
         <div className="flex gap-1 mb-4 flex-wrap">
           {(["all", "draft", "sent", "paid", "overdue"] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setInvFilter(f)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                invFilter === f ? "bg-primary text-primary-foreground" : "border border-border text-foreground-secondary hover:bg-background-secondary"
-              }`}
-            >
+            <button key={f} onClick={() => setInvFilter(f)} className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${invFilter === f ? "bg-primary text-primary-foreground" : "border border-border text-foreground-secondary hover:bg-background-secondary"}`}>
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
         </div>
-
         {filteredInvoices.length === 0 ? (
           <p className="text-sm text-foreground-muted py-8 text-center">No invoices found.</p>
         ) : (
@@ -273,18 +365,12 @@ export default function FinancesPage() {
                 overdue: "bg-destructive-light text-destructive",
               };
               return (
-                <button
-                  key={inv.id}
-                  onClick={() => setSelectedInvoice(inv)}
-                  className="flex items-center gap-3 py-3 border-b border-border text-left hover:bg-background-secondary transition-colors px-1 -mx-1 rounded"
-                >
+                <button key={inv.id} onClick={() => setSelectedInvoice(inv)} className="flex items-center gap-3 py-3 border-b border-border text-left hover:bg-background-secondary transition-colors px-1 -mx-1 rounded">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">{inv.number}</p>
                     <p className="text-small text-foreground-muted">{inv.client_name}</p>
                   </div>
-                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[displayStatus] || ""}`}>
-                    {displayStatus}
-                  </span>
+                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[displayStatus] || ""}`}>{displayStatus}</span>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-semibold text-foreground">{inv.currency} ${inv.amount.toLocaleString()}</p>
                     {inv.due_date && (
@@ -300,7 +386,7 @@ export default function FinancesPage() {
         )}
       </div>
 
-      {/* Expenses */}
+      {/* ─── EXPENSES ─── */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -398,13 +484,14 @@ export default function FinancesPage() {
         )}
       </div>
 
+      {/* Modals & Panels */}
       <NewInvoiceModal open={newInvOpen} onOpenChange={setNewInvOpen} onCreated={fetchAll} />
+      <LogPaymentModal open={newPayOpen} onOpenChange={setNewPayOpen} onCreated={fetchAll} />
       {selectedInvoice && (
-        <InvoiceDetailPanel
-          invoice={selectedInvoice}
-          onClose={() => setSelectedInvoice(null)}
-          onUpdated={() => { setSelectedInvoice(null); fetchAll(); }}
-        />
+        <InvoiceDetailPanel invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} onUpdated={() => { setSelectedInvoice(null); fetchAll(); }} />
+      )}
+      {selectedPayment && (
+        <PaymentDetailPanel payment={selectedPayment} onClose={() => setSelectedPayment(null)} onUpdated={() => { setSelectedPayment(null); fetchAll(); }} />
       )}
     </div>
   );
