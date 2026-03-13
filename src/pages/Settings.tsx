@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AgencyProfileTab } from "@/components/settings/AgencyProfileTab";
 import { MembersTab } from "@/components/settings/MembersTab";
+import { IntegrationsTab } from "@/components/settings/IntegrationsTab";
 import { toast } from "sonner";
 
 export interface Agency {
