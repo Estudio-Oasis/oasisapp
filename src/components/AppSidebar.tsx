@@ -14,6 +14,7 @@ const navItems = [
   { title: "Clients", url: "/clients", icon: Users },
   { title: "Tasks", url: "/tasks", icon: CheckSquare },
   { title: "Finances", url: "/finances", icon: DollarSign },
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {

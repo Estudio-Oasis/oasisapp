@@ -8,6 +8,7 @@ const pageTitles: Record<string, string> = {
   "/clients": "Clients",
   "/tasks": "Tasks",
   "/finances": "Finances",
+  "/settings": "Settings",
 };
 
 export function AppLayout() {
