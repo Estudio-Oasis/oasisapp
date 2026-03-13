@@ -387,15 +387,19 @@ export default function ClientProfilePage() {
 function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthHours }: { clientId: string; clientName: string; monthlyRate: number | null; currency: string; monthHours: number }) {
   const [invoices, setInvoices] = useState<{ id: string; number: string; amount: number; currency: string; status: string; due_date: string | null; paid_at: string | null; period_start: string | null; period_end: string | null; notes: string | null; created_at: string }[]>([]);
   const [expenses, setExpenses] = useState<{ id: string; category: string; description: string | null; amount: number; currency: string; date: string }[]>([]);
+  const [payments, setPayments] = useState<{ id: string; amount_received: number; currency_received: string; date_received: string; sender_name: string | null; reference: string | null; bank_amount: number | null; bank_currency: string | null; exchange_rate: number | null }[]>([]);
   const [newInvOpen, setNewInvOpen] = useState(false);
+  const [newPayOpen, setNewPayOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
-    const [invRes, expRes] = await Promise.all([
+    const [invRes, expRes, payRes] = await Promise.all([
       supabase.from("invoices").select("*").eq("client_id", clientId).order("created_at", { ascending: false }),
       supabase.from("expenses").select("*").eq("client_id", clientId).order("date", { ascending: false }),
+      supabase.from("payments").select("*").eq("client_id", clientId).order("date_received", { ascending: false }),
     ]);
     setInvoices((invRes.data || []) as typeof invoices);
     setExpenses((expRes.data || []) as typeof expenses);
+    setPayments((payRes.data || []) as typeof payments);
   }, [clientId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -407,6 +411,14 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
   const totalPaid = invoices.filter((i) => i.status === "paid").reduce((s, i) => s + i.amount, 0);
   const outstanding = totalInvoiced - totalPaid;
   const effectiveRate = monthlyRate && monthHours > 0 ? Math.round(monthlyRate / monthHours) : null;
+
+  // Payment totals by currency
+  const totalReceivedUSD = payments.filter(p => p.currency_received === "USD").reduce((s, p) => s + p.amount_received, 0);
+  const totalReceivedMXN = payments.reduce((s, p) => {
+    if (p.bank_currency === "MXN" && p.bank_amount) return s + p.bank_amount;
+    if (p.currency_received === "MXN") return s + p.amount_received;
+    return s;
+  }, 0);
 
   const STATUS_BADGE: Record<string, string> = {
     draft: "bg-background-tertiary text-foreground-secondary",
@@ -435,6 +447,7 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
         )}
       </div>
 
+      {/* Invoices */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-h3 text-foreground">Invoices</h3>
         <Button variant="secondary" size="sm" onClick={() => setNewInvOpen(true)}>
@@ -467,6 +480,46 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
         </div>
       )}
 
+      {/* Payments received */}
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-h3 text-foreground">Payments received</h3>
+        <Button variant="secondary" size="sm" onClick={() => setNewPayOpen(true)}>
+          + Log payment for {clientName}
+        </Button>
+      </div>
+
+      {payments.length > 0 && (
+        <div className="border border-border rounded-lg p-3 mb-3 text-sm text-foreground-secondary">
+          Total received: {totalReceivedUSD > 0 && <span className="font-medium text-foreground">${totalReceivedUSD.toLocaleString()} USD</span>}
+          {totalReceivedUSD > 0 && totalReceivedMXN > 0 && " · "}
+          {totalReceivedMXN > 0 && <span className="font-medium text-foreground">${totalReceivedMXN.toLocaleString()} MXN</span>}
+        </div>
+      )}
+
+      {payments.length === 0 ? (
+        <p className="text-sm text-foreground-muted py-6 text-center mb-6">No payments recorded for this client yet.</p>
+      ) : (
+        <div className="flex flex-col mb-6">
+          {payments.slice(0, 10).map((p) => (
+            <div key={p.id} className="flex items-center gap-3 py-3 border-b border-border">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground">{p.sender_name || "Payment"}</p>
+                <p className="text-small text-foreground-muted">
+                  {new Date(p.date_received + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  {p.reference && ` · ${p.reference}`}
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-sm font-semibold text-foreground">${p.amount_received.toLocaleString(undefined, { minimumFractionDigits: 2 })} {p.currency_received}</p>
+                {p.bank_amount && p.bank_currency && (
+                  <p className="text-small text-foreground-muted">≈ ${p.bank_amount.toLocaleString()} {p.bank_currency}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {expenses.length > 0 && (
         <>
           <h3 className="text-h3 text-foreground mb-3">Linked expenses</h3>
@@ -486,6 +539,9 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
 
       {newInvOpen && (
         <NewInvoiceModal open={newInvOpen} onOpenChange={setNewInvOpen} onCreated={fetchData} prefillClientId={clientId} />
+      )}
+      {newPayOpen && (
+        <LogPaymentModal open={newPayOpen} onOpenChange={setNewPayOpen} onCreated={fetchData} prefillClientId={clientId} />
       )}
     </div>
   );
