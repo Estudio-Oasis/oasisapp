@@ -290,6 +290,29 @@ export default function HubPage() {
         conversationId={activeConversationId}
         partnerProfile={chatPartnerProfile}
       />
+
+      {/* Stop timer confirmation dialog */}
+      <Dialog open={showStopTimerDialog} onOpenChange={setShowStopTimerDialog}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>¿Detener el timer?</DialogTitle>
+            <DialogDescription>
+              Tienes el timer activo
+              {activeClient ? ` para ${activeClient.name}` : ""}
+              {activeTask ? ` — ${activeTask.title}` : ""}.
+              ¿Deseas detenerlo antes de cambiar tu estado?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button variant="outline" onClick={handleKeepTimerRunning}>
+              No, mantener timer
+            </Button>
+            <Button variant="default" onClick={handleConfirmStopTimer}>
+              Sí, detener timer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
