@@ -256,7 +256,8 @@ export default function HubPage() {
             { status: "break", icon: Coffee, label: "Break" },
             { status: "eating", icon: Utensils, label: "Comiendo" },
             { status: "bathroom", icon: Bath, label: "AFK" },
-            { status: "meeting", icon: Moon, label: "Reunión" },
+            { status: "meeting", icon: Video, label: "Reunión" },
+            { status: "offline", icon: Moon, label: "Offline" },
           ].map(({ status, icon: Icon, label }) => (
             <Button
               key={status}
