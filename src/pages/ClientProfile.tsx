@@ -485,7 +485,7 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
       )}
 
       {newInvOpen && (
-        <NewInvoiceModalImport open={newInvOpen} onOpenChange={setNewInvOpen} onCreated={fetchData} prefillClientId={clientId} />
+        <NewInvoiceModal open={newInvOpen} onOpenChange={setNewInvOpen} onCreated={fetchData} prefillClientId={clientId} />
       )}
     </div>
   );
