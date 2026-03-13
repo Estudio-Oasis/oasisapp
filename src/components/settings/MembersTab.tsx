@@ -194,12 +194,27 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
                 </div>
               </div>
               {isAdmin && (
-                <button
-                  onClick={() => handleCancelInvite(inv.id)}
-                  className="text-foreground-muted hover:text-destructive transition-colors"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => handleResendInvite(inv)}
+                    disabled={resendingId === inv.id}
+                    className="text-foreground-muted hover:text-foreground transition-colors"
+                    title="Resend invitation"
+                  >
+                    {resendingId === inv.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-4 w-4" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleCancelInvite(inv.id)}
+                    className="text-foreground-muted hover:text-destructive transition-colors"
+                    title="Cancel invitation"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               )}
             </div>
           ))}
