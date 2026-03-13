@@ -72,6 +72,38 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     }
   }, [open, isAdmin]);
 
+  // Load work schedule
+  useEffect(() => {
+    if (open && user) {
+      supabase
+        .from("profiles")
+        .select("work_start_hour, work_start_minute")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setWorkStartHour((data as any).work_start_hour ?? 9);
+            setWorkStartMinute((data as any).work_start_minute ?? 0);
+          }
+        });
+    }
+  }, [open, user]);
+
+  const handleSaveSchedule = async () => {
+    if (!user) return;
+    setSavingSchedule(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ work_start_hour: workStartHour, work_start_minute: workStartMinute } as any)
+      .eq("id", user.id);
+    setSavingSchedule(false);
+    if (error) {
+      toast.error("Error al guardar horario");
+    } else {
+      toast.success("Horario actualizado");
+    }
+  };
+
   const handleSaveName = async () => {
     if (!user || !name.trim()) return;
     setSavingName(true);
