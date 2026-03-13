@@ -51,6 +51,7 @@ export function ChatList({ conversations, profiles, currentUserId, onOpenChat }:
   const [selectedChannel, setSelectedChannel] = useState("");
   const [sendingToSlack, setSendingToSlack] = useState(false);
   const [showChannelPicker, setShowChannelPicker] = useState(false);
+  const channelPickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (conversations.length === 0) return;
