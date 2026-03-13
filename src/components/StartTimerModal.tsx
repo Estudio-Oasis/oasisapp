@@ -388,7 +388,7 @@ export function StartTimerModal({
               <label className="text-label">Proyecto (opcional)</label>
               <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="No project" />
+                  <SelectValue placeholder="Sin proyecto" />
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
