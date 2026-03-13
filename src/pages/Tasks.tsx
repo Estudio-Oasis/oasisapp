@@ -163,7 +163,7 @@ export default function TasksPage() {
             value={clientFilter}
             onChange={(e) => setClientFilter(e.target.value)}
           >
-            <option value="all">All clients</option>
+            <option value="all">Todos los clientes</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
           <div className="flex border border-border rounded-md">
