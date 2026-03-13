@@ -17,3 +17,5 @@ project_id = "tualybcctwjpldtlewlu"
     verify_jwt = false
   [functions.slack-notify]
     verify_jwt = false
+  [functions.slack-list-channels]
+    verify_jwt = false
