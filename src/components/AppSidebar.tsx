@@ -146,6 +146,11 @@ export function AppSidebar() {
                   )}
                   <item.icon className="h-4 w-4 shrink-0" />
                   <span>{item.title}</span>
+                  {item.url === "/hub" && unreadCount > 0 && (
+                    <span className="ml-auto flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1">
+                      {unreadCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}

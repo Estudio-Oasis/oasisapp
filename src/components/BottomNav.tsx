@@ -32,7 +32,14 @@ export function BottomNav() {
                 isActive ? "text-accent" : "text-foreground-muted"
               }`}
             >
-              <item.icon className="h-5 w-5" />
+              <div className="relative">
+                <item.icon className="h-5 w-5" />
+                {item.url === "/hub" && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-destructive text-[8px] font-bold text-destructive-foreground px-0.5">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
               <span className="text-micro">{item.title}</span>
             </Link>
           );
