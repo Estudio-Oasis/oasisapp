@@ -86,11 +86,11 @@ export default function TasksPage() {
 
   const stats = [
     { label: "Backlog", value: tasks.filter((t) => t.status === "backlog").length, color: "text-foreground-muted" },
-    { label: "To do", value: tasks.filter((t) => t.status === "todo").length, color: "text-foreground-secondary" },
-    { label: "In progress", value: tasks.filter((t) => t.status === "in_progress").length, color: "text-accent" },
-    { label: "Review", value: tasks.filter((t) => t.status === "review").length, color: "text-foreground-secondary" },
-    { label: "Done", value: tasks.filter((t) => t.status === "done").length, color: "text-success" },
-    { label: "Overdue", value: tasks.filter((t) => t.due_date && new Date(t.due_date) < today && t.status !== "done").length, danger: true },
+    { label: "Por hacer", value: tasks.filter((t) => t.status === "todo").length, color: "text-foreground-secondary" },
+    { label: "En progreso", value: tasks.filter((t) => t.status === "in_progress").length, color: "text-accent" },
+    { label: "Revisión", value: tasks.filter((t) => t.status === "review").length, color: "text-foreground-secondary" },
+    { label: "Listo", value: tasks.filter((t) => t.status === "done").length, color: "text-success" },
+    { label: "Vencidas", value: tasks.filter((t) => t.due_date && new Date(t.due_date) < today && t.status !== "done").length, danger: true },
   ];
 
   const cycleStatus = async (task: Task) => {
