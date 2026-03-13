@@ -45,24 +45,20 @@ const STEPS: TourStepDef[] = [
 function getTooltipPosition(rect: DOMRect, tooltipH = 300, tooltipW = 340) {
   const padding = 16;
   const spaceRight = window.innerWidth - rect.right;
-  const spaceBelow = window.innerHeight - rect.bottom;
   const spaceAbove = rect.top;
-  const spaceLeft = rect.left;
 
+  // Prefer right
   if (spaceRight >= tooltipW + padding) {
+    // Vertically center on target, but clamp to viewport
+    const idealTop = rect.top + rect.height / 2 - tooltipH / 2;
+    const clampedTop = Math.max(padding, Math.min(idealTop, window.innerHeight - tooltipH - padding));
     return {
-      top: Math.max(padding, Math.min(rect.top, window.innerHeight - tooltipH - padding)),
+      top: clampedTop,
       left: rect.right + padding,
       placement: "right" as const,
     };
   }
-  if (spaceBelow >= tooltipH + padding) {
-    return {
-      top: rect.bottom + padding,
-      left: Math.max(padding, Math.min(rect.left, window.innerWidth - tooltipW - padding)),
-      placement: "bottom" as const,
-    };
-  }
+  // Then above
   if (spaceAbove >= tooltipH + padding) {
     return {
       top: rect.top - tooltipH - padding,
@@ -70,16 +66,10 @@ function getTooltipPosition(rect: DOMRect, tooltipH = 300, tooltipW = 340) {
       placement: "top" as const,
     };
   }
-  if (spaceLeft >= tooltipW + padding) {
-    return {
-      top: Math.max(padding, Math.min(rect.top, window.innerHeight - tooltipH - padding)),
-      left: rect.left - tooltipW - padding,
-      placement: "left" as const,
-    };
-  }
+  // Fallback: center in viewport
   return {
-    top: window.innerHeight / 2 - tooltipH / 2,
-    left: window.innerWidth / 2 - tooltipW / 2,
+    top: Math.max(padding, window.innerHeight / 2 - tooltipH / 2),
+    left: Math.max(padding, window.innerWidth / 2 - tooltipW / 2),
     placement: "center" as const,
   };
 }
