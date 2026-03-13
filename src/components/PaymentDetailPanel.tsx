@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, ImagePlus, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { ImageEditorModal } from "@/components/ImageEditorModal";
 
 interface BreakdownItem {
   label: string;
   amount: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface PaymentRow {
   id: string;
   client_id: string;
@@ -40,8 +41,12 @@ interface PaymentDetailPanelProps {
 }
 
 export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetailPanelProps) {
+  const { user } = useAuth();
   const [notes, setNotes] = useState(payment.notes || "");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
 
   const saveNotes = async () => {
     setSaving(true);
@@ -61,7 +66,43 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
     onClose();
   };
 
-  const breakdown = Array.isArray(payment.breakdown) ? payment.breakdown : [];
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { toast.error("File must be under 10MB"); return; }
+    setReceiptFile(file);
+    setEditorOpen(true);
+  };
+
+  const handleEditorConfirm = async (editedFile: File) => {
+    if (!user) return;
+    setUploading(true);
+    const path = `${user.id}/${payment.id}/${Date.now()}.jpg`;
+    const { error: uploadError } = await supabase.storage
+      .from("receipts")
+      .upload(path, editedFile, { contentType: "image/jpeg" });
+
+    if (uploadError) {
+      toast.error("Failed to upload receipt");
+      setUploading(false);
+      return;
+    }
+
+    const { data: signedData } = await supabase.storage
+      .from("receipts")
+      .createSignedUrl(path, 60 * 60 * 24 * 365);
+
+    if (signedData?.signedUrl) {
+      await supabase.from("payments")
+        .update({ receipt_url: signedData.signedUrl } as Record<string, unknown>)
+        .eq("id", payment.id);
+      toast.success("Receipt uploaded");
+      onUpdated();
+    }
+    setUploading(false);
+  };
+
+  const breakdown = Array.isArray(payment.breakdown) ? payment.breakdown as BreakdownItem[] : [];
 
   return (
     <>
@@ -98,6 +139,44 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
                 )}
               </div>
             )}
+
+            {/* Receipt */}
+            <div>
+              <p className="text-micro text-foreground-muted mb-2">Receipt</p>
+              {payment.receipt_url ? (
+                <div className="space-y-2">
+                  <img
+                    src={payment.receipt_url}
+                    alt="Payment receipt"
+                    className="w-full max-h-[280px] object-contain border border-border rounded-lg"
+                  />
+                  <div className="flex gap-2">
+                    <a
+                      href={payment.receipt_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-small text-accent-foreground hover:underline flex items-center gap-1"
+                    >
+                      <ExternalLink className="h-3 w-3" /> View full size
+                    </a>
+                    <label className="text-small text-foreground-muted hover:underline cursor-pointer">
+                      <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+                      Replace receipt
+                    </label>
+                  </div>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center gap-2 border-2 border-dashed border-border rounded-xl p-4 cursor-pointer bg-background-secondary hover:bg-background-tertiary transition-colors text-center">
+                  <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+                  {uploading ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-foreground-muted" />
+                  ) : (
+                    <ImagePlus className="h-5 w-5 text-foreground-muted" />
+                  )}
+                  <span className="text-small text-foreground-muted">Add receipt</span>
+                </label>
+              )}
+            </div>
 
             {/* Details */}
             <div className="grid grid-cols-2 gap-3">
@@ -180,6 +259,13 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
           </div>
         </div>
       </div>
+
+      <ImageEditorModal
+        open={editorOpen}
+        onOpenChange={setEditorOpen}
+        imageFile={receiptFile}
+        onConfirm={handleEditorConfirm}
+      />
     </>
   );
 }
