@@ -79,6 +79,8 @@ export default function ClientProfilePage() {
   const [timeEntries, setTimeEntries] = useState<TimeEntryRow[]>([]);
   const [interactions, setInteractions] = useState<InteractionRow[]>([]);
   const [credentials, setCredentials] = useState<CredentialRow[]>([]);
+  const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
+  const [timeFilter, setTimeFilter] = useState<"mine" | "all">("mine");
   const [stats, setStats] = useState({ weekHours: 0, monthHours: 0, totalHours: 0 });
 
   const fetchClient = useCallback(async () => {
