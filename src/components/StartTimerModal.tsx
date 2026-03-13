@@ -294,7 +294,7 @@ export function StartTimerModal({
         <DialogHeader className="space-y-1 pb-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-h3">
-              {isManual ? "Add manual entry" : mode === "switch" ? "Switch task" : "Start timer"}
+              {isManual ? "Agregar entrada manual" : mode === "switch" ? "Cambiar tarea" : "Iniciar timer"}
             </DialogTitle>
           </div>
           <p className="text-small text-foreground-secondary">
