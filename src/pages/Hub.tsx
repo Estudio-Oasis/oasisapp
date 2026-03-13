@@ -165,7 +165,7 @@ export default function HubPage() {
 
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [showStopTimerDialog, setShowStopTimerDialog] = useState(false);
-  const { isRunning, stopTimer, activeClient, activeTask } = useTimer();
+  const { isRunning, stopTimer, activeClient, activeTask, startBreakTimer } = useTimer();
 
   const handleStatusChange = async (status: string) => {
     const nonWorkStatuses = ["break", "eating", "bathroom", "meeting"];
@@ -183,6 +183,8 @@ export default function HubPage() {
       await stopTimer();
       setMyStatus(pendingStatus);
       await setManualStatus(pendingStatus);
+      // Start a break timer so the widget shows the break counter
+      await startBreakTimer(pendingStatus);
       setPendingStatus(null);
     }
     setShowStopTimerDialog(false);
