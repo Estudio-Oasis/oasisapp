@@ -171,7 +171,7 @@ export function NewTaskModal({
                   className="text-[12px] text-foreground-muted hover:text-accent flex items-center gap-0.5 transition-colors"
                   title="Add new client"
                 >
-                  <Plus className="h-3 w-3" /> add new
+                  <Plus className="h-3 w-3" /> agregar nuevo
                 </button>
               </div>
               <Select value={selectedClientId} onValueChange={(v) => { setSelectedClientId(v); setShowInlineClient(false); }}>
