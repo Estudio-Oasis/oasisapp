@@ -18,6 +18,7 @@ interface NotificationItem {
 
 export function NotificationBell() {
   const { user } = useAuth();
+  const { isAdmin } = useRole();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
