@@ -159,6 +159,7 @@ export default function HubPage() {
     const otherId = convo.participant_a === user.id ? convo.participant_b : convo.participant_a;
     setActiveConversationId(conversationId);
     setActiveChatUserId(otherId);
+    markConversationRead(conversationId);
   };
 
   const handleStatusChange = async (status: string) => {
