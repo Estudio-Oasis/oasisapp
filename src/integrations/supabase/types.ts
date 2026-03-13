@@ -118,6 +118,41 @@ export type Database = {
           },
         ]
       }
+      agency_settings: {
+        Row: {
+          agency_id: string
+          created_at: string
+          id: string
+          slack_channel_id: string | null
+          slack_channel_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          created_at?: string
+          id?: string
+          slack_channel_id?: string | null
+          slack_channel_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          created_at?: string
+          id?: string
+          slack_channel_id?: string | null
+          slack_channel_name?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_settings_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: true
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_conversations: {
         Row: {
           created_at: string
