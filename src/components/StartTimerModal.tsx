@@ -433,7 +433,7 @@ export function StartTimerModal({
               <Textarea
                 ref={textareaRef}
                 rows={3}
-                placeholder="Describe what you're doing... (optional)"
+                placeholder="Describe lo que estás haciendo... (opcional)"
                 value={description}
                 onChange={(e) => {
                   setDescription(e.target.value);
