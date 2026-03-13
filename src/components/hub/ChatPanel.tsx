@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Send, Sparkles, Download, Loader2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Send, Sparkles, Loader2, Paperclip, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ interface ChatMessage {
   conversation_id: string;
   sender_id: string;
   content: string;
+  image_url: string | null;
   created_at: string;
 }
 
@@ -28,7 +29,9 @@ export function ChatPanel({ open, onOpenChange, conversationId, partnerProfile }
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [summarizing, setSummarizing] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const partnerName = partnerProfile?.name || partnerProfile?.email?.split("@")[0] || "Usuario";
 
@@ -84,7 +87,6 @@ export function ChatPanel({ open, onOpenChange, conversationId, partnerProfile }
       setInput(content);
     }
 
-    // Update conversation updated_at
     await supabase
       .from("chat_conversations")
       .update({ updated_at: new Date().toISOString() })
@@ -93,8 +95,58 @@ export function ChatPanel({ open, onOpenChange, conversationId, partnerProfile }
     setSending(false);
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !conversationId || !user) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Solo se permiten imágenes");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("La imagen no puede superar 5MB");
+      return;
+    }
+
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `${conversationId}/${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("chat-images")
+      .upload(path, file);
+
+    if (uploadError) {
+      toast.error("Error al subir la imagen");
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("chat-images")
+      .getPublicUrl(path);
+
+    const { error } = await supabase.from("chat_messages").insert({
+      conversation_id: conversationId,
+      sender_id: user.id,
+      content: "📷 Imagen",
+      image_url: urlData.publicUrl,
+    });
+
+    if (error) {
+      toast.error("No se pudo enviar la imagen");
+    }
+
+    await supabase
+      .from("chat_conversations")
+      .update({ updated_at: new Date().toISOString() })
+      .eq("id", conversationId);
+
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleSummarize = async () => {
-    if (!conversationId || summarizing) return;
+    if (!conversationId || !user || summarizing) return;
     setSummarizing(true);
 
     try {
@@ -105,14 +157,15 @@ export function ChatPanel({ open, onOpenChange, conversationId, partnerProfile }
       if (error) throw error;
 
       const summary = data?.summary || "No se pudo generar el resumen.";
-      const blob = new Blob([summary], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `resumen-chat-${partnerName.replace(/\s+/g, "-")}.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success("Resumen descargado");
+
+      // Save summary to DB
+      await supabase.from("chat_summaries").insert({
+        conversation_id: conversationId,
+        summary,
+        created_by: user.id,
+      });
+
+      toast.success("Resumen generado y guardado");
     } catch (e: any) {
       console.error("Summarize error:", e);
       toast.error("No se pudo generar el resumen");
@@ -163,7 +216,19 @@ export function ChatPanel({ open, onOpenChange, conversationId, partnerProfile }
                       : "bg-background-secondary text-foreground border border-border"
                   }`}
                 >
-                  {msg.content}
+                  {msg.image_url && (
+                    <a href={msg.image_url} target="_blank" rel="noopener noreferrer">
+                      <img
+                        src={msg.image_url}
+                        alt="Imagen compartida"
+                        className="rounded-md max-h-48 w-auto mb-1 cursor-pointer"
+                        loading="lazy"
+                      />
+                    </a>
+                  )}
+                  {(!msg.image_url || msg.content !== "📷 Imagen") && (
+                    <span className="whitespace-pre-wrap break-words">{msg.content}</span>
+                  )}
                   <div className={`text-[10px] mt-1 ${isMine ? "text-background/60" : "text-foreground-muted"}`}>
                     {new Date(msg.created_at).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
                   </div>
@@ -175,15 +240,32 @@ export function ChatPanel({ open, onOpenChange, conversationId, partnerProfile }
         </div>
 
         {/* Input */}
-        <div className="px-4 py-3 border-t border-border flex gap-2">
-          <Input
+        <div className="px-4 py-3 border-t border-border flex gap-2 items-end">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageUpload}
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 h-9 w-9"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
+          </Button>
+          <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Escribe un mensaje..."
-            className="flex-1"
+            className="flex-1 min-h-[36px] max-h-[120px] resize-none"
+            rows={1}
           />
-          <Button size="icon" onClick={handleSend} disabled={!input.trim() || sending}>
+          <Button size="icon" className="shrink-0" onClick={handleSend} disabled={!input.trim() || sending}>
             <Send className="h-4 w-4" />
           </Button>
         </div>
