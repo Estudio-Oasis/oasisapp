@@ -46,6 +46,7 @@ export function AppSidebar() {
   const [showTour, setShowTour] = useState(false);
   const [tourTimerOpen, setTourTimerOpen] = useState(false);
   const [tourTaskOpen, setTourTaskOpen] = useState(false);
+  const welcomeShownRef = useRef(false);
 
   useEffect(() => {
     if (!user) return;
