@@ -201,7 +201,7 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
           {/* Description */}
           <div className="border border-border rounded-lg p-4 mb-4">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-micro text-foreground-muted">Description</p>
+              <p className="text-micro text-foreground-muted">Descripción</p>
               {!editingDesc && (
                 <button onClick={() => setEditingDesc(true)} className="text-foreground-muted hover:text-foreground">
                   <Pencil className="h-3.5 w-3.5" />
