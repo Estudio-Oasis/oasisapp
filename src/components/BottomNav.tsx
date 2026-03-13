@@ -24,12 +24,7 @@ export function BottomNav() {
                 isActive ? "text-foreground" : "text-foreground-muted"
               }`}
             >
-              <div className="relative">
-                {isActive && (
-                  <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-accent" />
-                )}
-                <item.icon className="h-5 w-5" />
-              </div>
+              <item.icon className="h-5 w-5" />
               <span className="text-micro">{item.title}</span>
             </Link>
           );
