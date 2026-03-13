@@ -261,7 +261,7 @@ export default function TasksPage() {
                   )}
                   {task.due_date && (
                     <span className={`text-small ${overdue ? "text-destructive" : "text-foreground-muted"}`}>
-                      {new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    {new Date(task.due_date).toLocaleDateString("es-MX", { month: "short", day: "numeric" })}
                     </span>
                   )}
                   {assignee && (
