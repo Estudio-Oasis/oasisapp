@@ -467,7 +467,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const startBreakTimer = useCallback(async (breakType?: string) => {
     if (!userId) return;
 
-    const label = breakType === "eating" ? "Comiendo" : breakType === "bathroom" ? "AFK" : breakType === "meeting" ? "Reunión" : "Break";
+    const label = breakType === "eating" ? "Comiendo" : breakType === "bathroom" ? "AFK" : breakType === "meeting" ? "Reunión" : breakType === "offline" ? "Offline" : "Break";
     const startedAt = new Date().toISOString();
     const { data: entry, error } = await supabase
       .from("time_entries")
