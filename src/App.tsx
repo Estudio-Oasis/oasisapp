@@ -12,6 +12,7 @@ import { TimerFAB } from "@/components/TimerFAB";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import TimerPage from "./pages/Timer";
+import SetupPage from "./pages/Setup";
 import ClientsPage from "./pages/Clients";
 import ClientProfilePage from "./pages/ClientProfile";
 import TasksPage from "./pages/Tasks";
@@ -31,9 +32,10 @@ const App = () => (
           <AuthProvider>
             <TimerProvider>
               <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/" element={<Navigate to="/timer" replace />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/setup" element={<SetupPage />} />
+              <Route path="/" element={<Navigate to="/timer" replace />} />
                 <Route
                   element={
                     <ProtectedRoute>

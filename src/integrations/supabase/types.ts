@@ -77,8 +77,10 @@ export type Database = {
           created_at: string
           email: string
           expires_at: string
+          full_name: string | null
           id: string
           invited_by: string
+          job_title: string | null
           role: string
           status: string
         }
@@ -87,8 +89,10 @@ export type Database = {
           created_at?: string
           email: string
           expires_at?: string
+          full_name?: string | null
           id?: string
           invited_by: string
+          job_title?: string | null
           role?: string
           status?: string
         }
@@ -97,8 +101,10 @@ export type Database = {
           created_at?: string
           email?: string
           expires_at?: string
+          full_name?: string | null
           id?: string
           invited_by?: string
+          job_title?: string | null
           role?: string
           status?: string
         }
@@ -463,7 +469,9 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          job_title: string | null
           name: string | null
+          onboarded: boolean
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string
         }
@@ -473,7 +481,9 @@ export type Database = {
           created_at?: string
           email?: string | null
           id: string
+          job_title?: string | null
           name?: string | null
+          onboarded?: boolean
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
         }
@@ -483,7 +493,9 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          job_title?: string | null
           name?: string | null
+          onboarded?: boolean
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
         }
