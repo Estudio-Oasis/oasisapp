@@ -25,7 +25,7 @@ export function NotificationBell() {
   useEffect(() => {
     if (!user) return;
     computeNotifications();
-  }, [user]);
+  }, [user, isAdmin]);
 
   const computeNotifications = async () => {
     if (!user) return;
