@@ -123,6 +123,16 @@ export default function FinancesPage() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  // Fetch exchange rates from free API
+  useEffect(() => {
+    fetch("https://open.er-api.com/v6/latest/USD")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.rates) setExchangeRates(data.rates as Record<string, number>);
+      })
+      .catch(() => {});
+  }, []);
+
   // Invoice stats
   const stats = useMemo(() => {
     const activeClients = clients.filter((c) => c.status === "active");
