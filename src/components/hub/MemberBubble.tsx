@@ -3,31 +3,29 @@ import { cn } from "@/lib/utils";
 interface MemberBubbleProps {
   name: string;
   avatarUrl: string | null;
-  status: "working" | "break" | "offline";
+  status: "working" | "break" | "offline" | "online";
+  statusLabel: string;
   currentClient: string | null;
   currentTask: string | null;
+  isMe?: boolean;
   onClick: () => void;
 }
 
 const statusColors = {
   working: "border-success ring-success/20",
+  online: "border-primary ring-primary/20",
   break: "border-accent ring-accent/20",
   offline: "border-border ring-transparent",
 };
 
 const statusDot = {
   working: "bg-success",
+  online: "bg-primary",
   break: "bg-accent",
   offline: "bg-foreground-muted",
 };
 
-const statusLabel = {
-  working: "Trabajando",
-  break: "En break",
-  offline: "Offline",
-};
-
-export function MemberBubble({ name, avatarUrl, status, currentClient, currentTask, onClick }: MemberBubbleProps) {
+export function MemberBubble({ name, avatarUrl, status, statusLabel, currentClient, currentTask, isMe, onClick }: MemberBubbleProps) {
   const initials = name
     .split(" ")
     .map((w) => w[0])
@@ -38,7 +36,10 @@ export function MemberBubble({ name, avatarUrl, status, currentClient, currentTa
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center gap-2 w-20 group cursor-pointer"
+      className={cn(
+        "flex flex-col items-center gap-2 w-20 group",
+        isMe ? "cursor-default" : "cursor-pointer"
+      )}
     >
       {/* Avatar */}
       <div className="relative">
@@ -47,7 +48,8 @@ export function MemberBubble({ name, avatarUrl, status, currentClient, currentTa
             "flex h-14 w-14 items-center justify-center rounded-full border-2 transition-all",
             statusColors[status],
             status === "working" && "ring-2 animate-pulse",
-            "group-hover:scale-105"
+            status === "online" && "ring-2",
+            !isMe && "group-hover:scale-105"
           )}
         >
           {avatarUrl ? (
@@ -66,7 +68,9 @@ export function MemberBubble({ name, avatarUrl, status, currentClient, currentTa
       </div>
 
       {/* Name */}
-      <span className="text-xs font-medium text-foreground truncate w-full text-center">{name.split(" ")[0]}</span>
+      <span className="text-xs font-medium text-foreground truncate w-full text-center">
+        {isMe ? "Tú" : name.split(" ")[0]}
+      </span>
 
       {/* Status / client / task */}
       <div className="flex flex-col items-center gap-0.5 min-h-[28px]">
@@ -78,7 +82,7 @@ export function MemberBubble({ name, avatarUrl, status, currentClient, currentTa
             )}
           </>
         ) : (
-          <span className="text-[10px] text-foreground-muted">{statusLabel[status]}</span>
+          <span className="text-[10px] text-foreground-muted">{statusLabel}</span>
         )}
       </div>
     </button>
