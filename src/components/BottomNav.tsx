@@ -1,4 +1,4 @@
-import { Timer, Users, CheckSquare, DollarSign, Settings } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Radio } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useRole } from "@/hooks/useRole";
 
