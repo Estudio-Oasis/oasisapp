@@ -95,10 +95,12 @@ export default function ClientsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-h1 text-foreground">Clients</h1>
-        <Button onClick={() => setModalOpen(true)}>
-          <Plus className="h-4 w-4" />
-          New client
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => setModalOpen(true)}>
+            <Plus className="h-4 w-4" />
+            New client
+          </Button>
+        )}
       </div>
 
       {/* Stats */}
