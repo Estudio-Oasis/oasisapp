@@ -170,14 +170,23 @@ export default function TasksPage() {
             <button
               onClick={() => setView("list")}
               className={`p-1.5 ${view === "list" ? "bg-background-secondary" : ""}`}
+              title="List view"
             >
               <List className="h-4 w-4 text-foreground-secondary" />
             </button>
             <button
               onClick={() => setView("kanban")}
               className={`p-1.5 ${view === "kanban" ? "bg-background-secondary" : ""}`}
+              title="Kanban view"
             >
               <LayoutGrid className="h-4 w-4 text-foreground-secondary" />
+            </button>
+            <button
+              onClick={() => setView("gantt")}
+              className={`p-1.5 ${view === "gantt" ? "bg-background-secondary" : ""}`}
+              title="Gantt view"
+            >
+              <GanttChart className="h-4 w-4 text-foreground-secondary" />
             </button>
           </div>
         </div>
