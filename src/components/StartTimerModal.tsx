@@ -307,7 +307,7 @@ export function StartTimerModal({
           {isManual && (
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-label">Start time</label>
+                <label className="text-label">Hora inicio</label>
                 <Input
                   type="time"
                   value={manualStart}
