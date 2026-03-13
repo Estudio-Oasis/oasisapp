@@ -3,8 +3,45 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+function jsonResponse(body: object, status: number) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  isRetryable: (err: any) => boolean,
+  maxAttempts = 3,
+  baseDelayMs = 2000
+): Promise<T> {
+  let lastErr: any;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (!isRetryable(err) || attempt === maxAttempts) break;
+      const delay = baseDelayMs * attempt;
+      console.log(`rate_limited_retry attempt=${attempt} delay=${delay}ms`);
+      await sleep(delay);
+    }
+  }
+  throw lastErr;
+}
+
+function isRateLimitError(err: any): boolean {
+  const msg = typeof err === "object" && err !== null ? (err.message || err.msg || "") : String(err);
+  return msg.includes("security purposes") || msg.includes("rate") || msg.includes("1 second");
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -14,40 +51,25 @@ Deno.serve(async (req) => {
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ code: "unauthorized", error: "Unauthorized" }, 401);
     }
 
-    // Verify the calling user is admin
     const anonClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_ANON_KEY")!,
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    // Public anon client (no user auth) for auth email fallback flows
-    const publicClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!
-    );
-
     const { data: claims, error: claimsErr } = await anonClient.auth.getUser();
     if (claimsErr || !claims.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ code: "unauthorized", error: "Unauthorized" }, 401);
     }
 
-    // Use service role client for admin operations
     const adminClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Check caller is admin
     const { data: callerProfile } = await adminClient
       .from("profiles")
       .select("role, agency_id, name")
@@ -55,22 +77,16 @@ Deno.serve(async (req) => {
       .single();
 
     if (!callerProfile || callerProfile.role !== "admin") {
-      return new Response(JSON.stringify({ error: "Forbidden: admin only" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ code: "forbidden", error: "Forbidden: admin only" }, 403);
     }
 
     const { email, full_name, job_title } = await req.json();
 
     if (!email) {
-      return new Response(JSON.stringify({ error: "Email is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ code: "bad_request", error: "Email is required" }, 400);
     }
 
-    // Create or refresh invitation record
+    // Upsert invitation record
     const { error: inviteRecordErr } = await adminClient
       .from("agency_invitations")
       .upsert(
@@ -87,79 +103,92 @@ Deno.serve(async (req) => {
       );
 
     if (inviteRecordErr) {
-      return new Response(
-        JSON.stringify({ error: inviteRecordErr.message }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
+      console.error("invite_record_error", inviteRecordErr.message);
+      return jsonResponse({ code: "db_error", error: inviteRecordErr.message }, 400);
     }
 
     const redirectTo = `${req.headers.get("origin") || Deno.env.get("SUPABASE_URL")}/setup`;
 
-    // Try to invite via Auth (sends invitation email to new users)
-    const { error: inviteErr } =
-      await adminClient.auth.admin.inviteUserByEmail(email, {
-        data: {
-          name: full_name || email.split("@")[0],
-          job_title: job_title || null,
-          invited_by_name: callerProfile.name || "Admin",
-        },
-        redirectTo,
-      });
+    // Try inviting via Auth (new users)
+    const { error: inviteErr } = await withRetry(
+      () =>
+        adminClient.auth.admin.inviteUserByEmail(email, {
+          data: {
+            name: full_name || email.split("@")[0],
+            job_title: job_title || null,
+            invited_by_name: callerProfile.name || "Admin",
+          },
+          redirectTo,
+        }),
+      (err) => isRateLimitError(err)
+    );
 
     if (inviteErr) {
       const isAlreadyRegistered = inviteErr.message.includes("already been registered");
 
       if (isAlreadyRegistered) {
-        // Existing users don't receive invite emails from inviteUserByEmail.
-        // Fallback: send a magic link email so they still get a notification email.
-        // Wait to avoid Supabase rate limit (1 req/sec on auth endpoints)
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        const { error: magicLinkErr } = await publicClient.auth.signInWithOtp({
-          email,
-          options: {
-            shouldCreateUser: false,
-            emailRedirectTo: redirectTo,
-          },
-        });
+        console.log("existing_user_resend", email);
+        // Existing user — send magic link as notification
+        const publicClient = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_ANON_KEY")!
+        );
+
+        const { error: magicLinkErr } = await withRetry(
+          () =>
+            publicClient.auth.signInWithOtp({
+              email,
+              options: {
+                shouldCreateUser: false,
+                emailRedirectTo: redirectTo,
+              },
+            }),
+          (err) => isRateLimitError(err)
+        );
 
         if (magicLinkErr) {
-          return new Response(
-            JSON.stringify({ error: `Failed to send notification email: ${magicLinkErr.message}` }),
-            {
-              status: 400,
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-            }
-          );
+          if (isRateLimitError(magicLinkErr)) {
+            console.log("rate_limited_final", email);
+            return jsonResponse(
+              {
+                code: "rate_limited",
+                error: "Demasiados intentos. Intenta de nuevo en unos segundos.",
+                retry_after_seconds: 10,
+              },
+              429
+            );
+          }
+          console.error("final_failure magic_link", magicLinkErr.message);
+          return jsonResponse({ code: "email_error", error: magicLinkErr.message }, 400);
         }
+      } else if (isRateLimitError(inviteErr)) {
+        console.log("rate_limited_final", email);
+        return jsonResponse(
+          {
+            code: "rate_limited",
+            error: "Demasiados intentos. Intenta de nuevo en unos segundos.",
+            retry_after_seconds: 10,
+          },
+          429
+        );
       } else {
-        // Rollback invitation record for unexpected errors
+        // Unexpected error — rollback invitation
+        console.error("final_failure invite", inviteErr.message);
         await adminClient
           .from("agency_invitations")
           .delete()
           .eq("email", email)
           .eq("status", "pending");
 
-        return new Response(JSON.stringify({ error: inviteErr.message }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return jsonResponse({ code: "invite_error", error: inviteErr.message }, 400);
       }
+    } else {
+      console.log("new_user_invite", email);
     }
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return jsonResponse({ success: true }, 200);
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error("unhandled_error", err.message);
+    return jsonResponse({ code: "internal_error", error: err.message }, 500);
   }
 });
