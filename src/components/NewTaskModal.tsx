@@ -124,8 +124,8 @@ export function NewTaskModal({
         description: description || null,
       }).select("id").single();
 
-      if (error) { toast.error("Failed to create task"); return; }
-      toast.success("Task created!");
+      if (error) { toast.error("Error al crear la tarea"); return; }
+      toast.success("¡Tarea creada!");
       onOpenChange(false);
       if (onCreated && data) onCreated(data.id, selectedClientId);
       if (startTimer && data) {
