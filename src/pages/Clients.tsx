@@ -206,17 +206,19 @@ export default function ClientsPage() {
                   </div>
                 </div>
 
-                {/* Rate + Completeness */}
-                <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
-                  {rate ? (
-                    <span className="text-sm font-semibold text-foreground">
-                      ${rate.toLocaleString()}{frequencyLabel[freq] || "/mo"}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-foreground-muted">No rate</span>
-                  )}
-                  <CompletenessPill score={client.completeness_score ?? 0} />
-                </div>
+                {/* Rate + Completeness — admin only */}
+                {isAdmin && (
+                  <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
+                    {rate ? (
+                      <span className="text-sm font-semibold text-foreground">
+                        ${rate.toLocaleString()}{frequencyLabel[freq] || "/mo"}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-foreground-muted">No rate</span>
+                    )}
+                    <CompletenessPill score={client.completeness_score ?? 0} />
+                  </div>
+                )}
 
                 <ChevronRight className="h-4 w-4 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
               </div>
