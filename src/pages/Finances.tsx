@@ -27,6 +27,7 @@ import {
 import { NewInvoiceModal } from "@/components/NewInvoiceModal";
 import { InvoiceDetailPanel } from "@/components/InvoiceDetailPanel";
 import { LogPaymentModal } from "@/components/LogPaymentModal";
+import { BulkReceiptUploadModal } from "@/components/BulkReceiptUploadModal";
 import { PaymentDetailPanel } from "@/components/PaymentDetailPanel";
 import type { PaymentRow } from "@/components/PaymentDetailPanel";
 import type { Tables } from "@/integrations/supabase/types";
