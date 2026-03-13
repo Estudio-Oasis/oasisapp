@@ -270,8 +270,8 @@ export function NewTaskModal({
 
             {/* Description */}
             <div>
-              <label className="text-label mb-1 block">Description (optional)</label>
-              <Textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Add details..." className="resize-none" />
+              <label className="text-label mb-1 block">Descripción (opcional)</label>
+              <Textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Agregar detalles..." className="resize-none" />
             </div>
           </div>
         </div>
