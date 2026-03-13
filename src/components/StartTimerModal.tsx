@@ -403,7 +403,7 @@ export function StartTimerModal({
 
           {/* Task */}
           <div className="space-y-1.5">
-            <label className="text-label">Task (optional)</label>
+            <label className="text-label">Tarea (opcional)</label>
             <Select
               value={selectedTaskId}
               onValueChange={setSelectedTaskId}
