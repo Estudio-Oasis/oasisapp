@@ -132,19 +132,17 @@ export function ChatPanel({ open, onOpenChange, conversationId, partnerProfile }
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="flex flex-col p-0 w-full sm:max-w-md">
         <SheetHeader className="px-4 py-3 border-b border-border">
-          <div className="flex items-center justify-between">
-            <SheetTitle className="text-sm font-semibold">{partnerName}</SheetTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSummarize}
-              disabled={summarizing || messages.length === 0}
-              className="text-xs gap-1.5"
-            >
-              {summarizing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-              Resumir con IA
-            </Button>
-          </div>
+          <SheetTitle className="text-sm font-semibold pr-8">{partnerName}</SheetTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSummarize}
+            disabled={summarizing || messages.length === 0}
+            className="text-xs gap-1.5 w-fit"
+          >
+            {summarizing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+            Resumir con IA
+          </Button>
         </SheetHeader>
 
         {/* Messages */}
