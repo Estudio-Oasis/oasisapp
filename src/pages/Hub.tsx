@@ -166,15 +166,40 @@ export default function HubPage() {
 
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [showStopTimerDialog, setShowStopTimerDialog] = useState(false);
+  const [showStartTimerModal, setShowStartTimerModal] = useState(false);
   const { isRunning, stopTimer, activeClient, activeTask, startBreakTimer } = useTimer();
 
   const handleStatusChange = async (status: string) => {
-    const nonWorkStatuses = ["break", "eating", "bathroom", "meeting"];
-    if (isRunning && nonWorkStatuses.includes(status)) {
-      setPendingStatus(status);
-      setShowStopTimerDialog(true);
+    const breakStatuses = ["break", "eating", "bathroom", "meeting"];
+
+    if (status === "online") {
+      // "En línea" → open the start/switch timer modal
+      setShowStartTimerModal(true);
       return;
     }
+
+    if (status === "offline") {
+      // Offline → stop any running timer, set offline
+      if (isRunning) await stopTimer();
+      setMyStatus("offline");
+      await setManualStatus("offline");
+      return;
+    }
+
+    if (breakStatuses.includes(status)) {
+      if (isRunning) {
+        // Timer running → ask to stop first
+        setPendingStatus(status);
+        setShowStopTimerDialog(true);
+      } else {
+        // No timer → directly start break timer
+        setMyStatus(status);
+        await startBreakTimer(status);
+      }
+      return;
+    }
+
+    // Fallback
     setMyStatus(status);
     await setManualStatus(status);
   };
@@ -183,8 +208,6 @@ export default function HubPage() {
     if (pendingStatus) {
       await stopTimer();
       setMyStatus(pendingStatus);
-      await setManualStatus(pendingStatus);
-      // Start a break timer so the widget shows the break counter
       await startBreakTimer(pendingStatus);
       setPendingStatus(null);
     }
