@@ -491,11 +491,6 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
   );
 }
 
-// Wrapper to lazy import the modal
-function NewInvoiceModalImport(props: { open: boolean; onOpenChange: (o: boolean) => void; onCreated: () => void; prefillClientId: string }) {
-  const { NewInvoiceModal } = require("@/components/NewInvoiceModal");
-  return <NewInvoiceModal {...props} />;
-}
 
 /* ─── Client Tasks Tab ─── */
 function ClientTasksTab({ clientId, clientName }: { clientId: string; clientName: string }) {
