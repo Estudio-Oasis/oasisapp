@@ -41,7 +41,7 @@ export function TimerWidget() {
             {/* Row 1: client + time */}
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-foreground truncate max-w-[100px]">
-                {activeClient?.name || "Cliente"}
+                {activeClient?.name || activeEntry?.description || "Cliente"}
               </span>
               <span className="text-small font-bold text-accent tabular-nums">
                 {formatElapsed(elapsedSeconds)}
@@ -52,7 +52,7 @@ export function TimerWidget() {
               className="text-micro text-foreground-secondary truncate !normal-case !tracking-normal !font-normal"
               style={{ fontSize: "11px" }}
             >
-              {activeTask?.title || "Sin tarea"}
+              {activeTask?.title || (activeClient ? "Sin tarea" : "")}
             </p>
             {/* Row 3: buttons */}
             <div className="flex gap-2">
