@@ -60,7 +60,7 @@ export function TimerWidget() {
                 onClick={() => handleOpen("switch")}
                 className="flex-1 h-7 rounded-md border border-border bg-background text-xs font-semibold text-foreground hover:bg-background-tertiary transition-colors"
               >
-                Switch
+                Cambiar
               </button>
               <button
                 onClick={() => void stopTimer()}
