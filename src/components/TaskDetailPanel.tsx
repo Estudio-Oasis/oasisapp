@@ -89,9 +89,9 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
 
   const deleteTask = async () => {
     if (!task) return;
-    if (!confirm("Delete this task? This cannot be undone.")) return;
+    if (!confirm("¿Eliminar esta tarea? Esta acción no se puede deshacer.")) return;
     await supabase.from("tasks").delete().eq("id", task.id);
-    toast.success("Task deleted");
+    toast.success("Tarea eliminada");
     onClose();
     onUpdated();
   };
