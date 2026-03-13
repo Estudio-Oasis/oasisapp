@@ -240,12 +240,21 @@ export default function TimerPage() {
         </div>
       </div>
 
-      <div className="mt-6 mb-6 inline-flex rounded-lg bg-background-secondary p-1">
-        {(["today", "week"] as const).map((v) => (
-          <button key={v} onClick={() => setView(v)} className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${view === v ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
-            {v === "today" ? "Today" : "This Week"}
-          </button>
-        ))}
+      <div className="mt-6 mb-6 flex items-center gap-4">
+        <div className="inline-flex rounded-lg bg-background-secondary p-1">
+          {(["today", "week"] as const).map((v) => (
+            <button key={v} onClick={() => setView(v)} className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${view === v ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
+              {v === "today" ? "Today" : "This Week"}
+            </button>
+          ))}
+        </div>
+        <div className="inline-flex rounded-lg bg-background-secondary p-1">
+          {(["mine", "all"] as const).map((f) => (
+            <button key={f} onClick={() => setEntryFilter(f)} className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${entryFilter === f ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
+              {f === "mine" ? "My entries" : "All entries"}
+            </button>
+          ))}
+        </div>
       </div>
 
       {view === "today" ? (
