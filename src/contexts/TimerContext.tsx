@@ -388,6 +388,23 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     },
     [stopTimer, startTimer]
   );
+  // Heartbeat: update presence every 60s while timer is running
+  useEffect(() => {
+    if (!state.isRunning || !userId) return;
+
+    const heartbeat = setInterval(async () => {
+      await supabase.from("member_presence").upsert({
+        user_id: userId,
+        status: "working",
+        current_client: state.activeClient?.name || null,
+        current_task: state.activeTask?.title || null,
+        last_seen_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+    }, 60000);
+
+    return () => clearInterval(heartbeat);
+  }, [state.isRunning, userId, state.activeClient?.name, state.activeTask?.title]);
 
   return (
     <TimerContext.Provider
