@@ -48,6 +48,7 @@ function CompletenessPill({ score }: { score: number }) {
 
 export default function ClientsPage() {
   const navigate = useNavigate();
+  const { isAdmin } = useRole();
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
