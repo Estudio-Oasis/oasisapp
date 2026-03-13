@@ -7,7 +7,8 @@ import { NewTaskModal } from "@/components/NewTaskModal";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
 import { StartTimerModal } from "@/components/StartTimerModal";
 import { getClientColor, formatDuration } from "@/lib/timer-utils";
-import { CheckSquare, List, LayoutGrid, Zap, Plus } from "lucide-react";
+import { CheckSquare, List, LayoutGrid, GanttChart, Zap, Plus } from "lucide-react";
+import { TaskGanttView } from "@/components/tasks/TaskGanttView";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Task = Tables<"tasks">;
