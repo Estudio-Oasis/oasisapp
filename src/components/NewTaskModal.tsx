@@ -204,7 +204,7 @@ export function NewTaskModal({
 
             {/* Status */}
             <div>
-              <label className="text-label mb-1 block">Status</label>
+              <label className="text-label mb-1 block">Estado</label>
               <div className="flex flex-wrap gap-1">
                 {STATUSES.map((s) => (
                   <button
