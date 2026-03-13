@@ -125,14 +125,10 @@ export default function TasksPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        {[
-          { label: "Active tasks", value: stats.total },
-          { label: "In progress", value: stats.inProgress },
-          { label: "Overdue", value: stats.overdue, danger: stats.overdue > 0 },
-        ].map((s) => (
-          <div key={s.label} className="border border-border rounded-xl p-5">
-            <p className={`text-2xl font-bold ${s.danger ? "text-destructive" : "text-foreground"}`}>{s.value}</p>
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
+        {stats.map((s) => (
+          <div key={s.label} className="border border-border rounded-xl p-4">
+            <p className={`text-2xl font-bold ${s.danger && s.value > 0 ? "text-destructive" : s.color || "text-foreground"}`}>{s.value}</p>
             <p className="text-small text-foreground-secondary">{s.label}</p>
           </div>
         ))}
