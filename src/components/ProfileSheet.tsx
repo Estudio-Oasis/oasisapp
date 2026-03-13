@@ -49,6 +49,9 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [resendingId, setResendingId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [workStartHour, setWorkStartHour] = useState(9);
+  const [workStartMinute, setWorkStartMinute] = useState(0);
+  const [savingSchedule, setSavingSchedule] = useState(false);
 
   const loadTeamData = async () => {
     const [{ data: members }, { data: invites }] = await Promise.all([
