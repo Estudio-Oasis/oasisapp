@@ -178,8 +178,8 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
 
           {/* Time tracked */}
           <div className="border border-border rounded-lg p-4 mb-4">
-            <p className="text-micro text-foreground-muted mb-3">Time tracked</p>
-            <p className="text-h3 text-foreground mb-2">{totalMinutes > 0 ? formatDuration(totalMinutes) + " total" : "No time tracked"}</p>
+            <p className="text-micro text-foreground-muted mb-3">Tiempo registrado</p>
+            <p className="text-h3 text-foreground mb-2">{totalMinutes > 0 ? formatDuration(totalMinutes) + " total" : "Sin tiempo registrado"}</p>
             {timeEntries.slice(0, 3).map((e) => (
               <div key={e.id} className="flex justify-between text-small text-foreground-secondary py-1">
                 <span>{new Date(e.started_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
