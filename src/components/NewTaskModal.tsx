@@ -17,10 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Plus, X } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { calculateCompleteness } from "@/lib/clientCompleteness";
 import type { Tables } from "@/integrations/supabase/types";
+import { InlineNewClient } from "@/components/InlineNewClient";
 
 type Client = Tables<"clients">;
 type Project = Tables<"projects">;
