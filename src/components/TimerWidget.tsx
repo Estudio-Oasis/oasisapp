@@ -32,7 +32,7 @@ export function TimerWidget() {
           >
             <Zap className="h-3.5 w-3.5 text-foreground-muted group-hover:text-foreground transition-colors" />
             <span className="text-small text-foreground-secondary group-hover:text-foreground transition-colors">
-              Start timer
+              Iniciar timer
             </span>
           </button>
         ) : (
@@ -41,7 +41,7 @@ export function TimerWidget() {
             {/* Row 1: client + time */}
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-foreground truncate max-w-[100px]">
-                {activeClient?.name || "Client"}
+                {activeClient?.name || "Cliente"}
               </span>
               <span className="text-small font-bold text-accent tabular-nums">
                 {formatElapsed(elapsedSeconds)}
@@ -52,7 +52,7 @@ export function TimerWidget() {
               className="text-micro text-foreground-secondary truncate !normal-case !tracking-normal !font-normal"
               style={{ fontSize: "11px" }}
             >
-              {activeTask?.title || "No task"}
+              {activeTask?.title || "Sin tarea"}
             </p>
             {/* Row 3: buttons */}
             <div className="flex gap-2">
@@ -60,7 +60,7 @@ export function TimerWidget() {
                 onClick={() => handleOpen("switch")}
                 className="flex-1 h-7 rounded-md border border-border bg-background text-xs font-semibold text-foreground hover:bg-background-tertiary transition-colors"
               >
-                Switch
+                Cambiar
               </button>
               <button
                 onClick={() => void stopTimer()}
@@ -70,10 +70,10 @@ export function TimerWidget() {
                 {isStopping ? (
                   <span className="inline-flex items-center gap-1">
                     <Loader2 className="h-3 w-3 animate-spin" />
-                    Saving
+                    Guardando
                   </span>
                 ) : (
-                  "Stop"
+                  "Detener"
                 )}
               </button>
             </div>

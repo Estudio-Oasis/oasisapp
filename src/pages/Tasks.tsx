@@ -17,7 +17,7 @@ interface AssigneeInfo { id: string; name: string | null; }
 
 const STATUSES = ["backlog", "todo", "in_progress", "review", "done"] as const;
 const STATUS_LABELS: Record<string, string> = {
-  backlog: "Backlog", todo: "To do", in_progress: "In progress", review: "Review", done: "Done",
+  backlog: "Backlog", todo: "Por hacer", in_progress: "En progreso", review: "Revisión", done: "Listo",
 };
 const STATUS_COLORS: Record<string, string> = {
   backlog: "border-foreground-muted border-dashed",
@@ -86,11 +86,11 @@ export default function TasksPage() {
 
   const stats = [
     { label: "Backlog", value: tasks.filter((t) => t.status === "backlog").length, color: "text-foreground-muted" },
-    { label: "To do", value: tasks.filter((t) => t.status === "todo").length, color: "text-foreground-secondary" },
-    { label: "In progress", value: tasks.filter((t) => t.status === "in_progress").length, color: "text-accent" },
-    { label: "Review", value: tasks.filter((t) => t.status === "review").length, color: "text-foreground-secondary" },
-    { label: "Done", value: tasks.filter((t) => t.status === "done").length, color: "text-success" },
-    { label: "Overdue", value: tasks.filter((t) => t.due_date && new Date(t.due_date) < today && t.status !== "done").length, danger: true },
+    { label: "Por hacer", value: tasks.filter((t) => t.status === "todo").length, color: "text-foreground-secondary" },
+    { label: "En progreso", value: tasks.filter((t) => t.status === "in_progress").length, color: "text-accent" },
+    { label: "Revisión", value: tasks.filter((t) => t.status === "review").length, color: "text-foreground-secondary" },
+    { label: "Listo", value: tasks.filter((t) => t.status === "done").length, color: "text-success" },
+    { label: "Vencidas", value: tasks.filter((t) => t.due_date && new Date(t.due_date) < today && t.status !== "done").length, danger: true },
   ];
 
   const cycleStatus = async (task: Task) => {
@@ -118,9 +118,9 @@ export default function TasksPage() {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-h1 text-foreground">Tasks</h1>
+        <h1 className="text-h1 text-foreground">Tareas</h1>
         <Button data-tour="new-task-btn" onClick={() => { setNewTaskPrefillStatus(undefined); setNewTaskOpen(true); }}>
-          <Plus className="h-4 w-4" /> New task
+          <Plus className="h-4 w-4" /> Nueva tarea
         </Button>
       </div>
 
@@ -137,7 +137,7 @@ export default function TasksPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <Input
-          placeholder="Search tasks..."
+          placeholder="Buscar tareas..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="sm:w-[280px]"
@@ -153,7 +153,7 @@ export default function TasksPage() {
                   : "border border-border text-foreground-secondary hover:bg-background-secondary"
               }`}
             >
-              {s === "all" ? "All" : STATUS_LABELS[s]}
+              {s === "all" ? "Todas" : STATUS_LABELS[s]}
             </button>
           ))}
         </div>
@@ -163,7 +163,7 @@ export default function TasksPage() {
             value={clientFilter}
             onChange={(e) => setClientFilter(e.target.value)}
           >
-            <option value="all">All clients</option>
+            <option value="all">Todos los clientes</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
           <div className="flex border border-border rounded-md">
@@ -196,10 +196,10 @@ export default function TasksPage() {
       {tasks.length === 0 ? (
         <div className="flex flex-col items-center py-12 text-center">
           <CheckSquare className="h-12 w-12 text-border mb-4" />
-          <p className="text-lg font-semibold text-foreground">No tasks yet</p>
-          <p className="text-sm text-foreground-secondary mt-1">Create your first task to start organizing your work.</p>
+          <p className="text-lg font-semibold text-foreground">Aún no hay tareas</p>
+          <p className="text-sm text-foreground-secondary mt-1">Crea tu primera tarea para empezar a organizar tu trabajo.</p>
           <Button className="mt-4" onClick={() => setNewTaskOpen(true)}>
-            <Plus className="h-4 w-4" /> New task
+            <Plus className="h-4 w-4" /> Nueva tarea
           </Button>
         </div>
       ) : view === "list" ? (
@@ -236,7 +236,7 @@ export default function TasksPage() {
                       {task.title}
                     </span>
                     {overdue && (
-                      <span className="text-[11px] font-medium bg-destructive-light text-destructive px-2 py-0.5 rounded-full">Overdue</span>
+                      <span className="text-[11px] font-medium bg-destructive-light text-destructive px-2 py-0.5 rounded-full">Vencida</span>
                     )}
                   </div>
                   <div className="flex items-center gap-1.5 mt-0.5 text-small text-foreground-muted">
@@ -256,12 +256,12 @@ export default function TasksPage() {
                     <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                       task.priority === "urgent" ? "bg-destructive-light text-destructive" : "bg-accent-light text-accent-foreground"
                     }`}>
-                      {task.priority === "urgent" ? "⚡ Urgent" : "↑ High"}
+                      {task.priority === "urgent" ? "⚡ Urgente" : "↑ Alta"}
                     </span>
                   )}
                   {task.due_date && (
                     <span className={`text-small ${overdue ? "text-destructive" : "text-foreground-muted"}`}>
-                      {new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    {new Date(task.due_date).toLocaleDateString("es-MX", { month: "short", day: "numeric" })}
                     </span>
                   )}
                   {assignee && (
@@ -285,7 +285,7 @@ export default function TasksPage() {
             );
           })}
           {filtered.length === 0 && tasks.length > 0 && (
-            <p className="text-sm text-foreground-muted text-center py-8">No tasks match your filters.</p>
+            <p className="text-sm text-foreground-muted text-center py-8">No hay tareas que coincidan con tus filtros.</p>
           )}
         </div>
       ) : view === "kanban" ? (
@@ -315,7 +315,7 @@ export default function TasksPage() {
                   onClick={() => { setNewTaskPrefillStatus(status); setNewTaskOpen(true); }}
                   className="text-small text-foreground-secondary hover:text-foreground mb-2"
                 >
-                  + Add
+                  + Agregar
                 </button>
                 <div className="flex flex-col gap-2">
                   {colTasks.map((task) => {
@@ -348,8 +348,8 @@ export default function TasksPage() {
                         <p className="text-sm font-medium text-foreground line-clamp-2">{task.title}</p>
                         <div className="flex items-center justify-between mt-2">
                           {task.due_date ? (
-                            <span className={`text-small ${overdue ? "text-destructive" : "text-foreground-muted"}`}>
-                              {new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                             <span className={`text-small ${overdue ? "text-destructive" : "text-foreground-muted"}`}>
+                              {new Date(task.due_date).toLocaleDateString("es-MX", { month: "short", day: "numeric" })}
                             </span>
                           ) : <span />}
                           {assignee && (

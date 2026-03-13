@@ -149,9 +149,9 @@ export default function TimerPage() {
   };
 
   const renderEntry = (entry: EntryWithRelations) => {
-    const clientName = entry.clients?.name || "Unknown";
+    const clientName = entry.clients?.name || "Sin cliente";
     const taskTitle = entry.tasks?.title;
-    const loggerName = profileMap[entry.user_id]?.name || "Unknown";
+    const loggerName = profileMap[entry.user_id]?.name || "Sin nombre";
     const start = new Date(entry.started_at);
     const end = entry.ended_at ? new Date(entry.ended_at) : null;
     const dur = Number(entry.duration_min) || 0;
@@ -170,7 +170,7 @@ export default function TimerPage() {
         )}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-foreground truncate">
-            {taskTitle || <span className="text-foreground-muted font-normal">No task</span>}
+            {taskTitle || <span className="text-foreground-muted font-normal">Sin tarea</span>}
           </p>
           <p className="text-xs text-foreground-secondary truncate">
             {clientName}
@@ -192,11 +192,11 @@ export default function TimerPage() {
     <div key={`gap-${idx}`} className="flex items-center gap-3 rounded-lg border border-dashed border-accent bg-accent-light px-4 py-3 my-1">
       <AlertTriangle className="h-4 w-4 text-accent shrink-0" />
       <div className="flex-1 min-w-0">
-        <p className="text-small font-medium text-foreground">Untracked time · {formatDuration(gap.durationMin)}</p>
+        <p className="text-small font-medium text-foreground">Tiempo sin registrar · {formatDuration(gap.durationMin)}</p>
         <p className="text-xs text-foreground-secondary">{formatTime(gap.startTime)} – {formatTime(gap.endTime)}</p>
       </div>
       <button onClick={() => openGapModal(gap)} className="shrink-0 h-8 px-3 rounded-md border border-border bg-background text-xs font-semibold text-foreground hover:bg-background-tertiary transition-colors whitespace-nowrap">
-        What happened here?
+        ¿Qué pasó aquí?
       </button>
     </div>
   );
@@ -204,8 +204,8 @@ export default function TimerPage() {
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <Clock className="h-10 w-10 text-border mb-4" />
-      <h3 className="text-h3 text-foreground">No time tracked yet {view === "today" ? "today" : "this week"}</h3>
-      <p className="text-sm text-foreground-secondary mt-1">Start the timer to begin tracking your work.</p>
+      <h3 className="text-h3 text-foreground">Sin registros {view === "today" ? "hoy" : "esta semana"}</h3>
+      <p className="text-sm text-foreground-secondary mt-1">Inicia el timer para empezar a registrar tu trabajo.</p>
     </div>
   );
 
@@ -215,16 +215,16 @@ export default function TimerPage() {
         <div className="rounded-xl border border-accent bg-accent-light px-5 py-5 mb-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-micro text-accent">Live Session</p>
-              <p className="text-h3 text-foreground mt-1">{activeClient?.name || "Client"}</p>
-              <p className="text-sm text-foreground-secondary">{activeTask?.title || "No specific task"}</p>
+              <p className="text-micro text-accent">Sesión activa</p>
+              <p className="text-h3 text-foreground mt-1">{activeClient?.name || "Cliente"}</p>
+              <p className="text-sm text-foreground-secondary">{activeTask?.title || "Sin tarea específica"}</p>
             </div>
             <div className="text-right">
               <p className="text-display text-accent tabular-nums">{formatElapsed(elapsedSeconds)}</p>
               <div className="flex gap-2 mt-2">
-                <button onClick={() => { setModalMode("switch"); setModalOpen(true); }} className="h-9 px-4 rounded-lg border border-border bg-background text-xs font-semibold text-foreground hover:bg-background-tertiary transition-colors">Switch</button>
+                <button onClick={() => { setModalMode("switch"); setModalOpen(true); }} className="h-9 px-4 rounded-lg border border-border bg-background text-xs font-semibold text-foreground hover:bg-background-tertiary transition-colors">Cambiar</button>
                 <Button variant="destructive" size="sm" className="h-9" onClick={() => void stopTimer()} disabled={isStopping}>
-                  {isStopping ? <Loader2 className="h-4 w-4 animate-spin" /> : "Stop"}
+                  {isStopping ? <Loader2 className="h-4 w-4 animate-spin" /> : "Detener"}
                 </Button>
               </div>
             </div>
@@ -238,7 +238,7 @@ export default function TimerPage() {
           <p className="text-sm text-foreground-secondary mt-0.5">{formatDateLong(new Date())}</p>
         </div>
         <div className="rounded-lg border border-border bg-background-secondary px-3 py-1.5">
-          <span className="text-sm font-semibold text-foreground">{formatDuration(totalMinutes)} {view === "today" ? "today" : "this week"}</span>
+          <span className="text-sm font-semibold text-foreground">{formatDuration(totalMinutes)} {view === "today" ? "hoy" : "esta semana"}</span>
         </div>
       </div>
 
@@ -246,14 +246,14 @@ export default function TimerPage() {
         <div className="inline-flex rounded-lg bg-background-secondary p-1">
           {(["today", "week"] as const).map((v) => (
             <button key={v} onClick={() => setView(v)} className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${view === v ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
-              {v === "today" ? "Today" : "This Week"}
+              {v === "today" ? "Hoy" : "Esta semana"}
             </button>
           ))}
         </div>
         <div className="inline-flex rounded-lg bg-background-secondary p-1">
           {(["mine", "all"] as const).map((f) => (
             <button key={f} onClick={() => setEntryFilter(f)} className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${entryFilter === f ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
-              {f === "mine" ? "My entries" : "All entries"}
+              {f === "mine" ? "Mis registros" : "Todos"}
             </button>
           ))}
         </div>
@@ -286,7 +286,7 @@ export default function TimerPage() {
 
       <div className="mt-6">
         <Button variant="outline" onClick={() => { setGapPrefill(null); setModalMode("manual"); setModalOpen(true); }} className="w-full md:w-auto">
-          <Plus className="h-4 w-4 mr-1.5" />Add manual entry
+          <Plus className="h-4 w-4 mr-1.5" />Agregar entrada manual
         </Button>
       </div>
 

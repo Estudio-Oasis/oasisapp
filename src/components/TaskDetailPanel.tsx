@@ -13,10 +13,10 @@ type Task = Tables<"tasks">;
 
 const STATUSES = ["backlog", "todo", "in_progress", "review", "done"] as const;
 const STATUS_LABELS: Record<string, string> = {
-  backlog: "Backlog", todo: "To do", in_progress: "In progress", review: "Review", done: "Done",
+  backlog: "Backlog", todo: "Por hacer", in_progress: "En progreso", review: "Revisión", done: "Listo",
 };
 const PRIORITY_LABELS: Record<string, string> = {
-  low: "Low", medium: "Medium", high: "High", urgent: "Urgent",
+  low: "Baja", medium: "Media", high: "Alta", urgent: "Urgente",
 };
 
 interface TaskDetailPanelProps {
@@ -89,9 +89,9 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
 
   const deleteTask = async () => {
     if (!task) return;
-    if (!confirm("Delete this task? This cannot be undone.")) return;
+    if (!confirm("¿Eliminar esta tarea? Esta acción no se puede deshacer.")) return;
     await supabase.from("tasks").delete().eq("id", task.id);
-    toast.success("Task deleted");
+    toast.success("Tarea eliminada");
     onClose();
     onUpdated();
   };
@@ -141,20 +141,20 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
 
           {/* Details */}
           <div className="border border-border rounded-lg p-4 mb-4">
-            <p className="text-micro text-foreground-muted mb-3">Details</p>
+            <p className="text-micro text-foreground-muted mb-3">Detalles</p>
             <div className="flex flex-col gap-2.5 text-sm">
               {client && (
                 <div className="flex justify-between">
-                  <span className="text-foreground-secondary">Client</span>
+                  <span className="text-foreground-secondary">Cliente</span>
                   <Link to={`/clients/${client.id}`} className="text-accent hover:underline font-medium">{client.name}</Link>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-foreground-secondary">Project</span>
+                <span className="text-foreground-secondary">Proyecto</span>
                 <span className="text-foreground">{project?.name || "—"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-foreground-secondary">Priority</span>
+                <span className="text-foreground-secondary">Prioridad</span>
                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                   task.priority === "urgent" ? "bg-destructive-light text-destructive" :
                   task.priority === "high" ? "bg-accent-light text-accent-foreground" :
@@ -164,25 +164,25 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-foreground-secondary">Due date</span>
+                <span className="text-foreground-secondary">Fecha límite</span>
                 <span className={isOverdue ? "text-destructive font-medium" : "text-foreground"}>
-                  {task.due_date ? new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
+                  {task.due_date ? new Date(task.due_date).toLocaleDateString("es-MX", { month: "short", day: "numeric" }) : "—"}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-foreground-secondary">Assignee</span>
-                <span className="text-foreground">{assignee ? (assignee.name || assignee.email || "User") : "Unassigned"}</span>
+                 <span className="text-foreground-secondary">Asignado</span>
+                <span className="text-foreground">{assignee ? (assignee.name || assignee.email || "Usuario") : "Sin asignar"}</span>
               </div>
             </div>
           </div>
 
           {/* Time tracked */}
           <div className="border border-border rounded-lg p-4 mb-4">
-            <p className="text-micro text-foreground-muted mb-3">Time tracked</p>
-            <p className="text-h3 text-foreground mb-2">{totalMinutes > 0 ? formatDuration(totalMinutes) + " total" : "No time tracked"}</p>
+            <p className="text-micro text-foreground-muted mb-3">Tiempo registrado</p>
+            <p className="text-h3 text-foreground mb-2">{totalMinutes > 0 ? formatDuration(totalMinutes) + " total" : "Sin tiempo registrado"}</p>
             {timeEntries.slice(0, 3).map((e) => (
               <div key={e.id} className="flex justify-between text-small text-foreground-secondary py-1">
-                <span>{new Date(e.started_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                <span>{new Date(e.started_at).toLocaleDateString("es-MX", { month: "short", day: "numeric" })}</span>
                 <span>{e.duration_min ? formatDuration(e.duration_min) : "—"}</span>
               </div>
             ))}
@@ -193,7 +193,7 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
                 className="w-full mt-3"
                 onClick={() => onStartTimer(task.id, task.client_id!)}
               >
-                <Zap className="h-3.5 w-3.5" /> Start timer on this task
+                <Zap className="h-3.5 w-3.5" /> Iniciar timer en esta tarea
               </Button>
             )}
           </div>
@@ -201,7 +201,7 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
           {/* Description */}
           <div className="border border-border rounded-lg p-4 mb-4">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-micro text-foreground-muted">Description</p>
+              <p className="text-micro text-foreground-muted">Descripción</p>
               {!editingDesc && (
                 <button onClick={() => setEditingDesc(true)} className="text-foreground-muted hover:text-foreground">
                   <Pencil className="h-3.5 w-3.5" />
@@ -212,13 +212,13 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
               <div className="flex flex-col gap-2">
                 <Textarea value={descDraft} onChange={(e) => setDescDraft(e.target.value)} rows={4} className="resize-none" />
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={saveDescription}>Save</Button>
-                  <Button size="sm" variant="secondary" onClick={() => { setEditingDesc(false); setDescDraft(task.description || ""); }}>Cancel</Button>
+                   <Button size="sm" onClick={saveDescription}>Guardar</Button>
+                   <Button size="sm" variant="secondary" onClick={() => { setEditingDesc(false); setDescDraft(task.description || ""); }}>Cancelar</Button>
                 </div>
               </div>
             ) : (
               <p className="text-sm text-foreground whitespace-pre-wrap">
-                {task.description || <span className="text-foreground-muted">No description</span>}
+                {task.description || <span className="text-foreground-muted">Sin descripción</span>}
               </p>
             )}
           </div>
@@ -226,7 +226,7 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
           {/* Delete — admin only */}
           {isAdmin && (
             <button onClick={deleteTask} className="text-destructive text-small hover:underline">
-              Delete task
+              Eliminar tarea
             </button>
           )}
         </div>

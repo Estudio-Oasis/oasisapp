@@ -22,10 +22,10 @@ import {
 
 const allNavItems = [
   { title: "Timer", url: "/timer", icon: Timer },
-  { title: "Clients", url: "/clients", icon: Users },
-  { title: "Tasks", url: "/tasks", icon: CheckSquare, tourId: "tasks" },
-  { title: "Finances", url: "/finances", icon: DollarSign, adminOnly: true },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Clientes", url: "/clients", icon: Users },
+  { title: "Tareas", url: "/tasks", icon: CheckSquare, tourId: "tasks" },
+  { title: "Finanzas", url: "/finances", icon: DollarSign, adminOnly: true },
+  { title: "Ajustes", url: "/settings", icon: Settings },
 ];
 
 interface Profile {

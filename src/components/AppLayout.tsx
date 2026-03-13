@@ -5,10 +5,10 @@ import { Outlet, useLocation } from "react-router-dom";
 
 const pageTitles: Record<string, string> = {
   "/timer": "Timer",
-  "/clients": "Clients",
-  "/tasks": "Tasks",
-  "/finances": "Finances",
-  "/settings": "Settings",
+  "/clients": "Clientes",
+  "/tasks": "Tareas",
+  "/finances": "Finanzas",
+  "/settings": "Ajustes",
 };
 
 export function AppLayout() {

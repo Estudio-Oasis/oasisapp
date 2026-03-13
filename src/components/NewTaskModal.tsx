@@ -36,17 +36,17 @@ const PRIORITIES = ["low", "medium", "high", "urgent"] as const;
 
 const STATUS_LABELS: Record<string, string> = {
   backlog: "Backlog",
-  todo: "To do",
-  in_progress: "In progress",
-  review: "Review",
-  done: "Done",
+  todo: "Por hacer",
+  in_progress: "En progreso",
+  review: "Revisión",
+  done: "Listo",
 };
 
 const PRIORITY_LABELS: Record<string, string> = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-  urgent: "Urgent",
+  low: "Baja",
+  medium: "Media",
+  high: "Alta",
+  urgent: "Urgente",
 };
 
 interface NewTaskModalProps {
@@ -124,8 +124,8 @@ export function NewTaskModal({
         description: description || null,
       }).select("id").single();
 
-      if (error) { toast.error("Failed to create task"); return; }
-      toast.success("Task created!");
+      if (error) { toast.error("Error al crear la tarea"); return; }
+      toast.success("¡Tarea creada!");
       onOpenChange(false);
       if (onCreated && data) onCreated(data.id, selectedClientId);
       if (startTimer && data) {
@@ -149,33 +149,33 @@ export function NewTaskModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px] p-0 gap-0 border-border max-h-[92dvh] flex flex-col rounded-t-2xl sm:rounded-xl w-full">
         <DialogHeader className="p-6 pb-0 shrink-0">
-          <DialogTitle className="text-h2">New task</DialogTitle>
-          <DialogDescription className="sr-only">Create a new task for a client</DialogDescription>
+          <DialogTitle className="text-h2">Nueva tarea</DialogTitle>
+          <DialogDescription className="sr-only">Crea una nueva tarea para un cliente</DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto px-6 pb-2">
           <div className="mt-4 flex flex-col gap-4">
             {/* Title */}
             <div>
-              <label className="text-label mb-1 block">Title *</label>
-              <Input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs to be done?" />
+              <label className="text-label mb-1 block">Título *</label>
+              <Input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="¿Qué hay que hacer?" />
             </div>
 
             {/* Client */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-label">Client *</label>
+                <label className="text-label">Cliente *</label>
                 <button
                   type="button"
                   onClick={() => setShowInlineClient(true)}
                   className="text-[12px] text-foreground-muted hover:text-accent flex items-center gap-0.5 transition-colors"
                   title="Add new client"
                 >
-                  <Plus className="h-3 w-3" /> add new
+                  <Plus className="h-3 w-3" /> agregar nuevo
                 </button>
               </div>
               <Select value={selectedClientId} onValueChange={(v) => { setSelectedClientId(v); setShowInlineClient(false); }}>
-                <SelectTrigger><SelectValue placeholder="Select a client..." /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Selecciona un cliente..." /></SelectTrigger>
                 <SelectContent>
                   {clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
@@ -192,9 +192,9 @@ export function NewTaskModal({
             {/* Project */}
             {projects.length > 0 && (
               <div>
-                <label className="text-label mb-1 block">Project (optional)</label>
+                <label className="text-label mb-1 block">Proyecto (opcional)</label>
                 <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-                  <SelectTrigger><SelectValue placeholder="No project" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Sin proyecto" /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                   </SelectContent>
@@ -204,7 +204,7 @@ export function NewTaskModal({
 
             {/* Status */}
             <div>
-              <label className="text-label mb-1 block">Status</label>
+              <label className="text-label mb-1 block">Estado</label>
               <div className="flex flex-wrap gap-1">
                 {STATUSES.map((s) => (
                   <button
@@ -225,7 +225,7 @@ export function NewTaskModal({
 
             {/* Priority */}
             <div>
-              <label className="text-label mb-1 block">Priority</label>
+              <label className="text-label mb-1 block">Prioridad</label>
               <div className="flex flex-wrap gap-1">
                 {PRIORITIES.map((p) => {
                   const isActive = priority === p;
@@ -251,9 +251,9 @@ export function NewTaskModal({
 
             {/* Assignee */}
             <div>
-              <label className="text-label mb-1 block">Assignee (optional)</label>
+              <label className="text-label mb-1 block">Asignado (opcional)</label>
               <Select value={assigneeId} onValueChange={setAssigneeId}>
-                <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Sin asignar" /></SelectTrigger>
                 <SelectContent>
                   {profiles.map((p) => (
                     <SelectItem key={p.id} value={p.id}>{p.name || p.email || "User"}</SelectItem>
@@ -264,24 +264,24 @@ export function NewTaskModal({
 
             {/* Due date */}
             <div>
-              <label className="text-label mb-1 block">Due date (optional)</label>
+              <label className="text-label mb-1 block">Fecha límite (opcional)</label>
               <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             </div>
 
             {/* Description */}
             <div>
-              <label className="text-label mb-1 block">Description (optional)</label>
-              <Textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Add details..." className="resize-none" />
+              <label className="text-label mb-1 block">Descripción (opcional)</label>
+              <Textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Agregar detalles..." className="resize-none" />
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-2 p-6 pt-4 shrink-0 border-t border-border" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
           <Button variant="secondary" onClick={() => handleSubmit(false)} disabled={!title.trim() || !selectedClientId || loading} className="w-full h-11">
-            Create task
+            Crear tarea
           </Button>
           <Button onClick={() => handleSubmit(true)} disabled={!title.trim() || !selectedClientId || loading} className="w-full h-11">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "⚡ Create & start timer"}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "⚡ Crear e iniciar timer"}
           </Button>
         </div>
       </DialogContent>

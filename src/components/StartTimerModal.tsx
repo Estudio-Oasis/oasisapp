@@ -276,10 +276,10 @@ export function StartTimerModal({
   };
 
   const buttonText = isManual
-    ? "Add entry"
+    ? "Agregar entrada"
     : mode === "switch"
-    ? "Switch task"
-    : "Start";
+    ? "Cambiar tarea"
+    : "Iniciar";
 
   const priorityColor: Record<string, string> = {
     urgent: "bg-destructive",
@@ -294,7 +294,7 @@ export function StartTimerModal({
         <DialogHeader className="space-y-1 pb-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-h3">
-              {isManual ? "Add manual entry" : mode === "switch" ? "Switch task" : "Start timer"}
+              {isManual ? "Agregar entrada manual" : mode === "switch" ? "Cambiar tarea" : "Iniciar timer"}
             </DialogTitle>
           </div>
           <p className="text-small text-foreground-secondary">
@@ -307,7 +307,7 @@ export function StartTimerModal({
           {isManual && (
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-label">Start time</label>
+                <label className="text-label">Hora inicio</label>
                 <Input
                   type="time"
                   value={manualStart}
@@ -315,7 +315,7 @@ export function StartTimerModal({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-label">End time</label>
+                <label className="text-label">Hora fin</label>
                 <Input
                   type="time"
                   value={manualEnd}
@@ -328,27 +328,27 @@ export function StartTimerModal({
           {/* Client */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-label">Client</label>
+              <label className="text-label">Cliente</label>
               {!showNewClient && clients.length > 0 && (
                 <button
                   type="button"
                   onClick={() => setShowNewClient(true)}
                   className="text-xs font-medium text-accent hover:text-accent/80 flex items-center gap-0.5 transition-colors"
                 >
-                  <Plus className="h-3 w-3" /> add new
+                  <Plus className="h-3 w-3" /> agregar nuevo
                 </button>
               )}
             </div>
             {clients.length === 0 && !showNewClient ? (
               <div>
                 <p className="text-small text-foreground-secondary">
-                  No clients yet.{" "}
+                  Aún no hay clientes.{" "}
                   <Link
                     to="/clients"
                     className="font-semibold text-foreground hover:text-accent transition-colors"
                     onClick={() => onOpenChange(false)}
                   >
-                    Create one →
+                    Crear uno →
                   </Link>
                 </p>
                 <button
@@ -356,13 +356,13 @@ export function StartTimerModal({
                   onClick={() => setShowNewClient(true)}
                   className="mt-1 text-xs font-medium text-accent hover:text-accent/80 flex items-center gap-0.5 transition-colors"
                 >
-                  <Plus className="h-3 w-3" /> or create one here
+                  <Plus className="h-3 w-3" /> o crea uno aquí
                 </button>
               </div>
             ) : !showNewClient ? (
               <Select value={selectedClientId} onValueChange={setSelectedClientId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a client..." />
+                  <SelectValue placeholder="Selecciona un cliente..." />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((c) => (
@@ -385,10 +385,10 @@ export function StartTimerModal({
           {/* Project */}
           {projects.length > 0 && (
             <div className="space-y-1.5">
-              <label className="text-label">Project (optional)</label>
+              <label className="text-label">Proyecto (opcional)</label>
               <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="No project" />
+                  <SelectValue placeholder="Sin proyecto" />
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
@@ -403,7 +403,7 @@ export function StartTimerModal({
 
           {/* Task */}
           <div className="space-y-1.5">
-            <label className="text-label">Task (optional)</label>
+            <label className="text-label">Tarea (opcional)</label>
             <Select
               value={selectedTaskId}
               onValueChange={setSelectedTaskId}
@@ -412,7 +412,7 @@ export function StartTimerModal({
               <SelectTrigger>
                 <SelectValue
                   placeholder={
-                    selectedClientId ? "No specific task" : "Select a client first"
+                    selectedClientId ? "Sin tarea específica" : "Selecciona un cliente primero"
                   }
                 />
               </SelectTrigger>
@@ -428,12 +428,12 @@ export function StartTimerModal({
 
           {/* Description with task suggestions + AI rewrite */}
           <div className="space-y-1.5 relative">
-            <label className="text-label">What are you working on?</label>
+            <label className="text-label">¿En qué estás trabajando?</label>
             <div className="relative">
               <Textarea
                 ref={textareaRef}
                 rows={3}
-                placeholder="Describe what you're doing... (optional)"
+                placeholder="Describe lo que estás haciendo... (opcional)"
                 value={description}
                 onChange={(e) => {
                   setDescription(e.target.value);
@@ -458,7 +458,7 @@ export function StartTimerModal({
                   ) : (
                     <Sparkles className="h-3 w-3" />
                   )}
-                  Rewrite
+                   Reescribir
                 </button>
               )}
             </div>
@@ -469,7 +469,7 @@ export function StartTimerModal({
                 onClick={handleUndo}
                 className="flex items-center gap-1 text-[11px] font-medium text-accent hover:text-accent/80 transition-colors mt-1"
               >
-                <Undo2 className="h-3 w-3" /> Undo
+                <Undo2 className="h-3 w-3" /> Deshacer
               </button>
             )}
             {/* Task suggestions dropdown */}
