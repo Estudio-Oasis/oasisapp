@@ -269,22 +269,24 @@ export default function ClientProfilePage() {
 
             <TabsContent value="overview" className="mt-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div className="border border-border rounded-lg p-5">
-                  <p className="text-micro text-foreground-muted mb-2">Rate</p>
-                  {client.monthly_rate ? (
-                    <>
-                      <p className="text-h2 text-foreground">${client.monthly_rate.toLocaleString()}{freqLabel[client.payment_frequency || "monthly"]}</p>
-                      <RateBreakdown monthlyRate={client.monthly_rate} paymentFrequency={client.payment_frequency || "monthly"} currency={client.currency} />
-                    </>
-                  ) : (
-                    <p className="text-sm text-foreground-muted">Not set</p>
-                  )}
-                  {client.payment_method && <p className="text-small text-foreground-secondary mt-1">via {client.payment_method}</p>}
-                </div>
+                {isAdmin && (
+                  <div className="border border-border rounded-lg p-5">
+                    <p className="text-micro text-foreground-muted mb-2">Rate</p>
+                    {client.monthly_rate ? (
+                      <>
+                        <p className="text-h2 text-foreground">${client.monthly_rate.toLocaleString()}{freqLabel[client.payment_frequency || "monthly"]}</p>
+                        <RateBreakdown monthlyRate={client.monthly_rate} paymentFrequency={client.payment_frequency || "monthly"} currency={client.currency} />
+                      </>
+                    ) : (
+                      <p className="text-sm text-foreground-muted">Not set</p>
+                    )}
+                    {client.payment_method && <p className="text-small text-foreground-secondary mt-1">via {client.payment_method}</p>}
+                  </div>
+                )}
                 <div className="border border-border rounded-lg p-5">
                   <p className="text-micro text-foreground-muted mb-2">This month</p>
                   <p className="text-h2 text-foreground">{stats.monthHours}h</p>
-                  {client.monthly_rate && stats.monthHours > 0 && (
+                  {isAdmin && client.monthly_rate && stats.monthHours > 0 && (
                     <p className="text-small text-foreground-secondary mt-1">
                       ~${Math.round(client.monthly_rate / stats.monthHours)}/hr effective
                     </p>
