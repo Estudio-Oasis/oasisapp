@@ -15,3 +15,5 @@ project_id = "tualybcctwjpldtlewlu"
     verify_jwt = false
   [functions.summarize-chat]
     verify_jwt = false
+  [functions.slack-notify]
+    verify_jwt = false

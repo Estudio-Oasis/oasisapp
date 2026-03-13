@@ -70,6 +70,16 @@ export function ChatPanel({ open, onOpenChange, conversationId, partnerProfile }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const notifySlack = async (eventType: string, data: Record<string, any>) => {
+    try {
+      await supabase.functions.invoke("slack-notify", {
+        body: { event_type: eventType, data },
+      });
+    } catch (e) {
+      console.warn("Slack notify failed (non-blocking):", e);
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim() || !conversationId || !user || sending) return;
     const content = input.trim();
@@ -85,6 +95,11 @@ export function ChatPanel({ open, onOpenChange, conversationId, partnerProfile }
     if (error) {
       toast.error("No se pudo enviar el mensaje");
       setInput(content);
+    } else {
+      // Non-blocking Slack notification
+      const { data: profile } = await supabase.from("profiles").select("name, email").eq("id", user.id).maybeSingle();
+      const senderName = profile?.name || profile?.email?.split("@")[0] || "Alguien";
+      notifySlack("chat_message", { sender_name: senderName, content });
     }
 
     await supabase
@@ -163,6 +178,15 @@ export function ChatPanel({ open, onOpenChange, conversationId, partnerProfile }
         conversation_id: conversationId,
         summary,
         created_by: user.id,
+      });
+
+      // Send summary to Slack
+      const { data: profile } = await supabase.from("profiles").select("name, email").eq("id", user.id).maybeSingle();
+      const generatedBy = profile?.name || profile?.email?.split("@")[0] || "Alguien";
+      notifySlack("ai_summary", {
+        summary,
+        conversation_partner: partnerName,
+        generated_by: generatedBy,
       });
 
       toast.success("Resumen generado y guardado");
