@@ -145,7 +145,7 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
             <div className="flex flex-col gap-2.5 text-sm">
               {client && (
                 <div className="flex justify-between">
-                  <span className="text-foreground-secondary">Client</span>
+                  <span className="text-foreground-secondary">Cliente</span>
                   <Link to={`/clients/${client.id}`} className="text-accent hover:underline font-medium">{client.name}</Link>
                 </div>
               )}
