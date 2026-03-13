@@ -225,7 +225,7 @@ export function NewTaskModal({
 
             {/* Priority */}
             <div>
-              <label className="text-label mb-1 block">Priority</label>
+              <label className="text-label mb-1 block">Prioridad</label>
               <div className="flex flex-wrap gap-1">
                 {PRIORITIES.map((p) => {
                   const isActive = priority === p;
