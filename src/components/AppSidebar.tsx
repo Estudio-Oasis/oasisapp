@@ -59,12 +59,13 @@ export function AppSidebar() {
         if (data) {
           const p = data as Profile;
           setProfile(p);
-          if (!p.onboarded) {
+          if (!p.onboarded && !welcomeShownRef.current) {
+            welcomeShownRef.current = true;
             setShowWelcome(true);
           }
         }
       });
-  }, [user]);
+  }, [user?.id]);
 
   const displayName = profile?.name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
   const role = profile?.role || "member";
