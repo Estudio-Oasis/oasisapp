@@ -340,6 +340,13 @@ export default function HubPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Start/Switch timer modal (triggered by "En línea" button) */}
+      <StartTimerModal
+        open={showStartTimerModal}
+        onOpenChange={setShowStartTimerModal}
+        mode={isRunning ? "switch" : "start"}
+      />
     </div>
   );
 }
