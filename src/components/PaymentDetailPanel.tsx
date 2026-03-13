@@ -10,6 +10,7 @@ interface BreakdownItem {
   amount: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface PaymentRow {
   id: string;
   client_id: string;
