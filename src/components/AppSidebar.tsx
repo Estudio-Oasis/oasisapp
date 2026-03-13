@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
-import { Timer, Users, CheckSquare, DollarSign, Settings, Loader2, Sun, Moon } from "lucide-react";
-import { useTheme } from "next-themes";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
 import { TimerWidget } from "@/components/TimerWidget";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProfileSheet } from "@/components/ProfileSheet";
+import { WelcomeModal } from "@/components/WelcomeModal";
+import { OnboardingTour } from "@/components/OnboardingTour";
+import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { toast } from "sonner";
 import {
   Sidebar,
   SidebarContent,
@@ -15,9 +19,9 @@ import {
 } from "@/components/ui/sidebar";
 
 const allNavItems = [
-  { title: "Timer", url: "/timer", icon: Timer },
+  { title: "Timer", url: "/timer", icon: Timer, tourId: "timer" },
   { title: "Clients", url: "/clients", icon: Users },
-  { title: "Tasks", url: "/tasks", icon: CheckSquare },
+  { title: "Tasks", url: "/tasks", icon: CheckSquare, tourId: "tasks" },
   { title: "Finances", url: "/finances", icon: DollarSign, adminOnly: true },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
@@ -26,6 +30,7 @@ interface Profile {
   name: string | null;
   avatar_url: string | null;
   role: string;
+  onboarded: boolean;
 }
 
 export function AppSidebar() {
@@ -35,16 +40,24 @@ export function AppSidebar() {
   const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showTour, setShowTour] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("name, avatar_url, role")
+      .select("name, avatar_url, role, onboarded")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
-        if (data) setProfile(data as Profile);
+        if (data) {
+          const p = data as Profile;
+          setProfile(p);
+          if (!p.onboarded) {
+            setShowWelcome(true);
+          }
+        }
       });
   }, [user]);
 
@@ -52,6 +65,28 @@ export function AppSidebar() {
   const role = profile?.role || "member";
 
   const navItems = allNavItems.filter((item) => !item.adminOnly || isAdmin);
+
+  const handleStartTour = () => {
+    setShowWelcome(false);
+    setShowTour(true);
+  };
+
+  const handleSkipOnboarding = async () => {
+    setShowWelcome(false);
+    if (user) {
+      await supabase.from("profiles").update({ onboarded: true }).eq("id", user.id);
+      setProfile((prev) => prev ? { ...prev, onboarded: true } : prev);
+    }
+  };
+
+  const handleTourComplete = async () => {
+    setShowTour(false);
+    if (user) {
+      await supabase.from("profiles").update({ onboarded: true }).eq("id", user.id);
+      setProfile((prev) => prev ? { ...prev, onboarded: true } : prev);
+    }
+    toast.success(`¡Todo listo, ${displayName}! Empieza registrando tu primer bloque de trabajo ⚡`);
+  };
 
   return (
     <>
@@ -82,6 +117,7 @@ export function AppSidebar() {
                 <Link
                   key={item.title}
                   to={item.url}
+                  data-tour={item.tourId}
                   className={`relative flex h-9 items-center gap-2.5 rounded-md px-3 text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-accent-light text-foreground font-semibold"
@@ -105,12 +141,20 @@ export function AppSidebar() {
         </div>
 
         {/* Timer widget */}
-        <TimerWidget />
+        <div data-tour="timer-widget">
+          <TimerWidget />
+        </div>
+
+        {/* Onboarding checklist */}
+        {profile && !profile.onboarded && (
+          <OnboardingChecklist onboarded={profile.onboarded} />
+        )}
 
         {/* User section */}
         <SidebarFooter className="px-3 pb-4">
           <button
             onClick={() => setProfileOpen(true)}
+            data-tour="profile"
             className="flex items-center gap-2.5 px-3 py-2 w-full rounded-md hover:bg-background-tertiary transition-colors text-left"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background-tertiary text-xs font-semibold text-foreground-secondary">
@@ -133,6 +177,15 @@ export function AppSidebar() {
         onProfileUpdated={(updated) => setProfile((prev) => prev ? { ...prev, ...updated } : prev)}
         onSignOut={signOut}
       />
+
+      {/* Onboarding */}
+      <WelcomeModal
+        open={showWelcome}
+        name={displayName}
+        onStartTour={handleStartTour}
+        onSkip={handleSkipOnboarding}
+      />
+      <OnboardingTour active={showTour} onComplete={handleTourComplete} />
     </>
   );
 }
