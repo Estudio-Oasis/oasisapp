@@ -49,13 +49,18 @@ export default function TimerPage() {
     const now = new Date();
     const rangeStart = view === "today" ? startOfDay(now) : startOfWeek(now);
 
-    const { data } = await supabase
+    let query = supabase
       .from("time_entries")
-      .select("*, clients(name), tasks(title)")
-      .eq("user_id", user.id)
+      .select("*, clients(name), tasks(title), profiles:user_id(name)")
       .not("ended_at", "is", null)
       .gte("started_at", rangeStart.toISOString())
       .order("started_at", { ascending: false });
+
+    if (entryFilter === "mine") {
+      query = query.eq("user_id", user.id);
+    }
+
+    const { data } = await query;
 
     const typedData = (data || []) as EntryWithRelations[];
     setEntries(typedData);
