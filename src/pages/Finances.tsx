@@ -9,16 +9,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, Plus, ArrowRightLeft } from "lucide-react";
+import { Loader2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
   Bar,
+  BarChart,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   Line,
+  LineChart,
   ComposedChart,
+  Legend,
+  CartesianGrid,
 } from "recharts";
 import { NewInvoiceModal } from "@/components/NewInvoiceModal";
 import { InvoiceDetailPanel } from "@/components/InvoiceDetailPanel";
