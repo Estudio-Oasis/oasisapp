@@ -70,6 +70,9 @@ function isOverdue(inv: { status: string; due_date: string | null }): boolean {
   return inv.status === "overdue" || (inv.status === "sent" && !!inv.due_date && new Date(inv.due_date) < today);
 }
 
+const DISPLAY_CURRENCIES = ["USD", "MXN", "EUR", "COP"] as const;
+type DisplayCurrency = typeof DISPLAY_CURRENCIES[number];
+
 export default function FinancesPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
@@ -82,6 +85,8 @@ export default function FinancesPage() {
   const [newPayOpen, setNewPayOpen] = useState(false);
   const [bulkPayOpen, setBulkPayOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentRow | null>(null);
+  const [mrrCurrency, setMrrCurrency] = useState<DisplayCurrency>("USD");
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
 
   // Expense form
   const [expFormOpen, setExpFormOpen] = useState(false);
