@@ -39,6 +39,7 @@ interface TimerContextType extends TimerState {
     projectId?: string | null,
     description?: string | null
   ) => Promise<void>;
+  startBreakTimer: (breakType?: string) => Promise<void>;
   setManualStatus: (status: string) => Promise<void>;
 }
 
@@ -99,6 +100,7 @@ const TimerContext = createContext<TimerContextType>({
   startTimer: async () => {},
   stopTimer: async () => false,
   switchTask: async () => {},
+  startBreakTimer: async () => {},
   setManualStatus: async () => {},
 });
 
@@ -461,6 +463,47 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     [stopTimer, startTimer]
   );
 
+  // Start a break timer (no client, no task)
+  const startBreakTimer = useCallback(async (breakType?: string) => {
+    if (!userId) return;
+
+    const label = breakType === "eating" ? "Comiendo" : breakType === "bathroom" ? "AFK" : breakType === "meeting" ? "Reunión" : "Break";
+    const startedAt = new Date().toISOString();
+    const { data: entry, error } = await supabase
+      .from("time_entries")
+      .insert({
+        user_id: userId,
+        client_id: null,
+        task_id: null,
+        project_id: null,
+        description: label,
+        started_at: startedAt,
+        ended_at: null,
+      })
+      .select("*")
+      .single();
+
+    if (error || !entry) {
+      console.error("Failed to start break timer:", error);
+      toast.error("No se pudo iniciar el timer de break.");
+      return;
+    }
+
+    persistActiveEntry(entry);
+    await upsertPresence(userId, breakType || "break", null, label);
+
+    setState({
+      isRunning: true,
+      isStopping: false,
+      activeEntry: entry,
+      elapsedSeconds: 0,
+      activeClient: null,
+      activeTask: null,
+    });
+
+    startInterval(entry.started_at);
+  }, [userId, startInterval]);
+
   // Manual status change (for break, eating, etc.)
   const setManualStatus = useCallback(async (status: string) => {
     if (!userId) return;
@@ -485,6 +528,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         startTimer,
         stopTimer,
         switchTask,
+        startBreakTimer,
         setManualStatus,
       }}
     >
