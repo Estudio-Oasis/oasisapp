@@ -96,12 +96,16 @@ export default function ClientProfilePage() {
 
   const fetchTimeEntries = useCallback(async () => {
     if (!id) return;
-    const { data } = await supabase
+    let query = supabase
       .from("time_entries")
-      .select("id, started_at, ended_at, duration_min, description, task_id")
+      .select("id, started_at, ended_at, duration_min, description, task_id, user_id")
       .eq("client_id", id)
       .order("started_at", { ascending: false })
       .limit(100);
+    if (timeFilter === "mine" && user) {
+      query = query.eq("user_id", user.id);
+    }
+    const { data } = await query;
     setTimeEntries((data as TimeEntryRow[]) || []);
 
     const now = new Date();
