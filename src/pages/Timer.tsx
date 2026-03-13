@@ -45,6 +45,13 @@ export default function TimerPage() {
   const [modalMode, setModalMode] = useState<"start" | "switch" | "manual">("start");
   const [gapPrefill, setGapPrefill] = useState<{ start: string; end: string } | null>(null);
 
+  const fetchProfiles = useCallback(async () => {
+    const { data } = await supabase.from("profiles").select("id, name");
+    const map: Record<string, ProfileInfo> = {};
+    ((data || []) as ProfileInfo[]).forEach((p) => { map[p.id] = p; });
+    setProfileMap(map);
+  }, []);
+
   const fetchEntries = useCallback(async () => {
     if (!user) return;
 
