@@ -170,7 +170,7 @@ export default function TimerPage() {
         )}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-foreground truncate">
-            {taskTitle || <span className="text-foreground-muted font-normal">No task</span>}
+            {taskTitle || <span className="text-foreground-muted font-normal">Sin tarea</span>}
           </p>
           <p className="text-xs text-foreground-secondary truncate">
             {clientName}
