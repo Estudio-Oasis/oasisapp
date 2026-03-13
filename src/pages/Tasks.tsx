@@ -7,7 +7,8 @@ import { NewTaskModal } from "@/components/NewTaskModal";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
 import { StartTimerModal } from "@/components/StartTimerModal";
 import { getClientColor, formatDuration } from "@/lib/timer-utils";
-import { CheckSquare, List, LayoutGrid, Zap, Plus } from "lucide-react";
+import { CheckSquare, List, LayoutGrid, GanttChart, Zap, Plus } from "lucide-react";
+import { TaskGanttView } from "@/components/tasks/TaskGanttView";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Task = Tables<"tasks">;
@@ -35,7 +36,7 @@ export default function TasksPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [clientFilter, setClientFilter] = useState<string>("all");
-  const [view, setView] = useState<"list" | "kanban">("list");
+  const [view, setView] = useState<"list" | "kanban" | "gantt">("list");
   const [newTaskOpen, setNewTaskOpen] = useState(false);
   const [newTaskPrefillStatus, setNewTaskPrefillStatus] = useState<string | undefined>();
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
@@ -83,11 +84,14 @@ export default function TasksPage() {
     return true;
   });
 
-  const stats = {
-    total: tasks.filter((t) => t.status !== "done").length,
-    inProgress: tasks.filter((t) => t.status === "in_progress").length,
-    overdue: tasks.filter((t) => t.due_date && new Date(t.due_date) < today && t.status !== "done").length,
-  };
+  const stats = [
+    { label: "Backlog", value: tasks.filter((t) => t.status === "backlog").length, color: "text-foreground-muted" },
+    { label: "To do", value: tasks.filter((t) => t.status === "todo").length, color: "text-foreground-secondary" },
+    { label: "In progress", value: tasks.filter((t) => t.status === "in_progress").length, color: "text-accent" },
+    { label: "Review", value: tasks.filter((t) => t.status === "review").length, color: "text-foreground-secondary" },
+    { label: "Done", value: tasks.filter((t) => t.status === "done").length, color: "text-success" },
+    { label: "Overdue", value: tasks.filter((t) => t.due_date && new Date(t.due_date) < today && t.status !== "done").length, danger: true },
+  ];
 
   const cycleStatus = async (task: Task) => {
     const idx = STATUSES.indexOf(task.status as typeof STATUSES[number]);
@@ -121,14 +125,10 @@ export default function TasksPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        {[
-          { label: "Active tasks", value: stats.total },
-          { label: "In progress", value: stats.inProgress },
-          { label: "Overdue", value: stats.overdue, danger: stats.overdue > 0 },
-        ].map((s) => (
-          <div key={s.label} className="border border-border rounded-xl p-5">
-            <p className={`text-2xl font-bold ${s.danger ? "text-destructive" : "text-foreground"}`}>{s.value}</p>
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
+        {stats.map((s) => (
+          <div key={s.label} className="border border-border rounded-xl p-4">
+            <p className={`text-2xl font-bold ${s.danger && s.value > 0 ? "text-destructive" : s.color || "text-foreground"}`}>{s.value}</p>
             <p className="text-small text-foreground-secondary">{s.label}</p>
           </div>
         ))}
@@ -170,14 +170,23 @@ export default function TasksPage() {
             <button
               onClick={() => setView("list")}
               className={`p-1.5 ${view === "list" ? "bg-background-secondary" : ""}`}
+              title="List view"
             >
               <List className="h-4 w-4 text-foreground-secondary" />
             </button>
             <button
               onClick={() => setView("kanban")}
               className={`p-1.5 ${view === "kanban" ? "bg-background-secondary" : ""}`}
+              title="Kanban view"
             >
               <LayoutGrid className="h-4 w-4 text-foreground-secondary" />
+            </button>
+            <button
+              onClick={() => setView("gantt")}
+              className={`p-1.5 ${view === "gantt" ? "bg-background-secondary" : ""}`}
+              title="Gantt view"
+            >
+              <GanttChart className="h-4 w-4 text-foreground-secondary" />
             </button>
           </div>
         </div>
@@ -279,7 +288,7 @@ export default function TasksPage() {
             <p className="text-sm text-foreground-muted text-center py-8">No tasks match your filters.</p>
           )}
         </div>
-      ) : (
+      ) : view === "kanban" ? (
         /* Kanban view */
         <div className="flex gap-4 overflow-x-auto pb-4 -mx-1">
           {STATUSES.map((status) => {
@@ -360,6 +369,13 @@ export default function TasksPage() {
             );
           })}
         </div>
+      ) : (
+        /* Gantt view */
+        <TaskGanttView
+          tasks={filtered}
+          clientMap={clientMap}
+          onSelectTask={setSelectedTaskId}
+        />
       )}
 
       {/* Modals & Panels */}
