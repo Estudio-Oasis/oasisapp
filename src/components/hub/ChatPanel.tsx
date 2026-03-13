@@ -180,6 +180,15 @@ export function ChatPanel({ open, onOpenChange, conversationId, partnerProfile }
         created_by: user.id,
       });
 
+      // Send summary to Slack
+      const { data: profile } = await supabase.from("profiles").select("name, email").eq("id", user.id).maybeSingle();
+      const generatedBy = profile?.name || profile?.email?.split("@")[0] || "Alguien";
+      notifySlack("ai_summary", {
+        summary,
+        conversation_partner: partnerName,
+        generated_by: generatedBy,
+      });
+
       toast.success("Resumen generado y guardado");
     } catch (e: any) {
       console.error("Summarize error:", e);
