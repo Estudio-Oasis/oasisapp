@@ -11,6 +11,8 @@ import { ProfileSheet } from "@/components/ProfileSheet";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { StartTimerModal } from "@/components/StartTimerModal";
+import { NewTaskModal } from "@/components/NewTaskModal";
 import { toast } from "sonner";
 import {
   Sidebar,
@@ -19,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const allNavItems = [
-  { title: "Timer", url: "/timer", icon: Timer, tourId: "timer" },
+  { title: "Timer", url: "/timer", icon: Timer },
   { title: "Clients", url: "/clients", icon: Users },
   { title: "Tasks", url: "/tasks", icon: CheckSquare, tourId: "tasks" },
   { title: "Finances", url: "/finances", icon: DollarSign, adminOnly: true },
@@ -42,6 +44,8 @@ export function AppSidebar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showTour, setShowTour] = useState(false);
+  const [tourTimerOpen, setTourTimerOpen] = useState(false);
+  const [tourTaskOpen, setTourTaskOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -79,13 +83,21 @@ export function AppSidebar() {
     }
   };
 
-  const handleTourComplete = async () => {
+  const handleTourComplete = () => {
     setShowTour(false);
-    if (user) {
-      await supabase.from("profiles").update({ onboarded: true }).eq("id", user.id);
-      setProfile((prev) => prev ? { ...prev, onboarded: true } : prev);
-    }
-    toast.success(`¡Todo listo, ${displayName}! Empieza registrando tu primer bloque de trabajo ⚡`);
+    setProfile((prev) => prev ? { ...prev, onboarded: true } : prev);
+  };
+
+  const openProfileFromTour = () => {
+    setProfileOpen(true);
+  };
+
+  const openNewTaskFromTour = () => {
+    setTourTaskOpen(true);
+  };
+
+  const openTimerFromTour = () => {
+    setTourTimerOpen(true);
   };
 
   return (
@@ -141,20 +153,24 @@ export function AppSidebar() {
         </div>
 
         {/* Timer widget */}
-        <div data-tour="timer-widget">
+        <div data-tour="start-timer-btn">
           <TimerWidget />
         </div>
 
         {/* Onboarding checklist */}
         {profile && !profile.onboarded && (
-          <OnboardingChecklist onboarded={profile.onboarded} />
+          <OnboardingChecklist
+            onboarded={profile.onboarded}
+            onOpenProfile={() => setProfileOpen(true)}
+            onOpenTimer={() => setTourTimerOpen(true)}
+          />
         )}
 
         {/* User section */}
         <SidebarFooter className="px-3 pb-4">
           <button
             onClick={() => setProfileOpen(true)}
-            data-tour="profile"
+            data-tour="profile-btn"
             className="flex items-center gap-2.5 px-3 py-2 w-full rounded-md hover:bg-background-tertiary transition-colors text-left"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background-tertiary text-xs font-semibold text-foreground-secondary">
@@ -185,7 +201,17 @@ export function AppSidebar() {
         onStartTour={handleStartTour}
         onSkip={handleSkipOnboarding}
       />
-      <OnboardingTour active={showTour} onComplete={handleTourComplete} />
+      <OnboardingTour
+        active={showTour}
+        onComplete={handleTourComplete}
+        onOpenProfile={openProfileFromTour}
+        onOpenNewTask={openNewTaskFromTour}
+        onOpenTimer={openTimerFromTour}
+      />
+
+      {/* Tour-triggered modals */}
+      <StartTimerModal open={tourTimerOpen} onOpenChange={setTourTimerOpen} mode="start" />
+      <NewTaskModal open={tourTaskOpen} onOpenChange={setTourTaskOpen} />
     </>
   );
 }
