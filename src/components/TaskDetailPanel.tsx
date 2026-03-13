@@ -218,7 +218,7 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
               </div>
             ) : (
               <p className="text-sm text-foreground whitespace-pre-wrap">
-                {task.description || <span className="text-foreground-muted">No description</span>}
+                {task.description || <span className="text-foreground-muted">Sin descripción</span>}
               </p>
             )}
           </div>
