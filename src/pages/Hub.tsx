@@ -8,7 +8,8 @@ import { ChatPanel } from "@/components/hub/ChatPanel";
 import { ChatList } from "@/components/hub/ChatList";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Coffee, Utensils, Bath, Monitor, Moon } from "lucide-react";
+import { Coffee, Utensils, Bath, Monitor, Moon, Video } from "lucide-react";
+import { StartTimerModal } from "@/components/StartTimerModal";
 
 interface MemberPresence {
   user_id: string;
@@ -165,15 +166,40 @@ export default function HubPage() {
 
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [showStopTimerDialog, setShowStopTimerDialog] = useState(false);
+  const [showStartTimerModal, setShowStartTimerModal] = useState(false);
   const { isRunning, stopTimer, activeClient, activeTask, startBreakTimer } = useTimer();
 
   const handleStatusChange = async (status: string) => {
-    const nonWorkStatuses = ["break", "eating", "bathroom", "meeting"];
-    if (isRunning && nonWorkStatuses.includes(status)) {
-      setPendingStatus(status);
-      setShowStopTimerDialog(true);
+    const breakStatuses = ["break", "eating", "bathroom", "meeting"];
+
+    if (status === "online") {
+      // "En línea" → open the start/switch timer modal
+      setShowStartTimerModal(true);
       return;
     }
+
+    if (status === "offline") {
+      // Offline → stop any running timer, set offline
+      if (isRunning) await stopTimer();
+      setMyStatus("offline");
+      await setManualStatus("offline");
+      return;
+    }
+
+    if (breakStatuses.includes(status)) {
+      if (isRunning) {
+        // Timer running → ask to stop first
+        setPendingStatus(status);
+        setShowStopTimerDialog(true);
+      } else {
+        // No timer → directly start break timer
+        setMyStatus(status);
+        await startBreakTimer(status);
+      }
+      return;
+    }
+
+    // Fallback
     setMyStatus(status);
     await setManualStatus(status);
   };
@@ -182,8 +208,6 @@ export default function HubPage() {
     if (pendingStatus) {
       await stopTimer();
       setMyStatus(pendingStatus);
-      await setManualStatus(pendingStatus);
-      // Start a break timer so the widget shows the break counter
       await startBreakTimer(pendingStatus);
       setPendingStatus(null);
     }
@@ -232,7 +256,8 @@ export default function HubPage() {
             { status: "break", icon: Coffee, label: "Break" },
             { status: "eating", icon: Utensils, label: "Comiendo" },
             { status: "bathroom", icon: Bath, label: "AFK" },
-            { status: "meeting", icon: Moon, label: "Reunión" },
+            { status: "meeting", icon: Video, label: "Reunión" },
+            { status: "offline", icon: Moon, label: "Offline" },
           ].map(({ status, icon: Icon, label }) => (
             <Button
               key={status}
@@ -315,6 +340,13 @@ export default function HubPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Start/Switch timer modal (triggered by "En línea" button) */}
+      <StartTimerModal
+        open={showStartTimerModal}
+        onOpenChange={setShowStartTimerModal}
+        mode={isRunning ? "switch" : "start"}
+      />
     </div>
   );
 }
