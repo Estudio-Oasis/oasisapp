@@ -3,6 +3,7 @@ import { Timer, Users, CheckSquare, DollarSign, Settings, Loader2 } from "lucide
 import { Link, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRole } from "@/hooks/useRole";
 import { TimerWidget } from "@/components/TimerWidget";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProfileSheet } from "@/components/ProfileSheet";
@@ -12,11 +13,11 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 
-const navItems = [
+const allNavItems = [
   { title: "Timer", url: "/timer", icon: Timer },
   { title: "Clients", url: "/clients", icon: Users },
   { title: "Tasks", url: "/tasks", icon: CheckSquare },
-  { title: "Finances", url: "/finances", icon: DollarSign },
+  { title: "Finances", url: "/finances", icon: DollarSign, adminOnly: true },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
@@ -29,6 +30,7 @@ interface Profile {
 export function AppSidebar() {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { isAdmin } = useRole();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -46,6 +48,8 @@ export function AppSidebar() {
 
   const displayName = profile?.name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
   const role = profile?.role || "member";
+
+  const navItems = allNavItems.filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <>

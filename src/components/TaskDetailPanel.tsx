@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useRole } from "@/hooks/useRole";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Pencil, Zap, Loader2 } from "lucide-react";
@@ -31,6 +32,7 @@ interface AssigneeInfo { id: string; name: string | null; email: string | null; 
 interface TimeEntryInfo { id: string; started_at: string; duration_min: number | null; }
 
 export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: TaskDetailPanelProps) => {
+  const { isAdmin } = useRole();
   const [task, setTask] = useState<Task | null>(null);
   const [client, setClient] = useState<ClientInfo | null>(null);
   const [project, setProject] = useState<ProjectInfo | null>(null);
@@ -221,10 +223,12 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
             )}
           </div>
 
-          {/* Delete */}
-          <button onClick={deleteTask} className="text-destructive text-small hover:underline">
-            Delete task
-          </button>
+          {/* Delete — admin only */}
+          {isAdmin && (
+            <button onClick={deleteTask} className="text-destructive text-small hover:underline">
+              Delete task
+            </button>
+          )}
         </div>
       </div>
     </>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRole } from "@/hooks/useRole";
 import { useTimer } from "@/contexts/TimerContext";
 import { StartTimerModal } from "@/components/StartTimerModal";
 import { Button } from "@/components/ui/button";
@@ -36,8 +37,9 @@ interface GapInfo {
 export default function TimerPage() {
   const { user } = useAuth();
   const { isRunning, isStopping, activeClient, activeTask, elapsedSeconds, stopTimer } = useTimer();
+  const { isAdmin } = useRole();
   const [view, setView] = useState<"today" | "week">("today");
-  const [entryFilter, setEntryFilter] = useState<"mine" | "all">("mine");
+  const [entryFilter, setEntryFilter] = useState<"mine" | "all">(isAdmin ? "all" : "mine");
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);
   const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
   const [gaps, setGaps] = useState<GapInfo[]>([]);

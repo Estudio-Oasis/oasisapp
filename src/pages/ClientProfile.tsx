@@ -4,6 +4,7 @@ import { LogPaymentModal } from "@/components/LogPaymentModal";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRole } from "@/hooks/useRole";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -72,6 +73,7 @@ export default function ClientProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isAdmin } = useRole();
   const [client, setClient] = useState<ClientFull | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("overview");
@@ -80,7 +82,7 @@ export default function ClientProfilePage() {
   const [interactions, setInteractions] = useState<InteractionRow[]>([]);
   const [credentials, setCredentials] = useState<CredentialRow[]>([]);
   const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
-  const [timeFilter, setTimeFilter] = useState<"mine" | "all">("mine");
+  const [timeFilter, setTimeFilter] = useState<"mine" | "all">(isAdmin ? "all" : "mine");
   const [stats, setStats] = useState({ weekHours: 0, monthHours: 0, totalHours: 0 });
 
   const fetchClient = useCallback(async () => {
@@ -254,7 +256,7 @@ export default function ClientProfilePage() {
           {/* Tabs */}
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="bg-transparent border-b border-border rounded-none p-0 h-auto gap-4 flex-wrap">
-              {["Overview", "Time", "Tasks", "Credentials", "Interactions", "Finances"].map((t) => (
+              {["Overview", "Time", "Tasks", "Credentials", "Interactions", ...(isAdmin ? ["Finances"] : [])].map((t) => (
                 <TabsTrigger
                   key={t}
                   value={t.toLowerCase()}
@@ -267,22 +269,24 @@ export default function ClientProfilePage() {
 
             <TabsContent value="overview" className="mt-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div className="border border-border rounded-lg p-5">
-                  <p className="text-micro text-foreground-muted mb-2">Rate</p>
-                  {client.monthly_rate ? (
-                    <>
-                      <p className="text-h2 text-foreground">${client.monthly_rate.toLocaleString()}{freqLabel[client.payment_frequency || "monthly"]}</p>
-                      <RateBreakdown monthlyRate={client.monthly_rate} paymentFrequency={client.payment_frequency || "monthly"} currency={client.currency} />
-                    </>
-                  ) : (
-                    <p className="text-sm text-foreground-muted">Not set</p>
-                  )}
-                  {client.payment_method && <p className="text-small text-foreground-secondary mt-1">via {client.payment_method}</p>}
-                </div>
+                {isAdmin && (
+                  <div className="border border-border rounded-lg p-5">
+                    <p className="text-micro text-foreground-muted mb-2">Rate</p>
+                    {client.monthly_rate ? (
+                      <>
+                        <p className="text-h2 text-foreground">${client.monthly_rate.toLocaleString()}{freqLabel[client.payment_frequency || "monthly"]}</p>
+                        <RateBreakdown monthlyRate={client.monthly_rate} paymentFrequency={client.payment_frequency || "monthly"} currency={client.currency} />
+                      </>
+                    ) : (
+                      <p className="text-sm text-foreground-muted">Not set</p>
+                    )}
+                    {client.payment_method && <p className="text-small text-foreground-secondary mt-1">via {client.payment_method}</p>}
+                  </div>
+                )}
                 <div className="border border-border rounded-lg p-5">
                   <p className="text-micro text-foreground-muted mb-2">This month</p>
                   <p className="text-h2 text-foreground">{stats.monthHours}h</p>
-                  {client.monthly_rate && stats.monthHours > 0 && (
+                  {isAdmin && client.monthly_rate && stats.monthHours > 0 && (
                     <p className="text-small text-foreground-secondary mt-1">
                       ~${Math.round(client.monthly_rate / stats.monthHours)}/hr effective
                     </p>
@@ -403,15 +407,17 @@ export default function ClientProfilePage() {
               </div>
             </div>
 
-            <div className="border border-border rounded-lg p-5">
-              <p className="text-micro text-foreground-muted mb-3">Payment</p>
-              <div className="flex flex-col gap-2 text-sm">
-                <p><span className="text-foreground-secondary">Rate:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
-                <p><span className="text-foreground-secondary">Frequency:</span> {client.payment_frequency || "monthly"}</p>
-                <p><span className="text-foreground-secondary">Method:</span> {client.payment_method || "—"}</p>
-                {client.billing_entity && <p><span className="text-foreground-secondary">Billed by:</span> {client.billing_entity}</p>}
+            {isAdmin && (
+              <div className="border border-border rounded-lg p-5">
+                <p className="text-micro text-foreground-muted mb-3">Payment</p>
+                <div className="flex flex-col gap-2 text-sm">
+                  <p><span className="text-foreground-secondary">Rate:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
+                  <p><span className="text-foreground-secondary">Frequency:</span> {client.payment_frequency || "monthly"}</p>
+                  <p><span className="text-foreground-secondary">Method:</span> {client.payment_method || "—"}</p>
+                  {client.billing_entity && <p><span className="text-foreground-secondary">Billed by:</span> {client.billing_entity}</p>}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>

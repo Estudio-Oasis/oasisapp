@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/select";
 import { Loader2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { useRole } from "@/hooks/useRole";
 import {
   Bar,
   BarChart,
@@ -74,6 +76,9 @@ const DISPLAY_CURRENCIES = ["USD", "MXN", "EUR", "COP"] as const;
 type DisplayCurrency = typeof DISPLAY_CURRENCIES[number];
 
 export default function FinancesPage() {
+  // Redirect non-admins
+  const { isAdmin, loading: roleLoading } = useRole();
+  const navigate = useNavigate();
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
@@ -231,7 +236,14 @@ export default function FinancesPage() {
 
   const EXPENSE_CATEGORIES = ["Payroll", "AI Credits", "Software", "Ad Spend", "Freelancers", "Other"];
 
-  if (loading) {
+  useEffect(() => {
+    if (!roleLoading && !isAdmin) {
+      toast.error("You don't have permission to view this section.");
+      navigate("/tasks", { replace: true });
+    }
+  }, [roleLoading, isAdmin, navigate]);
+
+  if (loading || roleLoading) {
     return (
       <div className="flex items-center justify-center py-16">
         <Loader2 className="h-6 w-6 animate-spin text-foreground-muted" />

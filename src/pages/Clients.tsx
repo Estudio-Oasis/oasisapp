@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useRole } from "@/hooks/useRole";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Users, ChevronRight } from "lucide-react";
@@ -47,6 +48,7 @@ function CompletenessPill({ score }: { score: number }) {
 
 export default function ClientsPage() {
   const navigate = useNavigate();
+  const { isAdmin } = useRole();
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -93,26 +95,32 @@ export default function ClientsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-h1 text-foreground">Clients</h1>
-        <Button onClick={() => setModalOpen(true)}>
-          <Plus className="h-4 w-4" />
-          New client
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => setModalOpen(true)}>
+            <Plus className="h-4 w-4" />
+            New client
+          </Button>
+        )}
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className={`grid grid-cols-1 ${isAdmin ? "sm:grid-cols-3" : "sm:grid-cols-1"} gap-4 mb-6`}>
         <div className="border border-border rounded-lg p-5">
           <p className="text-h1 text-foreground">{activeClients.length}</p>
           <p className="text-small text-foreground-secondary">Active clients</p>
         </div>
-        <div className="border border-border rounded-lg p-5">
-          <p className="text-h1 text-foreground">${totalMRR.toLocaleString()}</p>
-          <p className="text-small text-foreground-secondary">Monthly recurring</p>
-        </div>
-        <div className="border border-border rounded-lg p-5">
-          <p className="text-h1 text-foreground">{incompleteCount}</p>
-          <p className="text-small text-foreground-secondary">Incomplete profiles</p>
-        </div>
+        {isAdmin && (
+          <div className="border border-border rounded-lg p-5">
+            <p className="text-h1 text-foreground">${totalMRR.toLocaleString()}</p>
+            <p className="text-small text-foreground-secondary">Monthly recurring</p>
+          </div>
+        )}
+        {isAdmin && (
+          <div className="border border-border rounded-lg p-5">
+            <p className="text-h1 text-foreground">{incompleteCount}</p>
+            <p className="text-small text-foreground-secondary">Incomplete profiles</p>
+          </div>
+        )}
       </div>
 
       {/* Search + Filter */}
@@ -151,10 +159,12 @@ export default function ClientsPage() {
           <Users className="h-12 w-12 text-border mb-4" />
           <h2 className="text-h3 text-foreground">No clients yet</h2>
           <p className="text-sm text-foreground-secondary mt-2">Add your first client to start tracking time and revenue.</p>
-          <Button onClick={() => setModalOpen(true)} className="mt-4">
-            <Plus className="h-4 w-4" />
-            New client
-          </Button>
+          {isAdmin && (
+            <Button onClick={() => setModalOpen(true)} className="mt-4">
+              <Plus className="h-4 w-4" />
+              New client
+            </Button>
+          )}
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">No clients match your filters.</div>
@@ -196,17 +206,19 @@ export default function ClientsPage() {
                   </div>
                 </div>
 
-                {/* Rate + Completeness */}
-                <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
-                  {rate ? (
-                    <span className="text-sm font-semibold text-foreground">
-                      ${rate.toLocaleString()}{frequencyLabel[freq] || "/mo"}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-foreground-muted">No rate</span>
-                  )}
-                  <CompletenessPill score={client.completeness_score ?? 0} />
-                </div>
+                {/* Rate + Completeness — admin only */}
+                {isAdmin && (
+                  <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
+                    {rate ? (
+                      <span className="text-sm font-semibold text-foreground">
+                        ${rate.toLocaleString()}{frequencyLabel[freq] || "/mo"}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-foreground-muted">No rate</span>
+                    )}
+                    <CompletenessPill score={client.completeness_score ?? 0} />
+                  </div>
+                )}
 
                 <ChevronRight className="h-4 w-4 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
               </div>
