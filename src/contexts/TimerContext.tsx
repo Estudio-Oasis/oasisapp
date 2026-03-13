@@ -39,6 +39,7 @@ interface TimerContextType extends TimerState {
     projectId?: string | null,
     description?: string | null
   ) => Promise<void>;
+  setManualStatus: (status: string) => Promise<void>;
 }
 
 const ACTIVE_TIMER_STORAGE_KEY = "oasis_active_entry";
@@ -98,9 +99,22 @@ const TimerContext = createContext<TimerContextType>({
   startTimer: async () => {},
   stopTimer: async () => false,
   switchTask: async () => {},
+  setManualStatus: async () => {},
 });
 
 export const useTimer = () => useContext(TimerContext);
+
+// Helper to upsert presence
+async function upsertPresence(userId: string, status: string, clientName?: string | null, taskName?: string | null) {
+  await supabase.from("member_presence").upsert({
+    user_id: userId,
+    status,
+    current_client: clientName || null,
+    current_task: taskName || null,
+    last_seen_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "user_id" });
+}
 
 export function TimerProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
@@ -131,6 +145,77 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     },
     [calcElapsed]
   );
+
+  // === ALWAYS-ON PRESENCE: heartbeat every 30s while user is logged in ===
+  useEffect(() => {
+    if (!userId) return;
+
+    // Initial presence upsert — mark as online immediately
+    // Only set "online" if there's no active timer (timer sets "working")
+    const initPresence = async () => {
+      const { data } = await supabase
+        .from("member_presence")
+        .select("status")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      // If no row exists or status is offline, set to online
+      if (!data || data.status === "offline") {
+        await upsertPresence(userId, "online");
+      } else {
+        // Just update last_seen_at to keep alive
+        await supabase.from("member_presence").upsert({
+          user_id: userId,
+          status: data.status,
+          last_seen_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id" });
+      }
+    };
+
+    initPresence();
+
+    // Heartbeat every 30s
+    const heartbeat = setInterval(async () => {
+      const { data } = await supabase
+        .from("member_presence")
+        .select("status, current_client, current_task")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (data) {
+        await supabase.from("member_presence").upsert({
+          user_id: userId,
+          status: data.status === "offline" ? "online" : data.status,
+          current_client: data.current_client,
+          current_task: data.current_task,
+          last_seen_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id" });
+      }
+    }, 30000);
+
+    // On page unload, try to set offline
+    const handleBeforeUnload = () => {
+      // Use sendBeacon for reliability
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/member_presence?user_id=eq.${userId}`;
+      const body = JSON.stringify({
+        status: "offline",
+        current_client: null,
+        current_task: null,
+        last_seen_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+      navigator.sendBeacon?.(url); // Best effort
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      clearInterval(heartbeat);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [userId]);
 
   // Restore active entry on mount / user change
   useEffect(() => {
@@ -221,6 +306,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       });
 
       startInterval(entry.started_at);
+
+      // Update presence to working
+      await upsertPresence(userId, "working", client?.name, task?.title);
     };
 
     void restore();
@@ -288,16 +376,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       persistActiveEntry(entry);
 
       // Upsert presence as working
-      const clientName = client?.name || null;
-      const taskName = task?.title || null;
-      await supabase.from("member_presence").upsert({
-        user_id: userId,
-        status: "working",
-        current_client: clientName,
-        current_task: taskName,
-        last_seen_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id" });
+      await upsertPresence(userId, "working", client?.name, task?.title);
 
       setState({
         isRunning: true,
@@ -359,16 +438,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
     clearPersistedActiveEntry();
 
-    // Update presence to break
+    // Update presence to online (not working anymore but still here)
     if (userId) {
-      await supabase.from("member_presence").upsert({
-        user_id: userId,
-        status: "break",
-        current_client: null,
-        current_task: null,
-        last_seen_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id" });
+      await upsertPresence(userId, "online");
     }
 
     resetTimerState();
@@ -388,23 +460,12 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     },
     [stopTimer, startTimer]
   );
-  // Heartbeat: update presence every 60s while timer is running
-  useEffect(() => {
-    if (!state.isRunning || !userId) return;
 
-    const heartbeat = setInterval(async () => {
-      await supabase.from("member_presence").upsert({
-        user_id: userId,
-        status: "working",
-        current_client: state.activeClient?.name || null,
-        current_task: state.activeTask?.title || null,
-        last_seen_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id" });
-    }, 60000);
-
-    return () => clearInterval(heartbeat);
-  }, [state.isRunning, userId, state.activeClient?.name, state.activeTask?.title]);
+  // Manual status change (for break, eating, etc.)
+  const setManualStatus = useCallback(async (status: string) => {
+    if (!userId) return;
+    await upsertPresence(userId, status);
+  }, [userId]);
 
   return (
     <TimerContext.Provider
@@ -413,6 +474,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         startTimer,
         stopTimer,
         switchTask,
+        setManualStatus,
       }}
     >
       {children}

@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTimer } from "@/contexts/TimerContext";
 import { MemberBubble } from "@/components/hub/MemberBubble";
 import { ChatPanel } from "@/components/hub/ChatPanel";
 import { ChatList } from "@/components/hub/ChatList";
+import { Button } from "@/components/ui/button";
+import { Coffee, Utensils, Bath, Monitor, Moon } from "lucide-react";
 
 interface MemberPresence {
   user_id: string;
@@ -32,15 +35,27 @@ export interface Conversation {
   is_archived: boolean;
 }
 
-const OFFLINE_THRESHOLD_MS = 5 * 60 * 1000;
+const OFFLINE_THRESHOLD_MS = 2 * 60 * 1000; // 2 minutes
+
+const STATUS_MAP: Record<string, { label: string; color: "working" | "break" | "offline" | "online" }> = {
+  working: { label: "Trabajando", color: "working" },
+  online: { label: "En línea", color: "online" },
+  break: { label: "En break", color: "break" },
+  eating: { label: "Comiendo 🍽️", color: "break" },
+  bathroom: { label: "AFK 🚿", color: "break" },
+  meeting: { label: "En reunión", color: "working" },
+  offline: { label: "Offline", color: "offline" },
+};
 
 export default function HubPage() {
   const { user } = useAuth();
+  const { setManualStatus } = useTimer();
   const [members, setMembers] = useState<MemberWithProfile[]>([]);
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeChatUserId, setActiveChatUserId] = useState<string | null>(null);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [myStatus, setMyStatus] = useState<string>("online");
 
   // Load profiles + presence
   useEffect(() => {
@@ -60,8 +75,11 @@ export default function HubPage() {
       const presenceMap = new Map<string, MemberPresence>();
       (presenceData || []).forEach((p: any) => presenceMap.set(p.user_id, p));
 
+      // Find my status
+      const myPresence = presenceMap.get(user.id);
+      if (myPresence) setMyStatus(myPresence.status);
+
       const merged: MemberWithProfile[] = profileList
-        .filter((p) => p.id !== user.id)
         .map((p) => {
           const presence = presenceMap.get(p.id);
           const now = Date.now();
@@ -78,9 +96,13 @@ export default function HubPage() {
           };
         });
 
-      // Sort: working first, then break, then offline
-      const order = { working: 0, break: 1, offline: 2 };
-      merged.sort((a, b) => (order[a.status as keyof typeof order] ?? 2) - (order[b.status as keyof typeof order] ?? 2));
+      // Sort: self first, then working, online, break, offline
+      const order: Record<string, number> = { working: 0, online: 1, meeting: 1, break: 2, eating: 2, bathroom: 2, offline: 3 };
+      merged.sort((a, b) => {
+        if (a.user_id === user.id) return -1;
+        if (b.user_id === user.id) return 1;
+        return (order[a.status] ?? 3) - (order[b.status] ?? 3);
+      });
       setMembers(merged);
     };
 
@@ -98,7 +120,7 @@ export default function HubPage() {
   }, [user]);
 
   const handleMemberClick = async (memberId: string) => {
-    if (!user) return;
+    if (!user || memberId === user.id) return;
 
     // Find or create conversation
     const existing = conversations.find(
@@ -135,9 +157,26 @@ export default function HubPage() {
     setActiveChatUserId(otherId);
   };
 
+  const handleStatusChange = async (status: string) => {
+    setMyStatus(status);
+    await setManualStatus(status);
+  };
+
   const chatPartnerProfile = activeChatUserId
     ? allProfiles.find((p) => p.id === activeChatUserId) || null
     : null;
+
+  const getStatusInfo = (status: string) => {
+    return STATUS_MAP[status] || STATUS_MAP.offline;
+  };
+
+  const getMemberStatusColor = (status: string): "working" | "break" | "offline" | "online" => {
+    return getStatusInfo(status).color;
+  };
+
+  const getMemberStatusLabel = (status: string): string => {
+    return getStatusInfo(status).label;
+  };
 
   return (
     <div className="space-y-8">
@@ -147,11 +186,36 @@ export default function HubPage() {
         <p className="text-sm text-foreground-muted mt-1">Actividad del equipo en tiempo real</p>
       </div>
 
+      {/* Quick status buttons for current user */}
+      <div>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Tu estado</h2>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { status: "online", icon: Monitor, label: "En línea" },
+            { status: "break", icon: Coffee, label: "Break" },
+            { status: "eating", icon: Utensils, label: "Comiendo" },
+            { status: "bathroom", icon: Bath, label: "AFK" },
+            { status: "meeting", icon: Moon, label: "Reunión" },
+          ].map(({ status, icon: Icon, label }) => (
+            <Button
+              key={status}
+              variant={myStatus === status ? "default" : "outline"}
+              size="sm"
+              className="gap-1.5 text-xs"
+              onClick={() => handleStatusChange(status)}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </Button>
+          ))}
+        </div>
+      </div>
+
       {/* Member bubbles */}
       <div>
         <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-4">Equipo</h2>
         {members.length === 0 ? (
-          <p className="text-sm text-foreground-muted">No hay otros miembros en el equipo aún.</p>
+          <p className="text-sm text-foreground-muted">No hay miembros en el equipo aún.</p>
         ) : (
           <div className="flex flex-wrap gap-6">
             {members.map((m) => (
@@ -159,9 +223,11 @@ export default function HubPage() {
                 key={m.user_id}
                 name={m.profile.name || m.profile.email?.split("@")[0] || "?"}
                 avatarUrl={m.profile.avatar_url}
-                status={m.status as "working" | "break" | "offline"}
+                status={getMemberStatusColor(m.status)}
+                statusLabel={getMemberStatusLabel(m.status)}
                 currentClient={m.current_client}
                 currentTask={m.current_task}
+                isMe={m.user_id === user?.id}
                 onClick={() => handleMemberClick(m.user_id)}
               />
             ))}
