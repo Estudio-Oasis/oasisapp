@@ -335,7 +335,7 @@ export function StartTimerModal({
                   onClick={() => setShowNewClient(true)}
                   className="text-xs font-medium text-accent hover:text-accent/80 flex items-center gap-0.5 transition-colors"
                 >
-                  <Plus className="h-3 w-3" /> add new
+                  <Plus className="h-3 w-3" /> agregar nuevo
                 </button>
               )}
             </div>
