@@ -319,18 +319,42 @@ export function BulkReceiptUploadModal({
             {/* Default client */}
             <div className="space-y-1.5">
               <label className="text-label">Default client</label>
-              <Select value={defaultClientId} onValueChange={setDefaultClientId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select client for all receipts..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <Select value={defaultClientId} onValueChange={setDefaultClientId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select client for all receipts..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowNewDefaultClient(true)}
+                  className="shrink-0"
+                >
+                  <UserPlus className="h-3.5 w-3.5 mr-1" /> New
+                </Button>
+              </div>
+              {showNewDefaultClient && (
+                <InlineNewClient
+                  prefillName=""
+                  onCreated={(client) => {
+                    setClients((prev) => [...prev, client].sort((a, b) => a.name.localeCompare(b.name)));
+                    setDefaultClientId(client.id);
+                    setShowNewDefaultClient(false);
+                  }}
+                  onCancel={() => setShowNewDefaultClient(false)}
+                />
+              )}
             </div>
 
             {/* Upload zone */}
