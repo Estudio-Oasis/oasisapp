@@ -315,7 +315,7 @@ export default function TasksPage() {
                   onClick={() => { setNewTaskPrefillStatus(status); setNewTaskOpen(true); }}
                   className="text-small text-foreground-secondary hover:text-foreground mb-2"
                 >
-                  + Add
+                  + Agregar
                 </button>
                 <div className="flex flex-col gap-2">
                   {colTasks.map((task) => {
