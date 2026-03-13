@@ -226,7 +226,7 @@ export function NewTaskModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px] p-0 gap-0 border-border max-h-[92dvh] flex flex-col fixed bottom-0 left-0 right-0 sm:bottom-auto sm:left-auto sm:right-auto sm:top-[50%] sm:translate-y-[-50%] rounded-t-2xl sm:rounded-xl w-full">
+      <DialogContent className="sm:max-w-[480px] p-0 gap-0 border-border max-h-[92dvh] flex flex-col rounded-t-2xl sm:rounded-xl w-full">
         <DialogHeader className="p-6 pb-0 shrink-0">
           <DialogTitle className="text-h2">New task</DialogTitle>
           <DialogDescription className="sr-only">Create a new task for a client</DialogDescription>
