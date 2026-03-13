@@ -13,3 +13,5 @@ project_id = "tualybcctwjpldtlewlu"
     verify_jwt = true
   [functions.scan-receipt]
     verify_jwt = false
+  [functions.summarize-chat]
+    verify_jwt = false

@@ -5,6 +5,7 @@ import { Outlet, useLocation } from "react-router-dom";
 
 const pageTitles: Record<string, string> = {
   "/timer": "Timer",
+  "/hub": "Hub",
   "/clients": "Clientes",
   "/tasks": "Tareas",
   "/finances": "Finanzas",

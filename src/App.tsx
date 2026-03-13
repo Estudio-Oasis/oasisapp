@@ -45,6 +45,7 @@ const App = () => (
                   }
                 >
                   <Route path="/timer" element={<TimerPage />} />
+                  <Route path="/hub" element={<HubPage />} />
                   <Route path="/clients" element={<ClientsPage />} />
                   <Route path="/clients/:id" element={<ClientProfilePage />} />
                   <Route path="/tasks" element={<TasksPage />} />
