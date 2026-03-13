@@ -57,11 +57,20 @@ export function AppSidebar() {
     <>
       <Sidebar className="border-r border-sidebar-border bg-sidebar w-[220px]">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-4 py-5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground">
-            <span className="text-micro text-background leading-none tracking-widest">OS</span>
+        <div className="flex items-center justify-between px-4 py-5">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground">
+              <span className="text-micro text-background leading-none tracking-widest">OS</span>
+            </div>
+            <span className="text-sm font-semibold text-foreground">OasisOS</span>
           </div>
-          <span className="text-sm font-semibold text-foreground">OasisOS</span>
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-background-tertiary transition-colors text-foreground-secondary"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
         </div>
 
         {/* Navigation */}

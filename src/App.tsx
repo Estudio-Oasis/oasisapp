@@ -22,39 +22,41 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <TimerProvider>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/" element={<Navigate to="/timer" replace />} />
-              <Route
-                element={
-                  <ProtectedRoute>
-                    <AppLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route path="/timer" element={<TimerPage />} />
-                <Route path="/clients" element={<ClientsPage />} />
-                <Route path="/clients/:id" element={<ClientProfilePage />} />
-                <Route path="/tasks" element={<TasksPage />} />
-                <Route path="/finances" element={<FinancesPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <TimerFAB />
-          </TimerProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <TimerProvider>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/" element={<Navigate to="/timer" replace />} />
+                <Route
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route path="/timer" element={<TimerPage />} />
+                  <Route path="/clients" element={<ClientsPage />} />
+                  <Route path="/clients/:id" element={<ClientProfilePage />} />
+                  <Route path="/tasks" element={<TasksPage />} />
+                  <Route path="/finances" element={<FinancesPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <TimerFAB />
+            </TimerProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

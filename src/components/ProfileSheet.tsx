@@ -196,6 +196,29 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
             </div>
           )}
 
+          {/* Theme */}
+          <div className="space-y-1.5">
+            <label className="text-label">Theme</label>
+            <div className="flex gap-2">
+              {([
+                { value: "light", icon: Sun, label: "Light" },
+                { value: "dark", icon: Moon, label: "Dark" },
+                { value: "system", icon: Monitor, label: "System" },
+              ] as const).map(({ value, icon: Icon, label }) => (
+                <Button
+                  key={value}
+                  size="sm"
+                  variant={theme === value ? "accent" : "secondary"}
+                  className="flex-1 gap-1.5"
+                  onClick={() => setTheme(value)}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
           {/* Sign out */}
           <Button variant="outline" className="w-full" onClick={onSignOut}>
             <LogOut className="h-4 w-4 mr-2" />
