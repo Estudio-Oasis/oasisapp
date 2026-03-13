@@ -51,7 +51,7 @@ export default function TimerPage() {
 
     let query = supabase
       .from("time_entries")
-      .select("*, clients(name), tasks(title), profiles:user_id(name)")
+      .select("*, clients(name), tasks(title), profiles!time_entries_user_id_fkey(name)")
       .not("ended_at", "is", null)
       .gte("started_at", rangeStart.toISOString())
       .order("started_at", { ascending: false });
