@@ -428,7 +428,7 @@ export function StartTimerModal({
 
           {/* Description with task suggestions + AI rewrite */}
           <div className="space-y-1.5 relative">
-            <label className="text-label">What are you working on?</label>
+            <label className="text-label">¿En qué estás trabajando?</label>
             <div className="relative">
               <Textarea
                 ref={textareaRef}
