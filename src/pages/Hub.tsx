@@ -8,7 +8,8 @@ import { ChatPanel } from "@/components/hub/ChatPanel";
 import { ChatList } from "@/components/hub/ChatList";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Coffee, Utensils, Bath, Monitor, Moon } from "lucide-react";
+import { Coffee, Utensils, Bath, Monitor, Moon, Video } from "lucide-react";
+import { StartTimerModal } from "@/components/StartTimerModal";
 
 interface MemberPresence {
   user_id: string;
