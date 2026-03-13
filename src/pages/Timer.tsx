@@ -82,8 +82,9 @@ export default function TimerPage() {
   }, [user, view, entryFilter]);
 
   useEffect(() => {
+    fetchProfiles();
     fetchEntries();
-  }, [fetchEntries, isRunning]);
+  }, [fetchEntries, fetchProfiles, isRunning]);
 
   const detectGaps = (todayEntries: EntryWithRelations[]) => {
     const today = new Date();
