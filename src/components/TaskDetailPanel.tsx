@@ -154,7 +154,7 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
                 <span className="text-foreground">{project?.name || "—"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-foreground-secondary">Priority</span>
+                <span className="text-foreground-secondary">Prioridad</span>
                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                   task.priority === "urgent" ? "bg-destructive-light text-destructive" :
                   task.priority === "high" ? "bg-accent-light text-accent-foreground" :
