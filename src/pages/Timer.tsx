@@ -99,7 +99,7 @@ export default function TimerPage() {
     } else {
       setGaps([]);
     }
-  }, [user, view, entryFilter]);
+  }, [user, view, entryFilter, workStartHour, workStartMinute]);
 
   useEffect(() => {
     fetchProfiles();
