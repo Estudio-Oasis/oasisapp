@@ -170,8 +170,8 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-foreground-secondary">Assignee</span>
-                <span className="text-foreground">{assignee ? (assignee.name || assignee.email || "User") : "Unassigned"}</span>
+                 <span className="text-foreground-secondary">Asignado</span>
+                <span className="text-foreground">{assignee ? (assignee.name || assignee.email || "Usuario") : "Sin asignar"}</span>
               </div>
             </div>
           </div>
