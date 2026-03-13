@@ -63,18 +63,17 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
     if (!inviteEmail.trim() || !user) return;
     setInviting(true);
 
-    const { error } = await supabase.from("agency_invitations").insert({
-      agency_id: agencyId,
-      email: inviteEmail.trim().toLowerCase(),
-      role: "member",
-      invited_by: user.id,
+    const { data, error } = await supabase.functions.invoke("invite-member", {
+      body: { email: inviteEmail.trim().toLowerCase() },
     });
 
     if (error) {
-      if (error.code === "23505") {
+      toast.error("Failed to send invitation");
+    } else if (data?.error) {
+      if (data.error.includes("already") || data.error.includes("duplicate")) {
         toast.error("Invitation already sent to this email");
       } else {
-        toast.error("Failed to send invitation");
+        toast.error(data.error);
       }
     } else {
       toast.success(`Invitation sent to ${inviteEmail}`);
