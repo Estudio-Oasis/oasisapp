@@ -496,21 +496,42 @@ export function BulkReceiptUploadModal({
                         {/* Per-item client override */}
                         <div className="col-span-2">
                           <p className="text-micro text-foreground-muted mb-1">Client</p>
-                          <Select
-                            value={item.clientId}
-                            onValueChange={(v) => updateItemClient(item.id, v)}
-                          >
-                            <SelectTrigger className="h-8 text-sm">
-                              <SelectValue placeholder="Select client..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {clients.map((c) => (
-                                <SelectItem key={c.id} value={c.id}>
-                                  {c.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1">
+                              <Select
+                                value={item.clientId}
+                                onValueChange={(v) => updateItemClient(item.id, v)}
+                              >
+                                <SelectTrigger className="h-8 text-sm">
+                                  <SelectValue placeholder="Select client..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {clients.map((c) => (
+                                    <SelectItem key={c.id} value={c.id}>
+                                      {c.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <button
+                              onClick={() => setShowNewClientForItem(item.id)}
+                              className="h-8 px-2 flex items-center gap-1 rounded-md text-xs text-foreground-muted hover:text-foreground hover:bg-background-secondary border border-border"
+                            >
+                              <UserPlus className="h-3 w-3" /> New
+                            </button>
+                          </div>
+                          {showNewClientForItem === item.id && (
+                            <InlineNewClient
+                              prefillName={item.scanResult?.sender_name || ""}
+                              onCreated={(client) => {
+                                setClients((prev) => [...prev, client].sort((a, b) => a.name.localeCompare(b.name)));
+                                updateItemClient(item.id, client.id);
+                                setShowNewClientForItem(null);
+                              }}
+                              onCancel={() => setShowNewClientForItem(null)}
+                            />
+                          )}
                         </div>
                       </div>
                     )}
