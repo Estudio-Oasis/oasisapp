@@ -315,7 +315,7 @@ export function StartTimerModal({
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-label">End time</label>
+                <label className="text-label">Hora fin</label>
                 <Input
                   type="time"
                   value={manualEnd}
