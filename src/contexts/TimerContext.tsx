@@ -358,9 +358,22 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     }
 
     clearPersistedActiveEntry();
+
+    // Update presence to break
+    if (userId) {
+      await supabase.from("member_presence").upsert({
+        user_id: userId,
+        status: "break",
+        current_client: null,
+        current_task: null,
+        last_seen_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+    }
+
     resetTimerState();
     return true;
-  }, [resetTimerState, state.activeEntry, state.isStopping]);
+  }, [resetTimerState, state.activeEntry, state.isStopping, userId]);
 
   const switchTask = useCallback(
     async (
