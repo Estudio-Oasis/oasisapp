@@ -9,6 +9,40 @@ const corsHeaders = {
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/slack/api";
 
+type SlackApiResponse = {
+  ok?: boolean;
+  error?: string;
+  warning?: string;
+  response_metadata?: { warnings?: string[] };
+  [key: string]: unknown;
+};
+
+async function postToSlack(
+  endpoint: string,
+  payload: Record<string, unknown>,
+  lovableApiKey: string,
+  slackApiKey: string,
+): Promise<{ response: Response; result: SlackApiResponse }> {
+  const response = await fetch(`${GATEWAY_URL}/${endpoint}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${lovableApiKey}`,
+      "X-Connection-Api-Key": slackApiKey,
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  let result: SlackApiResponse = {};
+  try {
+    result = (await response.json()) as SlackApiResponse;
+  } catch {
+    result = { ok: false, error: "invalid_json_response" };
+  }
+
+  return { response, result };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -113,37 +147,61 @@ serve(async (req) => {
         if (data?.message) text += `\n${data.message}`;
     }
 
-    const response = await fetch(`${GATEWAY_URL}/chat.postMessage`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": SLACK_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        channel: targetChannel,
-        text,
-        ...(blocks ? { blocks } : {}),
-        username: "Oasis Hub",
-        icon_emoji: ":palm_tree:",
-      }),
-    });
+    const messagePayload: Record<string, unknown> = {
+      channel: targetChannel,
+      text,
+      ...(blocks ? { blocks } : {}),
+      username: "Oasis Hub",
+      icon_emoji: ":palm_tree:",
+    };
 
-    const result = await response.json();
+    let { response, result } = await postToSlack(
+      "chat.postMessage",
+      messagePayload,
+      LOVABLE_API_KEY,
+      SLACK_API_KEY,
+    );
+
+    // Public channels can be joined on demand; private channels still require manual invite.
+    if (result.error === "not_in_channel" && targetChannel) {
+      const joinAttempt = await postToSlack(
+        "conversations.join",
+        { channel: targetChannel },
+        LOVABLE_API_KEY,
+        SLACK_API_KEY,
+      );
+
+      if (joinAttempt.response.ok && joinAttempt.result.ok) {
+        const retry = await postToSlack(
+          "chat.postMessage",
+          messagePayload,
+          LOVABLE_API_KEY,
+          SLACK_API_KEY,
+        );
+        response = retry.response;
+        result = retry.result;
+      } else {
+        console.error("Slack join error:", JSON.stringify(joinAttempt.result));
+        throw new Error(
+          `Slack bot is not in channel ${targetChannel}. Invite \"Lovable App\" to this channel and retry. Join failed [${joinAttempt.response.status}]: ${JSON.stringify(joinAttempt.result)}`,
+        );
+      }
+    }
+
     if (!response.ok || !result.ok) {
       console.error("Slack API error:", JSON.stringify(result));
       throw new Error(`Slack API call failed [${response.status}]: ${JSON.stringify(result)}`);
     }
 
     return new Response(JSON.stringify({ success: true }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" },
     });
   } catch (error: unknown) {
     console.error("slack-notify error:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(JSON.stringify({ success: false, error: errorMessage }), {
       status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json; charset=utf-8" },
     });
   }
 });
