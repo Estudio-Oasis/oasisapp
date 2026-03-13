@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Mail, Trash2, UserPlus } from "lucide-react";
+import { Loader2, Mail, RefreshCw, Trash2, UserPlus } from "lucide-react";
 
 interface Member {
   id: string;
