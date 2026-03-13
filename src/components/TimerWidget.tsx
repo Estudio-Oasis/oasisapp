@@ -32,7 +32,7 @@ export function TimerWidget() {
           >
             <Zap className="h-3.5 w-3.5 text-foreground-muted group-hover:text-foreground transition-colors" />
             <span className="text-small text-foreground-secondary group-hover:text-foreground transition-colors">
-              Start timer
+              Iniciar timer
             </span>
           </button>
         ) : (
