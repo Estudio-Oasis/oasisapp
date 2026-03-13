@@ -223,10 +223,12 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
             )}
           </div>
 
-          {/* Delete */}
-          <button onClick={deleteTask} className="text-destructive text-small hover:underline">
-            Delete task
-          </button>
+          {/* Delete — admin only */}
+          {isAdmin && (
+            <button onClick={deleteTask} className="text-destructive text-small hover:underline">
+              Delete task
+            </button>
+          )}
         </div>
       </div>
     </>

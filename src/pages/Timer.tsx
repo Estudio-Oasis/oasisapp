@@ -37,6 +37,7 @@ interface GapInfo {
 export default function TimerPage() {
   const { user } = useAuth();
   const { isRunning, isStopping, activeClient, activeTask, elapsedSeconds, stopTimer } = useTimer();
+  const { isAdmin } = useRole();
   const [view, setView] = useState<"today" | "week">("today");
   const [entryFilter, setEntryFilter] = useState<"mine" | "all">("mine");
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);

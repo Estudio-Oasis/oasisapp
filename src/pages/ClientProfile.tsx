@@ -407,15 +407,17 @@ export default function ClientProfilePage() {
               </div>
             </div>
 
-            <div className="border border-border rounded-lg p-5">
-              <p className="text-micro text-foreground-muted mb-3">Payment</p>
-              <div className="flex flex-col gap-2 text-sm">
-                <p><span className="text-foreground-secondary">Rate:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
-                <p><span className="text-foreground-secondary">Frequency:</span> {client.payment_frequency || "monthly"}</p>
-                <p><span className="text-foreground-secondary">Method:</span> {client.payment_method || "—"}</p>
-                {client.billing_entity && <p><span className="text-foreground-secondary">Billed by:</span> {client.billing_entity}</p>}
+            {isAdmin && (
+              <div className="border border-border rounded-lg p-5">
+                <p className="text-micro text-foreground-muted mb-3">Payment</p>
+                <div className="flex flex-col gap-2 text-sm">
+                  <p><span className="text-foreground-secondary">Rate:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
+                  <p><span className="text-foreground-secondary">Frequency:</span> {client.payment_frequency || "monthly"}</p>
+                  <p><span className="text-foreground-secondary">Method:</span> {client.payment_method || "—"}</p>
+                  {client.billing_entity && <p><span className="text-foreground-secondary">Billed by:</span> {client.billing_entity}</p>}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
