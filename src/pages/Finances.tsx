@@ -9,16 +9,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, Plus, ArrowRightLeft } from "lucide-react";
+import { Loader2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
   Bar,
+  BarChart,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   Line,
+  LineChart,
   ComposedChart,
+  Legend,
+  CartesianGrid,
 } from "recharts";
 import { NewInvoiceModal } from "@/components/NewInvoiceModal";
 import { InvoiceDetailPanel } from "@/components/InvoiceDetailPanel";
@@ -484,6 +488,9 @@ export default function FinancesPage() {
         )}
       </div>
 
+      {/* ─── INSIGHTS / BI ─── */}
+      <InsightsSection payments={payments} clients={clients} />
+
       {/* Modals & Panels */}
       <NewInvoiceModal open={newInvOpen} onOpenChange={setNewInvOpen} onCreated={fetchAll} />
       <LogPaymentModal open={newPayOpen} onOpenChange={setNewPayOpen} onCreated={fetchAll} />
@@ -505,6 +512,137 @@ function StatCard({ label, value, icon, danger }: { label: string; value: string
         <p className="text-micro text-foreground-muted">{label}</p>
       </div>
       <p className={`text-h2 ${danger ? "text-destructive" : "text-foreground"}`}>{value}</p>
+    </div>
+  );
+}
+
+function InsightsSection({ payments, clients }: { payments: PaymentRow[]; clients: Client[] }) {
+  // Chart 1: Income by month (last 6 months, grouped by currency)
+  const incomeByMonth = useMemo(() => {
+    const now = new Date();
+    const months: { label: string; usd: number; mxn: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+      const label = d.toLocaleDateString("en-US", { month: "short" });
+      let usd = 0, mxn = 0;
+      payments.forEach((p) => {
+        const pd = new Date(p.date_received + "T00:00:00");
+        if (pd < d || pd > monthEnd) return;
+        if (p.currency_received === "USD") usd += p.amount_received;
+        if (p.currency_received === "MXN") mxn += p.amount_received;
+        if (p.bank_currency === "MXN" && p.bank_amount) mxn += p.bank_amount;
+      });
+      months.push({ label, usd: Math.round(usd), mxn: Math.round(mxn) });
+    }
+    return months;
+  }, [payments]);
+
+  // Chart 2: Exchange rate over time
+  const rateData = useMemo(() => {
+    return payments
+      .filter((p) => p.exchange_rate && p.exchange_rate > 0)
+      .sort((a, b) => a.date_received.localeCompare(b.date_received))
+      .map((p) => ({
+        date: new Date(p.date_received + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        rate: p.exchange_rate!,
+        amount: p.amount_received,
+        currency: p.currency_received,
+        bankAmount: p.bank_amount,
+        bankCurrency: p.bank_currency,
+      }));
+  }, [payments]);
+
+  // Chart 3: Revenue by client
+  const clientRevenue = useMemo(() => {
+    const map = new Map<string, { name: string; usd: number; mxn: number }>();
+    payments.forEach((p) => {
+      const name = p.client_name || "Unknown";
+      const existing = map.get(name) || { name, usd: 0, mxn: 0 };
+      if (p.currency_received === "USD") existing.usd += p.amount_received;
+      else if (p.currency_received === "MXN") existing.mxn += p.amount_received;
+      map.set(name, existing);
+    });
+    return Array.from(map.values()).sort((a, b) => (b.usd + b.mxn) - (a.usd + a.mxn));
+  }, [payments]);
+
+  const hasData = payments.length > 0;
+
+  return (
+    <div className="mt-8">
+      <div className="flex items-center gap-2 mb-4">
+        <Sparkles className="h-4 w-4 text-accent-foreground" />
+        <h2 className="text-h2 text-foreground">Insights</h2>
+      </div>
+
+      {!hasData ? (
+        <p className="text-sm text-foreground-muted py-8 text-center">
+          Log payments to see insights here
+        </p>
+      ) : (
+        <div className="space-y-6">
+          {/* Income by month */}
+          <div className="border border-border rounded-lg p-4">
+            <p className="text-micro text-foreground-muted mb-3">Income received by month</p>
+            <div className="h-[200px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={incomeByMonth}>
+                  <XAxis dataKey="label" tick={{ fontSize: 12, fill: "hsl(var(--foreground-muted))" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--foreground-muted))" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
+                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 13 }} formatter={(value: number, name: string) => [`$${value.toLocaleString()}`, name === "usd" ? "USD" : "MXN"]} />
+                  <Legend formatter={(value: string) => value === "usd" ? "USD" : "MXN"} />
+                  <Bar dataKey="usd" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="mxn" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Exchange rate */}
+          {rateData.length >= 2 && (
+            <div className="border border-border rounded-lg p-4">
+              <p className="text-micro text-foreground-muted mb-3">Real exchange rate (Wise) over time</p>
+              <div className="h-[160px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={rateData}>
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--foreground-muted))" }} axisLine={false} tickLine={false} />
+                    <YAxis domain={["dataMin - 0.5", "dataMax + 0.5"]} tick={{ fontSize: 11, fill: "hsl(var(--foreground-muted))" }} axisLine={false} tickLine={false} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 13 }}
+                      formatter={(value: number, _name: string, entry: { payload: typeof rateData[0] }) => {
+                        const d = entry.payload;
+                        return [`${value.toFixed(2)} MXN/USD ($${d.amount.toLocaleString()} ${d.currency} → $${d.bankAmount?.toLocaleString()} ${d.bankCurrency})`, "Rate"];
+                      }}
+                    />
+                    <Line type="monotone" dataKey="rate" stroke="hsl(var(--accent))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--accent))" }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-small text-foreground-muted mt-2">
+                Each point represents a real Wise conversion rate you received
+              </p>
+            </div>
+          )}
+
+          {/* Revenue by client */}
+          {clientRevenue.length > 0 && (
+            <div className="border border-border rounded-lg p-4">
+              <p className="text-micro text-foreground-muted mb-3">Revenue by client (all time)</p>
+              <div style={{ height: Math.max(80, clientRevenue.length * 40) }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={clientRevenue} layout="vertical">
+                    <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--foreground-muted))" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: "hsl(var(--foreground))" }} axisLine={false} tickLine={false} width={120} />
+                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 13 }} formatter={(value: number, name: string) => [`$${value.toLocaleString()}`, name === "usd" ? "USD" : "MXN"]} />
+                    <Bar dataKey="usd" fill="hsl(var(--success))" radius={[0, 4, 4, 0]} stackId="a" />
+                    <Bar dataKey="mxn" fill="hsl(var(--accent))" radius={[0, 4, 4, 0]} stackId="a" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
