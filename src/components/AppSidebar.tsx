@@ -1,4 +1,4 @@
-import { Timer, Users, CheckSquare, DollarSign } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { TimerWidget } from "@/components/TimerWidget";
