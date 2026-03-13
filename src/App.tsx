@@ -32,9 +32,10 @@ const App = () => (
           <AuthProvider>
             <TimerProvider>
               <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/" element={<Navigate to="/timer" replace />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/setup" element={<SetupPage />} />
+              <Route path="/" element={<Navigate to="/timer" replace />} />
                 <Route
                   element={
                     <ProtectedRoute>
