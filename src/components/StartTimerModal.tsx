@@ -276,10 +276,10 @@ export function StartTimerModal({
   };
 
   const buttonText = isManual
-    ? "Add entry"
+    ? "Agregar entrada"
     : mode === "switch"
-    ? "Switch task"
-    : "Start";
+    ? "Cambiar tarea"
+    : "Iniciar";
 
   const priorityColor: Record<string, string> = {
     urgent: "bg-destructive",
