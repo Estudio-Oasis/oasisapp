@@ -17,8 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Plus, X } from "lucide-react";
+import { Loader2, Plus, X, ImagePlus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { ImageEditorModal } from "@/components/ImageEditorModal";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Client = Tables<"clients">;
@@ -36,6 +37,18 @@ interface InvoiceOption {
 interface BreakdownItem {
   label: string;
   amount: string;
+}
+
+interface ScanResult {
+  amount_received: number | null;
+  currency_received: string | null;
+  date_received: string | null;
+  sender_name: string | null;
+  reference: string | null;
+  transaction_id: string | null;
+  method: string | null;
+  confidence: "high" | "medium" | "low";
+  notes: string | null;
 }
 
 interface LogPaymentModalProps {
@@ -72,6 +85,14 @@ export function LogPaymentModal({ open, onOpenChange, onCreated, prefillClientId
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [breakdownItems, setBreakdownItems] = useState<BreakdownItem[]>([]);
 
+  // Receipt / AI
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [editedReceiptFile, setEditedReceiptFile] = useState<File | null>(null);
+  const [receiptPreviewUrl, setReceiptPreviewUrl] = useState<string | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -92,6 +113,10 @@ export function LogPaymentModal({ open, onOpenChange, onCreated, prefillClientId
     setInvoiceId("");
     setShowBreakdown(false);
     setBreakdownItems([]);
+    setReceiptFile(null);
+    setEditedReceiptFile(null);
+    setReceiptPreviewUrl(null);
+    setScanResult(null);
 
     supabase.from("clients").select("*").order("name").then(({ data }) => setClients(data || []));
   }, [open, prefillClientId]);
@@ -132,6 +157,65 @@ export function LogPaymentModal({ open, onOpenChange, onCreated, prefillClientId
     setBreakdownItems(updated);
   };
 
+  // Receipt handling
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File must be under 10MB");
+      return;
+    }
+    setReceiptFile(file);
+    setEditorOpen(true);
+  };
+
+  const handleEditorConfirm = async (editedFile: File) => {
+    setEditedReceiptFile(editedFile);
+    const url = URL.createObjectURL(editedFile);
+    setReceiptPreviewUrl(url);
+
+    // Scan with AI
+    setScanning(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", editedFile);
+
+      const res = await supabase.functions.invoke("scan-receipt", {
+        body: formData,
+      });
+
+      if (res.error) {
+        console.error("Scan error:", res.error);
+        toast.error("AI scanning failed — fill fields manually");
+      } else {
+        const data = res.data as ScanResult;
+        setScanResult(data);
+        // Auto-fill empty fields
+        if (data.amount_received && !amountReceived) setAmountReceived(String(data.amount_received));
+        if (data.currency_received && currencyReceived === "USD") setCurrencyReceived(data.currency_received);
+        if (data.date_received && dateReceived === new Date().toISOString().split("T")[0]) setDateReceived(data.date_received);
+        if (data.sender_name && !senderName) setSenderName(data.sender_name);
+        if (data.reference && !reference) setReference(data.reference);
+        if (data.transaction_id && !transactionId) setTransactionId(data.transaction_id);
+        if (data.method) setMethod(data.method);
+        toast.success("AI extracted payment data — review before saving");
+      }
+    } catch (err) {
+      console.error("Scan error:", err);
+      toast.error("AI scanning failed");
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const clearReceipt = () => {
+    setReceiptFile(null);
+    setEditedReceiptFile(null);
+    if (receiptPreviewUrl) URL.revokeObjectURL(receiptPreviewUrl);
+    setReceiptPreviewUrl(null);
+    setScanResult(null);
+  };
+
   const handleSubmit = async () => {
     if (!clientId || !amountReceived || !dateReceived) return;
     setSaving(true);
@@ -158,11 +242,31 @@ export function LogPaymentModal({ open, onOpenChange, onCreated, prefillClientId
       created_by: user?.id || null,
     };
 
-    const { error } = await supabase.from("payments").insert(payload as never);
-    if (error) {
+    const { data: inserted, error } = await supabase.from("payments").insert(payload as never).select("id").single();
+    if (error || !inserted) {
       toast.error("Failed to log payment");
       setSaving(false);
       return;
+    }
+
+    // Upload receipt if exists
+    if (editedReceiptFile && user) {
+      const path = `${user.id}/${inserted.id}/${Date.now()}.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from("receipts")
+        .upload(path, editedReceiptFile, { contentType: "image/jpeg" });
+      
+      if (!uploadError) {
+        const { data: signedData } = await supabase.storage
+          .from("receipts")
+          .createSignedUrl(path, 60 * 60 * 24 * 365); // 1 year
+        
+        if (signedData?.signedUrl) {
+          await supabase.from("payments")
+            .update({ receipt_url: signedData.signedUrl } as Record<string, unknown>)
+            .eq("id", inserted.id);
+        }
+      }
     }
 
     // Auto-complete invoice if linked and same currency
@@ -199,218 +303,296 @@ export function LogPaymentModal({ open, onOpenChange, onCreated, prefillClientId
   ];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[520px] p-6 gap-0 border-border max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="pb-0">
-          <DialogTitle className="text-h3">Log payment</DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-[520px] p-6 gap-0 border-border max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="pb-0">
+            <DialogTitle className="text-h3">Log payment</DialogTitle>
+          </DialogHeader>
 
-        <div className="mt-5 space-y-4">
-          {/* Section 1: Core */}
-          <div className="space-y-1.5">
-            <label className="text-label">Client *</label>
-            <Select value={clientId} onValueChange={setClientId}>
-              <SelectTrigger><SelectValue placeholder="Select client..." /></SelectTrigger>
-              <SelectContent>
-                {clients.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-label">When did you receive this? *</label>
-              <Input type="date" value={dateReceived} onChange={(e) => setDateReceived(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-label">Method</label>
-              <Select value={method} onValueChange={setMethod}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {METHODS.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-label">Amount received *</label>
-              <Input type="number" step="0.01" value={amountReceived} onChange={(e) => setAmountReceived(e.target.value)} placeholder="0.00" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-label">Currency *</label>
-              <Select value={currencyReceived} onValueChange={setCurrencyReceived}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-label">Sender name</label>
-              <Input value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="e.g. Kajae LLC" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-label">Reference</label>
-              <Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="e.g. Feb H1, Monthly" />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-label">Transaction ID</label>
-            <Input value={transactionId} onChange={(e) => setTransactionId(e.target.value)} placeholder="#1981151032" />
-          </div>
-
-          {/* Section 2: Conversion */}
-          <div className="border border-border rounded-lg overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setShowConversion(!showConversion)}
-              className="w-full flex items-center gap-2 px-4 py-3 text-sm text-left hover:bg-background-secondary transition-colors"
-            >
-              <span>{showConversion ? "▾" : "▸"}</span>
-              <span>💱 This payment was converted to another currency</span>
-            </button>
-            {showConversion && (
-              <div className="px-4 pb-4 space-y-3">
-                <p className="text-small text-foreground-muted">e.g. USD received in Wise → converted to MXN in Mercado Pago</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="text-label">Amount that arrived in your bank</label>
-                    <Input type="number" step="0.01" value={bankAmount} onChange={(e) => setBankAmount(e.target.value)} placeholder="0.00" />
+          <div className="mt-5 space-y-4">
+            {/* Receipt upload zone */}
+            {!editedReceiptFile ? (
+              <label className="flex flex-col items-center gap-2 border-2 border-dashed border-border rounded-xl p-5 cursor-pointer bg-background-secondary hover:bg-background-tertiary transition-colors text-center">
+                <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+                <ImagePlus className="h-6 w-6 text-foreground-muted" />
+                <span className="text-sm font-medium text-foreground">Upload receipt</span>
+                <span className="text-small text-foreground-muted">
+                  Screenshot from Wise, bank transfer, or any proof of payment · Max 10MB
+                </span>
+              </label>
+            ) : (
+              <div className="border border-border rounded-lg p-3">
+                <div className="flex items-center gap-3">
+                  {receiptPreviewUrl && (
+                    <img
+                      src={receiptPreviewUrl}
+                      alt="Receipt preview"
+                      className="h-16 w-16 rounded-lg object-cover border border-border shrink-0"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {editedReceiptFile.name}
+                    </p>
+                    <p className="text-small text-foreground-muted">
+                      {(editedReceiptFile.size / 1024).toFixed(0)} KB
+                    </p>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-label">Bank currency</label>
-                    <Select value={bankCurrency} onValueChange={setBankCurrency}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => { setReceiptFile(editedReceiptFile); setEditorOpen(true); }}
+                      className="h-8 w-8 flex items-center justify-center rounded-md text-foreground-muted hover:text-foreground hover:bg-background-secondary"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={clearReceipt}
+                      className="h-8 w-8 flex items-center justify-center rounded-md text-foreground-muted hover:text-destructive hover:bg-background-secondary"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                {scanning && (
+                  <div className="mt-3 flex items-center gap-2 text-sm text-foreground-muted">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Scanning with AI...
+                  </div>
+                )}
+
+                {scanResult && !scanning && (
+                  <div className="mt-3 bg-accent-light border border-accent/20 rounded-lg px-3 py-2 text-sm text-foreground">
+                    <span className="font-medium">✦ AI extracted this data</span>
+                    <span className="text-foreground-muted"> — review before saving</span>
+                    <span className={`ml-2 text-[11px] font-medium px-2 py-0.5 rounded-full ${
+                      scanResult.confidence === "high"
+                        ? "bg-success-light text-success"
+                        : scanResult.confidence === "medium"
+                        ? "bg-accent-light text-accent-foreground"
+                        : "bg-destructive-light text-destructive"
+                    }`}>
+                      {scanResult.confidence}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Section 1: Core */}
+            <div className="space-y-1.5">
+              <label className="text-label">Client *</label>
+              <Select value={clientId} onValueChange={setClientId}>
+                <SelectTrigger><SelectValue placeholder="Select client..." /></SelectTrigger>
+                <SelectContent>
+                  {clients.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-label">When did you receive this? *</label>
+                <Input type="date" value={dateReceived} onChange={(e) => setDateReceived(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-label">Method</label>
+                <Select value={method} onValueChange={setMethod}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {METHODS.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-label">Amount received *</label>
+                <Input type="number" step="0.01" value={amountReceived} onChange={(e) => setAmountReceived(e.target.value)} placeholder="0.00" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-label">Currency *</label>
+                <Select value={currencyReceived} onValueChange={setCurrencyReceived}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-label">Sender name</label>
+                <Input value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="e.g. Kajae LLC" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-label">Reference</label>
+                <Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="e.g. Feb H1, Monthly" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-label">Transaction ID</label>
+              <Input value={transactionId} onChange={(e) => setTransactionId(e.target.value)} placeholder="#1981151032" />
+            </div>
+
+            {/* Section 2: Conversion */}
+            <div className="border border-border rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setShowConversion(!showConversion)}
+                className="w-full flex items-center gap-2 px-4 py-3 text-sm text-left hover:bg-background-secondary transition-colors"
+              >
+                <span>{showConversion ? "▾" : "▸"}</span>
+                <span>💱 This payment was converted to another currency</span>
+              </button>
+              {showConversion && (
+                <div className="px-4 pb-4 space-y-3">
+                  <p className="text-small text-foreground-muted">e.g. USD received in Wise → converted to MXN in Mercado Pago</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-label">Amount that arrived in your bank</label>
+                      <Input type="number" step="0.01" value={bankAmount} onChange={(e) => setBankAmount(e.target.value)} placeholder="0.00" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-label">Bank currency</label>
+                      <Select value={bankCurrency} onValueChange={setBankCurrency}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {CURRENCIES.map((c) => (
+                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {exchangeRate && (
+                    <div className="bg-accent-light rounded-lg px-3 py-2 text-sm text-accent-foreground">
+                      Exchange rate: 1 {currencyReceived} = {exchangeRate.toFixed(4)} {bankCurrency}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Section 3: Invoice link */}
+            <div className="border border-border rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setShowInvoiceLink(!showInvoiceLink)}
+                className="w-full flex items-center gap-2 px-4 py-3 text-sm text-left hover:bg-background-secondary transition-colors"
+              >
+                <span>{showInvoiceLink ? "▾" : "▸"}</span>
+                <span>📎 Link to an invoice</span>
+              </button>
+              {showInvoiceLink && (
+                <div className="px-4 pb-4">
+                  {!clientId ? (
+                    <p className="text-small text-foreground-muted">Select a client first</p>
+                  ) : clientInvoices.length === 0 ? (
+                    <p className="text-small text-foreground-muted">No invoices for this client</p>
+                  ) : (
+                    <Select value={invoiceId} onValueChange={setInvoiceId}>
+                      <SelectTrigger><SelectValue placeholder="Select invoice..." /></SelectTrigger>
                       <SelectContent>
-                        {CURRENCIES.map((c) => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                        {clientInvoices.map((inv) => (
+                          <SelectItem key={inv.id} value={inv.id}>
+                            {inv.number} · ${inv.amount.toLocaleString()} {inv.currency} · {inv.status}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
+                  )}
                 </div>
-                {exchangeRate && (
-                  <div className="bg-accent-light rounded-lg px-3 py-2 text-sm text-accent-foreground">
-                    Exchange rate: 1 {currencyReceived} = {exchangeRate.toFixed(4)} {bankCurrency}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Section 3: Invoice link */}
-          <div className="border border-border rounded-lg overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setShowInvoiceLink(!showInvoiceLink)}
-              className="w-full flex items-center gap-2 px-4 py-3 text-sm text-left hover:bg-background-secondary transition-colors"
-            >
-              <span>{showInvoiceLink ? "▾" : "▸"}</span>
-              <span>📎 Link to an invoice</span>
-            </button>
-            {showInvoiceLink && (
-              <div className="px-4 pb-4">
-                {!clientId ? (
-                  <p className="text-small text-foreground-muted">Select a client first</p>
-                ) : clientInvoices.length === 0 ? (
-                  <p className="text-small text-foreground-muted">No invoices for this client</p>
-                ) : (
-                  <Select value={invoiceId} onValueChange={setInvoiceId}>
-                    <SelectTrigger><SelectValue placeholder="Select invoice..." /></SelectTrigger>
-                    <SelectContent>
-                      {clientInvoices.map((inv) => (
-                        <SelectItem key={inv.id} value={inv.id}>
-                          {inv.number} · ${inv.amount.toLocaleString()} {inv.currency} · {inv.status}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Section 4: Breakdown */}
-          <div className="border border-border rounded-lg overflow-hidden">
-            <button
-              type="button"
-              onClick={() => { setShowBreakdown(!showBreakdown); if (!showBreakdown && breakdownItems.length === 0) addBreakdownItem(); }}
-              className="w-full flex items-center gap-2 px-4 py-3 text-sm text-left hover:bg-background-secondary transition-colors"
-            >
-              <span>{showBreakdown ? "▾" : "▸"}</span>
-              <span>🧮 This payment includes multiple items</span>
-            </button>
-            {showBreakdown && (
-              <div className="px-4 pb-4 space-y-2">
-                <p className="text-small text-foreground-muted">Use this when one transfer covers different periods or adjustments</p>
-                {breakdownItems.map((item, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <Input
-                      value={item.label}
-                      onChange={(e) => updateBreakdownItem(i, "label", e.target.value)}
-                      placeholder="Label"
-                      className="flex-1"
-                    />
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={item.amount}
-                      onChange={(e) => updateBreakdownItem(i, "amount", e.target.value)}
-                      placeholder="0.00"
-                      className="w-28"
-                    />
-                    <button onClick={() => removeBreakdownItem(i)} className="shrink-0 text-foreground-muted hover:text-destructive">
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-                <Button variant="secondary" size="sm" onClick={addBreakdownItem}>
-                  <Plus className="h-3.5 w-3.5 mr-1" /> Add line item
-                </Button>
-                {breakdownItems.length > 0 && (
-                  <div className="pt-1">
-                    <p className="text-small text-foreground-secondary">
-                      Line items total: ${breakdownTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </p>
-                    {amountReceived && Math.abs(breakdownTotal - parseFloat(amountReceived)) > 0.01 && (
-                      <p className="text-small text-accent mt-1">
-                        ⚠ Line items (${breakdownTotal.toFixed(2)}) don't add up to total received (${parseFloat(amountReceived).toFixed(2)})
+            {/* Section 4: Breakdown */}
+            <div className="border border-border rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => { setShowBreakdown(!showBreakdown); if (!showBreakdown && breakdownItems.length === 0) addBreakdownItem(); }}
+                className="w-full flex items-center gap-2 px-4 py-3 text-sm text-left hover:bg-background-secondary transition-colors"
+              >
+                <span>{showBreakdown ? "▾" : "▸"}</span>
+                <span>🧮 This payment includes multiple items</span>
+              </button>
+              {showBreakdown && (
+                <div className="px-4 pb-4 space-y-2">
+                  <p className="text-small text-foreground-muted">Use this when one transfer covers different periods or adjustments</p>
+                  {breakdownItems.map((item, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <Input
+                        value={item.label}
+                        onChange={(e) => updateBreakdownItem(i, "label", e.target.value)}
+                        placeholder="Label"
+                        className="flex-1"
+                      />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={item.amount}
+                        onChange={(e) => updateBreakdownItem(i, "amount", e.target.value)}
+                        placeholder="0.00"
+                        className="w-28"
+                      />
+                      <button onClick={() => removeBreakdownItem(i)} className="shrink-0 text-foreground-muted hover:text-destructive">
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <Button variant="secondary" size="sm" onClick={addBreakdownItem}>
+                    <Plus className="h-3.5 w-3.5 mr-1" /> Add line item
+                  </Button>
+                  {breakdownItems.length > 0 && (
+                    <div className="pt-1">
+                      <p className="text-small text-foreground-secondary">
+                        Line items total: ${breakdownTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+                      {amountReceived && Math.abs(breakdownTotal - parseFloat(amountReceived)) > 0.01 && (
+                        <p className="text-small text-accent mt-1">
+                          ⚠ Line items (${breakdownTotal.toFixed(2)}) don't add up to total received (${parseFloat(amountReceived).toFixed(2)})
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-1.5">
+              <label className="text-label">Notes</label>
+              <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} className="resize-none" placeholder="Optional notes..." />
+            </div>
           </div>
 
-          {/* Notes */}
-          <div className="space-y-1.5">
-            <label className="text-label">Notes</label>
-            <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} className="resize-none" placeholder="Optional notes..." />
+          <div className="flex gap-3 mt-6">
+            <Button variant="secondary" className="flex-1 h-11" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button className="flex-1 h-11" onClick={handleSubmit} disabled={saving || !clientId || !amountReceived || !dateReceived}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Log payment"}
+            </Button>
           </div>
-        </div>
+        </DialogContent>
+      </Dialog>
 
-        <div className="flex gap-3 mt-6">
-          <Button variant="secondary" className="flex-1 h-11" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button className="flex-1 h-11" onClick={handleSubmit} disabled={saving || !clientId || !amountReceived || !dateReceived}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Log payment"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      <ImageEditorModal
+        open={editorOpen}
+        onOpenChange={setEditorOpen}
+        imageFile={receiptFile}
+        onConfirm={handleEditorConfirm}
+      />
+    </>
   );
 }
