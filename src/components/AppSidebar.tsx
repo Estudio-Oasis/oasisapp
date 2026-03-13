@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Timer, Users, CheckSquare, DollarSign, Settings, Loader2 } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Loader2, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { Link, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
