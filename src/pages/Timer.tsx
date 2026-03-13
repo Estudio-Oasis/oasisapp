@@ -23,6 +23,7 @@ type TimeEntry = Tables<"time_entries">;
 interface EntryWithRelations extends TimeEntry {
   clients: { name: string } | null;
   tasks: { title: string } | null;
+  profiles: { name: string | null } | null;
 }
 
 interface GapInfo {
