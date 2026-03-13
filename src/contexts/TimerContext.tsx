@@ -528,6 +528,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         startTimer,
         stopTimer,
         switchTask,
+        startBreakTimer,
         setManualStatus,
       }}
     >
