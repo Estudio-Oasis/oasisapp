@@ -362,7 +362,7 @@ export function StartTimerModal({
             ) : !showNewClient ? (
               <Select value={selectedClientId} onValueChange={setSelectedClientId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a client..." />
+                  <SelectValue placeholder="Selecciona un cliente..." />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((c) => (
