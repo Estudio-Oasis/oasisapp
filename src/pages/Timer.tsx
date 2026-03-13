@@ -39,6 +39,7 @@ export default function TimerPage() {
   const [view, setView] = useState<"today" | "week">("today");
   const [entryFilter, setEntryFilter] = useState<"mine" | "all">("mine");
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);
+  const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
   const [gaps, setGaps] = useState<GapInfo[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"start" | "switch" | "manual">("start");
