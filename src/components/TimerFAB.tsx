@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTimer } from "@/contexts/TimerContext";
 import { formatElapsedShort, formatElapsed } from "@/lib/timer-utils";
 import { StartTimerModal } from "@/components/StartTimerModal";
-import { Zap } from "lucide-react";
+import { Loader2, Zap } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -11,8 +11,14 @@ import {
 import { Button } from "@/components/ui/button";
 
 export function TimerFAB() {
-  const { isRunning, activeClient, activeTask, elapsedSeconds, stopTimer } =
-    useTimer();
+  const {
+    isRunning,
+    isStopping,
+    activeClient,
+    activeTask,
+    elapsedSeconds,
+    stopTimer,
+  } = useTimer();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"start" | "switch">("start");
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -74,12 +80,17 @@ export function TimerFAB() {
             <Button
               variant="destructive"
               className="w-full h-11"
-              onClick={() => {
-                stopTimer();
-                setDrawerOpen(false);
-              }}
+              disabled={isStopping}
+              onClick={() => void stopTimer()}
             >
-              Stop timer
+              {isStopping ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </span>
+              ) : (
+                "Stop timer"
+              )}
             </Button>
           </div>
         </DrawerContent>
@@ -89,3 +100,4 @@ export function TimerFAB() {
     </>
   );
 }
+

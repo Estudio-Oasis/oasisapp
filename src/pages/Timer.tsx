@@ -15,7 +15,7 @@ import {
   startOfDay,
   startOfWeek,
 } from "@/lib/timer-utils";
-import { Clock, AlertTriangle, Plus } from "lucide-react";
+import { Clock, AlertTriangle, Loader2, Plus } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type TimeEntry = Tables<"time_entries">;
@@ -33,7 +33,7 @@ interface GapInfo {
 
 export default function TimerPage() {
   const { user } = useAuth();
-  const { isRunning, activeClient, activeTask, elapsedSeconds, stopTimer } = useTimer();
+  const { isRunning, isStopping, activeClient, activeTask, elapsedSeconds, stopTimer } = useTimer();
   const [view, setView] = useState<"today" | "week">("today");
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);
   const [gaps, setGaps] = useState<GapInfo[]>([]);
@@ -193,7 +193,9 @@ export default function TimerPage() {
               <p className="text-display text-accent tabular-nums">{formatElapsed(elapsedSeconds)}</p>
               <div className="flex gap-2 mt-2">
                 <button onClick={() => { setModalMode("switch"); setModalOpen(true); }} className="h-9 px-4 rounded-lg border border-border bg-background text-xs font-semibold text-foreground hover:bg-background-tertiary transition-colors">Switch</button>
-                <Button variant="destructive" size="sm" className="h-9" onClick={stopTimer}>Stop</Button>
+                <Button variant="destructive" size="sm" className="h-9" onClick={() => void stopTimer()} disabled={isStopping}>
+                  {isStopping ? <Loader2 className="h-4 w-4 animate-spin" /> : "Stop"}
+                </Button>
               </div>
             </div>
           </div>
@@ -259,3 +261,4 @@ export default function TimerPage() {
     </div>
   );
 }
+

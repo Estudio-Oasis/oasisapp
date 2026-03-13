@@ -2,11 +2,17 @@ import { useState } from "react";
 import { useTimer } from "@/contexts/TimerContext";
 import { formatElapsed } from "@/lib/timer-utils";
 import { StartTimerModal } from "@/components/StartTimerModal";
-import { Zap } from "lucide-react";
+import { Loader2, Zap } from "lucide-react";
 
 export function TimerWidget() {
-  const { isRunning, activeClient, activeTask, elapsedSeconds, stopTimer } =
-    useTimer();
+  const {
+    isRunning,
+    isStopping,
+    activeClient,
+    activeTask,
+    elapsedSeconds,
+    stopTimer,
+  } = useTimer();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"start" | "switch">("start");
 
@@ -42,7 +48,10 @@ export function TimerWidget() {
               </span>
             </div>
             {/* Row 2: task */}
-            <p className="text-micro text-foreground-secondary truncate !normal-case !tracking-normal !font-normal" style={{ fontSize: "11px" }}>
+            <p
+              className="text-micro text-foreground-secondary truncate !normal-case !tracking-normal !font-normal"
+              style={{ fontSize: "11px" }}
+            >
               {activeTask?.title || "No task"}
             </p>
             {/* Row 3: buttons */}
@@ -54,21 +63,26 @@ export function TimerWidget() {
                 Switch
               </button>
               <button
-                onClick={stopTimer}
-                className="flex-1 h-7 rounded-md bg-destructive text-xs font-semibold text-destructive-foreground hover:opacity-90 transition-opacity"
+                onClick={() => void stopTimer()}
+                disabled={isStopping}
+                className="flex-1 h-7 rounded-md bg-destructive text-xs font-semibold text-destructive-foreground hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Stop
+                {isStopping ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Saving
+                  </span>
+                ) : (
+                  "Stop"
+                )}
               </button>
             </div>
           </div>
         )}
       </div>
 
-      <StartTimerModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        mode={modalMode}
-      />
+      <StartTimerModal open={modalOpen} onOpenChange={setModalOpen} mode={modalMode} />
     </>
   );
 }
+
