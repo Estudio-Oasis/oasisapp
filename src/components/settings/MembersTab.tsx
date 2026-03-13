@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Mail, Trash2, UserPlus } from "lucide-react";
+import { Loader2, Mail, RefreshCw, Trash2, UserPlus } from "lucide-react";
 
 interface Member {
   id: string;
@@ -35,6 +35,7 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviting, setInviting] = useState(false);
+  const [resendingId, setResendingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
@@ -86,6 +87,24 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
   const handleCancelInvite = async (id: string) => {
     await supabase.from("agency_invitations").delete().eq("id", id);
     toast.success("Invitation cancelled");
+    fetchData();
+  };
+
+  const handleResendInvite = async (inv: Invitation) => {
+    setResendingId(inv.id);
+    // Delete old invitation, then re-invoke edge function
+    await supabase.from("agency_invitations").delete().eq("id", inv.id);
+
+    const { data, error } = await supabase.functions.invoke("invite-member", {
+      body: { email: inv.email },
+    });
+
+    if (error || data?.error) {
+      toast.error("Failed to resend invitation");
+    } else {
+      toast.success(`Invitation resent to ${inv.email}`);
+    }
+    setResendingId(null);
     fetchData();
   };
 
@@ -175,12 +194,27 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
                 </div>
               </div>
               {isAdmin && (
-                <button
-                  onClick={() => handleCancelInvite(inv.id)}
-                  className="text-foreground-muted hover:text-destructive transition-colors"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => handleResendInvite(inv)}
+                    disabled={resendingId === inv.id}
+                    className="text-foreground-muted hover:text-foreground transition-colors"
+                    title="Resend invitation"
+                  >
+                    {resendingId === inv.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="h-4 w-4" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleCancelInvite(inv.id)}
+                    className="text-foreground-muted hover:text-destructive transition-colors"
+                    title="Cancel invitation"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               )}
             </div>
           ))}
