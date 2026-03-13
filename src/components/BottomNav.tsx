@@ -1,16 +1,20 @@
 import { Timer, Users, CheckSquare, DollarSign, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useRole } from "@/hooks/useRole";
 
-const navItems = [
+const allNavItems = [
   { title: "Timer", url: "/timer", icon: Timer },
   { title: "Clients", url: "/clients", icon: Users },
   { title: "Tasks", url: "/tasks", icon: CheckSquare },
-  { title: "Finances", url: "/finances", icon: DollarSign },
+  { title: "Finances", url: "/finances", icon: DollarSign, adminOnly: true },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function BottomNav() {
   const location = useLocation();
+  const { isAdmin } = useRole();
+
+  const navItems = allNavItems.filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background md:hidden">
