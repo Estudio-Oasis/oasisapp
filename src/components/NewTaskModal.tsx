@@ -164,7 +164,7 @@ export function NewTaskModal({
             {/* Client */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-label">Client *</label>
+                <label className="text-label">Cliente *</label>
                 <button
                   type="button"
                   onClick={() => setShowInlineClient(true)}
