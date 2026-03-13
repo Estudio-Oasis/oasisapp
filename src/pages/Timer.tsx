@@ -149,6 +149,7 @@ export default function TimerPage() {
   const renderEntry = (entry: EntryWithRelations) => {
     const clientName = entry.clients?.name || "Unknown";
     const taskTitle = entry.tasks?.title;
+    const loggerName = profileMap[entry.user_id]?.name || "Unknown";
     const start = new Date(entry.started_at);
     const end = entry.ended_at ? new Date(entry.ended_at) : null;
     const dur = Number(entry.duration_min) || 0;
@@ -156,12 +157,22 @@ export default function TimerPage() {
     return (
       <div key={entry.id} className="flex items-center gap-3 border-b border-border py-3.5">
         <div className="w-[3px] h-8 rounded-sm shrink-0" style={{ backgroundColor: getClientColor(clientName) }} />
+        {entryFilter === "all" && (
+          <div
+            className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-background shrink-0"
+            style={{ backgroundColor: getClientColor(loggerName) }}
+            title={loggerName}
+          >
+            {loggerName.slice(0, 2).toUpperCase()}
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-foreground truncate">
             {taskTitle || <span className="text-foreground-muted font-normal">No task</span>}
           </p>
           <p className="text-xs text-foreground-secondary truncate">
             {clientName}
+            {entryFilter === "all" && <span className="text-foreground-muted"> · {loggerName}</span>}
             {entry.description && <span className="text-foreground-muted"> · {entry.description}</span>}
           </p>
         </div>
