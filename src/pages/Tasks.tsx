@@ -288,7 +288,7 @@ export default function TasksPage() {
             <p className="text-sm text-foreground-muted text-center py-8">No tasks match your filters.</p>
           )}
         </div>
-      ) : (
+      ) : view === "kanban" ? (
         /* Kanban view */
         <div className="flex gap-4 overflow-x-auto pb-4 -mx-1">
           {STATUSES.map((status) => {
@@ -369,6 +369,13 @@ export default function TasksPage() {
             );
           })}
         </div>
+      ) : (
+        /* Gantt view */
+        <TaskGanttView
+          tasks={filtered}
+          clientMap={clientMap}
+          onSelectTask={setSelectedTaskId}
+        />
       )}
 
       {/* Modals & Panels */}
