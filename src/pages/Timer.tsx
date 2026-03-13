@@ -222,9 +222,9 @@ export default function TimerPage() {
             <div className="text-right">
               <p className="text-display text-accent tabular-nums">{formatElapsed(elapsedSeconds)}</p>
               <div className="flex gap-2 mt-2">
-                <button onClick={() => { setModalMode("switch"); setModalOpen(true); }} className="h-9 px-4 rounded-lg border border-border bg-background text-xs font-semibold text-foreground hover:bg-background-tertiary transition-colors">Switch</button>
+                <button onClick={() => { setModalMode("switch"); setModalOpen(true); }} className="h-9 px-4 rounded-lg border border-border bg-background text-xs font-semibold text-foreground hover:bg-background-tertiary transition-colors">Cambiar</button>
                 <Button variant="destructive" size="sm" className="h-9" onClick={() => void stopTimer()} disabled={isStopping}>
-                  {isStopping ? <Loader2 className="h-4 w-4 animate-spin" /> : "Stop"}
+                  {isStopping ? <Loader2 className="h-4 w-4 animate-spin" /> : "Detener"}
                 </Button>
               </div>
             </div>
