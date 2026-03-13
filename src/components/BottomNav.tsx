@@ -15,6 +15,7 @@ const allNavItems = [
 export function BottomNav() {
   const location = useLocation();
   const { isAdmin } = useRole();
+  const { unreadCount } = useUnreadChats();
 
   const navItems = allNavItems.filter((item) => !item.adminOnly || isAdmin);
 
