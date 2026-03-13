@@ -286,7 +286,7 @@ export default function TimerPage() {
 
       <div className="mt-6">
         <Button variant="outline" onClick={() => { setGapPrefill(null); setModalMode("manual"); setModalOpen(true); }} className="w-full md:w-auto">
-          <Plus className="h-4 w-4 mr-1.5" />Add manual entry
+          <Plus className="h-4 w-4 mr-1.5" />Agregar entrada manual
         </Button>
       </div>
 

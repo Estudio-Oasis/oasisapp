@@ -348,8 +348,8 @@ export default function TasksPage() {
                         <p className="text-sm font-medium text-foreground line-clamp-2">{task.title}</p>
                         <div className="flex items-center justify-between mt-2">
                           {task.due_date ? (
-                            <span className={`text-small ${overdue ? "text-destructive" : "text-foreground-muted"}`}>
-                              {new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                             <span className={`text-small ${overdue ? "text-destructive" : "text-foreground-muted"}`}>
+                              {new Date(task.due_date).toLocaleDateString("es-MX", { month: "short", day: "numeric" })}
                             </span>
                           ) : <span />}
                           {assignee && (
