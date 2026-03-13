@@ -70,7 +70,7 @@ export default function TimerPage() {
     } else {
       setGaps([]);
     }
-  }, [user, view]);
+  }, [user, view, entryFilter]);
 
   useEffect(() => {
     fetchEntries();
