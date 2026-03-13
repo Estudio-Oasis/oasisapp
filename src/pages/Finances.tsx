@@ -27,6 +27,7 @@ import {
 import { NewInvoiceModal } from "@/components/NewInvoiceModal";
 import { InvoiceDetailPanel } from "@/components/InvoiceDetailPanel";
 import { LogPaymentModal } from "@/components/LogPaymentModal";
+import { BulkReceiptUploadModal } from "@/components/BulkReceiptUploadModal";
 import { PaymentDetailPanel } from "@/components/PaymentDetailPanel";
 import type { PaymentRow } from "@/components/PaymentDetailPanel";
 import type { Tables } from "@/integrations/supabase/types";
@@ -79,6 +80,7 @@ export default function FinancesPage() {
   const [newInvOpen, setNewInvOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRow | null>(null);
   const [newPayOpen, setNewPayOpen] = useState(false);
+  const [bulkPayOpen, setBulkPayOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentRow | null>(null);
 
   // Expense form
@@ -257,9 +259,14 @@ export default function FinancesPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-h2 text-foreground">Payments</h2>
-          <Button size="sm" onClick={() => setNewPayOpen(true)}>
-            <Plus className="h-3.5 w-3.5 mr-1" /> Log payment
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="secondary" onClick={() => setBulkPayOpen(true)}>
+              <Sparkles className="h-3.5 w-3.5 mr-1" /> Bulk scan
+            </Button>
+            <Button size="sm" onClick={() => setNewPayOpen(true)}>
+              <Plus className="h-3.5 w-3.5 mr-1" /> Log payment
+            </Button>
+          </div>
         </div>
 
         {/* Payment stats */}
@@ -494,6 +501,7 @@ export default function FinancesPage() {
       {/* Modals & Panels */}
       <NewInvoiceModal open={newInvOpen} onOpenChange={setNewInvOpen} onCreated={fetchAll} />
       <LogPaymentModal open={newPayOpen} onOpenChange={setNewPayOpen} onCreated={fetchAll} />
+      <BulkReceiptUploadModal open={bulkPayOpen} onOpenChange={setBulkPayOpen} onCreated={fetchAll} />
       {selectedInvoice && (
         <InvoiceDetailPanel invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} onUpdated={() => { setSelectedInvoice(null); fetchAll(); }} />
       )}
