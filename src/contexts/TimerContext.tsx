@@ -287,6 +287,18 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
       persistActiveEntry(entry);
 
+      // Upsert presence as working
+      const clientName = client?.name || null;
+      const taskName = task?.title || null;
+      await supabase.from("member_presence").upsert({
+        user_id: userId,
+        status: "working",
+        current_client: clientName,
+        current_task: taskName,
+        last_seen_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+
       setState({
         isRunning: true,
         isStopping: false,
