@@ -144,7 +144,6 @@ export function StartTimerModal({
           description: description || null,
           started_at: startDate.toISOString(),
           ended_at: endDate.toISOString(),
-          duration_min: durationMin,
         });
       } else if (mode === "switch") {
         await switchTask(
