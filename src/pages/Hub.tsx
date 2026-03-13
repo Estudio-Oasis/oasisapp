@@ -51,6 +51,7 @@ const STATUS_MAP: Record<string, { label: string; color: "working" | "break" | "
 export default function HubPage() {
   const { user } = useAuth();
   const { setManualStatus } = useTimer();
+  const { markConversationRead } = useUnreadChats();
   const [members, setMembers] = useState<MemberWithProfile[]>([]);
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
