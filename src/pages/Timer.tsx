@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRole } from "@/hooks/useRole";
 import { useTimer } from "@/contexts/TimerContext";
 import { StartTimerModal } from "@/components/StartTimerModal";
 import { Button } from "@/components/ui/button";
