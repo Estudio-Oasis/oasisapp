@@ -193,7 +193,7 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
                 className="w-full mt-3"
                 onClick={() => onStartTimer(task.id, task.client_id!)}
               >
-                <Zap className="h-3.5 w-3.5" /> Start timer on this task
+                <Zap className="h-3.5 w-3.5" /> Iniciar timer en esta tarea
               </Button>
             )}
           </div>
