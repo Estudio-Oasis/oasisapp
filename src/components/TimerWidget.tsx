@@ -10,6 +10,7 @@ export function TimerWidget() {
     isStopping,
     activeClient,
     activeTask,
+    activeEntry,
     elapsedSeconds,
     stopTimer,
   } = useTimer();

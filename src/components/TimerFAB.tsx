@@ -57,9 +57,9 @@ export function TimerFAB() {
 
           {/* Content */}
           <div className="text-center space-y-2">
-            <p className="text-h3 text-foreground">{activeClient?.name || "Client"}</p>
+            <p className="text-h3 text-foreground">{activeClient?.name || activeEntry?.description || "Client"}</p>
             <p className="text-small text-foreground-secondary">
-              {activeTask?.title || "No specific task"}
+              {activeTask?.title || (activeClient ? "No specific task" : "")}
             </p>
             <p className="text-display text-accent tabular-nums pt-2">
               {formatElapsed(elapsedSeconds)}
