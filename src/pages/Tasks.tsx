@@ -218,7 +218,7 @@ export default function TasksPage() {
                 {/* Status circle */}
                 <button
                   onClick={(e) => { e.stopPropagation(); cycleStatus(task); }}
-                  className={`h-6 w-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${STATUS_COLORS[task.status]}`}
+                  className={`h-6 w-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${overdue ? "border-destructive bg-destructive" : STATUS_COLORS[task.status]}`}
                 >
                   {task.status === "in_progress" && <div className="h-2 w-2 rounded-full bg-accent" />}
                   {task.status === "review" && <div className="h-2 w-2 rounded-full bg-foreground-secondary" />}
