@@ -80,6 +80,7 @@ export default function FinancesPage() {
   const [newInvOpen, setNewInvOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRow | null>(null);
   const [newPayOpen, setNewPayOpen] = useState(false);
+  const [bulkPayOpen, setBulkPayOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentRow | null>(null);
 
   // Expense form
