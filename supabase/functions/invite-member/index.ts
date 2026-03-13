@@ -87,8 +87,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Invite user via Supabase Auth Admin API
-    const { data: inviteData, error: inviteErr } =
+    // Try to invite via Supabase Auth (sends email to new users)
+    const { error: inviteErr } =
       await adminClient.auth.admin.inviteUserByEmail(email, {
         data: {
           name: full_name || email.split("@")[0],
@@ -98,8 +98,9 @@ Deno.serve(async (req) => {
         redirectTo: `${req.headers.get("origin") || Deno.env.get("SUPABASE_URL")}/setup`,
       });
 
-    if (inviteErr) {
-      // Rollback invitation record
+    // If user already exists, that's fine — invitation record was created above
+    if (inviteErr && !inviteErr.message.includes("already been registered")) {
+      // Rollback invitation record for unexpected errors
       await adminClient
         .from("agency_invitations")
         .delete()
@@ -113,7 +114,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, user: inviteData.user }),
+      JSON.stringify({ success: true }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
