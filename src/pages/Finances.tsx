@@ -74,6 +74,9 @@ const DISPLAY_CURRENCIES = ["USD", "MXN", "EUR", "COP"] as const;
 type DisplayCurrency = typeof DISPLAY_CURRENCIES[number];
 
 export default function FinancesPage() {
+  // Redirect non-admins
+  const { isAdmin, loading: roleLoading } = useRole();
+  const navigate = useNavigate();
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
