@@ -148,6 +148,7 @@ export default function HubPage() {
       setConversations((prev) => [newConvo as Conversation, ...prev]);
       setActiveConversationId(newConvo.id);
       setActiveChatUserId(memberId);
+      markConversationRead(newConvo.id);
     }
   };
 
