@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTimer } from "@/contexts/TimerContext";
+import { useUnreadChats } from "@/hooks/useUnreadChats";
 import { MemberBubble } from "@/components/hub/MemberBubble";
 import { ChatPanel } from "@/components/hub/ChatPanel";
 import { ChatList } from "@/components/hub/ChatList";
@@ -50,6 +51,7 @@ const STATUS_MAP: Record<string, { label: string; color: "working" | "break" | "
 export default function HubPage() {
   const { user } = useAuth();
   const { setManualStatus } = useTimer();
+  const { markConversationRead } = useUnreadChats();
   const [members, setMembers] = useState<MemberWithProfile[]>([]);
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -132,6 +134,7 @@ export default function HubPage() {
     if (existing) {
       setActiveConversationId(existing.id);
       setActiveChatUserId(memberId);
+      markConversationRead(existing.id);
       return;
     }
 
@@ -145,6 +148,7 @@ export default function HubPage() {
       setConversations((prev) => [newConvo as Conversation, ...prev]);
       setActiveConversationId(newConvo.id);
       setActiveChatUserId(memberId);
+      markConversationRead(newConvo.id);
     }
   };
 
@@ -155,6 +159,7 @@ export default function HubPage() {
     const otherId = convo.participant_a === user.id ? convo.participant_b : convo.participant_a;
     setActiveConversationId(conversationId);
     setActiveChatUserId(otherId);
+    markConversationRead(conversationId);
   };
 
   const handleStatusChange = async (status: string) => {

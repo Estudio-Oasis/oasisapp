@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
+import { useUnreadChats } from "@/hooks/useUnreadChats";
 import { TimerWidget } from "@/components/TimerWidget";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProfileSheet } from "@/components/ProfileSheet";
@@ -41,6 +42,7 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
   const { isAdmin, loading: roleLoading } = useRole();
   const { theme, setTheme } = useTheme();
+  const { unreadCount } = useUnreadChats();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -144,6 +146,11 @@ export function AppSidebar() {
                   )}
                   <item.icon className="h-4 w-4 shrink-0" />
                   <span>{item.title}</span>
+                  {item.url === "/hub" && unreadCount > 0 && (
+                    <span className="ml-auto flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1">
+                      {unreadCount}
+                    </span>
+                  )}
                 </Link>
               );
             })}
