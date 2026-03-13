@@ -238,7 +238,7 @@ export default function TimerPage() {
           <p className="text-sm text-foreground-secondary mt-0.5">{formatDateLong(new Date())}</p>
         </div>
         <div className="rounded-lg border border-border bg-background-secondary px-3 py-1.5">
-          <span className="text-sm font-semibold text-foreground">{formatDuration(totalMinutes)} {view === "today" ? "today" : "this week"}</span>
+          <span className="text-sm font-semibold text-foreground">{formatDuration(totalMinutes)} {view === "today" ? "hoy" : "esta semana"}</span>
         </div>
       </div>
 
