@@ -110,6 +110,7 @@ export default function Settings() {
         <TabsList className="bg-background-secondary">
           <TabsTrigger value="agency">Agency Profile</TabsTrigger>
           <TabsTrigger value="members">Members</TabsTrigger>
+          <TabsTrigger value="integrations">Integraciones</TabsTrigger>
         </TabsList>
 
         <TabsContent value="agency" className="mt-4">
@@ -125,6 +126,13 @@ export default function Settings() {
             agencyId={agency.id}
             isAdmin={userRole === "admin"}
             allowedDomain={agency.allowed_email_domain}
+          />
+        </TabsContent>
+
+        <TabsContent value="integrations" className="mt-4">
+          <IntegrationsTab
+            agencyId={agency.id}
+            isAdmin={userRole === "admin"}
           />
         </TabsContent>
       </Tabs>
