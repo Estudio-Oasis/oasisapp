@@ -298,9 +298,18 @@ export default function ClientProfilePage() {
             </TabsContent>
 
             <TabsContent value="time" className="mt-6">
-              <div className="flex items-center gap-4 mb-4">
-                <span className="text-sm text-foreground-secondary">This week: <strong className="text-foreground">{stats.weekHours}h</strong></span>
-                <span className="text-sm text-foreground-secondary">This month: <strong className="text-foreground">{stats.monthHours}h</strong></span>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-foreground-secondary">This week: <strong className="text-foreground">{stats.weekHours}h</strong></span>
+                  <span className="text-sm text-foreground-secondary">This month: <strong className="text-foreground">{stats.monthHours}h</strong></span>
+                </div>
+                <div className="inline-flex rounded-lg bg-background-secondary p-1">
+                  {(["mine", "all"] as const).map((f) => (
+                    <button key={f} onClick={() => setTimeFilter(f)} className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${timeFilter === f ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
+                      {f === "mine" ? "My entries" : "All entries"}
+                    </button>
+                  ))}
+                </div>
               </div>
               {timeEntries.length === 0 ? (
                 <p className="text-sm text-foreground-muted py-8 text-center">No time tracked for this client yet.</p>
@@ -309,13 +318,24 @@ export default function ClientProfilePage() {
                   {timeEntries.map((e) => {
                     const start = new Date(e.started_at);
                     const end = e.ended_at ? new Date(e.ended_at) : null;
+                    const loggerName = profileMap[e.user_id]?.name || "Unknown";
                     return (
                       <div key={e.id} className="flex items-center gap-3 py-3 border-b border-border">
                         <div className="w-[3px] h-8 rounded-full" style={{ backgroundColor: color }} />
+                        {timeFilter === "all" && (
+                          <div
+                            className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-background shrink-0"
+                            style={{ backgroundColor: getClientColor(loggerName) }}
+                            title={loggerName}
+                          >
+                            {loggerName.slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">{e.description || "No description"}</p>
                           <p className="text-small text-foreground-muted">
                             {start.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                            {timeFilter === "all" && <span> · {loggerName}</span>}
                           </p>
                         </div>
                         <div className="text-right shrink-0">
