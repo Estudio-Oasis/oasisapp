@@ -30,7 +30,7 @@ interface ProjectInfo { id: string; name: string; }
 interface AssigneeInfo { id: string; name: string | null; email: string | null; }
 interface TimeEntryInfo { id: string; started_at: string; duration_min: number | null; }
 
-export function TaskDetailPanel({ taskId, onClose, onUpdated, onStartTimer }: TaskDetailPanelProps) {
+export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: TaskDetailPanelProps) => {
   const [task, setTask] = useState<Task | null>(null);
   const [client, setClient] = useState<ClientInfo | null>(null);
   const [project, setProject] = useState<ProjectInfo | null>(null);

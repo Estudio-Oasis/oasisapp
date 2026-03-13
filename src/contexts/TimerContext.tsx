@@ -205,25 +205,25 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   );
 
   const stopTimer = useCallback(async () => {
-    if (!state.activeEntry) return;
+    if (!state.activeEntry) {
+      console.warn("stopTimer called but no active entry");
+      return;
+    }
 
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
 
+    const entryId = state.activeEntry.id;
     const endedAt = new Date().toISOString();
     const startedAt = new Date(state.activeEntry.started_at);
     const endedAtDate = new Date(endedAt);
-    const durationMin = Math.round(
+    const durationMin = Math.max(1, Math.round(
       (endedAtDate.getTime() - startedAt.getTime()) / 60000
-    );
+    ));
 
-    await supabase
-      .from("time_entries")
-      .update({ ended_at: endedAt, duration_min: durationMin })
-      .eq("id", state.activeEntry.id);
-
+    // Reset state first so UI updates immediately
     setState({
       isRunning: false,
       activeEntry: null,
@@ -231,6 +231,16 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       activeClient: null,
       activeTask: null,
     });
+
+    // Then persist to DB
+    const { error } = await supabase
+      .from("time_entries")
+      .update({ ended_at: endedAt, duration_min: durationMin })
+      .eq("id", entryId);
+
+    if (error) {
+      console.error("Failed to save time entry:", error);
+    }
   }, [state.activeEntry]);
 
   const switchTask = useCallback(
