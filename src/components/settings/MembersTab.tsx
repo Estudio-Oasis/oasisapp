@@ -95,10 +95,14 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
       toast.error("You can't remove yourself");
       return;
     }
-    await supabase
+    const { error } = await supabase
       .from("profiles")
       .update({ agency_id: null })
       .eq("id", memberId);
+    if (error) {
+      toast.error("Failed to remove member");
+      return;
+    }
     toast.success("Member removed");
     fetchData();
   };
