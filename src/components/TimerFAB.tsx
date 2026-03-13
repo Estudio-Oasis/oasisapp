@@ -16,6 +16,7 @@ export function TimerFAB() {
     isStopping,
     activeClient,
     activeTask,
+    activeEntry,
     elapsedSeconds,
     stopTimer,
   } = useTimer();
