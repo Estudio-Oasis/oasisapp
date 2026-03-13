@@ -7,6 +7,7 @@ import { MemberBubble } from "@/components/hub/MemberBubble";
 import { ChatPanel } from "@/components/hub/ChatPanel";
 import { ChatList } from "@/components/hub/ChatList";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Coffee, Utensils, Bath, Monitor, Moon } from "lucide-react";
 
 interface MemberPresence {
@@ -162,9 +163,38 @@ export default function HubPage() {
     markConversationRead(conversationId);
   };
 
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const [showStopTimerDialog, setShowStopTimerDialog] = useState(false);
+  const { isRunning, stopTimer, activeClient, activeTask } = useTimer();
+
   const handleStatusChange = async (status: string) => {
+    const nonWorkStatuses = ["break", "eating", "bathroom", "meeting"];
+    if (isRunning && nonWorkStatuses.includes(status)) {
+      setPendingStatus(status);
+      setShowStopTimerDialog(true);
+      return;
+    }
     setMyStatus(status);
     await setManualStatus(status);
+  };
+
+  const handleConfirmStopTimer = async () => {
+    if (pendingStatus) {
+      await stopTimer();
+      setMyStatus(pendingStatus);
+      await setManualStatus(pendingStatus);
+      setPendingStatus(null);
+    }
+    setShowStopTimerDialog(false);
+  };
+
+  const handleKeepTimerRunning = async () => {
+    if (pendingStatus) {
+      setMyStatus(pendingStatus);
+      await setManualStatus(pendingStatus);
+      setPendingStatus(null);
+    }
+    setShowStopTimerDialog(false);
   };
 
   const chatPartnerProfile = activeChatUserId
@@ -260,6 +290,29 @@ export default function HubPage() {
         conversationId={activeConversationId}
         partnerProfile={chatPartnerProfile}
       />
+
+      {/* Stop timer confirmation dialog */}
+      <Dialog open={showStopTimerDialog} onOpenChange={setShowStopTimerDialog}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>¿Detener el timer?</DialogTitle>
+            <DialogDescription>
+              Tienes el timer activo
+              {activeClient ? ` para ${activeClient.name}` : ""}
+              {activeTask ? ` — ${activeTask.title}` : ""}.
+              ¿Deseas detenerlo antes de cambiar tu estado?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button variant="outline" onClick={handleKeepTimerRunning}>
+              No, mantener timer
+            </Button>
+            <Button variant="default" onClick={handleConfirmStopTimer}>
+              Sí, detener timer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
