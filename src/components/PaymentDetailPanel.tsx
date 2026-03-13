@@ -25,7 +25,7 @@ export interface PaymentRow {
   bank_amount: number | null;
   bank_currency: string | null;
   exchange_rate: number | null;
-  breakdown: BreakdownItem[] | null;
+  breakdown: { label: string; amount: number }[] | null;
   receipt_url: string | null;
   notes: string | null;
   created_at: string;

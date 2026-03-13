@@ -101,7 +101,7 @@ export default function FinancesPage() {
     );
     setExpenses((expensesRes.data || []) as ExpenseRow[]);
     setPayments(
-      ((paymentsRes.data || []) as PaymentRow[]).map((p) => ({
+      ((paymentsRes.data || []) as unknown as PaymentRow[]).map((p) => ({
         ...p,
         client_name: clientMap.get(p.client_id) || "Unknown",
         invoice_number: p.invoice_id ? invoiceMap.get(p.invoice_id) || undefined : undefined,

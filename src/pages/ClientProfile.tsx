@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { NewInvoiceModal } from "@/components/NewInvoiceModal";
+import { LogPaymentModal } from "@/components/LogPaymentModal";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
