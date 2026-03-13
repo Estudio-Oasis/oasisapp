@@ -9,6 +9,7 @@ export function useRole() {
 
   useEffect(() => {
     if (!user) {
+      setRole(null);
       setLoading(false);
       return;
     }
@@ -18,10 +19,10 @@ export function useRole() {
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
-        setRole((data?.role as "admin" | "member") || "member");
+        setRole((data?.role as "admin" | "member") ?? "member");
         setLoading(false);
       });
-  }, [user]);
+  }, [user?.id]);
 
   return { role, isAdmin: role === "admin", loading };
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "next-themes";
@@ -38,7 +38,7 @@ interface Profile {
 export function AppSidebar() {
   const location = useLocation();
   const { user, signOut } = useAuth();
-  const { isAdmin } = useRole();
+  const { isAdmin, loading: roleLoading } = useRole();
   const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -46,6 +46,7 @@ export function AppSidebar() {
   const [showTour, setShowTour] = useState(false);
   const [tourTimerOpen, setTourTimerOpen] = useState(false);
   const [tourTaskOpen, setTourTaskOpen] = useState(false);
+  const welcomeShownRef = useRef(false);
 
   useEffect(() => {
     if (!user) return;
@@ -58,17 +59,18 @@ export function AppSidebar() {
         if (data) {
           const p = data as Profile;
           setProfile(p);
-          if (!p.onboarded) {
+          if (!p.onboarded && !welcomeShownRef.current) {
+            welcomeShownRef.current = true;
             setShowWelcome(true);
           }
         }
       });
-  }, [user]);
+  }, [user?.id]);
 
   const displayName = profile?.name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
   const role = profile?.role || "member";
 
-  const navItems = allNavItems.filter((item) => !item.adminOnly || isAdmin);
+  const navItems = allNavItems.filter((item) => !item.adminOnly || (!roleLoading && isAdmin));
 
   const handleStartTour = () => {
     setShowWelcome(false);
