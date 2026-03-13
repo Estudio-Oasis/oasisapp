@@ -234,7 +234,7 @@ export function ChatList({ conversations, profiles, currentUserId, onOpenChat }:
 
               {/* Channel picker */}
               {showChannelPicker && (
-                <div className="border border-border rounded-md p-3 space-y-2 bg-background">
+                <div ref={channelPickerRef} className="border border-border rounded-md p-3 space-y-2 bg-background">
                   <p className="text-xs font-medium text-foreground">Selecciona un canal de Slack</p>
                   {loadingChannels ? (
                     <div className="flex items-center gap-2 text-xs text-foreground-muted py-2">
