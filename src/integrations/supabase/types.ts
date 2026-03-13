@@ -166,6 +166,7 @@ export type Database = {
           conversation_id: string
           created_at: string
           id: string
+          image_url: string | null
           sender_id: string
         }
         Insert: {
@@ -173,6 +174,7 @@ export type Database = {
           conversation_id: string
           created_at?: string
           id?: string
+          image_url?: string | null
           sender_id: string
         }
         Update: {
@@ -180,6 +182,7 @@ export type Database = {
           conversation_id?: string
           created_at?: string
           id?: string
+          image_url?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -193,6 +196,45 @@ export type Database = {
           {
             foreignKeyName: "chat_messages_sender_id_fkey"
             columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_summaries: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          created_by: string
+          id: string
+          summary: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          summary: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_summaries_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_summaries_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
