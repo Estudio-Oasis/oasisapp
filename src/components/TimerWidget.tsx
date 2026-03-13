@@ -70,10 +70,10 @@ export function TimerWidget() {
                 {isStopping ? (
                   <span className="inline-flex items-center gap-1">
                     <Loader2 className="h-3 w-3 animate-spin" />
-                    Saving
+                    Guardando
                   </span>
                 ) : (
-                  "Stop"
+                  "Detener"
                 )}
               </button>
             </div>

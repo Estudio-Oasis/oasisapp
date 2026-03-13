@@ -469,7 +469,7 @@ export function StartTimerModal({
                 onClick={handleUndo}
                 className="flex items-center gap-1 text-[11px] font-medium text-accent hover:text-accent/80 transition-colors mt-1"
               >
-                <Undo2 className="h-3 w-3" /> Undo
+                <Undo2 className="h-3 w-3" /> Deshacer
               </button>
             )}
             {/* Task suggestions dropdown */}

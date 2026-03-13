@@ -260,7 +260,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
       if (error || !entry) {
         console.error("Failed to start timer:", error);
-        toast.error("Could not start timer. Try again.");
+        toast.error("No se pudo iniciar el timer. Intenta de nuevo.");
         return;
       }
 

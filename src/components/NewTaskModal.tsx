@@ -278,10 +278,10 @@ export function NewTaskModal({
 
         <div className="flex flex-col gap-2 p-6 pt-4 shrink-0 border-t border-border" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
           <Button variant="secondary" onClick={() => handleSubmit(false)} disabled={!title.trim() || !selectedClientId || loading} className="w-full h-11">
-            Create task
+            Crear tarea
           </Button>
           <Button onClick={() => handleSubmit(true)} disabled={!title.trim() || !selectedClientId || loading} className="w-full h-11">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "⚡ Create & start timer"}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "⚡ Crear e iniciar timer"}
           </Button>
         </div>
       </DialogContent>

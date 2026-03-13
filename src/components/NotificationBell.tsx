@@ -77,8 +77,8 @@ export function NotificationBell() {
             items.push({
               id: `gap-${i}`,
               type: "time_gap",
-              title: `Untracked time · ${h > 0 ? `${h}h ` : ""}${m}m`,
-              body: `Today, ${end.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} – ${nextStart.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`,
+               title: `Tiempo sin registrar · ${h > 0 ? `${h}h ` : ""}${m}m`,
+              body: `Hoy, ${end.toLocaleTimeString("es-MX", { hour: "numeric", minute: "2-digit" })} – ${nextStart.toLocaleTimeString("es-MX", { hour: "numeric", minute: "2-digit" })}`,
               link: "/timer",
             });
           }
