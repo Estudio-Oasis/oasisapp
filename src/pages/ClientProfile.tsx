@@ -327,9 +327,7 @@ export default function ClientProfilePage() {
             </TabsContent>
 
             <TabsContent value="finances" className="mt-6">
-              <div className="flex flex-col items-center py-16 text-center">
-                <p className="text-sm text-foreground-muted">Finances coming in Phase 5</p>
-              </div>
+              <ClientFinancesTab clientId={client.id} clientName={client.name} monthlyRate={client.monthly_rate} currency={client.currency} monthHours={stats.monthHours} />
             </TabsContent>
           </Tabs>
         </div>
