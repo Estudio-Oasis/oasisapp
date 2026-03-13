@@ -134,6 +134,7 @@ export default function HubPage() {
     if (existing) {
       setActiveConversationId(existing.id);
       setActiveChatUserId(memberId);
+      markConversationRead(existing.id);
       return;
     }
 
