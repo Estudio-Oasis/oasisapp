@@ -412,7 +412,7 @@ export function StartTimerModal({
               <SelectTrigger>
                 <SelectValue
                   placeholder={
-                    selectedClientId ? "No specific task" : "Select a client first"
+                    selectedClientId ? "Sin tarea específica" : "Selecciona un cliente primero"
                   }
                 />
               </SelectTrigger>
