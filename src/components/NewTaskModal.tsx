@@ -251,9 +251,9 @@ export function NewTaskModal({
 
             {/* Assignee */}
             <div>
-              <label className="text-label mb-1 block">Assignee (optional)</label>
+              <label className="text-label mb-1 block">Asignado (opcional)</label>
               <Select value={assigneeId} onValueChange={setAssigneeId}>
-                <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Sin asignar" /></SelectTrigger>
                 <SelectContent>
                   {profiles.map((p) => (
                     <SelectItem key={p.id} value={p.id}>{p.name || p.email || "User"}</SelectItem>
