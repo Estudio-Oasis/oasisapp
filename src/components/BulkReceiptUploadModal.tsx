@@ -77,6 +77,8 @@ export function BulkReceiptUploadModal({
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showNewDefaultClient, setShowNewDefaultClient] = useState(false);
+  const [showNewClientForItem, setShowNewClientForItem] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
