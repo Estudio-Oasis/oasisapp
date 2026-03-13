@@ -342,13 +342,13 @@ export function StartTimerModal({
             {clients.length === 0 && !showNewClient ? (
               <div>
                 <p className="text-small text-foreground-secondary">
-                  No clients yet.{" "}
+                  Aún no hay clientes.{" "}
                   <Link
                     to="/clients"
                     className="font-semibold text-foreground hover:text-accent transition-colors"
                     onClick={() => onOpenChange(false)}
                   >
-                    Create one →
+                    Crear uno →
                   </Link>
                 </p>
                 <button
