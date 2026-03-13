@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
+import { useTheme } from "next-themes";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Loader2, Users } from "lucide-react";
+import { LogOut, Loader2, Users, Sun, Moon, Monitor } from "lucide-react";
 import { toast } from "sonner";
 import { getClientColor } from "@/lib/timer-utils";
 
