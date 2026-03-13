@@ -204,8 +204,8 @@ export default function TimerPage() {
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <Clock className="h-10 w-10 text-border mb-4" />
-      <h3 className="text-h3 text-foreground">No time tracked yet {view === "today" ? "today" : "this week"}</h3>
-      <p className="text-sm text-foreground-secondary mt-1">Start the timer to begin tracking your work.</p>
+      <h3 className="text-h3 text-foreground">Sin registros {view === "today" ? "hoy" : "esta semana"}</h3>
+      <p className="text-sm text-foreground-secondary mt-1">Inicia el timer para empezar a registrar tu trabajo.</p>
     </div>
   );
 
