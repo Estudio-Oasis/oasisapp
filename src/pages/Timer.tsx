@@ -246,7 +246,7 @@ export default function TimerPage() {
         <div className="inline-flex rounded-lg bg-background-secondary p-1">
           {(["today", "week"] as const).map((v) => (
             <button key={v} onClick={() => setView(v)} className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${view === v ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
-              {v === "today" ? "Today" : "This Week"}
+              {v === "today" ? "Hoy" : "Esta semana"}
             </button>
           ))}
         </div>
