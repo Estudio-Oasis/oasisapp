@@ -181,7 +181,12 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      if (!entry || isCancelled) return;
+      if (!entry) {
+        if (!isCancelled) resetTimerState();
+        return;
+      }
+
+      if (isCancelled) return;
 
       let client: Client | null = null;
       let task: Task | null = null;
