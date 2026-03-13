@@ -25,6 +25,8 @@ interface EntryWithRelations extends TimeEntry {
   tasks: { title: string } | null;
 }
 
+interface ProfileInfo { id: string; name: string | null; }
+
 interface GapInfo {
   startTime: Date;
   endTime: Date;
@@ -35,11 +37,20 @@ export default function TimerPage() {
   const { user } = useAuth();
   const { isRunning, isStopping, activeClient, activeTask, elapsedSeconds, stopTimer } = useTimer();
   const [view, setView] = useState<"today" | "week">("today");
+  const [entryFilter, setEntryFilter] = useState<"mine" | "all">("mine");
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);
+  const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
   const [gaps, setGaps] = useState<GapInfo[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"start" | "switch" | "manual">("start");
   const [gapPrefill, setGapPrefill] = useState<{ start: string; end: string } | null>(null);
+
+  const fetchProfiles = useCallback(async () => {
+    const { data } = await supabase.from("profiles").select("id, name");
+    const map: Record<string, ProfileInfo> = {};
+    ((data || []) as ProfileInfo[]).forEach((p) => { map[p.id] = p; });
+    setProfileMap(map);
+  }, []);
 
   const fetchEntries = useCallback(async () => {
     if (!user) return;
@@ -47,13 +58,18 @@ export default function TimerPage() {
     const now = new Date();
     const rangeStart = view === "today" ? startOfDay(now) : startOfWeek(now);
 
-    const { data } = await supabase
+    let query = supabase
       .from("time_entries")
       .select("*, clients(name), tasks(title)")
-      .eq("user_id", user.id)
       .not("ended_at", "is", null)
       .gte("started_at", rangeStart.toISOString())
       .order("started_at", { ascending: false });
+
+    if (entryFilter === "mine") {
+      query = query.eq("user_id", user.id);
+    }
+
+    const { data } = await query;
 
     const typedData = (data || []) as EntryWithRelations[];
     setEntries(typedData);
@@ -63,11 +79,12 @@ export default function TimerPage() {
     } else {
       setGaps([]);
     }
-  }, [user, view]);
+  }, [user, view, entryFilter]);
 
   useEffect(() => {
+    fetchProfiles();
     fetchEntries();
-  }, [fetchEntries, isRunning]);
+  }, [fetchEntries, fetchProfiles, isRunning]);
 
   const detectGaps = (todayEntries: EntryWithRelations[]) => {
     const today = new Date();
@@ -132,6 +149,7 @@ export default function TimerPage() {
   const renderEntry = (entry: EntryWithRelations) => {
     const clientName = entry.clients?.name || "Unknown";
     const taskTitle = entry.tasks?.title;
+    const loggerName = profileMap[entry.user_id]?.name || "Unknown";
     const start = new Date(entry.started_at);
     const end = entry.ended_at ? new Date(entry.ended_at) : null;
     const dur = Number(entry.duration_min) || 0;
@@ -139,12 +157,22 @@ export default function TimerPage() {
     return (
       <div key={entry.id} className="flex items-center gap-3 border-b border-border py-3.5">
         <div className="w-[3px] h-8 rounded-sm shrink-0" style={{ backgroundColor: getClientColor(clientName) }} />
+        {entryFilter === "all" && (
+          <div
+            className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-background shrink-0"
+            style={{ backgroundColor: getClientColor(loggerName) }}
+            title={loggerName}
+          >
+            {loggerName.slice(0, 2).toUpperCase()}
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-foreground truncate">
             {taskTitle || <span className="text-foreground-muted font-normal">No task</span>}
           </p>
           <p className="text-xs text-foreground-secondary truncate">
             {clientName}
+            {entryFilter === "all" && <span className="text-foreground-muted"> · {loggerName}</span>}
             {entry.description && <span className="text-foreground-muted"> · {entry.description}</span>}
           </p>
         </div>
@@ -212,12 +240,21 @@ export default function TimerPage() {
         </div>
       </div>
 
-      <div className="mt-6 mb-6 inline-flex rounded-lg bg-background-secondary p-1">
-        {(["today", "week"] as const).map((v) => (
-          <button key={v} onClick={() => setView(v)} className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${view === v ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
-            {v === "today" ? "Today" : "This Week"}
-          </button>
-        ))}
+      <div className="mt-6 mb-6 flex items-center gap-4">
+        <div className="inline-flex rounded-lg bg-background-secondary p-1">
+          {(["today", "week"] as const).map((v) => (
+            <button key={v} onClick={() => setView(v)} className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${view === v ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
+              {v === "today" ? "Today" : "This Week"}
+            </button>
+          ))}
+        </div>
+        <div className="inline-flex rounded-lg bg-background-secondary p-1">
+          {(["mine", "all"] as const).map((f) => (
+            <button key={f} onClick={() => setEntryFilter(f)} className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${entryFilter === f ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
+              {f === "mine" ? "My entries" : "All entries"}
+            </button>
+          ))}
+        </div>
       </div>
 
       {view === "today" ? (
