@@ -16,6 +16,10 @@ export default function Signup() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
+      return;
+    }
     setLoading(true);
 
     const { error } = await supabase.auth.signUp({
