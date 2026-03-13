@@ -44,7 +44,10 @@ interface TimeEntryRow {
   duration_min: number | null;
   description: string | null;
   task_id: string | null;
+  user_id: string;
 }
+
+interface ProfileInfo { id: string; name: string | null; }
 
 interface InteractionRow {
   id: string;
