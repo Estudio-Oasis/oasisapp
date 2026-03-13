@@ -117,12 +117,19 @@ export function ChatList({ conversations, profiles, currentUserId, onOpenChat }:
 
   const handleOpenChannelPicker = async () => {
     setShowChannelPicker(true);
+    // Auto-scroll to channel picker after render
+    setTimeout(() => {
+      channelPickerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    }, 100);
     if (channels.length === 0) {
       setLoadingChannels(true);
       try {
         const { data, error } = await supabase.functions.invoke("slack-list-channels");
         if (error) throw error;
         setChannels(data?.channels || []);
+        setTimeout(() => {
+          channelPickerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+        }, 100);
       } catch (e) {
         toast.error("No se pudieron cargar los canales");
       } finally {
