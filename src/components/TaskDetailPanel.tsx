@@ -166,7 +166,7 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
               <div className="flex justify-between">
                 <span className="text-foreground-secondary">Fecha límite</span>
                 <span className={isOverdue ? "text-destructive font-medium" : "text-foreground"}>
-                  {task.due_date ? new Date(task.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
+                  {task.due_date ? new Date(task.due_date).toLocaleDateString("es-MX", { month: "short", day: "numeric" }) : "—"}
                 </span>
               </div>
               <div className="flex justify-between">
