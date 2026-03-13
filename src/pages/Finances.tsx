@@ -259,9 +259,14 @@ export default function FinancesPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-h2 text-foreground">Payments</h2>
-          <Button size="sm" onClick={() => setNewPayOpen(true)}>
-            <Plus className="h-3.5 w-3.5 mr-1" /> Log payment
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="secondary" onClick={() => setBulkPayOpen(true)}>
+              <Sparkles className="h-3.5 w-3.5 mr-1" /> Bulk scan
+            </Button>
+            <Button size="sm" onClick={() => setNewPayOpen(true)}>
+              <Plus className="h-3.5 w-3.5 mr-1" /> Log payment
+            </Button>
+          </div>
         </div>
 
         {/* Payment stats */}
