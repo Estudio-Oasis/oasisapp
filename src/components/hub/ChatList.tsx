@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MessageSquare, Sparkles, Download, Send, Loader2, Hash } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,7 @@ export function ChatList({ conversations, profiles, currentUserId, onOpenChat }:
   const [selectedChannel, setSelectedChannel] = useState("");
   const [sendingToSlack, setSendingToSlack] = useState(false);
   const [showChannelPicker, setShowChannelPicker] = useState(false);
+  const channelPickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (conversations.length === 0) return;
@@ -116,12 +117,19 @@ export function ChatList({ conversations, profiles, currentUserId, onOpenChat }:
 
   const handleOpenChannelPicker = async () => {
     setShowChannelPicker(true);
+    // Auto-scroll to channel picker after render
+    setTimeout(() => {
+      channelPickerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    }, 100);
     if (channels.length === 0) {
       setLoadingChannels(true);
       try {
         const { data, error } = await supabase.functions.invoke("slack-list-channels");
         if (error) throw error;
         setChannels(data?.channels || []);
+        setTimeout(() => {
+          channelPickerRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+        }, 100);
       } catch (e) {
         toast.error("No se pudieron cargar los canales");
       } finally {
@@ -226,7 +234,7 @@ export function ChatList({ conversations, profiles, currentUserId, onOpenChat }:
 
               {/* Channel picker */}
               {showChannelPicker && (
-                <div className="border border-border rounded-md p-3 space-y-2 bg-background">
+                <div ref={channelPickerRef} className="border border-border rounded-md p-3 space-y-2 bg-background">
                   <p className="text-xs font-medium text-foreground">Selecciona un canal de Slack</p>
                   {loadingChannels ? (
                     <div className="flex items-center gap-2 text-xs text-foreground-muted py-2">
