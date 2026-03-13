@@ -115,20 +115,20 @@ export default function TimerPage() {
     const foundGaps: GapInfo[] = [];
     const THRESHOLD = 30;
 
-    const nineAm = new Date(today);
-    nineAm.setHours(9, 0, 0, 0);
+    const workdayStart = new Date(today);
+    workdayStart.setHours(workStartHour, workStartMinute, 0, 0);
 
-    if (today.getHours() >= 9) {
+    if (today.getTime() >= workdayStart.getTime()) {
       if (sorted.length === 0) {
-        const gapMin = Math.round((Date.now() - nineAm.getTime()) / 60000);
+        const gapMin = Math.round((Date.now() - workdayStart.getTime()) / 60000);
         if (gapMin > THRESHOLD) {
-          foundGaps.push({ startTime: nineAm, endTime: new Date(), durationMin: gapMin });
+          foundGaps.push({ startTime: workdayStart, endTime: new Date(), durationMin: gapMin });
         }
       } else {
         const firstStart = new Date(sorted[0].started_at);
-        const gapMin = Math.round((firstStart.getTime() - nineAm.getTime()) / 60000);
+        const gapMin = Math.round((firstStart.getTime() - workdayStart.getTime()) / 60000);
         if (gapMin > THRESHOLD) {
-          foundGaps.push({ startTime: nineAm, endTime: firstStart, durationMin: gapMin });
+          foundGaps.push({ startTime: workdayStart, endTime: firstStart, durationMin: gapMin });
         }
       }
     }
