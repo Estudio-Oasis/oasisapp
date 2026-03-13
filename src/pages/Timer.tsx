@@ -253,7 +253,7 @@ export default function TimerPage() {
         <div className="inline-flex rounded-lg bg-background-secondary p-1">
           {(["mine", "all"] as const).map((f) => (
             <button key={f} onClick={() => setEntryFilter(f)} className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${entryFilter === f ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
-              {f === "mine" ? "My entries" : "All entries"}
+              {f === "mine" ? "Mis registros" : "Todos"}
             </button>
           ))}
         </div>
