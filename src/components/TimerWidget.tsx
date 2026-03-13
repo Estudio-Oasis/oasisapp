@@ -52,7 +52,7 @@ export function TimerWidget() {
               className="text-micro text-foreground-secondary truncate !normal-case !tracking-normal !font-normal"
               style={{ fontSize: "11px" }}
             >
-              {activeTask?.title || "No task"}
+              {activeTask?.title || "Sin tarea"}
             </p>
             {/* Row 3: buttons */}
             <div className="flex gap-2">
