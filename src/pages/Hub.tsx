@@ -163,9 +163,38 @@ export default function HubPage() {
     markConversationRead(conversationId);
   };
 
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const [showStopTimerDialog, setShowStopTimerDialog] = useState(false);
+  const { isRunning, stopTimer, activeClient, activeTask } = useTimer();
+
   const handleStatusChange = async (status: string) => {
+    const nonWorkStatuses = ["break", "eating", "bathroom", "meeting"];
+    if (isRunning && nonWorkStatuses.includes(status)) {
+      setPendingStatus(status);
+      setShowStopTimerDialog(true);
+      return;
+    }
     setMyStatus(status);
     await setManualStatus(status);
+  };
+
+  const handleConfirmStopTimer = async () => {
+    if (pendingStatus) {
+      await stopTimer();
+      setMyStatus(pendingStatus);
+      await setManualStatus(pendingStatus);
+      setPendingStatus(null);
+    }
+    setShowStopTimerDialog(false);
+  };
+
+  const handleKeepTimerRunning = async () => {
+    if (pendingStatus) {
+      setMyStatus(pendingStatus);
+      await setManualStatus(pendingStatus);
+      setPendingStatus(null);
+    }
+    setShowStopTimerDialog(false);
   };
 
   const chatPartnerProfile = activeChatUserId
