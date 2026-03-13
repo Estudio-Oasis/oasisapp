@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
+import { useTheme } from "next-themes";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Loader2, Users } from "lucide-react";
+import { LogOut, Loader2, Users, Sun, Moon, Monitor } from "lucide-react";
 import { toast } from "sonner";
 import { getClientColor } from "@/lib/timer-utils";
 
@@ -27,6 +28,7 @@ interface TeamMember {
 export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, onSignOut }: ProfileSheetProps) {
   const { user } = useAuth();
   const { isAdmin } = useRole();
+  const { theme, setTheme } = useTheme();
   const [name, setName] = useState(profile.name);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -193,6 +195,29 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
               </div>
             </div>
           )}
+
+          {/* Theme */}
+          <div className="space-y-1.5">
+            <label className="text-label">Theme</label>
+            <div className="flex gap-2">
+              {([
+                { value: "light", icon: Sun, label: "Light" },
+                { value: "dark", icon: Moon, label: "Dark" },
+                { value: "system", icon: Monitor, label: "System" },
+              ] as const).map(({ value, icon: Icon, label }) => (
+                <Button
+                  key={value}
+                  size="sm"
+                  variant={theme === value ? "accent" : "secondary"}
+                  className="flex-1 gap-1.5"
+                  onClick={() => setTheme(value)}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {label}
+                </Button>
+              ))}
+            </div>
+          </div>
 
           {/* Sign out */}
           <Button variant="outline" className="w-full" onClick={onSignOut}>
