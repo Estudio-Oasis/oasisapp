@@ -13,10 +13,10 @@ type Task = Tables<"tasks">;
 
 const STATUSES = ["backlog", "todo", "in_progress", "review", "done"] as const;
 const STATUS_LABELS: Record<string, string> = {
-  backlog: "Backlog", todo: "To do", in_progress: "In progress", review: "Review", done: "Done",
+  backlog: "Backlog", todo: "Por hacer", in_progress: "En progreso", review: "Revisión", done: "Listo",
 };
 const PRIORITY_LABELS: Record<string, string> = {
-  low: "Low", medium: "Medium", high: "High", urgent: "Urgent",
+  low: "Baja", medium: "Media", high: "Alta", urgent: "Urgente",
 };
 
 interface TaskDetailPanelProps {
