@@ -488,6 +488,9 @@ export default function FinancesPage() {
         )}
       </div>
 
+      {/* ─── INSIGHTS / BI ─── */}
+      <InsightsSection payments={payments} clients={clients} />
+
       {/* Modals & Panels */}
       <NewInvoiceModal open={newInvOpen} onOpenChange={setNewInvOpen} onCreated={fetchAll} />
       <LogPaymentModal open={newPayOpen} onOpenChange={setNewPayOpen} onCreated={fetchAll} />
