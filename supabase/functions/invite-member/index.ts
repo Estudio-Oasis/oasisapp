@@ -115,6 +115,8 @@ Deno.serve(async (req) => {
       if (isAlreadyRegistered) {
         // Existing users don't receive invite emails from inviteUserByEmail.
         // Fallback: send a magic link email so they still get a notification email.
+        // Wait to avoid Supabase rate limit (1 req/sec on auth endpoints)
+        await new Promise(resolve => setTimeout(resolve, 1500));
         const { error: magicLinkErr } = await publicClient.auth.signInWithOtp({
           email,
           options: {
