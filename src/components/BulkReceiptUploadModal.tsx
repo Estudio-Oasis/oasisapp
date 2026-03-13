@@ -30,21 +30,8 @@ import { toast } from "sonner";
 import { ImageEditorModal } from "@/components/ImageEditorModal";
 import { InlineNewClient } from "@/components/InlineNewClient";
 import type { Tables } from "@/integrations/supabase/types";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import {
-  ImagePlus,
-  Loader2,
-  Pencil,
-  Trash2,
-  Sparkles,
-  CheckCircle,
-  AlertCircle,
-  X,
-} from "lucide-react";
-import { toast } from "sonner";
-import { ImageEditorModal } from "@/components/ImageEditorModal";
-import type { Tables } from "@/integrations/supabase/types";
+
+
 
 type Client = Tables<"clients">;
 
