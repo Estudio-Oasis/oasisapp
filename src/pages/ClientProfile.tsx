@@ -149,12 +149,20 @@ export default function ClientProfilePage() {
     setCredentials((data as CredentialRow[]) || []);
   }, [id]);
 
+  const fetchProfiles = useCallback(async () => {
+    const { data } = await supabase.from("profiles").select("id, name");
+    const map: Record<string, ProfileInfo> = {};
+    ((data || []) as ProfileInfo[]).forEach((p) => { map[p.id] = p; });
+    setProfileMap(map);
+  }, []);
+
   useEffect(() => {
     fetchClient();
     fetchTimeEntries();
     fetchInteractions();
     fetchCredentials();
-  }, [fetchClient, fetchTimeEntries, fetchInteractions, fetchCredentials]);
+    fetchProfiles();
+  }, [fetchClient, fetchTimeEntries, fetchInteractions, fetchCredentials, fetchProfiles]);
 
   if (loading) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Loading...</div>;
   if (!client) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Client not found.</div>;
