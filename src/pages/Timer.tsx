@@ -46,6 +46,24 @@ export default function TimerPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"start" | "switch" | "manual">("start");
   const [gapPrefill, setGapPrefill] = useState<{ start: string; end: string } | null>(null);
+  const [workStartHour, setWorkStartHour] = useState(9);
+  const [workStartMinute, setWorkStartMinute] = useState(0);
+
+  // Fetch user's work schedule
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("work_start_hour, work_start_minute")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setWorkStartHour((data as any).work_start_hour ?? 9);
+          setWorkStartMinute((data as any).work_start_minute ?? 0);
+        }
+      });
+  }, [user]);
 
   const fetchProfiles = useCallback(async () => {
     const { data } = await supabase.from("profiles").select("id, name");
