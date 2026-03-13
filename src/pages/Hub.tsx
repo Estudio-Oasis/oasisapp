@@ -179,8 +179,9 @@ export default function HubPage() {
     }
 
     if (status === "offline") {
-      // Offline → stop any running timer, set offline
+      // Offline → stop any running timer, start offline entry, set offline
       if (isRunning) await stopTimer();
+      await startBreakTimer("offline");
       setMyStatus("offline");
       await setManualStatus("offline");
       return;
