@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,11 +19,23 @@ serve(async (req) => {
     const SLACK_API_KEY = Deno.env.get("SLACK_API_KEY");
     if (!SLACK_API_KEY) throw new Error("SLACK_API_KEY is not configured");
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     const { event_type, channel, data } = await req.json();
     if (!event_type) throw new Error("event_type is required");
 
-    // Default channel — user can configure later
-    const targetChannel = channel || "general";
+    // Resolve channel: explicit > DB setting > fallback
+    let targetChannel = channel;
+    if (!targetChannel) {
+      const { data: settings } = await supabase
+        .from("agency_settings")
+        .select("slack_channel_id")
+        .limit(1)
+        .maybeSingle();
+      targetChannel = settings?.slack_channel_id || "C0917V4QELS";
+    }
 
     let text = "";
     let blocks: any[] | undefined;
@@ -57,6 +70,7 @@ serve(async (req) => {
           break: "☕",
           eating: "🍽️",
           afk: "🌙",
+          bathroom: "🚿",
           meeting: "📞",
           offline: "⚫",
         };
