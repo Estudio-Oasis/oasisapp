@@ -150,7 +150,7 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-foreground-secondary">Project</span>
+                <span className="text-foreground-secondary">Proyecto</span>
                 <span className="text-foreground">{project?.name || "—"}</span>
               </div>
               <div className="flex justify-between">
