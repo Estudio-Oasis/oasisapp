@@ -38,7 +38,7 @@ interface Profile {
 export function AppSidebar() {
   const location = useLocation();
   const { user, signOut } = useAuth();
-  const { isAdmin } = useRole();
+  const { isAdmin, loading: roleLoading } = useRole();
   const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
