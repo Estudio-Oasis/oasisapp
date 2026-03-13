@@ -92,9 +92,6 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
 
   const handleResendInvite = async (inv: Invitation) => {
     setResendingId(inv.id);
-    // Delete old invitation, then re-invoke edge function
-    await supabase.from("agency_invitations").delete().eq("id", inv.id);
-
     const { data, error } = await supabase.functions.invoke("invite-member", {
       body: { email: inv.email },
     });
