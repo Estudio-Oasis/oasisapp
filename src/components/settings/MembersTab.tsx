@@ -90,6 +90,24 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
     fetchData();
   };
 
+  const handleResendInvite = async (inv: Invitation) => {
+    setResendingId(inv.id);
+    // Delete old invitation, then re-invoke edge function
+    await supabase.from("agency_invitations").delete().eq("id", inv.id);
+
+    const { data, error } = await supabase.functions.invoke("invite-member", {
+      body: { email: inv.email },
+    });
+
+    if (error || data?.error) {
+      toast.error("Failed to resend invitation");
+    } else {
+      toast.success(`Invitation resent to ${inv.email}`);
+    }
+    setResendingId(null);
+    fetchData();
+  };
+
   const handleRemoveMember = async (memberId: string) => {
     if (memberId === user?.id) {
       toast.error("You can't remove yourself");
