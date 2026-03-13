@@ -17,7 +17,7 @@ interface AssigneeInfo { id: string; name: string | null; }
 
 const STATUSES = ["backlog", "todo", "in_progress", "review", "done"] as const;
 const STATUS_LABELS: Record<string, string> = {
-  backlog: "Backlog", todo: "To do", in_progress: "In progress", review: "Review", done: "Done",
+  backlog: "Backlog", todo: "Por hacer", in_progress: "En progreso", review: "Revisión", done: "Listo",
 };
 const STATUS_COLORS: Record<string, string> = {
   backlog: "border-foreground-muted border-dashed",
