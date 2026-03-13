@@ -57,24 +57,30 @@ export default function Settings() {
 
   const handleCreateAgency = async (name: string) => {
     if (!user) return;
-    const { data, error } = await supabase
-      .from("agencies")
-      .insert({ name })
-      .select()
-      .single();
 
-    if (error || !data) {
+    const agencyId = crypto.randomUUID();
+
+    const { error: insertError } = await supabase
+      .from("agencies")
+      .insert({ id: agencyId, name });
+
+    if (insertError) {
       toast.error("Failed to create agency");
       return;
     }
 
     // Link user to agency as admin
-    await supabase
+    const { error: profileError } = await supabase
       .from("profiles")
-      .update({ agency_id: data.id, role: "admin" as const })
+      .update({ agency_id: agencyId, role: "admin" as const })
       .eq("id", user.id);
 
-    setAgency(data as Agency);
+    if (profileError) {
+      toast.error("Agency created, but failed to link your profile");
+      return;
+    }
+
+    await fetchAgency();
     setUserRole("admin");
     toast.success("Agency created!");
   };
