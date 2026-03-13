@@ -264,7 +264,7 @@ export function NewTaskModal({
 
             {/* Due date */}
             <div>
-              <label className="text-label mb-1 block">Due date (optional)</label>
+              <label className="text-label mb-1 block">Fecha límite (opcional)</label>
               <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             </div>
 
