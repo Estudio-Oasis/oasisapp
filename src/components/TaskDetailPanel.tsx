@@ -141,7 +141,7 @@ export const TaskDetailPanel = ({ taskId, onClose, onUpdated, onStartTimer }: Ta
 
           {/* Details */}
           <div className="border border-border rounded-lg p-4 mb-4">
-            <p className="text-micro text-foreground-muted mb-3">Details</p>
+            <p className="text-micro text-foreground-muted mb-3">Detalles</p>
             <div className="flex flex-col gap-2.5 text-sm">
               {client && (
                 <div className="flex justify-between">
