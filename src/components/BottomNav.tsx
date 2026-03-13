@@ -1,9 +1,10 @@
-import { Timer, Users, CheckSquare, DollarSign, Settings } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Radio } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useRole } from "@/hooks/useRole";
 
 const allNavItems = [
   { title: "Timer", url: "/timer", icon: Timer },
+  { title: "Hub", url: "/hub", icon: Radio },
   { title: "Clientes", url: "/clients", icon: Users },
   { title: "Tareas", url: "/tasks", icon: CheckSquare },
   { title: "Finanzas", url: "/finances", icon: DollarSign, adminOnly: true },

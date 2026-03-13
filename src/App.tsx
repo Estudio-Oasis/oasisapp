@@ -18,6 +18,7 @@ import ClientProfilePage from "./pages/ClientProfile";
 import TasksPage from "./pages/Tasks";
 import FinancesPage from "./pages/Finances";
 import SettingsPage from "./pages/Settings";
+import HubPage from "./pages/Hub";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
                   }
                 >
                   <Route path="/timer" element={<TimerPage />} />
+                  <Route path="/hub" element={<HubPage />} />
                   <Route path="/clients" element={<ClientsPage />} />
                   <Route path="/clients/:id" element={<ClientProfilePage />} />
                   <Route path="/tasks" element={<TasksPage />} />

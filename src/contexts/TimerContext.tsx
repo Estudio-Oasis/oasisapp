@@ -287,6 +287,18 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
       persistActiveEntry(entry);
 
+      // Upsert presence as working
+      const clientName = client?.name || null;
+      const taskName = task?.title || null;
+      await supabase.from("member_presence").upsert({
+        user_id: userId,
+        status: "working",
+        current_client: clientName,
+        current_task: taskName,
+        last_seen_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+
       setState({
         isRunning: true,
         isStopping: false,
@@ -346,9 +358,22 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     }
 
     clearPersistedActiveEntry();
+
+    // Update presence to break
+    if (userId) {
+      await supabase.from("member_presence").upsert({
+        user_id: userId,
+        status: "break",
+        current_client: null,
+        current_task: null,
+        last_seen_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+    }
+
     resetTimerState();
     return true;
-  }, [resetTimerState, state.activeEntry, state.isStopping]);
+  }, [resetTimerState, state.activeEntry, state.isStopping, userId]);
 
   const switchTask = useCallback(
     async (
@@ -363,6 +388,23 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     },
     [stopTimer, startTimer]
   );
+  // Heartbeat: update presence every 60s while timer is running
+  useEffect(() => {
+    if (!state.isRunning || !userId) return;
+
+    const heartbeat = setInterval(async () => {
+      await supabase.from("member_presence").upsert({
+        user_id: userId,
+        status: "working",
+        current_client: state.activeClient?.name || null,
+        current_task: state.activeTask?.title || null,
+        last_seen_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+    }, 60000);
+
+    return () => clearInterval(heartbeat);
+  }, [state.isRunning, userId, state.activeClient?.name, state.activeTask?.title]);
 
   return (
     <TimerContext.Provider
