@@ -175,7 +175,7 @@ export function NewTaskModal({
                 </button>
               </div>
               <Select value={selectedClientId} onValueChange={(v) => { setSelectedClientId(v); setShowInlineClient(false); }}>
-                <SelectTrigger><SelectValue placeholder="Select a client..." /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Selecciona un cliente..." /></SelectTrigger>
                 <SelectContent>
                   {clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
