@@ -280,6 +280,84 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount_received: number
+          bank_amount: number | null
+          bank_currency: string | null
+          breakdown: Json | null
+          client_id: string
+          created_at: string
+          created_by: string | null
+          currency_received: string
+          date_received: string
+          exchange_rate: number | null
+          id: string
+          invoice_id: string | null
+          method: string | null
+          notes: string | null
+          receipt_url: string | null
+          reference: string | null
+          sender_name: string | null
+          transaction_id: string | null
+        }
+        Insert: {
+          amount_received: number
+          bank_amount?: number | null
+          bank_currency?: string | null
+          breakdown?: Json | null
+          client_id: string
+          created_at?: string
+          created_by?: string | null
+          currency_received?: string
+          date_received: string
+          exchange_rate?: number | null
+          id?: string
+          invoice_id?: string | null
+          method?: string | null
+          notes?: string | null
+          receipt_url?: string | null
+          reference?: string | null
+          sender_name?: string | null
+          transaction_id?: string | null
+        }
+        Update: {
+          amount_received?: number
+          bank_amount?: number | null
+          bank_currency?: string | null
+          breakdown?: Json | null
+          client_id?: string
+          created_at?: string
+          created_by?: string | null
+          currency_received?: string
+          date_received?: string
+          exchange_rate?: number | null
+          id?: string
+          invoice_id?: string | null
+          method?: string | null
+          notes?: string | null
+          receipt_url?: string | null
+          reference?: string | null
+          sender_name?: string | null
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
