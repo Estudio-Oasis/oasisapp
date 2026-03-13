@@ -127,7 +127,7 @@ export default function ClientProfilePage() {
       monthHours: Math.round((monthMin / 60) * 10) / 10,
       totalHours: Math.round((totalMin / 60) * 10) / 10,
     });
-  }, [id]);
+  }, [id, user, timeFilter]);
 
   const fetchInteractions = useCallback(async () => {
     if (!id) return;
