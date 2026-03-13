@@ -70,18 +70,21 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Create the invitation record
+    // Create or refresh invitation record
     const { error: inviteRecordErr } = await adminClient
       .from("agency_invitations")
-      .insert({
-        email,
-        full_name: full_name || null,
-        job_title: job_title || null,
-        agency_id: callerProfile.agency_id,
-        invited_by: claims.user.id,
-        role: "member",
-        status: "pending",
-      });
+      .upsert(
+        {
+          email,
+          full_name: full_name || null,
+          job_title: job_title || null,
+          agency_id: callerProfile.agency_id,
+          invited_by: claims.user.id,
+          role: "member",
+          status: "pending",
+        },
+        { onConflict: "agency_id,email" }
+      );
 
     if (inviteRecordErr) {
       return new Response(
