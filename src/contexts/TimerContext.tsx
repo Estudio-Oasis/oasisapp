@@ -465,6 +465,17 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const setManualStatus = useCallback(async (status: string) => {
     if (!userId) return;
     await upsertPresence(userId, status);
+
+    // Non-blocking Slack notification for status change
+    try {
+      const { data: profile } = await supabase.from("profiles").select("name, email").eq("id", userId).maybeSingle();
+      const userName = profile?.name || profile?.email?.split("@")[0] || "Un miembro";
+      supabase.functions.invoke("slack-notify", {
+        body: { event_type: "status_change", data: { user_name: userName, new_status: status } },
+      });
+    } catch (e) {
+      console.warn("Slack status notify failed:", e);
+    }
   }, [userId]);
 
   return (
