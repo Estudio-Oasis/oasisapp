@@ -39,7 +39,7 @@ export default function TimerPage() {
   const { isRunning, isStopping, activeClient, activeTask, elapsedSeconds, stopTimer } = useTimer();
   const { isAdmin } = useRole();
   const [view, setView] = useState<"today" | "week">("today");
-  const [entryFilter, setEntryFilter] = useState<"mine" | "all">("mine");
+  const [entryFilter, setEntryFilter] = useState<"mine" | "all">(isAdmin ? "all" : "mine");
   const [entries, setEntries] = useState<EntryWithRelations[]>([]);
   const [profileMap, setProfileMap] = useState<Record<string, ProfileInfo>>({});
   const [gaps, setGaps] = useState<GapInfo[]>([]);

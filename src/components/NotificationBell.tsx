@@ -31,27 +31,29 @@ export function NotificationBell() {
     if (!user) return;
     const items: NotificationItem[] = [];
 
-    // Incomplete clients
-    const { data: clients } = await supabase
-      .from("clients")
-      .select("id, name, completeness_score, email, phone, monthly_rate, contact_name, payment_method, communication_channel, billing_entity")
-      .lt("completeness_score", 80);
+    // Incomplete clients — admin only
+    if (isAdmin) {
+      const { data: clients } = await supabase
+        .from("clients")
+        .select("id, name, completeness_score, email, phone, monthly_rate, contact_name, payment_method, communication_channel, billing_entity")
+        .lt("completeness_score", 80);
 
-    (clients || []).forEach((c) => {
-      const level = getCompletenessLevel(c.completeness_score ?? 0);
-      const missing = getMissingFields(c as Record<string, unknown>);
-      if (level !== "complete") {
-        items.push({
-          id: `client-${c.id}`,
-          type: "incomplete_client",
-          title: `${c.name} is missing info`,
-          body: missing.join(", "),
-          level: level as "critical" | "incomplete",
-          score: c.completeness_score ?? 0,
-          link: `/clients/${c.id}`,
-        });
-      }
-    });
+      (clients || []).forEach((c) => {
+        const level = getCompletenessLevel(c.completeness_score ?? 0);
+        const missing = getMissingFields(c as Record<string, unknown>);
+        if (level !== "complete") {
+          items.push({
+            id: `client-${c.id}`,
+            type: "incomplete_client",
+            title: `${c.name} is missing info`,
+            body: missing.join(", "),
+            level: level as "critical" | "incomplete",
+            score: c.completeness_score ?? 0,
+            link: `/clients/${c.id}`,
+          });
+        }
+      });
+    }
 
     // Time gaps today
     const today = new Date();
