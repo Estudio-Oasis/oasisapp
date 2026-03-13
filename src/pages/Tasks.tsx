@@ -236,7 +236,7 @@ export default function TasksPage() {
                       {task.title}
                     </span>
                     {overdue && (
-                      <span className="text-[11px] font-medium bg-destructive-light text-destructive px-2 py-0.5 rounded-full">Overdue</span>
+                      <span className="text-[11px] font-medium bg-destructive-light text-destructive px-2 py-0.5 rounded-full">Vencida</span>
                     )}
                   </div>
                   <div className="flex items-center gap-1.5 mt-0.5 text-small text-foreground-muted">
