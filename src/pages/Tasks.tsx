@@ -285,7 +285,7 @@ export default function TasksPage() {
             );
           })}
           {filtered.length === 0 && tasks.length > 0 && (
-            <p className="text-sm text-foreground-muted text-center py-8">No tasks match your filters.</p>
+            <p className="text-sm text-foreground-muted text-center py-8">No hay tareas que coincidan con tus filtros.</p>
           )}
         </div>
       ) : view === "kanban" ? (
