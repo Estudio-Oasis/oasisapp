@@ -100,6 +100,7 @@ const TimerContext = createContext<TimerContextType>({
   startTimer: async () => {},
   stopTimer: async () => false,
   switchTask: async () => {},
+  startBreakTimer: async () => {},
   setManualStatus: async () => {},
 });
 
