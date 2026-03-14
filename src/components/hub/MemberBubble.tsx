@@ -7,8 +7,20 @@ interface MemberBubbleProps {
   statusLabel: string;
   currentClient: string | null;
   currentTask: string | null;
+  lastSeenAt?: string;
   isMe?: boolean;
   onClick: () => void;
+}
+
+function formatLastSeen(isoDate: string): string {
+  const diff = Date.now() - new Date(isoDate).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "hace un momento";
+  if (mins < 60) return `hace ${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `hace ${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `hace ${days}d`;
 }
 
 const statusColors = {
@@ -25,7 +37,7 @@ const statusDot = {
   offline: "bg-foreground-muted",
 };
 
-export function MemberBubble({ name, avatarUrl, status, statusLabel, currentClient, currentTask, isMe, onClick }: MemberBubbleProps) {
+export function MemberBubble({ name, avatarUrl, status, statusLabel, currentClient, currentTask, lastSeenAt, isMe, onClick }: MemberBubbleProps) {
   const initials = name
     .split(" ")
     .map((w) => w[0])
@@ -82,7 +94,12 @@ export function MemberBubble({ name, avatarUrl, status, statusLabel, currentClie
             )}
           </>
         ) : (
-          <span className="text-[10px] text-foreground-muted">{statusLabel}</span>
+          <>
+            <span className="text-[10px] text-foreground-muted">{statusLabel}</span>
+            {status === "offline" && lastSeenAt && (
+              <span className="text-[9px] text-foreground-muted/60">{formatLastSeen(lastSeenAt)}</span>
+            )}
+          </>
         )}
       </div>
     </button>

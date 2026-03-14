@@ -20,6 +20,7 @@ import FinancesPage from "./pages/Finances";
 import SettingsPage from "./pages/Settings";
 import HubPage from "./pages/Hub";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
                   <Route path="/tasks" element={<TasksPage />} />
                   <Route path="/finances" element={<FinancesPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />
               </Routes>
