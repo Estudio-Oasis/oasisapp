@@ -157,12 +157,10 @@ export default function ClientsPage() {
           <Users className="h-12 w-12 text-border mb-4" />
           <h2 className="text-h3 text-foreground">No clients yet</h2>
           <p className="text-sm text-foreground-secondary mt-2">Add your first client to start tracking time and revenue.</p>
-          {isAdmin && (
-            <Button onClick={() => setModalOpen(true)} className="mt-4">
-              <Plus className="h-4 w-4" />
-              New client
-            </Button>
-          )}
+          <Button onClick={() => setModalOpen(true)} className="mt-4">
+            <Plus className="h-4 w-4" />
+            New client
+          </Button>
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">No clients match your filters.</div>
