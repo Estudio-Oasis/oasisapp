@@ -148,6 +148,38 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     [calcElapsed]
   );
 
+  // Helper to stop an offline/break timer if one is running
+  const stopOfflineTimerIfRunning = useCallback(async () => {
+    if (!userId) return;
+    // Check if there's an open entry with "Offline" description
+    const { data: offlineEntry } = await supabase
+      .from("time_entries")
+      .select("id")
+      .eq("user_id", userId)
+      .is("ended_at", null)
+      .eq("description", "Offline")
+      .maybeSingle();
+
+    if (offlineEntry) {
+      const endedAt = new Date().toISOString();
+      await supabase
+        .from("time_entries")
+        .update({ ended_at: endedAt })
+        .eq("id", offlineEntry.id)
+        .is("ended_at", null);
+
+      // Clear local timer state if it matches
+      if (state.activeEntry?.id === offlineEntry.id) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+        clearPersistedActiveEntry();
+        resetTimerState();
+      }
+    }
+  }, [userId, state.activeEntry?.id, resetTimerState]);
+
   // === ALWAYS-ON PRESENCE: heartbeat every 30s while user is logged in ===
   useEffect(() => {
     if (!userId) return;
@@ -161,8 +193,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         .eq("user_id", userId)
         .maybeSingle();
 
-      // If no row exists or status is offline, set to online
+      // If no row exists or status is offline, set to online and stop offline timer
       if (!data || data.status === "offline") {
+        await stopOfflineTimerIfRunning();
         await upsertPresence(userId, "online");
       } else {
         // Just update last_seen_at to keep alive
