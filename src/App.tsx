@@ -20,6 +20,7 @@ import FinancesPage from "./pages/Finances";
 import SettingsPage from "./pages/Settings";
 import HubPage from "./pages/Hub";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
