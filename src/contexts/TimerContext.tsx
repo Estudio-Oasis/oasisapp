@@ -219,9 +219,13 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         .maybeSingle();
 
       if (data) {
+        const wasOffline = data.status === "offline";
+        if (wasOffline) {
+          await stopOfflineTimerIfRunning();
+        }
         await supabase.from("member_presence").upsert({
           user_id: userId,
-          status: data.status === "offline" ? "online" : data.status,
+          status: wasOffline ? "online" : data.status,
           current_client: data.current_client,
           current_task: data.current_task,
           last_seen_at: new Date().toISOString(),
