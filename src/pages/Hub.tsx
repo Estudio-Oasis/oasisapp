@@ -295,7 +295,6 @@ export default function HubPage() {
                 onClick={() => handleMemberClick(m.user_id)}
               />
             ))}
-            ))}
           </div>
         )}
       </div>
