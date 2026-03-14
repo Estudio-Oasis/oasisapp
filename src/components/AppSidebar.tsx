@@ -27,6 +27,7 @@ const allNavItems = [
   { title: "Clientes", url: "/clients", icon: Users },
   { title: "Tareas", url: "/tasks", icon: CheckSquare, tourId: "tasks" },
   { title: "Finanzas", url: "/finances", icon: DollarSign, adminOnly: true },
+  { title: "Admin", url: "/admin", icon: LayoutDashboard, adminOnly: true },
   { title: "Ajustes", url: "/settings", icon: Settings },
 ];
 
