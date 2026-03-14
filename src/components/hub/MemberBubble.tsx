@@ -7,8 +7,20 @@ interface MemberBubbleProps {
   statusLabel: string;
   currentClient: string | null;
   currentTask: string | null;
+  lastSeenAt?: string;
   isMe?: boolean;
   onClick: () => void;
+}
+
+function formatLastSeen(isoDate: string): string {
+  const diff = Date.now() - new Date(isoDate).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "hace un momento";
+  if (mins < 60) return `hace ${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `hace ${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `hace ${days}d`;
 }
 
 const statusColors = {
