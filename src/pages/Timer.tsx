@@ -95,7 +95,11 @@ export default function TimerPage() {
     setEntries(typedData);
 
     if (view === "today") {
-      detectGaps(typedData);
+      // Always use only current user's entries for gap detection
+      const myEntries = entryFilter === "all" && user
+        ? typedData.filter(e => e.user_id === user.id)
+        : typedData;
+      detectGaps(myEntries);
     } else {
       setGaps([]);
     }
