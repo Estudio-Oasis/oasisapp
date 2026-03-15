@@ -536,7 +536,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     };
     const toastMsg = toastMessages[breakType || "break"] || "☕ Comenzaste un break";
     toast(toastMsg, { duration: 3000 });
-    }
 
     persistActiveEntry(entry);
     await upsertPresence(userId, breakType || "break", null, label);
