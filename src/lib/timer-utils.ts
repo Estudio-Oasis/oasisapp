@@ -43,7 +43,7 @@ export function getClientColor(name: string): string {
  * Format time as "2:30 PM"
  */
 export function formatTime(date: Date): string {
-  return date.toLocaleTimeString("en-US", {
+  return date.toLocaleTimeString("es-MX", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
