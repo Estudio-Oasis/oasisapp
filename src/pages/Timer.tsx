@@ -107,7 +107,7 @@ export default function TimerPage() {
     } else {
       setGaps([]);
     }
-  }, [user, view, entryFilter, workStartHour, workStartMinute]);
+  }, [user, view, entryFilter, workStartHour, workStartMinute, workEndHour, workEndMinute]);
 
   useEffect(() => {
     fetchProfiles();
