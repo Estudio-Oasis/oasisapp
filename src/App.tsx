@@ -41,6 +41,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/setup" element={<SetupPage />} />
+              <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
                 <Route
                   element={
                     <ProtectedRoute>

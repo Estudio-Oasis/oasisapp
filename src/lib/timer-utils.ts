@@ -65,8 +65,8 @@ export function formatDateLong(date: Date): string {
  * Format date as "Monday · Mar 10"
  */
 export function formatDayHeader(date: Date): string {
-  const weekday = date.toLocaleDateString("en-US", { weekday: "long" });
-  const monthDay = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const weekday = date.toLocaleDateString("es-MX", { weekday: "long" });
+  const monthDay = date.toLocaleDateString("es-MX", { month: "short", day: "numeric" });
   return `${weekday} · ${monthDay}`;
 }
 
