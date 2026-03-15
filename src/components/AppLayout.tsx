@@ -45,6 +45,7 @@ export function AppLayout() {
 
         {/* Mobile bottom nav */}
         <BottomNav />
+        <TimerFAB />
       </div>
     </SidebarProvider>
   );
