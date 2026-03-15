@@ -1,6 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { BottomNav } from "@/components/BottomNav";
+import { TimerFAB } from "@/components/TimerFAB";
 import { Outlet, useLocation } from "react-router-dom";
 
 const pageTitles: Record<string, string> = {
