@@ -98,7 +98,7 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     setSavingSchedule(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ work_start_hour: workStartHour, work_start_minute: workStartMinute } as any)
+      .update({ work_start_hour: workStartHour, work_start_minute: workStartMinute, work_end_hour: workEndHour, work_end_minute: workEndMinute } as any)
       .eq("id", user.id);
     setSavingSchedule(false);
     if (error) {
