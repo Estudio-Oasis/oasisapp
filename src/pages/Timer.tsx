@@ -183,6 +183,18 @@ export default function TimerPage() {
     setModalOpen(true);
   };
 
+  const BREAK_LABELS = ["Break", "Comiendo", "AFK", "Reunión", "Offline"];
+
+  const getBreakIcon = (desc: string | null) => {
+    switch (desc) {
+      case "Comiendo": return Utensils;
+      case "AFK": return Bath;
+      case "Reunión": return Video;
+      case "Offline": return Moon;
+      default: return Coffee;
+    }
+  };
+
   const renderEntry = (entry: EntryWithRelations) => {
     const clientName = entry.clients?.name || "Sin cliente";
     const taskTitle = entry.tasks?.title;
@@ -191,9 +203,25 @@ export default function TimerPage() {
     const end = entry.ended_at ? new Date(entry.ended_at) : null;
     const dur = Number(entry.duration_min) || 0;
 
+    const isBreak = !entry.client_id && BREAK_LABELS.includes(entry.description || "");
+    const isOffline = entry.description === "Offline";
+    const BreakIcon = isBreak ? getBreakIcon(entry.description) : null;
+
+    const barColor = isOffline
+      ? "hsl(var(--muted-foreground))"
+      : isBreak
+        ? "hsl(var(--accent))"
+        : getClientColor(clientName);
+
     return (
-      <div key={entry.id} className="flex items-center gap-3 border-b border-border py-3.5">
-        <div className="w-[3px] h-8 rounded-sm shrink-0" style={{ backgroundColor: getClientColor(clientName) }} />
+      <div key={entry.id} className={`flex items-center gap-3 border-b border-border py-3.5 ${isBreak ? "opacity-75" : ""}`}>
+        {isBreak && BreakIcon ? (
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${isOffline ? "bg-muted" : "bg-accent/15"}`}>
+            <BreakIcon className={`h-3.5 w-3.5 ${isOffline ? "text-muted-foreground" : "text-accent"}`} />
+          </div>
+        ) : (
+          <div className="w-[3px] h-8 rounded-sm shrink-0" style={{ backgroundColor: barColor }} />
+        )}
         {entryFilter === "all" && (
           <div
             className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-background shrink-0"
@@ -204,14 +232,28 @@ export default function TimerPage() {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-foreground truncate">
-            {taskTitle || <span className="text-foreground-muted font-normal">Sin tarea</span>}
-          </p>
-          <p className="text-xs text-foreground-secondary truncate">
-            {clientName}
-            {entryFilter === "all" && <span className="text-foreground-muted"> · {loggerName}</span>}
-            {entry.description && <span className="text-foreground-muted"> · {entry.description}</span>}
-          </p>
+          {isBreak ? (
+            <>
+              <p className="text-sm font-medium text-foreground-muted truncate italic">
+                {entry.description}
+              </p>
+              <p className="text-xs text-foreground-muted truncate">
+                Sin tarea · {entry.description}
+                {entryFilter === "all" && <span> · {loggerName}</span>}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-medium text-foreground truncate">
+                {taskTitle || <span className="text-foreground-muted font-normal">Sin tarea</span>}
+              </p>
+              <p className="text-xs text-foreground-secondary truncate">
+                {clientName}
+                {entryFilter === "all" && <span className="text-foreground-muted"> · {loggerName}</span>}
+                {entry.description && <span className="text-foreground-muted"> · {entry.description}</span>}
+              </p>
+            </>
+          )}
         </div>
         <div className="text-right shrink-0">
           <p className="text-small text-foreground-secondary">
