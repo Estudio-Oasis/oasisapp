@@ -31,7 +31,7 @@ export default function Login() {
       <div className="w-full max-w-[400px] rounded-lg border border-border bg-card p-10">
         {/* Logo */}
         <div className="flex justify-center">
-          <Link to="/landing" className="flex h-9 w-9 items-center justify-center rounded-md bg-foreground hover:opacity-80 transition-opacity">
+          <Link to="/" className="flex h-9 w-9 items-center justify-center rounded-md bg-foreground hover:opacity-80 transition-opacity">
             <span className="text-[11px] font-bold tracking-widest text-background">OS</span>
           </Link>
         </div>
