@@ -107,8 +107,8 @@ Deno.serve(async (req) => {
       return jsonResponse({ code: "db_error", error: inviteRecordErr.message }, 400);
     }
 
-    // Always redirect to the published app URL to avoid Lovable auth-bridge interception
-    const redirectTo = "https://oasisapp.lovable.app/setup";
+    // Always redirect to the canonical app URL to avoid auth-bridge interception
+    const redirectTo = "https://www.estudiooasis.com/setup";
 
     // Try inviting via Auth (new users)
     const { error: inviteErr } = await withRetry(
