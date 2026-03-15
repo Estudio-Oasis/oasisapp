@@ -48,6 +48,8 @@ export default function TimerPage() {
   const [gapPrefill, setGapPrefill] = useState<{ start: string; end: string } | null>(null);
   const [workStartHour, setWorkStartHour] = useState(9);
   const [workStartMinute, setWorkStartMinute] = useState(0);
+  const [workEndHour, setWorkEndHour] = useState(18);
+  const [workEndMinute, setWorkEndMinute] = useState(0);
 
   // Fetch user's work schedule
   useEffect(() => {
