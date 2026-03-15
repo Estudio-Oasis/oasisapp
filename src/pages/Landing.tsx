@@ -112,6 +112,9 @@ function Navbar() {
               {l.label}
             </a>
           ))}
+          <a href="/login" onClick={() => setMobileOpen(false)} className="block text-sm text-[#6B6B6B] hover:text-[#1A1A1A]">
+            Iniciar sesión
+          </a>
           <a href="#contacto" onClick={() => setMobileOpen(false)} className="block text-sm font-semibold text-[#1A1A1A]">
             Agendar llamada →
           </a>
