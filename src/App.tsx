@@ -8,7 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { TimerProvider } from "@/contexts/TimerContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
-import { TimerFAB } from "@/components/TimerFAB";
+
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import TimerPage from "./pages/Timer";
