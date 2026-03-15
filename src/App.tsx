@@ -22,6 +22,7 @@ import HubPage from "./pages/Hub";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import LandingPage from "./pages/Landing";
+import PlaygroundActivityEngine from "./pages/PlaygroundActivityEngine";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/setup" element={<SetupPage />} />
+              <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
                 <Route
                   element={
                     <ProtectedRoute>

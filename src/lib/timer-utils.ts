@@ -43,7 +43,7 @@ export function getClientColor(name: string): string {
  * Format time as "2:30 PM"
  */
 export function formatTime(date: Date): string {
-  return date.toLocaleTimeString("en-US", {
+  return date.toLocaleTimeString("es-MX", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
@@ -54,7 +54,7 @@ export function formatTime(date: Date): string {
  * Format date as "Thursday, March 12"
  */
 export function formatDateLong(date: Date): string {
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString("es-MX", {
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -65,8 +65,8 @@ export function formatDateLong(date: Date): string {
  * Format date as "Monday · Mar 10"
  */
 export function formatDayHeader(date: Date): string {
-  const weekday = date.toLocaleDateString("en-US", { weekday: "long" });
-  const monthDay = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const weekday = date.toLocaleDateString("es-MX", { weekday: "long" });
+  const monthDay = date.toLocaleDateString("es-MX", { month: "short", day: "numeric" });
   return `${weekday} · ${monthDay}`;
 }
 
