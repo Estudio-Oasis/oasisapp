@@ -126,11 +126,17 @@ export default function TimerPage() {
     const workdayStart = new Date(today);
     workdayStart.setHours(workStartHour, workStartMinute, 0, 0);
 
-    if (today.getTime() >= workdayStart.getTime()) {
+    const workdayEnd = new Date(today);
+    workdayEnd.setHours(workEndHour, workEndMinute, 0, 0);
+
+    // Cap detection at workday end or now, whichever is earlier
+    const capTime = Math.min(Date.now(), workdayEnd.getTime());
+
+    if (today.getTime() >= workdayStart.getTime() && capTime > workdayStart.getTime()) {
       if (sorted.length === 0) {
-        const gapMin = Math.round((Date.now() - workdayStart.getTime()) / 60000);
+        const gapMin = Math.round((capTime - workdayStart.getTime()) / 60000);
         if (gapMin > THRESHOLD) {
-          foundGaps.push({ startTime: workdayStart, endTime: new Date(), durationMin: gapMin });
+          foundGaps.push({ startTime: workdayStart, endTime: new Date(capTime), durationMin: gapMin });
         }
       } else {
         const firstStart = new Date(sorted[0].started_at);
@@ -144,9 +150,12 @@ export default function TimerPage() {
     for (let i = 0; i < sorted.length - 1; i++) {
       const currEnd = new Date(sorted[i].ended_at!);
       const nextStart = new Date(sorted[i + 1].started_at);
-      const gapMin = Math.round((nextStart.getTime() - currEnd.getTime()) / 60000);
+      // Skip gaps that start after workday end
+      if (currEnd.getTime() >= workdayEnd.getTime()) continue;
+      const clampedNext = Math.min(nextStart.getTime(), workdayEnd.getTime());
+      const gapMin = Math.round((clampedNext - currEnd.getTime()) / 60000);
       if (gapMin > THRESHOLD) {
-        foundGaps.push({ startTime: currEnd, endTime: nextStart, durationMin: gapMin });
+        foundGaps.push({ startTime: currEnd, endTime: new Date(clampedNext), durationMin: gapMin });
       }
     }
 
