@@ -16,7 +16,7 @@ import {
   startOfDay,
   startOfWeek,
 } from "@/lib/timer-utils";
-import { Clock, AlertTriangle, Loader2, Plus } from "lucide-react";
+import { Clock, AlertTriangle, Loader2, Plus, Coffee, Utensils, Bath, Video, Moon } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type TimeEntry = Tables<"time_entries">;
