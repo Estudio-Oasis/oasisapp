@@ -56,13 +56,15 @@ export default function TimerPage() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("work_start_hour, work_start_minute")
+      .select("work_start_hour, work_start_minute, work_end_hour, work_end_minute")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
         if (data) {
           setWorkStartHour((data as any).work_start_hour ?? 9);
           setWorkStartMinute((data as any).work_start_minute ?? 0);
+          setWorkEndHour((data as any).work_end_hour ?? 18);
+          setWorkEndMinute((data as any).work_end_minute ?? 0);
         }
       });
   }, [user]);
