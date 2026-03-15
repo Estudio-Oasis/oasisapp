@@ -87,6 +87,9 @@ function Navbar() {
               {l.label}
             </a>
           ))}
+          <a href="/login" className="text-[13px] font-medium text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors">
+            Iniciar sesión
+          </a>
           <a
             href="#contacto"
             className="h-9 px-5 rounded-full bg-[#1A1A1A] text-[#FAFAF8] text-[13px] font-semibold flex items-center gap-1.5 hover:bg-[#333] transition-colors"
@@ -109,6 +112,9 @@ function Navbar() {
               {l.label}
             </a>
           ))}
+          <a href="/login" onClick={() => setMobileOpen(false)} className="block text-sm text-[#6B6B6B] hover:text-[#1A1A1A]">
+            Iniciar sesión
+          </a>
           <a href="#contacto" onClick={() => setMobileOpen(false)} className="block text-sm font-semibold text-[#1A1A1A]">
             Agendar llamada →
           </a>
