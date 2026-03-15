@@ -22,6 +22,7 @@ import HubPage from "./pages/Hub";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import LandingPage from "./pages/Landing";
+import PlaygroundActivityEngine from "./pages/PlaygroundActivityEngine";
 
 const queryClient = new QueryClient();
 
