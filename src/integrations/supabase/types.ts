@@ -754,6 +754,8 @@ export type Database = {
           onboarded: boolean
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string
+          work_end_hour: number
+          work_end_minute: number
           work_start_hour: number
           work_start_minute: number
         }
@@ -768,6 +770,8 @@ export type Database = {
           onboarded?: boolean
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
+          work_end_hour?: number
+          work_end_minute?: number
           work_start_hour?: number
           work_start_minute?: number
         }
@@ -782,6 +786,8 @@ export type Database = {
           onboarded?: boolean
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
+          work_end_hour?: number
+          work_end_minute?: number
           work_start_hour?: number
           work_start_minute?: number
         }

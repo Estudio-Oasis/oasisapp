@@ -16,7 +16,7 @@ import {
   startOfDay,
   startOfWeek,
 } from "@/lib/timer-utils";
-import { Clock, AlertTriangle, Loader2, Plus } from "lucide-react";
+import { Clock, AlertTriangle, Loader2, Plus, Coffee, Utensils, Bath, Video, Moon } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type TimeEntry = Tables<"time_entries">;
@@ -48,19 +48,23 @@ export default function TimerPage() {
   const [gapPrefill, setGapPrefill] = useState<{ start: string; end: string } | null>(null);
   const [workStartHour, setWorkStartHour] = useState(9);
   const [workStartMinute, setWorkStartMinute] = useState(0);
+  const [workEndHour, setWorkEndHour] = useState(18);
+  const [workEndMinute, setWorkEndMinute] = useState(0);
 
   // Fetch user's work schedule
   useEffect(() => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("work_start_hour, work_start_minute")
+      .select("work_start_hour, work_start_minute, work_end_hour, work_end_minute")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
         if (data) {
           setWorkStartHour((data as any).work_start_hour ?? 9);
           setWorkStartMinute((data as any).work_start_minute ?? 0);
+          setWorkEndHour((data as any).work_end_hour ?? 18);
+          setWorkEndMinute((data as any).work_end_minute ?? 0);
         }
       });
   }, [user]);
@@ -103,7 +107,7 @@ export default function TimerPage() {
     } else {
       setGaps([]);
     }
-  }, [user, view, entryFilter, workStartHour, workStartMinute]);
+  }, [user, view, entryFilter, workStartHour, workStartMinute, workEndHour, workEndMinute]);
 
   useEffect(() => {
     fetchProfiles();
@@ -122,11 +126,17 @@ export default function TimerPage() {
     const workdayStart = new Date(today);
     workdayStart.setHours(workStartHour, workStartMinute, 0, 0);
 
-    if (today.getTime() >= workdayStart.getTime()) {
+    const workdayEnd = new Date(today);
+    workdayEnd.setHours(workEndHour, workEndMinute, 0, 0);
+
+    // Cap detection at workday end or now, whichever is earlier
+    const capTime = Math.min(Date.now(), workdayEnd.getTime());
+
+    if (today.getTime() >= workdayStart.getTime() && capTime > workdayStart.getTime()) {
       if (sorted.length === 0) {
-        const gapMin = Math.round((Date.now() - workdayStart.getTime()) / 60000);
+        const gapMin = Math.round((capTime - workdayStart.getTime()) / 60000);
         if (gapMin > THRESHOLD) {
-          foundGaps.push({ startTime: workdayStart, endTime: new Date(), durationMin: gapMin });
+          foundGaps.push({ startTime: workdayStart, endTime: new Date(capTime), durationMin: gapMin });
         }
       } else {
         const firstStart = new Date(sorted[0].started_at);
@@ -140,9 +150,12 @@ export default function TimerPage() {
     for (let i = 0; i < sorted.length - 1; i++) {
       const currEnd = new Date(sorted[i].ended_at!);
       const nextStart = new Date(sorted[i + 1].started_at);
-      const gapMin = Math.round((nextStart.getTime() - currEnd.getTime()) / 60000);
+      // Skip gaps that start after workday end
+      if (currEnd.getTime() >= workdayEnd.getTime()) continue;
+      const clampedNext = Math.min(nextStart.getTime(), workdayEnd.getTime());
+      const gapMin = Math.round((clampedNext - currEnd.getTime()) / 60000);
       if (gapMin > THRESHOLD) {
-        foundGaps.push({ startTime: currEnd, endTime: nextStart, durationMin: gapMin });
+        foundGaps.push({ startTime: currEnd, endTime: new Date(clampedNext), durationMin: gapMin });
       }
     }
 
@@ -170,6 +183,18 @@ export default function TimerPage() {
     setModalOpen(true);
   };
 
+  const BREAK_LABELS = ["Break", "Comiendo", "AFK", "Reunión", "Offline"];
+
+  const getBreakIcon = (desc: string | null) => {
+    switch (desc) {
+      case "Comiendo": return Utensils;
+      case "AFK": return Bath;
+      case "Reunión": return Video;
+      case "Offline": return Moon;
+      default: return Coffee;
+    }
+  };
+
   const renderEntry = (entry: EntryWithRelations) => {
     const clientName = entry.clients?.name || "Sin cliente";
     const taskTitle = entry.tasks?.title;
@@ -178,9 +203,25 @@ export default function TimerPage() {
     const end = entry.ended_at ? new Date(entry.ended_at) : null;
     const dur = Number(entry.duration_min) || 0;
 
+    const isBreak = !entry.client_id && BREAK_LABELS.includes(entry.description || "");
+    const isOffline = entry.description === "Offline";
+    const BreakIcon = isBreak ? getBreakIcon(entry.description) : null;
+
+    const barColor = isOffline
+      ? "hsl(var(--muted-foreground))"
+      : isBreak
+        ? "hsl(var(--accent))"
+        : getClientColor(clientName);
+
     return (
-      <div key={entry.id} className="flex items-center gap-3 border-b border-border py-3.5">
-        <div className="w-[3px] h-8 rounded-sm shrink-0" style={{ backgroundColor: getClientColor(clientName) }} />
+      <div key={entry.id} className={`flex items-center gap-3 border-b border-border py-3.5 ${isBreak ? "opacity-75" : ""}`}>
+        {isBreak && BreakIcon ? (
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${isOffline ? "bg-muted" : "bg-accent/15"}`}>
+            <BreakIcon className={`h-3.5 w-3.5 ${isOffline ? "text-muted-foreground" : "text-accent"}`} />
+          </div>
+        ) : (
+          <div className="w-[3px] h-8 rounded-sm shrink-0" style={{ backgroundColor: barColor }} />
+        )}
         {entryFilter === "all" && (
           <div
             className="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-background shrink-0"
@@ -191,14 +232,28 @@ export default function TimerPage() {
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-foreground truncate">
-            {taskTitle || <span className="text-foreground-muted font-normal">Sin tarea</span>}
-          </p>
-          <p className="text-xs text-foreground-secondary truncate">
-            {clientName}
-            {entryFilter === "all" && <span className="text-foreground-muted"> · {loggerName}</span>}
-            {entry.description && <span className="text-foreground-muted"> · {entry.description}</span>}
-          </p>
+          {isBreak ? (
+            <>
+              <p className="text-sm font-medium text-foreground-muted truncate italic">
+                {entry.description}
+              </p>
+              <p className="text-xs text-foreground-muted truncate">
+                Sin tarea · {entry.description}
+                {entryFilter === "all" && <span> · {loggerName}</span>}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-medium text-foreground truncate">
+                {taskTitle || <span className="text-foreground-muted font-normal">Sin tarea</span>}
+              </p>
+              <p className="text-xs text-foreground-secondary truncate">
+                {clientName}
+                {entryFilter === "all" && <span className="text-foreground-muted"> · {loggerName}</span>}
+                {entry.description && <span className="text-foreground-muted"> · {entry.description}</span>}
+              </p>
+            </>
+          )}
         </div>
         <div className="text-right shrink-0">
           <p className="text-small text-foreground-secondary">

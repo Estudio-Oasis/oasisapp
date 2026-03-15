@@ -526,6 +526,17 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // Toast de confirmación
+    const toastMessages: Record<string, string> = {
+      break: "☕ Comenzaste un break",
+      eating: "🍽️ Comenzaste un break para comer",
+      bathroom: "🚿 Te marcaste como AFK",
+      meeting: "📹 Entraste a una reunión",
+      offline: "🌙 Te marcaste como offline",
+    };
+    const toastMsg = toastMessages[breakType || "break"] || "☕ Comenzaste un break";
+    toast(toastMsg, { duration: 3000 });
+
     persistActiveEntry(entry);
     await upsertPresence(userId, breakType || "break", null, label);
 

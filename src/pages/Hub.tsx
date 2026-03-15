@@ -8,6 +8,7 @@ import { ChatPanel } from "@/components/hub/ChatPanel";
 import { ChatList } from "@/components/hub/ChatList";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Coffee, Utensils, Bath, Monitor, Moon, Video } from "lucide-react";
 import { StartTimerModal } from "@/components/StartTimerModal";
 
@@ -251,27 +252,35 @@ export default function HubPage() {
       {/* Quick status buttons for current user */}
       <div>
         <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Tu estado</h2>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { status: "online", icon: Monitor, label: "En línea" },
-            { status: "break", icon: Coffee, label: "Break" },
-            { status: "eating", icon: Utensils, label: "Comiendo" },
-            { status: "bathroom", icon: Bath, label: "AFK" },
-            { status: "meeting", icon: Video, label: "Reunión" },
-            { status: "offline", icon: Moon, label: "Offline" },
-          ].map(({ status, icon: Icon, label }) => (
-            <Button
-              key={status}
-              variant={myStatus === status ? "default" : "outline"}
-              size="sm"
-              className="gap-1.5 text-xs"
-              onClick={() => handleStatusChange(status)}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {label}
-            </Button>
-          ))}
-        </div>
+        <TooltipProvider delayDuration={300}>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { status: "online", icon: Monitor, label: "En línea", tip: "Disponible para trabajar. Abre el timer para comenzar." },
+              { status: "break", icon: Coffee, label: "Break", tip: "Tómate un descanso. Se registra automáticamente." },
+              { status: "eating", icon: Utensils, label: "Comiendo", tip: "Hora de comer. Se registra como pausa." },
+              { status: "bathroom", icon: Bath, label: "AFK", tip: "Lejos del teclado por un momento." },
+              { status: "meeting", icon: Video, label: "Reunión", tip: "En una llamada o reunión." },
+              { status: "offline", icon: Moon, label: "Offline", tip: "Fuera de línea. Se detiene cualquier timer activo." },
+            ].map(({ status, icon: Icon, label, tip }) => (
+              <Tooltip key={status}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={myStatus === status ? "default" : "outline"}
+                    size="sm"
+                    className="gap-1.5 text-xs transition-all duration-200 active:scale-95"
+                    onClick={() => handleStatusChange(status)}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {label}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs max-w-[200px]">
+                  {tip}
+                </TooltipContent>
+              </Tooltip>
+            ))}
+          </div>
+        </TooltipProvider>
       </div>
 
       {/* Member bubbles */}

@@ -51,6 +51,8 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [workStartHour, setWorkStartHour] = useState(9);
   const [workStartMinute, setWorkStartMinute] = useState(0);
+  const [workEndHour, setWorkEndHour] = useState(18);
+  const [workEndMinute, setWorkEndMinute] = useState(0);
   const [savingSchedule, setSavingSchedule] = useState(false);
 
   const loadTeamData = async () => {
@@ -77,13 +79,15 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     if (open && user) {
       supabase
         .from("profiles")
-        .select("work_start_hour, work_start_minute")
+        .select("work_start_hour, work_start_minute, work_end_hour, work_end_minute")
         .eq("id", user.id)
         .single()
         .then(({ data }) => {
           if (data) {
             setWorkStartHour((data as any).work_start_hour ?? 9);
             setWorkStartMinute((data as any).work_start_minute ?? 0);
+            setWorkEndHour((data as any).work_end_hour ?? 18);
+            setWorkEndMinute((data as any).work_end_minute ?? 0);
           }
         });
     }
@@ -94,7 +98,7 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     setSavingSchedule(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ work_start_hour: workStartHour, work_start_minute: workStartMinute } as any)
+      .update({ work_start_hour: workStartHour, work_start_minute: workStartMinute, work_end_hour: workEndHour, work_end_minute: workEndMinute } as any)
       .eq("id", user.id);
     setSavingSchedule(false);
     if (error) {
@@ -344,38 +348,39 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
             )}
 
             {/* Work schedule */}
-            <div className="space-y-1.5">
+            <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-foreground-muted" />
                 <label className="text-label">Horario de trabajo</label>
               </div>
               <p className="text-xs text-foreground-muted">
-                Hora de inicio de tu jornada laboral (para detección de tiempo sin registrar)
+                Rango de tu jornada laboral (para detección de tiempo sin registrar)
               </p>
-              <div className="flex items-center gap-2">
-                <select
-                  value={workStartHour}
-                  onChange={(e) => setWorkStartHour(Number(e.target.value))}
-                  className="rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground"
-                >
-                  {Array.from({ length: 24 }, (_, i) => (
-                    <option key={i} value={i}>{String(i).padStart(2, "0")}</option>
-                  ))}
-                </select>
-                <span className="text-foreground-muted font-medium">:</span>
-                <select
-                  value={workStartMinute}
-                  onChange={(e) => setWorkStartMinute(Number(e.target.value))}
-                  className="rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground"
-                >
-                  {[0, 15, 30, 45].map((m) => (
-                    <option key={m} value={m}>{String(m).padStart(2, "0")}</option>
-                  ))}
-                </select>
-                <Button size="sm" onClick={handleSaveSchedule} disabled={savingSchedule}>
-                  {savingSchedule ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
-                </Button>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-foreground-muted w-12">Inicio</span>
+                  <select value={workStartHour} onChange={(e) => setWorkStartHour(Number(e.target.value))} className="rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground">
+                    {Array.from({ length: 24 }, (_, i) => (<option key={i} value={i}>{String(i).padStart(2, "0")}</option>))}
+                  </select>
+                  <span className="text-foreground-muted font-medium">:</span>
+                  <select value={workStartMinute} onChange={(e) => setWorkStartMinute(Number(e.target.value))} className="rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground">
+                    {[0, 15, 30, 45].map((m) => (<option key={m} value={m}>{String(m).padStart(2, "0")}</option>))}
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-foreground-muted w-12">Fin</span>
+                  <select value={workEndHour} onChange={(e) => setWorkEndHour(Number(e.target.value))} className="rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground">
+                    {Array.from({ length: 24 }, (_, i) => (<option key={i} value={i}>{String(i).padStart(2, "0")}</option>))}
+                  </select>
+                  <span className="text-foreground-muted font-medium">:</span>
+                  <select value={workEndMinute} onChange={(e) => setWorkEndMinute(Number(e.target.value))} className="rounded-md border border-border bg-background px-2 py-1.5 text-sm text-foreground">
+                    {[0, 15, 30, 45].map((m) => (<option key={m} value={m}>{String(m).padStart(2, "0")}</option>))}
+                  </select>
+                </div>
               </div>
+              <Button size="sm" onClick={handleSaveSchedule} disabled={savingSchedule}>
+                {savingSchedule ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar horario"}
+              </Button>
             </div>
 
             {/* Theme */}
