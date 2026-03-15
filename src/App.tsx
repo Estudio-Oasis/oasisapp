@@ -35,6 +35,7 @@ const App = () => (
           <AuthProvider>
             <TimerProvider>
               <Routes>
+              <Route path="/landing" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/setup" element={<SetupPage />} />
