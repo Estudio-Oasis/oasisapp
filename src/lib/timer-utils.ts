@@ -54,7 +54,7 @@ export function formatTime(date: Date): string {
  * Format date as "Thursday, March 12"
  */
 export function formatDateLong(date: Date): string {
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString("es-MX", {
     weekday: "long",
     month: "long",
     day: "numeric",
