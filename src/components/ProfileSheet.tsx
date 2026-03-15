@@ -51,6 +51,8 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [workStartHour, setWorkStartHour] = useState(9);
   const [workStartMinute, setWorkStartMinute] = useState(0);
+  const [workEndHour, setWorkEndHour] = useState(18);
+  const [workEndMinute, setWorkEndMinute] = useState(0);
   const [savingSchedule, setSavingSchedule] = useState(false);
 
   const loadTeamData = async () => {
