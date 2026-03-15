@@ -21,6 +21,7 @@ import SettingsPage from "./pages/Settings";
 import HubPage from "./pages/Hub";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
+import LandingPage from "./pages/Landing";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
           <AuthProvider>
             <TimerProvider>
               <Routes>
+              <Route path="/landing" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/setup" element={<SetupPage />} />
