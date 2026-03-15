@@ -51,7 +51,7 @@ export function DayInsights({ entries, gapCount }: DayInsightsProps) {
   // Decide 3rd insight: client principal if there's a dominant one, else actividad principal
   const hasClientDominance = topClient && topClient[0] !== "Interno";
 
-  const insights = [
+  const insights: { icon: typeof Clock; label: string; value: string }[] = [
     {
       icon: Clock,
       label: UI_COPY.insightTotalLabel,
