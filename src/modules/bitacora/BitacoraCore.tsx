@@ -27,11 +27,10 @@ export function BitacoraCore({ autoOpenSheet = false }: { autoOpenSheet?: boolea
   const [quickSheetOpen, setQuickSheetOpen] = useState(false);
   const autoOpenedRef = useRef(false);
 
-  // Auto-open QuickSheet once in track_day mode when there are no entries
+  // Auto-open QuickSheet once when requested and no entries exist
   useEffect(() => {
     if (autoOpenSheet && !autoOpenedRef.current && !bita.isRunning && vm.entries.length === 0) {
       autoOpenedRef.current = true;
-      // Small delay to let the UI render first
       const t = setTimeout(() => setQuickSheetOpen(true), 400);
       return () => clearTimeout(t);
     }
