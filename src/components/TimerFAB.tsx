@@ -32,9 +32,9 @@ export function TimerFAB() {
             setModalMode("start");
             setModalOpen(true);
           }}
-          className="fixed bottom-[76px] right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-foreground shadow-none md:hidden"
+          className="fixed bottom-[76px] right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-foreground shadow-none md:hidden"
         >
-          <Zap className="h-[18px] w-[18px] text-background" />
+          <Zap className="h-4 w-4 text-background" />
         </button>
         <StartTimerModal open={modalOpen} onOpenChange={setModalOpen} mode={modalMode} />
       </>
@@ -45,21 +45,19 @@ export function TimerFAB() {
     <>
       <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
         <DrawerTrigger asChild>
-          <button className="fixed bottom-[76px] right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-accent md:hidden">
-            <span className="text-[11px] font-bold text-foreground tabular-nums">
+          <button className="fixed bottom-[76px] right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-accent md:hidden">
+            <span className="text-[10px] font-bold text-accent-foreground tabular-nums">
               {formatElapsedShort(elapsedSeconds)}
             </span>
           </button>
         </DrawerTrigger>
         <DrawerContent className="px-6 pb-8">
-          {/* Handle */}
           <div className="mx-auto mt-3 mb-6 h-1 w-8 rounded-full bg-border" />
 
-          {/* Content */}
           <div className="text-center space-y-2">
             <p className="text-h3 text-foreground">{activeClient?.name || activeEntry?.description || "Client"}</p>
             <p className="text-small text-foreground-secondary">
-              {activeTask?.title || (activeClient ? "No specific task" : "")}
+              {activeTask?.title || (activeClient ? "Sin tarea específica" : "")}
             </p>
             <p className="text-display text-accent tabular-nums pt-2">
               {formatElapsed(elapsedSeconds)}
@@ -76,7 +74,7 @@ export function TimerFAB() {
                 setModalOpen(true);
               }}
             >
-              Switch task
+              Cambiar tarea
             </Button>
             <Button
               variant="destructive"
@@ -87,10 +85,10 @@ export function TimerFAB() {
               {isStopping ? (
                 <span className="inline-flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
+                  Guardando...
                 </span>
               ) : (
-                "Stop timer"
+                "Detener timer"
               )}
             </Button>
           </div>
@@ -101,4 +99,3 @@ export function TimerFAB() {
     </>
   );
 }
-

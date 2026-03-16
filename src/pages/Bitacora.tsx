@@ -62,28 +62,17 @@ export default function BitacoraPage() {
     : [];
 
   const todaySummaryText = totalMinutes > 0
-    ? `${formatDuration(totalMinutes)} registradas hoy`
-    : "Sin actividad hoy — ¿empezamos?";
+    ? `${formatDuration(totalMinutes)} registradas`
+    : "Tu día empieza aquí";
 
   const hasData = entries.length > 0 || gaps.length > 0;
 
   return (
-    <div className="space-y-3 max-w-2xl mx-auto">
+    <div className="space-y-2.5 max-w-2xl mx-auto">
       {/* ── CONTROL SURFACE ── */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        {/* Identity + day state */}
-        <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <div className="flex items-baseline gap-2">
-            <span className="text-h3 text-foreground">Bitácora</span>
-            <span className="text-micro text-foreground-muted">{formatDateLong(new Date())}</span>
-          </div>
-          <span className="text-sm font-bold text-foreground tabular-nums">
-            {formatDuration(totalMinutes)}
-          </span>
-        </div>
-
-        {/* Hero: Session or Launcher */}
-        <div className="px-4 pb-3">
+        {/* Launcher — THE primary action */}
+        <div className="p-3 pb-0">
           {isRunning ? (
             <ActiveSessionCard
               variant="expanded"
@@ -105,12 +94,23 @@ export default function BitacoraPage() {
             <QuickLogInput
               onClick={() => { setModalMode("start"); setModalOpen(true); }}
               todaySummary={todaySummaryText}
+              totalMinutes={totalMinutes}
             />
           )}
         </div>
 
-        {/* Timeline */}
-        <div className="px-4 pb-2">
+        {/* Day state — date + timeline integrated */}
+        <div className="px-3 pt-2.5 pb-2">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] font-medium text-foreground-muted uppercase tracking-wider">
+              {formatDateLong(new Date())}
+            </span>
+            {totalMinutes > 0 && (
+              <span className="text-[11px] font-bold text-foreground tabular-nums">
+                {formatDuration(totalMinutes)}
+              </span>
+            )}
+          </div>
           <DayTimeline
             entries={timelineEntries}
             gaps={gaps}
@@ -122,22 +122,22 @@ export default function BitacoraPage() {
           />
         </div>
 
-        {/* Insights */}
+        {/* Insights — compact, only when there's data */}
         {view === "today" && entries.length > 0 && (
-          <div className="border-t border-border px-4 py-2.5">
+          <div className="border-t border-border px-3 py-2">
             <DayInsights entries={entries} gapCount={gaps.length} />
           </div>
         )}
       </div>
 
-      {/* ── FILTERS ── */}
-      <div className="flex items-center gap-2">
-        <div className="inline-flex rounded-lg border border-border bg-card p-0.5 gap-0.5">
+      {/* ── SECONDARY CONTROLS ── */}
+      <div className="flex items-center gap-3">
+        <div className="inline-flex rounded-lg bg-background-tertiary p-0.5 gap-0.5">
           {(["today", "week"] as const).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
                 view === v
                   ? "bg-foreground text-background"
                   : "text-foreground-secondary hover:text-foreground"
@@ -147,12 +147,12 @@ export default function BitacoraPage() {
             </button>
           ))}
         </div>
-        <div className="inline-flex rounded-lg border border-border bg-card p-0.5 gap-0.5">
+        <div className="inline-flex rounded-lg bg-background-tertiary p-0.5 gap-0.5">
           {(["mine", "all"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setEntryFilter(f)}
-              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-[11px] font-medium transition-colors ${
                 entryFilter === f
                   ? "bg-foreground text-background"
                   : "text-foreground-secondary hover:text-foreground"
@@ -164,7 +164,7 @@ export default function BitacoraPage() {
         </div>
         <button
           onClick={() => { setGapPrefill(null); setModalMode("manual"); setModalOpen(true); }}
-          className="ml-auto inline-flex items-center gap-1 text-[11px] font-medium text-foreground-muted hover:text-foreground transition-colors"
+          className="ml-auto inline-flex items-center gap-1 text-[10px] font-medium text-foreground-muted hover:text-foreground transition-colors"
         >
           <Plus className="h-3 w-3" />
           Manual
@@ -179,7 +179,7 @@ export default function BitacoraPage() {
           <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="divide-y divide-border">
               {gaps.map((g, i) => (
-                <div key={`gap-${i}`} className="px-4 py-1">
+                <div key={`gap-${i}`} className="px-3 py-1">
                   <GapAlert
                     startTime={g.startTime}
                     endTime={g.endTime}
@@ -189,7 +189,7 @@ export default function BitacoraPage() {
                 </div>
               ))}
               {entries.map((entry) => (
-                <div key={entry.id} className="px-4">
+                <div key={entry.id} className="px-3">
                   <TimeEntryRow
                     id={entry.id}
                     description={entry.description}
@@ -211,23 +211,23 @@ export default function BitacoraPage() {
       ) : sortedDays.length === 0 ? (
         <EmptyState context="no_entries" />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {sortedDays.map((dayKey) => {
             const dayEntries = groupedByDay[dayKey];
             const dayTotal = dayEntries.reduce((s, e) => s + (Number(e.duration_min) || 0), 0);
             return (
               <div key={dayKey} className="rounded-xl border border-border bg-card overflow-hidden">
-                <div className="flex items-center justify-between bg-background-secondary px-4 py-2">
-                  <span className="text-xs font-semibold text-foreground">
+                <div className="flex items-center justify-between bg-background-secondary px-3 py-2">
+                  <span className="text-[11px] font-semibold text-foreground">
                     {formatDayHeader(new Date(dayKey))}
                   </span>
-                  <span className="text-xs font-semibold text-foreground tabular-nums">
+                  <span className="text-[11px] font-semibold text-foreground tabular-nums">
                     {formatDuration(dayTotal)}
                   </span>
                 </div>
                 <div className="divide-y divide-border">
                   {dayEntries.map((entry) => (
-                    <div key={entry.id} className="px-4">
+                    <div key={entry.id} className="px-3">
                       <TimeEntryRow
                         id={entry.id}
                         description={entry.description}

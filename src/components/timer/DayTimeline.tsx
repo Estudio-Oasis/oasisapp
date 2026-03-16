@@ -99,26 +99,18 @@ export function DayTimeline({
 
   const isEmpty = blocks.length === 0;
 
-  return (
-    <div className="space-y-1">
-      {/* Hour tick marks above */}
-      <div className="relative h-4">
-        {hourMarkers.map((m, i) => (
-          <span
-            key={m.label}
-            className="absolute text-[9px] text-foreground-muted tabular-nums -translate-x-1/2 flex flex-col items-center"
-            style={{ left: `${m.pct}%` }}
-          >
-            {m.label}
-          </span>
-        ))}
-      </div>
+  // Current time indicator position
+  const now = Date.now();
+  const showNowIndicator = now >= dayStart.getTime() && now <= dayEnd.getTime();
+  const nowPct = showNowIndicator ? ((now - dayStart.getTime()) / totalMs) * 100 : 0;
 
-      {/* Timeline bar */}
+  return (
+    <div className="space-y-0">
+      {/* Timeline bar — the instrument's core visual */}
       <div className="relative">
-        <div className="flex h-8 rounded-lg overflow-hidden bg-background-tertiary gap-[1px]">
+        <div className="flex h-6 rounded-md overflow-hidden bg-background-tertiary gap-px">
           {isEmpty ? (
-            // Empty shell — show faint hour divisions to hint at structure
+            // Empty shell — faint hour divisions hint at structure
             hourMarkers.slice(0, -1).map((m, i) => {
               const next = hourMarkers[i + 1];
               if (!next) return null;
@@ -126,7 +118,7 @@ export function DayTimeline({
               return (
                 <div
                   key={`slot-${i}`}
-                  className="h-full bg-background-tertiary border-r border-border/30 last:border-r-0"
+                  className="h-full bg-background-tertiary border-r border-border/20 last:border-r-0"
                   style={{ width: `${width}%` }}
                 />
               );
@@ -142,7 +134,7 @@ export function DayTimeline({
                     <TooltipTrigger asChild>
                       <button
                         onClick={() => onGapClick?.(block.gap!)}
-                        className="h-full border border-dashed border-accent/40 rounded-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer"
+                        className="h-full border border-dashed border-accent/30 rounded-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer"
                         style={{ width: `${widthPct}%`, minWidth: "4px" }}
                       />
                     </TooltipTrigger>
@@ -174,22 +166,28 @@ export function DayTimeline({
           )}
         </div>
 
-        {/* Current time indicator */}
-        {(() => {
-          const now = Date.now();
-          if (now >= dayStart.getTime() && now <= dayEnd.getTime()) {
-            const pct = ((now - dayStart.getTime()) / totalMs) * 100;
-            return (
-              <div
-                className="absolute top-0 h-full w-0.5 bg-accent z-10"
-                style={{ left: `${pct}%` }}
-              >
-                <div className="absolute -top-1 left-1/2 -translate-x-1/2 h-2 w-2 rounded-full bg-accent" />
-              </div>
-            );
-          }
-          return null;
-        })()}
+        {/* Current time needle */}
+        {showNowIndicator && (
+          <div
+            className="absolute top-0 h-full w-0.5 bg-accent z-10"
+            style={{ left: `${nowPct}%` }}
+          >
+            <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-accent" />
+          </div>
+        )}
+      </div>
+
+      {/* Hour labels below — minimal */}
+      <div className="relative h-3.5 mt-0.5">
+        {hourMarkers.filter((_, i) => i % 2 === 0 || i === hourMarkers.length - 1).map((m) => (
+          <span
+            key={m.label}
+            className="absolute text-[8px] text-foreground-muted/50 tabular-nums -translate-x-1/2"
+            style={{ left: `${m.pct}%` }}
+          >
+            {m.label}
+          </span>
+        ))}
       </div>
     </div>
   );
