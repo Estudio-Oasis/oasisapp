@@ -157,7 +157,7 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!isAdmin) return <Navigate to="/timer" replace />;
+  if (!isAdmin) return <Navigate to="/bitacora" replace />;
 
   const statusLabel: Record<string, string> = {
     backlog: "Backlog", todo: "To do", in_progress: "In progress", review: "Review", done: "Done",

@@ -4,7 +4,7 @@ import { useRole } from "@/hooks/useRole";
 import { useUnreadChats } from "@/hooks/useUnreadChats";
 
 const allNavItems = [
-  { title: "Timer", url: "/timer", icon: Timer },
+  { title: "Bitácora", url: "/bitacora", icon: Timer },
   { title: "Hub", url: "/hub", icon: Radio },
   { title: "Clientes", url: "/clients", icon: Users },
   { title: "Tareas", url: "/tasks", icon: CheckSquare },
