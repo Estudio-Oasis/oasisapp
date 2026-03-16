@@ -121,8 +121,6 @@ export function ActiveSessionCard({
           </p>
         </div>
       </div>
-        {/* Inline context chips — enrich after starting */}
-        <InlineContextChips />
         {children && <div className="mt-3">{children}</div>}
     </div>
   );
