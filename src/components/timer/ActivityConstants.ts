@@ -114,7 +114,7 @@ export const ACTIVITY_TYPES: Record<ActivityType, ActivityTypeConfig> = {
   },
   sin_clasificar: {
     key: "sin_clasificar",
-    label: "Sin clasificar",
+    label: "Actividad libre",
     icon: HelpCircle,
     color: "hsl(0, 0%, 70%)",
     productive: false,
