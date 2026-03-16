@@ -175,7 +175,7 @@ export default function HubPage() {
 
     if (status === "online") {
       // "En línea" → open the start/switch timer modal
-      setShowStartTimerModal(true);
+      setShowQuickSheet(true);
       return;
     }
 
