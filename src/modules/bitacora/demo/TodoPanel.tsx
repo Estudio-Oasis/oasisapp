@@ -196,7 +196,7 @@ export function TodoPanel() {
                 disabled={!input.trim()}
                 className="h-10 px-4 rounded-xl border border-border text-foreground-secondary text-[13px] font-semibold flex items-center gap-2 hover:bg-background-tertiary active:scale-[0.97] transition-all disabled:opacity-30"
               >
-                Guardar como actividad
+                Guardar como un pendiente
               </button>
             </>
           ) : (

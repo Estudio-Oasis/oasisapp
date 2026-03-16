@@ -39,24 +39,24 @@ export function generateExploreEntries(): EntryInfo[] {
 
   const currentHour = now.getHours();
 
-  // A fictional freelancer/agency day — relatable and aspirational
+  // A fictional freelancer/agency day — relatable, aspirational, human
   const allEntries = [
     makeEntry(7, 0, 7, 35, "Salió a correr 🏃"),
     makeEntry(7, 40, 8, 10, "Desayuno y café ☕"),
     makeEntry(8, 15, 8, 30, "Revisión de mensajes y emails"),
     makeEntry(8, 30, 9, 30, "Junta de arranque con equipo"),
-    makeEntry(9, 30, 11, 0, "Propuesta comercial", "Café Montaña", "Propuesta branding"),
+    makeEntry(9, 30, 11, 0, "Propuesta comercial", "Café Montaña", "Propuesta de branding"),
     makeEntry(11, 0, 11, 15, "Break rápido ☕"),
-    makeEntry(11, 15, 12, 30, "Rediseño de landing page", "Luna Studio", "Rediseño web Q2"),
-    // GAP: 12:30 to 13:00 — intentional gap (no entry)
+    makeEntry(11, 15, 12, 30, "Ajustes de presentación", "Luna Studio", "Rediseño web Q2"),
+    // GAP: 12:30 to 13:00 — intentional gap
     makeEntry(13, 0, 13, 50, "Comida 🍽️"),
     // Unclassified block — vague, teaches enrichment
     makeEntry(13, 50, 14, 10, "Cosas varias"),
     makeEntry(14, 10, 15, 30, "Correcciones de copy y assets", "Luna Studio", "Rediseño web Q2"),
-    makeEntry(15, 30, 15, 50, "Llamada con Valeria — revisión de avances"),
-    makeEntry(15, 50, 16, 0, "Break y estiramiento"),
-    makeEntry(16, 0, 17, 0, "Estrategia de contenido", "Estudio Norte", "Plan de contenido"),
-    makeEntry(17, 0, 17, 20, "Revisión de pendientes y cierre del día 📋"),
+    makeEntry(15, 30, 15, 50, "Llamada de seguimiento con cliente"),
+    makeEntry(15, 50, 16, 0, "Break y estiramiento 🧘"),
+    makeEntry(16, 0, 17, 0, "Estrategia de contenido", "Estudio Norte", "Plan de contenido mensual"),
+    makeEntry(17, 0, 17, 20, "Cierre del día y pendientes 📋"),
   ];
 
   // Only show entries that have ended by now

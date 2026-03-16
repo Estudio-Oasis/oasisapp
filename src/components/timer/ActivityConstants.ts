@@ -114,7 +114,7 @@ export const ACTIVITY_TYPES: Record<ActivityType, ActivityTypeConfig> = {
   },
   sin_clasificar: {
     key: "sin_clasificar",
-    label: "Sin clasificar",
+    label: "Actividad libre",
     icon: HelpCircle,
     color: "hsl(0, 0%, 70%)",
     productive: false,
@@ -228,8 +228,8 @@ export const UI_COPY = {
   weekTab: "Esta semana",
   myEntries: "Mis registros",
   allEntries: "Todos",
-  gapLabel: "Tiempo sin registrar",
-  gapAction: "¿Qué pasó aquí?",
+  gapLabel: "Hueco sin registrar",
+  gapAction: "Completar hueco",
 } as const;
 
 // ── Truncation rules ──────────────────────────────────────────────
