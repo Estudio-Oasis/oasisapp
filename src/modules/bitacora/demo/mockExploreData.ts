@@ -55,7 +55,7 @@ export function generateExploreEntries(): EntryInfo[] {
     makeEntry(14, 10, 15, 30, "Correcciones de copy y assets", "Luna Studio", "Rediseño web Q2"),
     makeEntry(15, 30, 15, 50, "Llamada con Valeria — revisión de avances"),
     makeEntry(15, 50, 16, 0, "Break y estiramiento"),
-    makeEntry(16, 0, 17, 0, "Avance en estrategia de contenido", "Café Montaña", "Plan de contenido"),
+    makeEntry(16, 0, 17, 0, "Estrategia de contenido", "Estudio Norte", "Plan de contenido"),
     makeEntry(17, 0, 17, 20, "Revisión de pendientes y cierre del día 📋"),
   ];
 
