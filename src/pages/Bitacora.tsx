@@ -12,7 +12,6 @@ import { GapAlert } from "@/components/timer/GapAlert";
 import { EmptyState } from "@/components/timer/EmptyState";
 import { UI_COPY } from "@/components/timer/ActivityConstants";
 import { StartTimerModal } from "@/components/StartTimerModal";
-import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
   formatDateLong,
@@ -49,7 +48,6 @@ export default function BitacoraPage() {
     setModalOpen(true);
   };
 
-  // Build timeline entries for DayTimeline
   const timelineEntries = view === "today"
     ? entries
         .filter((e) => e.ended_at)
@@ -63,9 +61,15 @@ export default function BitacoraPage() {
         }))
     : [];
 
+  const todaySummaryText = totalMinutes > 0
+    ? `${formatDuration(totalMinutes)} registradas hoy`
+    : "Nada registrado aún";
+
+  const hasData = entries.length > 0 || gaps.length > 0;
+
   return (
-    <div className="space-y-6">
-      {/* ── Section: Hero ── */}
+    <div className="space-y-4 max-w-2xl mx-auto">
+      {/* ── HERO: Session or Launcher ── */}
       {isRunning ? (
         <ActiveSessionCard
           variant="expanded"
@@ -77,32 +81,33 @@ export default function BitacoraPage() {
         >
           <TimerControls
             onSwitch={() => { setModalMode("switch"); setModalOpen(true); }}
-            onPause={(type) => { /* handled via TimerContext.startBreakTimer */ }}
+            onPause={() => {}}
             onFinish={() => void stopTimer()}
             isStopping={isStopping}
             layout="row"
           />
         </ActiveSessionCard>
       ) : (
-        <QuickLogInput onClick={() => { setModalMode("start"); setModalOpen(true); }} />
+        <QuickLogInput
+          onClick={() => { setModalMode("start"); setModalOpen(true); }}
+          todaySummary={todaySummaryText}
+        />
       )}
 
-      {/* ── Section: Header + Summary ── */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-h1 text-foreground">{UI_COPY.pageTitle}</h1>
-          <p className="text-sm text-foreground-secondary mt-0.5">{formatDateLong(new Date())}</p>
-        </div>
-        <div className="rounded-lg border border-border bg-card px-3 py-1.5">
+      {/* ── CONTEXT: Date + Timeline + Insights ── */}
+      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        {/* Date header + total */}
+        <div className="flex items-center justify-between px-4 py-3">
+          <div>
+            <p className="text-sm font-semibold text-foreground">{formatDateLong(new Date())}</p>
+          </div>
           <span className="text-sm font-semibold text-foreground tabular-nums">
-            {formatDuration(totalMinutes)} {view === "today" ? UI_COPY.todayTab.toLowerCase() : UI_COPY.weekTab.toLowerCase()}
+            {formatDuration(totalMinutes)}
           </span>
         </div>
-      </div>
 
-      {/* ── Section: Timeline Visual ── */}
-      {view === "today" && (entries.length > 0 || gaps.length > 0) && (
-        <div className="rounded-xl border border-border bg-card px-4 py-3">
+        {/* Timeline bar */}
+        <div className="px-4 pb-3">
           <DayTimeline
             entries={timelineEntries}
             gaps={gaps}
@@ -113,21 +118,23 @@ export default function BitacoraPage() {
             onGapClick={openGapModal}
           />
         </div>
-      )}
 
-      {/* ── Section: Day Insights ── */}
-      {view === "today" && entries.length > 0 && (
-        <DayInsights entries={entries} gapCount={gaps.length} />
-      )}
+        {/* Insights inline */}
+        {view === "today" && entries.length > 0 && (
+          <div className="border-t border-border px-4 py-3">
+            <DayInsights entries={entries} gapCount={gaps.length} />
+          </div>
+        )}
+      </div>
 
-      {/* ── Section: Filters ── */}
-      <div className="flex items-center gap-4">
-        <div className="inline-flex rounded-lg bg-background-secondary p-1">
+      {/* ── FILTERS: Compact inline pills ── */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="inline-flex rounded-lg bg-background-secondary p-0.5">
           {(["today", "week"] as const).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-colors ${
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                 view === v
                   ? "bg-foreground text-background"
                   : "text-foreground-secondary hover:text-foreground"
@@ -137,12 +144,12 @@ export default function BitacoraPage() {
             </button>
           ))}
         </div>
-        <div className="inline-flex rounded-lg bg-background-secondary p-1">
+        <div className="inline-flex rounded-lg bg-background-secondary p-0.5">
           {(["mine", "all"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setEntryFilter(f)}
-              className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                 entryFilter === f
                   ? "bg-foreground text-background"
                   : "text-foreground-secondary hover:text-foreground"
@@ -152,17 +159,25 @@ export default function BitacoraPage() {
             </button>
           ))}
         </div>
+        {/* Manual entry — inline text action, not a heavy button */}
+        <button
+          onClick={() => { setGapPrefill(null); setModalMode("manual"); setModalOpen(true); }}
+          className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-foreground-muted hover:text-foreground transition-colors"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Manual
+        </button>
       </div>
 
-      {/* ── Section: Feed ── */}
+      {/* ── FEED ── */}
       {view === "today" ? (
-        entries.length === 0 && gaps.length === 0 ? (
+        !hasData ? (
           <EmptyState context="no_entries" />
         ) : (
-          <div className="rounded-xl border border-border bg-card">
-            <div className="divide-y divide-border px-4">
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
+            <div className="divide-y divide-border">
               {gaps.map((g, i) => (
-                <div key={`gap-${i}`} className="py-1">
+                <div key={`gap-${i}`} className="px-4 py-1">
                   <GapAlert
                     startTime={g.startTime}
                     endTime={g.endTime}
@@ -172,20 +187,21 @@ export default function BitacoraPage() {
                 </div>
               ))}
               {entries.map((entry) => (
-                <TimeEntryRow
-                  key={entry.id}
-                  id={entry.id}
-                  description={entry.description}
-                  clientId={entry.client_id}
-                  clientName={entry.clients?.name}
-                  taskTitle={entry.tasks?.title}
-                  startedAt={entry.started_at}
-                  endedAt={entry.ended_at}
-                  durationMin={entry.duration_min}
-                  userId={entry.user_id}
-                  userName={profileMap[entry.user_id]?.name}
-                  showUser={entryFilter === "all"}
-                />
+                <div key={entry.id} className="px-4">
+                  <TimeEntryRow
+                    id={entry.id}
+                    description={entry.description}
+                    clientId={entry.client_id}
+                    clientName={entry.clients?.name}
+                    taskTitle={entry.tasks?.title}
+                    startedAt={entry.started_at}
+                    endedAt={entry.ended_at}
+                    durationMin={entry.duration_min}
+                    userId={entry.user_id}
+                    userName={profileMap[entry.user_id]?.name}
+                    showUser={entryFilter === "all"}
+                  />
+                </div>
               ))}
             </div>
           </div>
@@ -199,30 +215,31 @@ export default function BitacoraPage() {
             const dayTotal = dayEntries.reduce((s, e) => s + (Number(e.duration_min) || 0), 0);
             return (
               <div key={dayKey} className="rounded-xl border border-border bg-card overflow-hidden">
-                <div className="flex items-center justify-between bg-background-secondary px-4 py-2.5">
-                  <span className="text-sm font-semibold text-foreground">
+                <div className="flex items-center justify-between bg-background-secondary px-4 py-2">
+                  <span className="text-xs font-semibold text-foreground">
                     {formatDayHeader(new Date(dayKey))}
                   </span>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">
+                  <span className="text-xs font-semibold text-foreground tabular-nums">
                     {formatDuration(dayTotal)}
                   </span>
                 </div>
-                <div className="divide-y divide-border px-4">
+                <div className="divide-y divide-border">
                   {dayEntries.map((entry) => (
-                    <TimeEntryRow
-                      key={entry.id}
-                      id={entry.id}
-                      description={entry.description}
-                      clientId={entry.client_id}
-                      clientName={entry.clients?.name}
-                      taskTitle={entry.tasks?.title}
-                      startedAt={entry.started_at}
-                      endedAt={entry.ended_at}
-                      durationMin={entry.duration_min}
-                      userId={entry.user_id}
-                      userName={profileMap[entry.user_id]?.name}
-                      showUser={entryFilter === "all"}
-                    />
+                    <div key={entry.id} className="px-4">
+                      <TimeEntryRow
+                        id={entry.id}
+                        description={entry.description}
+                        clientId={entry.client_id}
+                        clientName={entry.clients?.name}
+                        taskTitle={entry.tasks?.title}
+                        startedAt={entry.started_at}
+                        endedAt={entry.ended_at}
+                        durationMin={entry.duration_min}
+                        userId={entry.user_id}
+                        userName={profileMap[entry.user_id]?.name}
+                        showUser={entryFilter === "all"}
+                      />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -231,17 +248,7 @@ export default function BitacoraPage() {
         </div>
       )}
 
-      {/* ── Section: Manual entry ── */}
-      <Button
-        variant="outline"
-        onClick={() => { setGapPrefill(null); setModalMode("manual"); setModalOpen(true); }}
-        className="w-full md:w-auto"
-      >
-        <Plus className="h-4 w-4 mr-1.5" />
-        {UI_COPY.btnManualEntry}
-      </Button>
-
-      {/* ── Modal ── */}
+      {/* ── MODAL ── */}
       <StartTimerModal
         open={modalOpen}
         onOpenChange={(open) => {
