@@ -10,6 +10,8 @@ import type {
   ActiveEntryInfo,
   RecentEntry,
   StartActivityInput,
+  FillGapInput,
+  UpdateEntryInput,
   WorkSchedule,
 } from "./types";
 
