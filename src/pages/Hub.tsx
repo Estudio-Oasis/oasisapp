@@ -242,16 +242,10 @@ export default function HubPage() {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-semibold text-foreground">Hub</h1>
-        <p className="text-sm text-foreground-muted mt-1">Actividad del equipo en tiempo real</p>
-      </div>
-
-      {/* Quick status buttons for current user */}
-      <div>
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Tu estado</h2>
+    <div className="space-y-6 max-w-2xl mx-auto">
+      {/* Quick status — primary surface */}
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-foreground-muted">Tu estado</h2>
         <TooltipProvider delayDuration={300}>
           <div className="flex flex-wrap gap-2">
             {[
@@ -283,13 +277,13 @@ export default function HubPage() {
         </TooltipProvider>
       </div>
 
-      {/* Member bubbles */}
-      <div>
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-4">Equipo</h2>
+      {/* Team members */}
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-foreground-muted">Equipo</h2>
         {members.length === 0 ? (
           <p className="text-sm text-foreground-muted">No hay miembros en el equipo aún.</p>
         ) : (
-          <div className="flex flex-wrap gap-6">
+          <div className="flex flex-wrap gap-5">
             {members.map((m) => (
               <MemberBubble
                 key={m.user_id}
