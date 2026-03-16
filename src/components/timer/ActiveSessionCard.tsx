@@ -4,7 +4,7 @@ import {
   getActivityConfig,
   UI_COPY,
 } from "./ActivityConstants";
-import { InlineContextChips } from "./InlineContextChips";
+
 
 interface ActiveSessionCardProps {
   variant: "compact" | "mobile" | "expanded";
