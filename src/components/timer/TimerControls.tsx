@@ -36,30 +36,30 @@ export function TimerControls({
   const isStack = layout === "stack";
 
   return (
-    <div className={isStack ? "space-y-3" : "flex gap-2"}>
+    <div className={isStack ? "space-y-3" : "grid grid-cols-3 gap-2"}>
       <Button
         variant="outline"
-        className={isStack ? "w-full h-11" : "flex-1 h-9"}
+        className="h-9 text-[12px]"
         onClick={onSwitch}
       >
         {UI_COPY.btnSwitch}
       </Button>
       <Button
         variant="secondary"
-        className={isStack ? "w-full h-11" : "flex-1 h-9"}
+        className="h-9 text-[12px]"
         onClick={() => setShowPauseSelector(true)}
       >
         {UI_COPY.btnPause}
       </Button>
       <Button
         variant="destructive"
-        className={isStack ? "w-full h-11" : "flex-1 h-9"}
+        className="h-9 text-[12px]"
         disabled={isStopping}
         onClick={onFinish}
       >
         {isStopping ? (
-          <span className="inline-flex items-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin" />
+          <span className="inline-flex items-center gap-1.5">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
             {UI_COPY.btnSaving}
           </span>
         ) : (
