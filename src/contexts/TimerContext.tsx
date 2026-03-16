@@ -568,7 +568,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     });
 
     startInterval(entry.started_at);
-  }, [userId, startInterval]);
+  }, [userId, startInterval, state.activeEntry, state.isStopping, stopTimer]);
 
   /* ── setManualStatus ─────────────────────────────────────── */
 
