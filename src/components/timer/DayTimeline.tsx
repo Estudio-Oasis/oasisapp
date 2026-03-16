@@ -36,6 +36,7 @@ export function DayTimeline({
   workEndHour = 18,
   workEndMinute = 0,
   onGapClick,
+  onEntryClick,
 }: DayTimelineProps) {
   const today = new Date();
   const dayStart = new Date(today);
