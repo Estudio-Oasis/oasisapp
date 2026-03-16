@@ -11,6 +11,7 @@ import { AppLayout } from "@/components/AppLayout";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import BitacoraPage from "./pages/Bitacora";
 import TimerPage from "./pages/Timer";
 import SetupPage from "./pages/Setup";
 import ClientsPage from "./pages/Clients";
