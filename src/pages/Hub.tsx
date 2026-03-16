@@ -167,7 +167,7 @@ export default function HubPage() {
 
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [showStopTimerDialog, setShowStopTimerDialog] = useState(false);
-  const [showStartTimerModal, setShowStartTimerModal] = useState(false);
+  const [showQuickSheet, setShowQuickSheet] = useState(false);
   const { isRunning, stopTimer, activeClient, activeTask, startBreakTimer } = useTimer();
 
   const handleStatusChange = async (status: string) => {
