@@ -45,7 +45,7 @@ export function generateExploreEntries(): EntryInfo[] {
     makeEntry(7, 40, 8, 10, "Desayuno y café ☕"),
     makeEntry(8, 15, 8, 30, "Revisión de mensajes y emails"),
     makeEntry(8, 30, 9, 30, "Junta de arranque con equipo"),
-    makeEntry(9, 30, 11, 0, "Diseño de propuesta comercial", "Café Montaña", "Propuesta branding"),
+    makeEntry(9, 30, 11, 0, "Propuesta comercial", "Café Montaña", "Propuesta branding"),
     makeEntry(11, 0, 11, 15, "Break rápido ☕"),
     makeEntry(11, 15, 12, 30, "Desarrollo de landing page", "Luna Studio", "Rediseño web Q2"),
     // GAP: 12:30 to 13:00 — intentional gap (no entry)
