@@ -86,7 +86,7 @@ export default function BitacoraPage() {
               elapsedSeconds={elapsedSeconds}
             >
               <TimerControls
-                onSwitch={() => { setModalMode("switch"); setModalOpen(true); }}
+                onSwitch={() => { setQuickSheetMode("switch"); setQuickSheetOpen(true); }}
                 onPause={() => {}}
                 onFinish={() => void stopTimer()}
                 isStopping={isStopping}
