@@ -523,8 +523,8 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     if (!userId) return;
 
     // Stop any active session before starting a break
-    if (state.activeEntry && !state.isStopping) {
-      const stopped = await stopTimer();
+    if (state.activeEntry) {
+      const stopped = await stopCurrentEntry();
       if (!stopped) return;
     }
 
