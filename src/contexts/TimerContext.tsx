@@ -343,6 +343,59 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     };
   }, [userId, calcElapsed, resetTimerState, startInterval]);
 
+  /* ── stopCurrentEntry (internal helper) ─────────────────── */
+  const stopCurrentEntry = useCallback(async (): Promise<boolean> => {
+    if (!state.activeEntry || state.isStopping) return !state.activeEntry;
+
+    const entryId = state.activeEntry.id;
+    const endedAt = new Date().toISOString();
+
+    setState((prev) => ({ ...prev, isStopping: true }));
+
+    const { data: updatedEntry, error } = await supabase
+      .from("time_entries")
+      .update({ ended_at: endedAt })
+      .eq("id", entryId)
+      .is("ended_at", null)
+      .select("id")
+      .maybeSingle();
+
+    if (error) {
+      console.error("stopTimer failed:", error);
+      toast.error("Could not save time entry. Try again.");
+      setState((prev) => ({ ...prev, isStopping: false }));
+      return false;
+    }
+
+    if (!updatedEntry) {
+      const { data: existingEntry, error: existingEntryError } = await supabase
+        .from("time_entries")
+        .select("id, ended_at")
+        .eq("id", entryId)
+        .maybeSingle();
+
+      if (existingEntryError || !existingEntry?.ended_at) {
+        toast.error("Could not save time entry. Try again.");
+        setState((prev) => ({ ...prev, isStopping: false }));
+        return false;
+      }
+    }
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    clearPersistedActiveEntry();
+
+    if (userId) {
+      await upsertPresence(userId, "online");
+    }
+
+    resetTimerState();
+    return true;
+  }, [resetTimerState, state.activeEntry, state.isStopping, userId]);
+
   /* ── startTimer ──────────────────────────────────────────── */
 
   const startTimer = useCallback(
@@ -350,8 +403,8 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       if (!userId) return;
 
       // Stop any active session before starting a new one
-      if (state.activeEntry && !state.isStopping) {
-        const stopped = await stopTimer();
+      if (state.activeEntry) {
+        const stopped = await stopCurrentEntry();
         if (!stopped) return;
       }
 
