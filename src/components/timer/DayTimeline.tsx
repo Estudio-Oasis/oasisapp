@@ -65,6 +65,7 @@ export function DayTimeline({
     color: string;
     label: string;
     gap?: TimelineGap;
+    entry?: TimelineEntry;
   };
 
   const blocks: Block[] = [];
