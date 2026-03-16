@@ -38,19 +38,23 @@ export function AppLayout() {
 
         <div className="flex-1 flex flex-col min-w-0">
           {/* Mobile header */}
-          <header className="flex h-14 items-center justify-between px-4 md:hidden">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground">
-              <span className="text-[11px] font-bold tracking-widest text-background">OS</span>
+          <header className="flex h-12 items-center justify-between px-4 md:hidden">
+            <div className="flex items-center gap-2">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-foreground">
+                <span className="text-[9px] font-bold tracking-widest text-background">OS</span>
+              </div>
+              <span className="text-sm font-semibold text-foreground">{pageTitle}</span>
             </div>
-            <span className="text-sm font-semibold text-foreground">{pageTitle}</span>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               <Link
                 to="/hub"
                 className="relative flex h-8 w-8 items-center justify-center rounded-lg text-foreground-muted hover:text-foreground transition-colors"
               >
                 <Radio className="h-4 w-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-accent" />
+                  <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground px-1">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
                 )}
               </Link>
               <Link
@@ -63,8 +67,8 @@ export function AppLayout() {
           </header>
 
           {/* Main content */}
-          <main className="flex-1 pb-[60px] md:pb-0">
-            <div className="px-4 py-4 md:px-8 md:py-8 lg:px-10">
+          <main className="flex-1 pb-[56px] md:pb-0">
+            <div className="px-4 py-3 md:px-8 md:py-8 lg:px-10">
               <Outlet />
             </div>
           </main>

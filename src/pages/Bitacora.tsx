@@ -63,16 +63,27 @@ export default function BitacoraPage() {
 
   const todaySummaryText = totalMinutes > 0
     ? `${formatDuration(totalMinutes)} registradas hoy`
-    : "Sin actividad registrada";
+    : "Sin actividad hoy — ¿empezamos?";
 
   const hasData = entries.length > 0 || gaps.length > 0;
 
   return (
     <div className="space-y-3 max-w-2xl mx-auto">
-      {/* ── CONTROL SURFACE: the unified "console" ── */}
+      {/* ── CONTROL SURFACE ── */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
+        {/* Identity + day state */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+          <div className="flex items-baseline gap-2">
+            <span className="text-h3 text-foreground">Bitácora</span>
+            <span className="text-micro text-foreground-muted">{formatDateLong(new Date())}</span>
+          </div>
+          <span className="text-sm font-bold text-foreground tabular-nums">
+            {formatDuration(totalMinutes)}
+          </span>
+        </div>
+
         {/* Hero: Session or Launcher */}
-        <div className="p-4 pb-0">
+        <div className="px-4 pb-3">
           {isRunning ? (
             <ActiveSessionCard
               variant="expanded"
@@ -98,16 +109,8 @@ export default function BitacoraPage() {
           )}
         </div>
 
-        {/* Day context strip */}
-        <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <span className="text-micro text-foreground-muted">{formatDateLong(new Date())}</span>
-          <span className="text-sm font-bold text-foreground tabular-nums">
-            {formatDuration(totalMinutes)}
-          </span>
-        </div>
-
         {/* Timeline */}
-        <div className="px-4 pb-3">
+        <div className="px-4 pb-2">
           <DayTimeline
             entries={timelineEntries}
             gaps={gaps}
@@ -127,14 +130,14 @@ export default function BitacoraPage() {
         )}
       </div>
 
-      {/* ── FILTERS: compact inline pills ── */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="inline-flex rounded-lg bg-background-tertiary p-1 gap-0.5">
+      {/* ── FILTERS ── */}
+      <div className="flex items-center gap-2">
+        <div className="inline-flex rounded-lg border border-border bg-card p-0.5 gap-0.5">
           {(["today", "week"] as const).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
                 view === v
                   ? "bg-foreground text-background"
                   : "text-foreground-secondary hover:text-foreground"
@@ -144,12 +147,12 @@ export default function BitacoraPage() {
             </button>
           ))}
         </div>
-        <div className="inline-flex rounded-lg bg-background-tertiary p-1 gap-0.5">
+        <div className="inline-flex rounded-lg border border-border bg-card p-0.5 gap-0.5">
           {(["mine", "all"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setEntryFilter(f)}
-              className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
                 entryFilter === f
                   ? "bg-foreground text-background"
                   : "text-foreground-secondary hover:text-foreground"
@@ -161,9 +164,9 @@ export default function BitacoraPage() {
         </div>
         <button
           onClick={() => { setGapPrefill(null); setModalMode("manual"); setModalOpen(true); }}
-          className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-foreground-muted hover:text-foreground transition-colors"
+          className="ml-auto inline-flex items-center gap-1 text-[11px] font-medium text-foreground-muted hover:text-foreground transition-colors"
         >
-          <Plus className="h-3.5 w-3.5" />
+          <Plus className="h-3 w-3" />
           Manual
         </button>
       </div>

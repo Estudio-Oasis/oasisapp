@@ -100,12 +100,37 @@ export function DayTimeline({
   const isEmpty = blocks.length === 0;
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1">
+      {/* Hour tick marks above */}
+      <div className="relative h-4">
+        {hourMarkers.map((m, i) => (
+          <span
+            key={m.label}
+            className="absolute text-[9px] text-foreground-muted tabular-nums -translate-x-1/2 flex flex-col items-center"
+            style={{ left: `${m.pct}%` }}
+          >
+            {m.label}
+          </span>
+        ))}
+      </div>
+
       {/* Timeline bar */}
       <div className="relative">
-        <div className="flex h-6 rounded-lg overflow-hidden bg-background-tertiary gap-[1px]">
+        <div className="flex h-8 rounded-lg overflow-hidden bg-background-tertiary gap-[1px]">
           {isEmpty ? (
-            <div className="h-full w-full rounded-lg bg-background-tertiary" />
+            // Empty shell — show faint hour divisions to hint at structure
+            hourMarkers.slice(0, -1).map((m, i) => {
+              const next = hourMarkers[i + 1];
+              if (!next) return null;
+              const width = next.pct - m.pct;
+              return (
+                <div
+                  key={`slot-${i}`}
+                  className="h-full bg-background-tertiary border-r border-border/30 last:border-r-0"
+                  style={{ width: `${width}%` }}
+                />
+              );
+            })
           ) : (
             blocks.map((block, i) => {
               const widthPct = ((block.end - block.start) / totalMs) * 100;
@@ -148,19 +173,23 @@ export function DayTimeline({
             })
           )}
         </div>
-      </div>
 
-      {/* Hour markers */}
-      <div className="relative h-3">
-        {hourMarkers.map((m) => (
-          <span
-            key={m.label}
-            className="absolute text-[9px] text-foreground-muted tabular-nums -translate-x-1/2"
-            style={{ left: `${m.pct}%` }}
-          >
-            {m.label}
-          </span>
-        ))}
+        {/* Current time indicator */}
+        {(() => {
+          const now = Date.now();
+          if (now >= dayStart.getTime() && now <= dayEnd.getTime()) {
+            const pct = ((now - dayStart.getTime()) / totalMs) * 100;
+            return (
+              <div
+                className="absolute top-0 h-full w-0.5 bg-accent z-10"
+                style={{ left: `${pct}%` }}
+              >
+                <div className="absolute -top-1 left-1/2 -translate-x-1/2 h-2 w-2 rounded-full bg-accent" />
+              </div>
+            );
+          }
+          return null;
+        })()}
       </div>
     </div>
   );
