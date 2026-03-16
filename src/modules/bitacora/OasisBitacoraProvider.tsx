@@ -163,6 +163,48 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
     [timer]
   );
 
+  // Fill a gap with a completed entry
+  const fillGap = useCallback(
+    async (input: FillGapInput) => {
+      if (!user) return;
+      const { error } = await supabase.from("time_entries").insert({
+        user_id: user.id,
+        description: input.description,
+        started_at: input.startedAt,
+        ended_at: input.endedAt,
+      });
+      if (error) console.error("fillGap error:", error);
+      fetchEntries();
+    },
+    [user, fetchEntries]
+  );
+
+  // Update an existing entry
+  const updateEntry = useCallback(
+    async (id: string, updates: UpdateEntryInput) => {
+      const { error } = await supabase
+        .from("time_entries")
+        .update(updates)
+        .eq("id", id);
+      if (error) console.error("updateEntry error:", error);
+      fetchEntries();
+    },
+    [fetchEntries]
+  );
+
+  // Delete an entry
+  const deleteEntry = useCallback(
+    async (id: string) => {
+      const { error } = await supabase
+        .from("time_entries")
+        .delete()
+        .eq("id", id);
+      if (error) console.error("deleteEntry error:", error);
+      fetchEntries();
+    },
+    [fetchEntries]
+  );
+
   const providerValue: BitacoraProviderValue = {
     isRunning: timer.isRunning,
     isStopping: timer.isStopping,
