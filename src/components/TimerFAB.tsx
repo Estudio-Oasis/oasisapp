@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTimer } from "@/contexts/TimerContext";
 import { formatElapsedShort, formatElapsed } from "@/lib/timer-utils";
-import { StartTimerModal } from "@/components/StartTimerModal";
+import { QuickSheet } from "@/components/timer/QuickSheet";
 import { Loader2, Zap } from "lucide-react";
 import {
   Drawer,
@@ -20,8 +20,8 @@ export function TimerFAB() {
     elapsedSeconds,
     stopTimer,
   } = useTimer();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"start" | "switch">("start");
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetMode, setSheetMode] = useState<"start" | "switch">("start");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   if (!isRunning) {
@@ -29,14 +29,14 @@ export function TimerFAB() {
       <>
         <button
           onClick={() => {
-            setModalMode("start");
-            setModalOpen(true);
+            setSheetMode("start");
+            setSheetOpen(true);
           }}
           className="fixed bottom-[76px] right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-foreground shadow-none md:hidden"
         >
           <Zap className="h-4 w-4 text-background" />
         </button>
-        <StartTimerModal open={modalOpen} onOpenChange={setModalOpen} mode={modalMode} />
+        <QuickSheet open={sheetOpen} onOpenChange={setSheetOpen} mode={sheetMode} />
       </>
     );
   }
@@ -70,8 +70,8 @@ export function TimerFAB() {
               className="w-full h-11"
               onClick={() => {
                 setDrawerOpen(false);
-                setModalMode("switch");
-                setModalOpen(true);
+                setSheetMode("switch");
+                setSheetOpen(true);
               }}
             >
               Cambiar tarea
@@ -95,7 +95,7 @@ export function TimerFAB() {
         </DrawerContent>
       </Drawer>
 
-      <StartTimerModal open={modalOpen} onOpenChange={setModalOpen} mode={modalMode} />
+      <QuickSheet open={sheetOpen} onOpenChange={setSheetOpen} mode={sheetMode} />
     </>
   );
 }
