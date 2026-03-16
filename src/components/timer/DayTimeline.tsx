@@ -45,6 +45,17 @@ export function DayTimeline({
   const totalMs = dayEnd.getTime() - dayStart.getTime();
   if (totalMs <= 0) return null;
 
+  // Generate hour markers
+  const hourMarkers: { label: string; pct: number }[] = [];
+  for (let h = workStartHour; h <= workEndHour; h++) {
+    const markerTime = new Date(today);
+    markerTime.setHours(h, 0, 0, 0);
+    const pct = ((markerTime.getTime() - dayStart.getTime()) / totalMs) * 100;
+    if (pct >= 0 && pct <= 100) {
+      hourMarkers.push({ label: `${String(h).padStart(2, "0")}`, pct });
+    }
+  }
+
   type Block = {
     type: "entry" | "gap";
     start: number;
@@ -86,27 +97,47 @@ export function DayTimeline({
 
   blocks.sort((a, b) => a.start - b.start);
 
-  const startLabel = `${String(workStartHour).padStart(2, "0")}:${String(workStartMinute).padStart(2, "0")}`;
-  const endLabel = `${String(workEndHour).padStart(2, "0")}:${String(workEndMinute).padStart(2, "0")}`;
+  const isEmpty = blocks.length === 0;
 
   return (
-    <div className="space-y-2">
-      <div className="flex h-4 rounded-full overflow-hidden bg-background-tertiary gap-[1px]">
-        {blocks.length === 0 ? (
-          <div className="h-full w-full rounded-full bg-background-tertiary" />
-        ) : (
-          blocks.map((block, i) => {
-            const widthPct = ((block.end - block.start) / totalMs) * 100;
-            if (widthPct <= 0) return null;
+    <div className="space-y-1.5">
+      {/* Timeline bar */}
+      <div className="relative">
+        <div className="flex h-6 rounded-lg overflow-hidden bg-background-tertiary gap-[1px]">
+          {isEmpty ? (
+            <div className="h-full w-full rounded-lg bg-background-tertiary" />
+          ) : (
+            blocks.map((block, i) => {
+              const widthPct = ((block.end - block.start) / totalMs) * 100;
+              if (widthPct <= 0) return null;
 
-            if (block.type === "gap") {
+              if (block.type === "gap") {
+                return (
+                  <Tooltip key={`gap-${i}`}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => onGapClick?.(block.gap!)}
+                        className="h-full border border-dashed border-accent/40 rounded-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer"
+                        style={{ width: `${widthPct}%`, minWidth: "4px" }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs">
+                      {block.label}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              }
+
               return (
-                <Tooltip key={`gap-${i}`}>
+                <Tooltip key={`entry-${i}`}>
                   <TooltipTrigger asChild>
-                    <button
-                      onClick={() => onGapClick?.(block.gap!)}
-                      className="h-full border border-dashed border-accent/40 rounded-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer"
-                      style={{ width: `${widthPct}%`, minWidth: "4px" }}
+                    <div
+                      className="h-full rounded-sm transition-opacity hover:opacity-80"
+                      style={{
+                        width: `${widthPct}%`,
+                        backgroundColor: block.color,
+                        minWidth: "3px",
+                      }}
                     />
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="text-xs">
@@ -114,31 +145,22 @@ export function DayTimeline({
                   </TooltipContent>
                 </Tooltip>
               );
-            }
-
-            return (
-              <Tooltip key={`entry-${i}`}>
-                <TooltipTrigger asChild>
-                  <div
-                    className="h-full rounded-sm transition-opacity hover:opacity-80"
-                    style={{
-                      width: `${widthPct}%`,
-                      backgroundColor: block.color,
-                      minWidth: "3px",
-                    }}
-                  />
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="text-xs">
-                  {block.label}
-                </TooltipContent>
-              </Tooltip>
-            );
-          })
-        )}
+            })
+          )}
+        </div>
       </div>
-      <div className="flex items-center justify-between">
-        <span className="text-[10px] text-foreground-muted tabular-nums">{startLabel}</span>
-        <span className="text-[10px] text-foreground-muted tabular-nums">{endLabel}</span>
+
+      {/* Hour markers */}
+      <div className="relative h-3">
+        {hourMarkers.map((m) => (
+          <span
+            key={m.label}
+            className="absolute text-[9px] text-foreground-muted tabular-nums -translate-x-1/2"
+            style={{ left: `${m.pct}%` }}
+          >
+            {m.label}
+          </span>
+        ))}
       </div>
     </div>
   );

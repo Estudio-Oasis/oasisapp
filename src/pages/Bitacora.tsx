@@ -63,50 +63,50 @@ export default function BitacoraPage() {
 
   const todaySummaryText = totalMinutes > 0
     ? `${formatDuration(totalMinutes)} registradas hoy`
-    : "Nada registrado aún";
+    : "Sin actividad registrada";
 
   const hasData = entries.length > 0 || gaps.length > 0;
 
   return (
-    <div className="space-y-4 max-w-2xl mx-auto">
-      {/* ── HERO: Session or Launcher ── */}
-      {isRunning ? (
-        <ActiveSessionCard
-          variant="expanded"
-          clientName={activeClient?.name}
-          taskTitle={activeTask?.title}
-          description={activeEntry?.description}
-          clientId={activeEntry?.client_id}
-          elapsedSeconds={elapsedSeconds}
-        >
-          <TimerControls
-            onSwitch={() => { setModalMode("switch"); setModalOpen(true); }}
-            onPause={() => {}}
-            onFinish={() => void stopTimer()}
-            isStopping={isStopping}
-            layout="row"
-          />
-        </ActiveSessionCard>
-      ) : (
-        <QuickLogInput
-          onClick={() => { setModalMode("start"); setModalOpen(true); }}
-          todaySummary={todaySummaryText}
-        />
-      )}
-
-      {/* ── CONTEXT: Date + Timeline + Insights ── */}
+    <div className="space-y-3 max-w-2xl mx-auto">
+      {/* ── CONTROL SURFACE: the unified "console" ── */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        {/* Date header + total */}
-        <div className="flex items-center justify-between px-4 py-3">
-          <div>
-            <p className="text-sm font-semibold text-foreground">{formatDateLong(new Date())}</p>
-          </div>
-          <span className="text-sm font-semibold text-foreground tabular-nums">
+        {/* Hero: Session or Launcher */}
+        <div className="p-4 pb-0">
+          {isRunning ? (
+            <ActiveSessionCard
+              variant="expanded"
+              clientName={activeClient?.name}
+              taskTitle={activeTask?.title}
+              description={activeEntry?.description}
+              clientId={activeEntry?.client_id}
+              elapsedSeconds={elapsedSeconds}
+            >
+              <TimerControls
+                onSwitch={() => { setModalMode("switch"); setModalOpen(true); }}
+                onPause={() => {}}
+                onFinish={() => void stopTimer()}
+                isStopping={isStopping}
+                layout="row"
+              />
+            </ActiveSessionCard>
+          ) : (
+            <QuickLogInput
+              onClick={() => { setModalMode("start"); setModalOpen(true); }}
+              todaySummary={todaySummaryText}
+            />
+          )}
+        </div>
+
+        {/* Day context strip */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+          <span className="text-micro text-foreground-muted">{formatDateLong(new Date())}</span>
+          <span className="text-sm font-bold text-foreground tabular-nums">
             {formatDuration(totalMinutes)}
           </span>
         </div>
 
-        {/* Timeline bar */}
+        {/* Timeline */}
         <div className="px-4 pb-3">
           <DayTimeline
             entries={timelineEntries}
@@ -119,22 +119,22 @@ export default function BitacoraPage() {
           />
         </div>
 
-        {/* Insights inline */}
+        {/* Insights */}
         {view === "today" && entries.length > 0 && (
-          <div className="border-t border-border px-4 py-3">
+          <div className="border-t border-border px-4 py-2.5">
             <DayInsights entries={entries} gapCount={gaps.length} />
           </div>
         )}
       </div>
 
-      {/* ── FILTERS: Compact inline pills ── */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <div className="inline-flex rounded-lg bg-background-secondary p-0.5">
+      {/* ── FILTERS: compact inline pills ── */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="inline-flex rounded-lg bg-background-tertiary p-1 gap-0.5">
           {(["today", "week"] as const).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+              className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-colors ${
                 view === v
                   ? "bg-foreground text-background"
                   : "text-foreground-secondary hover:text-foreground"
@@ -144,12 +144,12 @@ export default function BitacoraPage() {
             </button>
           ))}
         </div>
-        <div className="inline-flex rounded-lg bg-background-secondary p-0.5">
+        <div className="inline-flex rounded-lg bg-background-tertiary p-1 gap-0.5">
           {(["mine", "all"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setEntryFilter(f)}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+              className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-colors ${
                 entryFilter === f
                   ? "bg-foreground text-background"
                   : "text-foreground-secondary hover:text-foreground"
@@ -159,7 +159,6 @@ export default function BitacoraPage() {
             </button>
           ))}
         </div>
-        {/* Manual entry — inline text action, not a heavy button */}
         <button
           onClick={() => { setGapPrefill(null); setModalMode("manual"); setModalOpen(true); }}
           className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-foreground-muted hover:text-foreground transition-colors"
