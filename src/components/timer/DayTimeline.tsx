@@ -108,7 +108,7 @@ export function DayTimeline({
     <div className="space-y-0">
       {/* Timeline bar — the instrument's core visual */}
       <div className="relative">
-        <div className="flex h-6 rounded-md overflow-hidden bg-background-tertiary gap-px">
+        <div className="flex h-8 rounded-lg overflow-hidden bg-background-tertiary gap-px border border-border/40">
           {isEmpty ? (
             // Empty shell — faint hour divisions hint at structure
             hourMarkers.slice(0, -1).map((m, i) => {
