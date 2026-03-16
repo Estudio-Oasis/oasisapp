@@ -190,4 +190,8 @@
     text-transform: uppercase;
     color: hsl(var(--foreground-secondary));
   }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }

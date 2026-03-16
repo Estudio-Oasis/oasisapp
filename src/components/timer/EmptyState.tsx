@@ -18,11 +18,11 @@ export function EmptyState({ context }: EmptyStateProps) {
   const { icon: Icon, message } = CONFIG[context];
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-      <div className="h-12 w-12 rounded-full bg-background-secondary flex items-center justify-center mb-4">
-        <Icon className="h-6 w-6 text-foreground-muted" />
+    <div className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-background-secondary/50 px-4 py-4">
+      <div className="h-9 w-9 rounded-lg bg-background flex items-center justify-center shrink-0">
+        <Icon className="h-4 w-4 text-foreground-muted" />
       </div>
-      <p className="text-sm text-foreground-secondary max-w-[260px] leading-relaxed">
+      <p className="text-sm text-foreground-secondary leading-snug">
         {message}
       </p>
     </div>
