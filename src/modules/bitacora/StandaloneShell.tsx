@@ -188,7 +188,7 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
         {mode === "plan_tasks" && <TodoPanel />}
 
         {/* Core Bitácora */}
-        <BitacoraCore />
+        <BitacoraCore autoOpenSheet={mode === "track_day"} />
 
         {/* Day summary (track_day and explore) */}
         {(mode === "track_day" || mode === "explore") && <DaySummaryCard />}

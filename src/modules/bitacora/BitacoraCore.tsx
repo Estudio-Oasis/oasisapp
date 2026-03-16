@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useBitacora, useBitacoraVM } from "./BitacoraContext";
 import { ActiveSessionCard } from "@/components/timer/ActiveSessionCard";
 import { TimerControls } from "@/components/timer/TimerControls";

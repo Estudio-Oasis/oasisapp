@@ -5,6 +5,7 @@ export interface DemoTodo {
   text: string;
   done: boolean;
   inProgress: boolean;
+  registeredMin?: number | null;
 }
 
 export const LS_DEMO_MODE = "bitacora_demo_mode";

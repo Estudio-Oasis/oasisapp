@@ -1,8 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Plus, Play, Trash2, CheckCircle2, Circle, ListChecks } from "lucide-react";
-import { useBitacora } from "../BitacoraContext";
+import { Plus, Play, Trash2, CheckCircle2, Circle, ListChecks, Square } from "lucide-react";
+import { useBitacora, useBitacoraVM } from "../BitacoraContext";
 import type { DemoTodo } from "./types";
 import { LS_DEMO_TODOS } from "./types";
+import { formatDuration } from "@/lib/timer-utils";
 
 function loadTodos(): DemoTodo[] {
   try {
@@ -22,6 +23,7 @@ export function TodoPanel() {
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const bita = useBitacora();
+  const vm = useBitacoraVM();
 
   useEffect(() => saveTodos(todos), [todos]);
 
@@ -30,10 +32,32 @@ export function TodoPanel() {
     setTimeout(() => inputRef.current?.focus(), 300);
   }, []);
 
+  // Track when active session stops — mark the in-progress todo as done with duration
+  const prevRunning = useRef(bita.isRunning);
+  useEffect(() => {
+    if (prevRunning.current && !bita.isRunning) {
+      // Session just stopped — find the in-progress todo and mark it
+      setTodos((prev) => {
+        const inProgressTodo = prev.find((t) => t.inProgress);
+        if (!inProgressTodo) return prev;
+        // Find the matching entry in the feed to get duration
+        const matchingEntry = vm.entries.find(
+          (e) => e.description === inProgressTodo.text
+        );
+        const duration = matchingEntry?.duration_min || null;
+        return prev.map((t) =>
+          t.id === inProgressTodo.id
+            ? { ...t, done: true, inProgress: false, registeredMin: duration }
+            : t
+        );
+      });
+    }
+    prevRunning.current = bita.isRunning;
+  }, [bita.isRunning, vm.entries]);
+
   const addTodo = useCallback(() => {
     const text = input.trim();
     if (!text) return;
-    // Support comma/newline separated batch
     const items = text.split(/[,\n]+/).map((t) => t.trim()).filter(Boolean);
     setTodos((prev) => [
       ...prev,
@@ -42,6 +66,7 @@ export function TodoPanel() {
         text: t,
         done: false,
         inProgress: false,
+        registeredMin: null,
       })),
     ]);
     setInput("");
@@ -61,7 +86,6 @@ export function TodoPanel() {
 
   const startTodo = useCallback(
     async (todo: DemoTodo) => {
-      // Mark all others as not in progress
       setTodos((prev) =>
         prev.map((t) =>
           t.id === todo.id
@@ -74,10 +98,14 @@ export function TodoPanel() {
     [bita]
   );
 
+  const stopTodo = useCallback(async () => {
+    await bita.stopActivity();
+  }, [bita]);
+
   const total = todos.length;
   const doneCount = todos.filter((t) => t.done).length;
-  const inProgressCount = todos.filter((t) => t.inProgress).length;
-  const pendingCount = total - doneCount;
+  const inProgressTodo = todos.find((t) => t.inProgress);
+  const pendingCount = total - doneCount - (inProgressTodo ? 1 : 0);
 
   return (
     <div className="rounded-2xl border border-border bg-card overflow-hidden">
@@ -92,7 +120,7 @@ export function TodoPanel() {
         {total > 0 && (
           <div className="flex items-center gap-2 text-[10px] font-medium text-foreground-muted">
             {pendingCount > 0 && <span>{pendingCount} pendiente{pendingCount !== 1 ? "s" : ""}</span>}
-            {inProgressCount > 0 && <span className="text-accent">· 1 en progreso</span>}
+            {inProgressTodo && <span className="text-accent">· 1 en curso</span>}
             {doneCount > 0 && <span className="text-green-500">· {doneCount} listo{doneCount !== 1 ? "s" : ""}</span>}
           </div>
         )}
@@ -141,7 +169,7 @@ export function TodoPanel() {
               key={todo.id}
               className={`px-4 py-2.5 flex items-center gap-3 group transition-colors ${
                 todo.inProgress ? "bg-accent/5" : ""
-              } ${todo.done ? "opacity-50" : ""}`}
+              } ${todo.done ? "opacity-60" : ""}`}
             >
               {/* Checkbox */}
               <button
@@ -155,22 +183,33 @@ export function TodoPanel() {
                 )}
               </button>
 
-              {/* Text */}
-              <span
-                className={`flex-1 text-[13px] ${
-                  todo.done
-                    ? "line-through text-foreground-muted"
-                    : "text-foreground"
-                }`}
-              >
-                {todo.text}
-              </span>
-
-              {/* In-progress badge */}
-              {todo.inProgress && (
-                <span className="text-[9px] font-bold text-accent bg-accent/10 px-1.5 py-0.5 rounded-full animate-pulse">
-                  EN CURSO
+              {/* Text + duration */}
+              <div className="flex-1 min-w-0">
+                <span
+                  className={`text-[13px] block truncate ${
+                    todo.done
+                      ? "line-through text-foreground-muted"
+                      : "text-foreground"
+                  }`}
+                >
+                  {todo.text}
                 </span>
+                {todo.done && todo.registeredMin != null && (
+                  <span className="text-[10px] text-green-600 font-medium">
+                    Registrado · {formatDuration(todo.registeredMin)}
+                  </span>
+                )}
+              </div>
+
+              {/* In-progress badge + stop */}
+              {todo.inProgress && (
+                <button
+                  onClick={stopTodo}
+                  className="flex items-center gap-1.5 text-[10px] font-bold text-accent bg-accent/10 px-2 py-1 rounded-full hover:bg-accent/20 transition-colors animate-pulse"
+                >
+                  <Square className="h-2.5 w-2.5 fill-current" />
+                  EN CURSO
+                </button>
               )}
 
               {/* Actions */}
