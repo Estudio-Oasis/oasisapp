@@ -59,6 +59,14 @@ export function ContextEnrichmentPanel() {
     });
   }, [config.mode]);
 
+  // Cascading: filter tasks by selected project or client
+  const filteredTasks = useMemo(() => {
+    if (!activeEntry) return tasks;
+    if (activeEntry.projectId) return tasks.filter((t) => t.projectId === activeEntry.projectId);
+    if (activeEntry.clientId) return tasks.filter((t) => t.clientId === activeEntry.clientId);
+    return tasks;
+  }, [tasks, activeEntry?.projectId, activeEntry?.clientId]);
+
   if (!activeEntry) return null;
 
   const currentProject = projects.find((p) => p.id === activeEntry.projectId);
@@ -71,13 +79,6 @@ export function ContextEnrichmentPanel() {
   const filteredProjects = activeEntry.clientId
     ? projects.filter((p) => p.clientId === activeEntry.clientId)
     : projects;
-
-  // Cascading: filter tasks by selected project or client
-  const filteredTasks = useMemo(() => {
-    if (activeEntry.projectId) return tasks.filter((t) => t.projectId === activeEntry.projectId);
-    if (activeEntry.clientId) return tasks.filter((t) => t.clientId === activeEntry.clientId);
-    return tasks;
-  }, [tasks, activeEntry.projectId, activeEntry.clientId]);
 
   const handleSelectProject = async (project: typeof projects[0]) => {
     await updateActiveEntry({
