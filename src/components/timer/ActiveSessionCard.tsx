@@ -4,7 +4,7 @@ import {
   getActivityConfig,
   UI_COPY,
 } from "./ActivityConstants";
-import { InlineContextChips } from "./InlineContextChips";
+
 
 interface ActiveSessionCardProps {
   variant: "compact" | "mobile" | "expanded";
@@ -121,8 +121,6 @@ export function ActiveSessionCard({
           </p>
         </div>
       </div>
-        {/* Inline context chips — enrich after starting */}
-        <InlineContextChips />
         {children && <div className="mt-3">{children}</div>}
     </div>
   );
