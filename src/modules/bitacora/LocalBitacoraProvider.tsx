@@ -56,8 +56,25 @@ function makeId() {
 
 /* ── Provider ── */
 
-export function LocalBitacoraProvider({ children }: { children: ReactNode }) {
-  const [entries, setEntries] = useState<EntryInfo[]>(() => loadLS(LS_ENTRIES, []));
+export function LocalBitacoraProvider({
+  children,
+  initialEntries,
+}: {
+  children: ReactNode;
+  initialEntries?: EntryInfo[];
+}) {
+  const [entries, setEntries] = useState<EntryInfo[]>(() => {
+    if (initialEntries && initialEntries.length > 0) {
+      // Only seed if localStorage is empty (first load of explore mode)
+      const existing = loadLS<EntryInfo[]>(LS_ENTRIES, []);
+      if (existing.length === 0) {
+        saveLS(LS_ENTRIES, initialEntries);
+        return initialEntries;
+      }
+      return existing;
+    }
+    return loadLS(LS_ENTRIES, []);
+  });
   const [active, setActive] = useState<ActiveEntryInfo | null>(() => loadLS(LS_ACTIVE, null));
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [recents, setRecents] = useState<RecentEntry[]>(() => loadLS(LS_RECENTS, []));
