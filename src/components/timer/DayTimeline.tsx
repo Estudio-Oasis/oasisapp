@@ -177,12 +177,12 @@ export function DayTimeline({
         )}
       </div>
 
-      {/* Hour labels below — minimal */}
-      <div className="relative h-3.5 mt-0.5">
+      {/* Hour labels below */}
+      <div className="relative h-4 mt-0.5">
         {hourMarkers.filter((_, i) => i % 2 === 0 || i === hourMarkers.length - 1).map((m) => (
           <span
             key={m.label}
-            className="absolute text-[8px] text-foreground-muted/50 tabular-nums -translate-x-1/2"
+            className="absolute text-[9px] text-foreground-muted/60 tabular-nums font-medium -translate-x-1/2"
             style={{ left: `${m.pct}%` }}
           >
             {m.label}
