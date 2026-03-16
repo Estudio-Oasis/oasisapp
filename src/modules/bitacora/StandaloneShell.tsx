@@ -173,7 +173,7 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
             </button>
             <Link
               to="/signup?from=demo"
-              className="h-8 px-4 rounded-full bg-foreground text-background text-[12px] font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity"
+              className="hidden sm:flex h-8 px-4 rounded-full bg-foreground text-background text-[12px] font-semibold items-center gap-1.5 hover:opacity-90 transition-opacity"
             >
               Probar gratis <ArrowRight className="h-3 w-3" />
             </Link>
