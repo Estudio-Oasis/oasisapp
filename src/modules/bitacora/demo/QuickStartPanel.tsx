@@ -102,15 +102,7 @@ export function QuickStartPanel() {
           </button>
         </div>
 
-        {/* Main CTA */}
-        <button
-          onClick={handleStart}
-          disabled={loading}
-          className="w-full h-12 rounded-xl bg-foreground text-background text-[14px] font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
-        >
-          <Play className="h-4 w-4" />
-          Empezar ahora
-        </button>
+        {/* Removed "Empezar ahora" button — play inside input is the single primary action */}
       </div>
 
       {/* Quick action grid */}

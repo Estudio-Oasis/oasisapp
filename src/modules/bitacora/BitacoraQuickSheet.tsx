@@ -185,7 +185,7 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
               ) : (
                 <ChevronDown className="h-3 w-3" />
               )}
-              Añadir contexto
+              Añadir detalles
               {(selectedProjectId || selectedClientId) && (
                 <span className="text-accent ml-1">·</span>
               )}

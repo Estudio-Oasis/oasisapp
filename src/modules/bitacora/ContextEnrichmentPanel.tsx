@@ -166,7 +166,7 @@ export function ContextEnrichmentPanel() {
         <div className="rounded-lg border border-border bg-background p-2.5 space-y-2 animate-in fade-in-0 slide-in-from-top-1 duration-200">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold text-foreground-secondary uppercase tracking-wider">
-              Contexto de actividad
+              Detalles de actividad
             </span>
             <button
               onClick={() => setIsOpen(false)}

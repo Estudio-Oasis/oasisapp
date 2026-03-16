@@ -259,7 +259,7 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
           className="flex items-center gap-1 mt-3 px-1 text-[11px] font-medium text-foreground-muted hover:text-foreground-secondary transition-colors"
         >
           {showContext ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-          Añadir contexto
+          Añadir detalles
           {(selectedProjectId || selectedClientId) && (
             <span className="text-accent ml-1">·</span>
           )}
