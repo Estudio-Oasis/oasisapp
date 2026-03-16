@@ -1,28 +1,39 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { hasDemoEntries, migrateDemoEntries } from "@/modules/bitacora/demo/migrateDemoToAccount";
+import { toast } from "sonner";
 
 export default function Signup() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const fromDemo = searchParams.get("from") === "demo";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [demoCount] = useState(() => {
+    try {
+      const raw = localStorage.getItem("bitacora_local_entries");
+      if (!raw) return 0;
+      return JSON.parse(raw).filter((e: any) => e.ended_at).length;
+    } catch { return 0; }
+  });
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (password !== confirmPassword) {
-      setError("Passwords don't match");
+      setError("Las contraseñas no coinciden");
       return;
     }
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error: signupError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -31,12 +42,21 @@ export default function Signup() {
       },
     });
 
-    if (error) {
-      setError(error.message);
+    if (signupError) {
+      setError(signupError.message);
       setLoading(false);
-    } else {
-      navigate("/timer");
+      return;
     }
+
+    // Migrate demo entries if they exist
+    if (data.user && hasDemoEntries()) {
+      const count = await migrateDemoEntries(data.user.id);
+      if (count > 0) {
+        toast.success(`${count} registros del demo guardados en tu cuenta`);
+      }
+    }
+
+    navigate("/timer");
   };
 
   return (
@@ -50,9 +70,13 @@ export default function Signup() {
         </div>
 
         {/* Heading */}
-        <h1 className="text-h1 text-foreground text-center mt-4">Create your account</h1>
+        <h1 className="text-h1 text-foreground text-center mt-4">
+          {fromDemo ? "Guarda tu día" : "Crea tu cuenta"}
+        </h1>
         <p className="text-sm text-foreground-secondary text-center mt-1">
-          Start managing your agency
+          {fromDemo && demoCount > 0
+            ? `Tienes ${demoCount} registro${demoCount > 1 ? "s" : ""} del demo que se guardarán automáticamente`
+            : "Empieza a gestionar tu tiempo"}
         </p>
 
         {/* Form */}
@@ -64,11 +88,11 @@ export default function Signup() {
           )}
 
           <div className="space-y-1.5">
-            <label htmlFor="name" className="text-label">Full name</label>
+            <label htmlFor="name" className="text-label">Nombre</label>
             <Input
               id="name"
               type="text"
-              placeholder="Your name"
+              placeholder="Tu nombre"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -80,7 +104,7 @@ export default function Signup() {
             <Input
               id="email"
               type="email"
-              placeholder="you@company.com"
+              placeholder="tu@empresa.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -88,7 +112,7 @@ export default function Signup() {
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="password" className="text-label">Password</label>
+            <label htmlFor="password" className="text-label">Contraseña</label>
             <Input
               id="password"
               type="password"
@@ -101,7 +125,7 @@ export default function Signup() {
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="confirmPassword" className="text-label">Confirm password</label>
+            <label htmlFor="confirmPassword" className="text-label">Confirmar contraseña</label>
             <Input
               id="confirmPassword"
               type="password"
@@ -114,15 +138,19 @@ export default function Signup() {
           </div>
 
           <Button type="submit" className="w-full h-11" disabled={loading}>
-            {loading ? "Creating account…" : "Create account"}
+            {loading
+              ? "Creando cuenta…"
+              : fromDemo && demoCount > 0
+                ? `Crear cuenta y guardar ${demoCount} registro${demoCount > 1 ? "s" : ""}`
+                : "Crear cuenta"}
           </Button>
         </form>
 
         {/* Footer */}
         <p className="text-small text-foreground-secondary text-center mt-6">
-          Already have an account?{" "}
+          ¿Ya tienes cuenta?{" "}
           <Link to="/login" className="font-semibold text-foreground hover:text-accent transition-colors">
-            Sign in
+            Inicia sesión
           </Link>
         </p>
       </div>
