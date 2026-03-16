@@ -105,7 +105,7 @@ function DeferredCTA({ onDismiss }: { onDismiss: () => void }) {
       </p>
       <div className="flex flex-wrap justify-center gap-2">
         <Link
-          to="/signup"
+          to="/signup?from=demo"
           className="inline-flex h-9 px-5 rounded-full bg-foreground text-background text-[12px] font-semibold items-center gap-1.5 hover:opacity-90 transition-opacity"
         >
           Crear cuenta <ArrowRight className="h-3 w-3" />
