@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LocalBitacoraProvider } from "./LocalBitacoraProvider";
 import { BitacoraCore } from "./BitacoraCore";
-import { useBitacoraVM } from "./BitacoraContext";
+import { useBitacora, useBitacoraVM } from "./BitacoraContext";
 import { ArrowRight, ArrowLeft, RotateCcw, Sparkles, ListChecks, Compass } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TodoPanel } from "./demo/TodoPanel";
 import { DaySummaryCard } from "./demo/DaySummaryCard";
 import { TrackDayHint } from "./demo/TrackDayHint";
+import { QuickStartPanel } from "./demo/QuickStartPanel";
 import { generateExploreEntries } from "./demo/mockExploreData";
 import type { DemoMode } from "./demo/types";
 import { LS_DEMO_MODE, LS_DEMO_TODOS } from "./demo/types";
@@ -120,10 +121,11 @@ function DeferredCTA({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
-/* ── Standalone Shell ── */
+/* ── Standalone Inner ── */
 function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => void }) {
   const [ctaDismissed, setCtaDismissed] = useState(false);
   const navigate = useNavigate();
+  const bita = useBitacora();
 
   const handleReset = () => {
     LS_KEYS_TO_CLEAR.forEach((k) => localStorage.removeItem(k));
@@ -135,6 +137,9 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
     plan_tasks: "Pendientes",
     explore: "Explorar",
   };
+
+  // Show QuickStartPanel when in track_day mode and NOT running
+  const showQuickStart = mode === "track_day" && !bita.isRunning;
 
   return (
     <div className="min-h-screen bg-background">
@@ -183,12 +188,13 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
       </div>
 
       <main className="max-w-2xl mx-auto px-3 py-3 space-y-3">
-        {/* Mode-specific panels */}
-        {mode === "track_day" && <TrackDayHint />}
+        {/* Mode-specific top panels */}
+        {showQuickStart && <QuickStartPanel />}
+        {mode === "track_day" && bita.isRunning && <TrackDayHint />}
         {mode === "plan_tasks" && <TodoPanel />}
 
-        {/* Core Bitácora */}
-        <BitacoraCore autoOpenSheet={mode === "track_day"} />
+        {/* Core Bitácora — no auto-open sheet, we use QuickStartPanel instead */}
+        <BitacoraCore />
 
         {/* Day summary (track_day and explore) */}
         {(mode === "track_day" || mode === "explore") && <DaySummaryCard />}
@@ -225,7 +231,6 @@ export function BitacoraStandalone() {
     return <MiniOnboarding onComplete={handleOnboardingComplete} />;
   }
 
-  // For "explore" mode, pre-load mock data
   const initialEntries = mode === "explore" ? generateExploreEntries() : undefined;
 
   return (

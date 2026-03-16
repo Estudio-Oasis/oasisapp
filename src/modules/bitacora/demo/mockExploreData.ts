@@ -3,8 +3,8 @@ import type { EntryInfo } from "../types";
 const LOCAL_USER_ID = "local-demo-user";
 
 /**
- * Generates realistic mock data for "Solo explorar" mode.
- * Includes: deep work, meetings, breaks, meals, gaps, and one unclassified block.
+ * Generates a 100% fictional day for "Solo explorar" mode.
+ * No real names, no real clients. A relatable, aspirational narrative.
  */
 export function generateExploreEntries(): EntryInfo[] {
   const now = new Date();
@@ -39,35 +39,27 @@ export function generateExploreEntries(): EntryInfo[] {
 
   const currentHour = now.getHours();
 
-  // Realistic day with variety:
-  // 9:00–9:15  → Correos (warm-up, no client)
-  // 9:15–10:30 → Deep work with client
-  // 10:30–10:45 → Break ☕
-  // 10:45–12:00 → Deep work continues
-  // GAP 12:00–12:15 → intentional gap (no entry)
-  // 12:15–12:45 → Meeting
-  // 12:45–13:45 → Lunch
-  // 13:45–14:00 → Unclassified block (no context, teaches enrichment)
-  // 14:00–15:30 → Client work
-  // 15:30–15:45 → Quick call
-  // 15:45–16:45 → Corrections
-  // 16:45–17:00 → Day close
+  // A fictional freelancer/agency day — relatable and aspirational
   const allEntries = [
-    makeEntry(9, 0, 9, 15, "Revisión de correos y Slack"),
-    makeEntry(9, 15, 10, 30, "Diseño de landing page — wireframes y estructura", "7H Studios", "Rediseño web"),
-    makeEntry(10, 30, 10, 45, "Break ☕"),
-    makeEntry(10, 45, 12, 0, "Desarrollo de componentes React", "7H Studios", "Rediseño web"),
-    // GAP: 12:00 to 12:15 — no entry on purpose
-    makeEntry(12, 15, 12, 45, "Reunión de seguimiento con equipo"),
-    makeEntry(12, 45, 13, 45, "Comida 🍽️"),
-    // Unclassified block — no client, no task, vague description
-    makeEntry(13, 45, 14, 0, "Cosas varias"),
-    makeEntry(14, 0, 15, 30, "Propuesta de proyecto nuevo", "Amura Digital", "Propuesta Q2"),
-    makeEntry(15, 30, 15, 45, "Llamada rápida con Carla"),
-    makeEntry(15, 45, 16, 45, "Correcciones de copy y assets", "7H Studios", "Rediseño web"),
-    makeEntry(16, 45, 17, 0, "Revisión de pendientes y cierre del día"),
+    makeEntry(7, 0, 7, 35, "Salió a correr 🏃"),
+    makeEntry(7, 40, 8, 10, "Desayuno y café ☕"),
+    makeEntry(8, 15, 8, 30, "Revisión de mensajes y emails"),
+    makeEntry(8, 30, 9, 30, "Junta de arranque con equipo"),
+    makeEntry(9, 30, 11, 0, "Diseño de propuesta comercial", "Café Montaña", "Propuesta branding"),
+    makeEntry(11, 0, 11, 15, "Break rápido ☕"),
+    makeEntry(11, 15, 12, 30, "Desarrollo de landing page", "Luna Studio", "Rediseño web Q2"),
+    // GAP: 12:30 to 13:00 — intentional gap (no entry)
+    makeEntry(13, 0, 13, 50, "Comida 🍽️"),
+    // Unclassified block — vague, teaches enrichment
+    makeEntry(13, 50, 14, 10, "Cosas varias"),
+    makeEntry(14, 10, 15, 30, "Correcciones de copy y assets", "Luna Studio", "Rediseño web Q2"),
+    makeEntry(15, 30, 15, 50, "Llamada con Valeria — revisión de avances"),
+    makeEntry(15, 50, 16, 0, "Break y estiramiento"),
+    makeEntry(16, 0, 17, 0, "Avance en estrategia de contenido", "Café Montaña", "Plan de contenido"),
+    makeEntry(17, 0, 17, 20, "Revisión de pendientes y cierre del día 📋"),
   ];
 
+  // Only show entries that have ended by now
   return allEntries.filter((e) => {
     const endH = new Date(e.ended_at!).getHours();
     const endM = new Date(e.ended_at!).getMinutes();
