@@ -153,10 +153,10 @@ function Hero() {
         <RevealSection delay={300}>
           <div className="mt-10 flex flex-wrap gap-4">
             <a
-              href="#contacto"
+              href="/bitacora-demo"
               className="h-12 px-7 rounded-full bg-[#1A1A1A] text-[#FAFAF8] text-[14px] font-semibold flex items-center gap-2 hover:bg-[#333] transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              Ver demo <ArrowRight className="h-4 w-4" />
+              Ver Bitácora en acción <ArrowRight className="h-4 w-4" />
             </a>
             <a
               href="#productos"
