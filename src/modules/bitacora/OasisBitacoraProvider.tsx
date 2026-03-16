@@ -15,6 +15,8 @@ import type {
   RecentEntry,
   ActiveEntryInfo,
   StartActivityInput,
+  FillGapInput,
+  UpdateEntryInput,
 } from "./types";
 
 const OASIS_CONFIG: BitacoraConfig = {
