@@ -45,9 +45,9 @@ export function generateExploreEntries(): EntryInfo[] {
     makeEntry(7, 40, 8, 10, "Desayuno y café ☕"),
     makeEntry(8, 15, 8, 30, "Revisión de mensajes y emails"),
     makeEntry(8, 30, 9, 30, "Junta de arranque con equipo"),
-    makeEntry(9, 30, 11, 0, "Diseño de propuesta comercial", "Café Montaña", "Propuesta branding"),
+    makeEntry(9, 30, 11, 0, "Propuesta comercial", "Café Montaña", "Propuesta branding"),
     makeEntry(11, 0, 11, 15, "Break rápido ☕"),
-    makeEntry(11, 15, 12, 30, "Desarrollo de landing page", "Luna Studio", "Rediseño web Q2"),
+    makeEntry(11, 15, 12, 30, "Rediseño de landing page", "Luna Studio", "Rediseño web Q2"),
     // GAP: 12:30 to 13:00 — intentional gap (no entry)
     makeEntry(13, 0, 13, 50, "Comida 🍽️"),
     // Unclassified block — vague, teaches enrichment
@@ -55,7 +55,7 @@ export function generateExploreEntries(): EntryInfo[] {
     makeEntry(14, 10, 15, 30, "Correcciones de copy y assets", "Luna Studio", "Rediseño web Q2"),
     makeEntry(15, 30, 15, 50, "Llamada con Valeria — revisión de avances"),
     makeEntry(15, 50, 16, 0, "Break y estiramiento"),
-    makeEntry(16, 0, 17, 0, "Avance en estrategia de contenido", "Café Montaña", "Plan de contenido"),
+    makeEntry(16, 0, 17, 0, "Estrategia de contenido", "Estudio Norte", "Plan de contenido"),
     makeEntry(17, 0, 17, 20, "Revisión de pendientes y cierre del día 📋"),
   ];
 

@@ -7,7 +7,6 @@ import { ArrowRight, ArrowLeft, RotateCcw, Sparkles, ListChecks, Compass } from 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TodoPanel } from "./demo/TodoPanel";
 import { DaySummaryCard } from "./demo/DaySummaryCard";
-import { TrackDayHint } from "./demo/TrackDayHint";
 import { QuickStartPanel } from "./demo/QuickStartPanel";
 import { generateExploreEntries } from "./demo/mockExploreData";
 import type { DemoMode } from "./demo/types";
@@ -173,7 +172,7 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
             </button>
             <Link
               to="/signup?from=demo"
-              className="h-8 px-4 rounded-full bg-foreground text-background text-[12px] font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity"
+              className="hidden sm:flex h-8 px-4 rounded-full bg-foreground text-background text-[12px] font-semibold items-center gap-1.5 hover:opacity-90 transition-opacity"
             >
               Probar gratis <ArrowRight className="h-3 w-3" />
             </Link>
@@ -190,7 +189,7 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
       <main className="max-w-2xl mx-auto px-3 py-3 space-y-3">
         {/* Mode-specific top panels */}
         {showQuickStart && <QuickStartPanel />}
-        {mode === "track_day" && bita.isRunning && <TrackDayHint />}
+        {/* TrackDayHint removed when running — ActiveSessionCard is the hero */}
         {mode === "plan_tasks" && <TodoPanel />}
 
         {/* Core Bitácora — hide QuickLogInput when QuickStartPanel is visible */}

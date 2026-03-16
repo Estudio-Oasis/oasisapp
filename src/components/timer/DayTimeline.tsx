@@ -25,6 +25,7 @@ interface DayTimelineProps {
   workEndHour?: number;
   workEndMinute?: number;
   onGapClick?: (gap: TimelineGap) => void;
+  onEntryClick?: (entry: TimelineEntry) => void;
 }
 
 export function DayTimeline({
@@ -35,6 +36,7 @@ export function DayTimeline({
   workEndHour = 18,
   workEndMinute = 0,
   onGapClick,
+  onEntryClick,
 }: DayTimelineProps) {
   const today = new Date();
   const dayStart = new Date(today);
@@ -63,6 +65,7 @@ export function DayTimeline({
     color: string;
     label: string;
     gap?: TimelineGap;
+    entry?: TimelineEntry;
   };
 
   const blocks: Block[] = [];
@@ -81,6 +84,7 @@ export function DayTimeline({
       end: Math.min(end, dayEnd.getTime()),
       color,
       label,
+      entry: e,
     });
   });
 
@@ -90,7 +94,7 @@ export function DayTimeline({
       start: Math.max(g.startTime.getTime(), dayStart.getTime()),
       end: Math.min(g.endTime.getTime(), dayEnd.getTime()),
       color: "transparent",
-      label: `${g.durationMin}m sin registrar`,
+      label: `${g.durationMin} min sin registrar`,
       gap: g,
     });
   });
@@ -148,8 +152,9 @@ export function DayTimeline({
               return (
                 <Tooltip key={`entry-${i}`}>
                   <TooltipTrigger asChild>
-                    <div
-                      className="h-full rounded-sm transition-opacity hover:opacity-80"
+                    <button
+                      onClick={() => block.entry && onEntryClick?.(block.entry)}
+                      className="h-full rounded-sm transition-opacity hover:opacity-80 cursor-pointer"
                       style={{
                         width: `${widthPct}%`,
                         backgroundColor: block.color,

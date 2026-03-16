@@ -165,26 +165,52 @@ export function TodoPanel() {
           className="w-full bg-background-secondary border border-border rounded-xl px-4 py-3 text-[14px] text-foreground placeholder:text-foreground-muted resize-none focus:outline-none focus:border-accent/50 transition-all"
         />
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={addFromInput}
-            disabled={!input.trim()}
-            className="h-10 px-5 rounded-xl bg-foreground text-background text-[13px] font-bold flex items-center gap-2 hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-30"
-          >
-            {hasMultipleLines ? (
-              <>
+        <div className="flex items-center gap-2 flex-wrap">
+          {hasMultipleLines ? (
+            <>
+              <button
+                onClick={addFromInput}
+                disabled={!input.trim()}
+                className="h-10 px-5 rounded-xl bg-foreground text-background text-[13px] font-bold flex items-center gap-2 hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-30"
+              >
                 <Sparkles className="h-3.5 w-3.5" />
                 Convertir en lista
-              </>
-            ) : (
-              <>
-                <Plus className="h-3.5 w-3.5" />
-                Agregar
-              </>
-            )}
-          </button>
+              </button>
+              <button
+                onClick={() => {
+                  const text = input.trim();
+                  if (!text) return;
+                  setTodos((prev) => [
+                    ...prev,
+                    {
+                      id: `todo-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                      text,
+                      done: false,
+                      inProgress: false,
+                      registeredMin: null,
+                    },
+                  ]);
+                  setInput("");
+                  setComposerMode(false);
+                }}
+                disabled={!input.trim()}
+                className="h-10 px-4 rounded-xl border border-border text-foreground-secondary text-[13px] font-semibold flex items-center gap-2 hover:bg-background-tertiary active:scale-[0.97] transition-all disabled:opacity-30"
+              >
+                Guardar como actividad
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={addFromInput}
+              disabled={!input.trim()}
+              className="h-10 px-5 rounded-xl bg-foreground text-background text-[13px] font-bold flex items-center gap-2 hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-30"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Agregar
+            </button>
+          )}
           <span className="text-[10px] text-foreground-muted">
-            Comas, líneas o texto largo — lo separamos automáticamente
+            Dictar o pegar varios y lo separamos
           </span>
         </div>
       </div>

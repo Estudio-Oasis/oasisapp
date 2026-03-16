@@ -84,6 +84,19 @@ export interface BitacoraConfig {
 
 /* ── Full provider contract ── */
 
+export interface FillGapInput {
+  description: string;
+  startedAt: string;
+  endedAt: string;
+  activityType?: ActivityType;
+}
+
+export interface UpdateEntryInput {
+  description?: string;
+  started_at?: string;
+  ended_at?: string;
+}
+
 export interface BitacoraProviderValue {
   // Session
   isRunning: boolean;
@@ -97,6 +110,11 @@ export interface BitacoraProviderValue {
   stopActivity(): Promise<void>;
   startQuickAction(actionKey: string): Promise<void>;
   updateActiveEntry(updates: Partial<StartActivityInput>): Promise<void>;
+
+  // Gap & entry editing
+  fillGap(input: FillGapInput): Promise<void>;
+  updateEntry(id: string, updates: UpdateEntryInput): Promise<void>;
+  deleteEntry(id: string): Promise<void>;
 
   // Catalog
   projects: ProjectOption[];
