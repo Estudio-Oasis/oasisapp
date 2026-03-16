@@ -94,7 +94,7 @@ export function DayTimeline({
       start: Math.max(g.startTime.getTime(), dayStart.getTime()),
       end: Math.min(g.endTime.getTime(), dayEnd.getTime()),
       color: "transparent",
-      label: `${g.durationMin}m sin registrar`,
+      label: `${g.durationMin} min sin registrar`,
       gap: g,
     });
   });
