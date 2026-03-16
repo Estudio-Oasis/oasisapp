@@ -205,6 +205,53 @@ export function LocalBitacoraProvider({
     });
   }, []);
 
+  // Fill a gap with a completed entry
+  const fillGap = useCallback(async (input: FillGapInput) => {
+    const durMin = Math.round(
+      (new Date(input.endedAt).getTime() - new Date(input.startedAt).getTime()) / 60000
+    );
+    const newEntry: EntryInfo = {
+      id: makeId(),
+      description: input.description,
+      client_id: null,
+      task_id: null,
+      project_id: null,
+      user_id: LOCAL_USER_ID,
+      started_at: input.startedAt,
+      ended_at: input.endedAt,
+      duration_min: durMin,
+      clients: null,
+      tasks: null,
+    };
+    setEntries((prev) => [newEntry, ...prev]);
+  }, []);
+
+  // Update an existing completed entry
+  const updateEntry = useCallback(async (id: string, updates: UpdateEntryInput) => {
+    setEntries((prev) =>
+      prev.map((e) => {
+        if (e.id !== id) return e;
+        const newStarted = updates.started_at || e.started_at;
+        const newEnded = updates.ended_at || e.ended_at;
+        const durMin = newEnded
+          ? Math.round((new Date(newEnded).getTime() - new Date(newStarted).getTime()) / 60000)
+          : e.duration_min;
+        return {
+          ...e,
+          ...(updates.description !== undefined && { description: updates.description }),
+          ...(updates.started_at !== undefined && { started_at: updates.started_at }),
+          ...(updates.ended_at !== undefined && { ended_at: updates.ended_at }),
+          duration_min: durMin,
+        };
+      })
+    );
+  }, []);
+
+  // Delete an entry
+  const deleteEntry = useCallback(async (id: string) => {
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+  }, []);
+
   // Compute gaps
   const now = new Date();
   const todayEntries = entries.filter(
