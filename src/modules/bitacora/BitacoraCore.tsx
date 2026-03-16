@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useBitacora, useBitacoraVM } from "./BitacoraContext";
 import { ActiveSessionCard } from "@/components/timer/ActiveSessionCard";
 import { TimerControls } from "@/components/timer/TimerControls";
@@ -20,11 +20,22 @@ import { formatDateLong, formatDuration, formatDayHeader } from "@/lib/timer-uti
  * Reads everything from BitacoraContext + ViewModelContext.
  * No direct Supabase or TimerContext imports.
  */
-export function BitacoraCore() {
+export function BitacoraCore({ autoOpenSheet = false }: { autoOpenSheet?: boolean } = {}) {
   const bita = useBitacora();
   const vm = useBitacoraVM();
 
   const [quickSheetOpen, setQuickSheetOpen] = useState(false);
+  const autoOpenedRef = useRef(false);
+
+  // Auto-open QuickSheet once in track_day mode when there are no entries
+  useEffect(() => {
+    if (autoOpenSheet && !autoOpenedRef.current && !bita.isRunning && vm.entries.length === 0) {
+      autoOpenedRef.current = true;
+      // Small delay to let the UI render first
+      const t = setTimeout(() => setQuickSheetOpen(true), 400);
+      return () => clearTimeout(t);
+    }
+  }, [autoOpenSheet, bita.isRunning, vm.entries.length]);
   const [quickSheetMode, setQuickSheetMode] = useState<"start" | "switch">("start");
   const [modalOpen, setModalOpen] = useState(false);
   const [gapPrefill, setGapPrefill] = useState<{ start: string; end: string } | null>(null);

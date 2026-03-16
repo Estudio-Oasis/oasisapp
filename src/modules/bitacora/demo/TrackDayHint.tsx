@@ -1,8 +1,9 @@
 import { useBitacoraVM } from "../BitacoraContext";
-import { Sparkles } from "lucide-react";
+import { Zap } from "lucide-react";
 
 /**
- * A small contextual hint shown in track_day mode when the user has no entries yet.
+ * A strong contextual hint shown in track_day mode when the user has no entries yet.
+ * Points directly at the launcher to drive first capture in < 3 seconds.
  */
 export function TrackDayHint() {
   const vm = useBitacoraVM();
@@ -10,13 +11,16 @@ export function TrackDayHint() {
 
   return (
     <div className="rounded-xl border border-accent/20 bg-accent/5 px-4 py-3 flex items-start gap-3">
-      <Sparkles className="h-4 w-4 text-accent shrink-0 mt-0.5" />
-      <div className="space-y-0.5">
-        <p className="text-[12px] font-medium text-foreground">
-          Empieza registrando lo primero que estás haciendo
+      <div className="h-7 w-7 rounded-lg bg-accent/15 flex items-center justify-center shrink-0 mt-0.5">
+        <Zap className="h-3.5 w-3.5 text-accent" />
+      </div>
+      <div className="space-y-1">
+        <p className="text-[13px] font-semibold text-foreground">
+          ¿Qué estás haciendo ahora mismo?
         </p>
-        <p className="text-[10px] text-foreground-muted">
-          Escribe en el launcher arriba y empieza tu timer. Después puedes agregar contexto.
+        <p className="text-[11px] text-foreground-muted leading-relaxed">
+          Toca el launcher de arriba, escribe algo rápido (ej. "revisando correos") y listo.
+          Después puedes agregar cliente, proyecto o tarea.
         </p>
       </div>
     </div>
