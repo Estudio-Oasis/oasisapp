@@ -79,7 +79,7 @@ export function NotificationBell() {
               type: "time_gap",
                title: `Tiempo sin registrar · ${h > 0 ? `${h}h ` : ""}${m}m`,
               body: `Hoy, ${end.toLocaleTimeString("es-MX", { hour: "numeric", minute: "2-digit" })} – ${nextStart.toLocaleTimeString("es-MX", { hour: "numeric", minute: "2-digit" })}`,
-              link: "/timer",
+              link: "/bitacora",
             });
           }
         }
