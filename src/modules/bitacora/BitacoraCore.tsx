@@ -10,7 +10,7 @@ import { GapAlert } from "@/components/timer/GapAlert";
 import { EmptyState } from "@/components/timer/EmptyState";
 import { UI_COPY } from "@/components/timer/ActivityConstants";
 import { BitacoraQuickSheet } from "./BitacoraQuickSheet";
-import { BitacoraInlineChips } from "./BitacoraInlineChips";
+import { ContextEnrichmentPanel } from "./ContextEnrichmentPanel";
 import { StartTimerModal } from "@/components/StartTimerModal";
 import { Plus } from "lucide-react";
 import { formatDateLong, formatDuration, formatDayHeader } from "@/lib/timer-utils";
@@ -52,8 +52,8 @@ export function BitacoraCore() {
               clientId={bita.activeEntry?.clientId}
               elapsedSeconds={bita.elapsedSeconds}
             >
-              {/* Inline context chips — uses abstract provider */}
-              {config.mode === "oasis" && <BitacoraInlineChips />}
+              {/* Context enrichment panel — works in both modes */}
+              <ContextEnrichmentPanel />
               <TimerControls
                 onSwitch={() => {
                   setQuickSheetMode("switch");
