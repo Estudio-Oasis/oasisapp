@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Coffee, Utensils, Bath, Monitor, Moon, Video } from "lucide-react";
-import { StartTimerModal } from "@/components/StartTimerModal";
+import { QuickSheet } from "@/components/timer/QuickSheet";
 
 interface MemberPresence {
   user_id: string;
