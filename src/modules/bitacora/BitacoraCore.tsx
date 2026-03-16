@@ -52,8 +52,8 @@ export function BitacoraCore() {
               clientId={bita.activeEntry?.clientId}
               elapsedSeconds={bita.elapsedSeconds}
             >
-              {/* Inline context chips — uses abstract provider */}
-              {config.mode === "oasis" && <BitacoraInlineChips />}
+              {/* Context enrichment panel — works in both modes */}
+              <ContextEnrichmentPanel />
               <TimerControls
                 onSwitch={() => {
                   setQuickSheetMode("switch");
