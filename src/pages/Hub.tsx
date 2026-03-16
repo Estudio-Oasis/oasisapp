@@ -303,12 +303,14 @@ export default function HubPage() {
       </div>
 
       {/* Chat list */}
-      <ChatList
-        conversations={conversations}
-        profiles={allProfiles}
-        currentUserId={user?.id || ""}
-        onOpenChat={handleOpenChat}
-      />
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <ChatList
+          conversations={conversations}
+          profiles={allProfiles}
+          currentUserId={user?.id || ""}
+          onOpenChat={handleOpenChat}
+        />
+      </div>
 
       {/* Chat panel */}
       <ChatPanel
