@@ -11,10 +11,12 @@ import {
   Coffee,
   Utensils,
   Briefcase,
+  ListTodo,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import { getClientColor } from "@/lib/timer-utils";
+import { getNormalizedActivityType, getActivityConfig } from "./ActivityConstants";
 import { toast } from "sonner";
 
 /* ── Types ─────────────────────────────────────────────────── */
@@ -33,7 +35,7 @@ interface QuickAction {
   key: string;
   label: string;
   icon: React.ElementType;
-  description: string; // what gets stored
+  description: string;
   isBreak: boolean;
 }
 
@@ -41,6 +43,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   { key: "reunion", label: "Reunión", icon: Video, description: "Reunión", isBreak: false },
   { key: "break", label: "Descanso", icon: Coffee, description: "Break", isBreak: true },
   { key: "comida", label: "Comida", icon: Utensils, description: "Comiendo", isBreak: true },
+  { key: "pendientes", label: "Pendientes", icon: ListTodo, description: "Pendientes del día", isBreak: false },
 ];
 
 /* ── Props ─────────────────────────────────────────────────── */
@@ -48,7 +51,6 @@ const QUICK_ACTIONS: QuickAction[] = [
 interface QuickSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** "start" = new session, "switch" = swap running session */
   mode?: "start" | "switch";
 }
 
@@ -63,9 +65,9 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
   const [loading, setLoading] = useState(false);
   const [showContext, setShowContext] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
+  const [projects, setProjects] = useState<{ id: string; name: string; clientId: string }[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -75,7 +77,6 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
       setText("");
       setShowContext(false);
       setSelectedClientId(null);
-      setSelectedTaskId(null);
       setSelectedProjectId(null);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
@@ -90,10 +91,9 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
       .eq("user_id", user.id)
       .not("ended_at", "is", null)
       .order("started_at", { ascending: false })
-      .limit(20)
+      .limit(30)
       .then(({ data }) => {
         if (!data) return;
-        // Deduplicate by description+client combo
         const seen = new Set<string>();
         const unique: RecentEntry[] = [];
         for (const e of data) {
@@ -109,13 +109,13 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
             taskTitle: (e.tasks as any)?.title || null,
             projectId: e.project_id,
           });
-          if (unique.length >= 5) break;
+          if (unique.length >= 6) break;
         }
         setRecents(unique);
       });
   }, [open, user]);
 
-  // Load clients for optional context
+  // Load clients & projects for optional context
   useEffect(() => {
     if (!open) return;
     supabase
@@ -124,20 +124,32 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
       .eq("status", "active")
       .order("name")
       .then(({ data }) => setClients(data || []));
+    supabase
+      .from("projects")
+      .select("id, name, client_id")
+      .eq("status", "active")
+      .order("name")
+      .then(({ data }) => setProjects((data || []).map(p => ({ id: p.id, name: p.name, clientId: p.client_id }))));
   }, [open]);
 
   /* ── Handlers ────────────────────────────────────────────── */
 
-  const handleStart = useCallback(async (desc?: string | null, clientId?: string | null, taskId?: string | null, projectId?: string | null) => {
+  const handleStart = useCallback(async (
+    desc?: string | null,
+    clientId?: string | null,
+    taskId?: string | null,
+    projectId?: string | null
+  ) => {
     setLoading(true);
     try {
+      const input = {
+        description: desc || null,
+        clientId: clientId || null,
+        taskId: taskId || null,
+        projectId: projectId || null,
+      };
       const fn = mode === "switch" ? switchTask : startTimer;
-      await fn(
-        clientId || null,
-        taskId || null,
-        projectId || null,
-        desc || null,
-      );
+      await fn(input);
       onOpenChange(false);
     } catch {
       toast.error("No se pudo iniciar. Intenta de nuevo.");
@@ -150,13 +162,11 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
     setLoading(true);
     try {
       if (action.isBreak) {
-        const breakMap: Record<string, string> = {
-          break: "break",
-          comida: "eating",
-        };
+        const breakMap: Record<string, string> = { break: "break", comida: "eating" };
         await startBreakTimer(breakMap[action.key] || action.key);
       } else {
-        await startTimer(null, null, null, action.description);
+        const fn = mode === "switch" ? switchTask : startTimer;
+        await fn({ description: action.description });
       }
       onOpenChange(false);
     } catch {
@@ -164,20 +174,29 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
     } finally {
       setLoading(false);
     }
-  }, [startBreakTimer, startTimer, onOpenChange]);
+  }, [startBreakTimer, startTimer, switchTask, mode, onOpenChange]);
 
   const handleRecentSelect = useCallback((recent: RecentEntry) => {
     handleStart(recent.description, recent.clientId, recent.taskId, recent.projectId);
   }, [handleStart]);
 
   const handleSubmit = useCallback(() => {
-    handleStart(text.trim() || null, selectedClientId, selectedTaskId, selectedProjectId);
-  }, [text, selectedClientId, selectedTaskId, selectedProjectId, handleStart]);
+    handleStart(text.trim() || null, selectedClientId, null, selectedProjectId);
+  }, [text, selectedClientId, selectedProjectId, handleStart]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
+    }
+  };
+
+  // Auto-select client when project is selected
+  const handleProjectSelect = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      setSelectedClientId(project.clientId);
     }
   };
 
@@ -216,13 +235,8 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
           </button>
         </div>
 
-        {/* ── Microcopy ── */}
-        <p className="text-[11px] text-foreground-muted mt-1.5 px-1">
-          Escribe algo, elige un reciente o toca una acción rápida
-        </p>
-
         {/* ── Quick Actions ── */}
-        <div className="flex gap-2 mt-3">
+        <div className="flex gap-1.5 mt-3">
           {QUICK_ACTIONS.map((action) => {
             const Icon = action.icon;
             return (
@@ -230,7 +244,7 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
                 key={action.key}
                 onClick={() => handleQuickAction(action)}
                 disabled={loading}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-background-secondary py-2.5 text-[12px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background-tertiary transition-colors active:scale-[0.97] disabled:opacity-50"
+                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-background-secondary py-2.5 text-[11px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background-tertiary transition-colors active:scale-[0.97] disabled:opacity-50"
               >
                 <Icon className="h-3.5 w-3.5" />
                 {action.label}
@@ -239,42 +253,76 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
           })}
         </div>
 
-        {/* ── Optional context (project/client) ── */}
+        {/* ── Optional context (project → client) ── */}
         <button
           onClick={() => setShowContext(!showContext)}
           className="flex items-center gap-1 mt-3 px-1 text-[11px] font-medium text-foreground-muted hover:text-foreground-secondary transition-colors"
         >
           {showContext ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-          Añadir contexto (cliente, proyecto)
+          Añadir contexto
+          {(selectedProjectId || selectedClientId) && (
+            <span className="text-accent ml-1">·</span>
+          )}
+          {selectedProjectId && (
+            <span className="text-accent text-[10px]">
+              {projects.find(p => p.id === selectedProjectId)?.name}
+            </span>
+          )}
+          {selectedClientId && !selectedProjectId && (
+            <span className="text-accent text-[10px]">
+              {clients.find(c => c.id === selectedClientId)?.name}
+            </span>
+          )}
         </button>
 
         {showContext && (
-          <div className="mt-2 space-y-2 px-1">
-            <div className="flex flex-wrap gap-1.5">
-              {selectedClientId && (
-                <button
-                  onClick={() => setSelectedClientId(null)}
-                  className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-1 text-[11px] font-medium text-accent"
-                >
-                  {clients.find(c => c.id === selectedClientId)?.name || "Cliente"}
-                  <span className="text-accent/60">×</span>
-                </button>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {clients.filter(c => c.id !== selectedClientId).slice(0, 6).map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setSelectedClientId(c.id)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-foreground-secondary hover:text-foreground hover:border-foreground/30 transition-colors"
-                >
-                  <span
-                    className="h-2 w-2 rounded-full shrink-0"
-                    style={{ backgroundColor: getClientColor(c.name) }}
-                  />
-                  {c.name}
-                </button>
-              ))}
+          <div className="mt-2 space-y-3 px-1">
+            {/* Projects first */}
+            {projects.length > 0 && (
+              <div>
+                <p className="text-[10px] font-semibold text-foreground-muted uppercase tracking-wider mb-1.5">Proyecto</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {projects.slice(0, 8).map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => selectedProjectId === p.id ? (setSelectedProjectId(null), setSelectedClientId(null)) : handleProjectSelect(p.id)}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                        selectedProjectId === p.id
+                          ? "border-accent bg-accent/15 text-accent"
+                          : "border-border text-foreground-secondary hover:text-foreground hover:border-foreground/30"
+                      }`}
+                    >
+                      {p.name}
+                      {selectedProjectId === p.id && <span className="text-accent/60">×</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Clients */}
+            <div>
+              <p className="text-[10px] font-semibold text-foreground-muted uppercase tracking-wider mb-1.5">Cliente</p>
+              <div className="flex flex-wrap gap-1.5">
+                {clients.slice(0, 6).map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedClientId(selectedClientId === c.id ? null : c.id)}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                      selectedClientId === c.id
+                        ? "border-accent bg-accent/15 text-accent"
+                        : "border-border text-foreground-secondary hover:text-foreground hover:border-foreground/30"
+                    }`}
+                  >
+                    <span
+                      className="h-2 w-2 rounded-full shrink-0"
+                      style={{ backgroundColor: getClientColor(c.name) }}
+                    />
+                    {c.name}
+                    {selectedClientId === c.id && <span className="text-accent/60 ml-0.5">×</span>}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -286,45 +334,54 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
               Recientes
             </p>
             <div className="space-y-0.5">
-              {recents.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleRecentSelect(item)}
-                  disabled={loading}
-                  className="flex items-center gap-3 w-full rounded-lg px-2.5 py-2.5 hover:bg-background-secondary transition-colors text-left active:scale-[0.98] disabled:opacity-50"
-                >
-                  <div
-                    className="h-7 w-7 rounded-full flex items-center justify-center shrink-0"
-                    style={{
-                      backgroundColor: item.clientId
-                        ? `${getClientColor(item.clientName || "")}20`
-                        : "hsl(var(--muted))",
-                    }}
+              {recents.map((item) => {
+                const actType = getNormalizedActivityType({
+                  description: item.description,
+                  client_id: item.clientId,
+                });
+                const config = getActivityConfig(actType);
+                const Icon = config.icon;
+
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleRecentSelect(item)}
+                    disabled={loading}
+                    className="flex items-center gap-3 w-full rounded-lg px-2.5 py-2.5 hover:bg-background-secondary transition-colors text-left active:scale-[0.98] disabled:opacity-50"
                   >
-                    {item.clientId ? (
-                      <span
-                        className="text-[10px] font-bold"
-                        style={{ color: getClientColor(item.clientName || "") }}
-                      >
-                        {(item.clientName || "?").slice(0, 2).toUpperCase()}
-                      </span>
-                    ) : (
-                      <Briefcase className="h-3.5 w-3.5 text-foreground-muted" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-medium text-foreground truncate">
-                      {item.taskTitle || item.description || "Sin descripción"}
-                    </p>
-                    {item.clientName && (
-                      <p className="text-[11px] text-foreground-secondary truncate">
-                        {item.clientName}
+                    <div
+                      className="h-7 w-7 rounded-full flex items-center justify-center shrink-0"
+                      style={{
+                        backgroundColor: item.clientId
+                          ? `${getClientColor(item.clientName || "")}20`
+                          : `${config.color}20`,
+                      }}
+                    >
+                      {item.clientId ? (
+                        <span
+                          className="text-[10px] font-bold"
+                          style={{ color: getClientColor(item.clientName || "") }}
+                        >
+                          {(item.clientName || "?").slice(0, 2).toUpperCase()}
+                        </span>
+                      ) : (
+                        <Icon className="h-3.5 w-3.5" style={{ color: config.color }} />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13px] font-medium text-foreground truncate">
+                        {item.taskTitle || item.description || config.label}
                       </p>
-                    )}
-                  </div>
-                  <Clock className="h-3.5 w-3.5 text-foreground-muted shrink-0" />
-                </button>
-              ))}
+                      {(item.clientName || item.description) && (
+                        <p className="text-[11px] text-foreground-secondary truncate">
+                          {item.clientName || item.description}
+                        </p>
+                      )}
+                    </div>
+                    <Clock className="h-3.5 w-3.5 text-foreground-muted shrink-0" />
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
