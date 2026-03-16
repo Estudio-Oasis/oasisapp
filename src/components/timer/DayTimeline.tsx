@@ -166,13 +166,13 @@ export function DayTimeline({
           )}
         </div>
 
-        {/* Current time needle */}
+        {/* Current time needle — prominent */}
         {showNowIndicator && (
           <div
-            className="absolute top-0 h-full w-0.5 bg-accent z-10"
+            className="absolute top-0 h-full w-[3px] bg-accent z-10 rounded-full shadow-[0_0_6px_hsl(var(--accent)/0.5)]"
             style={{ left: `${nowPct}%` }}
           >
-            <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-accent" />
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 h-2.5 w-2.5 rounded-full bg-accent border-2 border-card" />
           </div>
         )}
       </div>
