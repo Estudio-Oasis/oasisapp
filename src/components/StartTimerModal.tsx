@@ -255,19 +255,19 @@ export function StartTimerModal({
           ended_at: endDate.toISOString(),
         });
       } else if (mode === "switch") {
-        await switchTask(
-          selectedClientId,
-          selectedTaskId || null,
-          selectedProjectId || null,
-          description || null
-        );
+        await switchTask({
+          clientId: selectedClientId,
+          taskId: selectedTaskId || null,
+          projectId: selectedProjectId || null,
+          description: description || null,
+        });
       } else {
-        await startTimer(
-          selectedClientId,
-          selectedTaskId || null,
-          selectedProjectId || null,
-          description || null
-        );
+        await startTimer({
+          clientId: selectedClientId,
+          taskId: selectedTaskId || null,
+          projectId: selectedProjectId || null,
+          description: description || null,
+        });
       }
       onOpenChange(false);
     } finally {
