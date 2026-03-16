@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTimer } from "@/contexts/TimerContext";
 import { useLocation } from "react-router-dom";
 import { formatElapsed } from "@/lib/timer-utils";
-import { StartTimerModal } from "@/components/StartTimerModal";
+import { QuickSheet } from "@/components/timer/QuickSheet";
 import { Loader2 } from "lucide-react";
 
 export function TimerWidget() {
