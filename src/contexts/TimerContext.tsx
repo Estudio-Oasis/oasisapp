@@ -517,6 +517,12 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const startBreakTimer = useCallback(async (breakType?: string) => {
     if (!userId) return;
 
+    // Stop any active session before starting a break
+    if (state.activeEntry && !state.isStopping) {
+      const stopped = await stopTimer();
+      if (!stopped) return;
+    }
+
     const label = breakType === "eating" ? "Comiendo" : breakType === "bathroom" ? "AFK" : breakType === "meeting" ? "Reunión" : breakType === "offline" ? "Offline" : "Break";
     const startedAt = new Date().toISOString();
     const { data: entry, error } = await supabase
