@@ -47,7 +47,7 @@ export function generateExploreEntries(): EntryInfo[] {
     makeEntry(8, 30, 9, 30, "Junta de arranque con equipo"),
     makeEntry(9, 30, 11, 0, "Propuesta comercial", "Café Montaña", "Propuesta branding"),
     makeEntry(11, 0, 11, 15, "Break rápido ☕"),
-    makeEntry(11, 15, 12, 30, "Desarrollo de landing page", "Luna Studio", "Rediseño web Q2"),
+    makeEntry(11, 15, 12, 30, "Rediseño de landing page", "Luna Studio", "Rediseño web Q2"),
     // GAP: 12:30 to 13:00 — intentional gap (no entry)
     makeEntry(13, 0, 13, 50, "Comida 🍽️"),
     // Unclassified block — vague, teaches enrichment
