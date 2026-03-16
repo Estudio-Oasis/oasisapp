@@ -95,7 +95,7 @@ export default function BitacoraPage() {
             </ActiveSessionCard>
           ) : (
             <QuickLogInput
-              onClick={() => { setModalMode("start"); setModalOpen(true); }}
+              onClick={() => { setQuickSheetMode("start"); setQuickSheetOpen(true); }}
               todaySummary={todaySummaryText}
               totalMinutes={totalMinutes}
             />
