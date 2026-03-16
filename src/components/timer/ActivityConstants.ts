@@ -228,8 +228,8 @@ export const UI_COPY = {
   weekTab: "Esta semana",
   myEntries: "Mis registros",
   allEntries: "Todos",
-  gapLabel: "Tiempo sin registrar",
-  gapAction: "¿Qué pasó aquí?",
+  gapLabel: "Hueco sin registrar",
+  gapAction: "Completar hueco",
 } as const;
 
 // ── Truncation rules ──────────────────────────────────────────────

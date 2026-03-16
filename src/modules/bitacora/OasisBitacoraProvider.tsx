@@ -174,7 +174,11 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
         started_at: input.startedAt,
         ended_at: input.endedAt,
       });
-      if (error) console.error("fillGap error:", error);
+      if (error) {
+        toast.error("No se pudo guardar el registro");
+        return;
+      }
+      toast.success("Hueco completado");
       fetchEntries();
     },
     [user, fetchEntries]
@@ -183,11 +187,22 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
   // Update an existing entry
   const updateEntry = useCallback(
     async (id: string, updates: UpdateEntryInput) => {
+      // Strict validation: end must be after start
+      if (updates.started_at && updates.ended_at) {
+        if (new Date(updates.ended_at) <= new Date(updates.started_at)) {
+          toast.error("La hora de fin debe ser posterior al inicio");
+          return;
+        }
+      }
       const { error } = await supabase
         .from("time_entries")
         .update(updates)
         .eq("id", id);
-      if (error) console.error("updateEntry error:", error);
+      if (error) {
+        toast.error("No se pudo actualizar la entrada");
+        return;
+      }
+      toast.success("Entrada actualizada");
       fetchEntries();
     },
     [fetchEntries]
@@ -200,7 +215,11 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
         .from("time_entries")
         .delete()
         .eq("id", id);
-      if (error) console.error("deleteEntry error:", error);
+      if (error) {
+        toast.error("No se pudo eliminar la entrada");
+        return;
+      }
+      toast.success("Entrada eliminada");
       fetchEntries();
     },
     [fetchEntries]
