@@ -193,8 +193,8 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
         {mode === "track_day" && bita.isRunning && <TrackDayHint />}
         {mode === "plan_tasks" && <TodoPanel />}
 
-        {/* Core Bitácora — no auto-open sheet, we use QuickStartPanel instead */}
-        <BitacoraCore />
+        {/* Core Bitácora — hide QuickLogInput when QuickStartPanel is visible */}
+        <BitacoraCore hideQuickLog={showQuickStart} />
 
         {/* Day summary (track_day and explore) */}
         {(mode === "track_day" || mode === "explore") && <DaySummaryCard />}
