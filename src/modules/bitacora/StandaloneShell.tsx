@@ -7,7 +7,6 @@ import { ArrowRight, ArrowLeft, RotateCcw, Sparkles, ListChecks, Compass } from 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TodoPanel } from "./demo/TodoPanel";
 import { DaySummaryCard } from "./demo/DaySummaryCard";
-import { TrackDayHint } from "./demo/TrackDayHint";
 import { QuickStartPanel } from "./demo/QuickStartPanel";
 import { generateExploreEntries } from "./demo/mockExploreData";
 import type { DemoMode } from "./demo/types";
