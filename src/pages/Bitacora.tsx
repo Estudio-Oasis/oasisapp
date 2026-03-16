@@ -11,6 +11,7 @@ import { TimeEntryRow } from "@/components/timer/TimeEntryRow";
 import { GapAlert } from "@/components/timer/GapAlert";
 import { EmptyState } from "@/components/timer/EmptyState";
 import { UI_COPY } from "@/components/timer/ActivityConstants";
+import { QuickSheet } from "@/components/timer/QuickSheet";
 import { StartTimerModal } from "@/components/StartTimerModal";
 import { Plus } from "lucide-react";
 import {
