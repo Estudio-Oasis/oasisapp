@@ -396,12 +396,14 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       let client: Client | null = null;
       let task: Task | null = null;
 
-      const { data: clientData } = await supabase
-        .from("clients")
-        .select("*")
-        .eq("id", clientId)
-        .maybeSingle();
-      client = clientData;
+      if (clientId) {
+        const { data: clientData } = await supabase
+          .from("clients")
+          .select("*")
+          .eq("id", clientId)
+          .maybeSingle();
+        client = clientData;
+      }
 
       if (taskId) {
         const { data: taskData } = await supabase
