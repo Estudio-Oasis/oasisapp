@@ -88,7 +88,7 @@ export function TimerWidget() {
         )}
       </div>
 
-      <StartTimerModal open={modalOpen} onOpenChange={setModalOpen} mode={modalMode} />
+      <QuickSheet open={modalOpen} onOpenChange={setModalOpen} mode={modalMode} />
     </>
   );
 }
