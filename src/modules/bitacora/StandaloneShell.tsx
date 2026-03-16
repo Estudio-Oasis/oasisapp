@@ -172,7 +172,7 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
               <span className="hidden sm:inline">Reiniciar</span>
             </button>
             <Link
-              to="/signup"
+              to="/signup?from=demo"
               className="h-8 px-4 rounded-full bg-foreground text-background text-[12px] font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity"
             >
               Probar gratis <ArrowRight className="h-3 w-3" />
