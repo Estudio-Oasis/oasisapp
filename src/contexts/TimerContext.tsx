@@ -11,10 +11,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
+import type { ActivityType } from "@/components/timer/ActivityConstants";
 
 type TimeEntry = Tables<"time_entries">;
 type Client = Tables<"clients">;
 type Task = Tables<"tasks">;
+
+/* ── Input types ───────────────────────────────────────────── */
+
+export interface StartActivityInput {
+  description?: string | null;
+  projectId?: string | null;
+  taskId?: string | null;
+  clientId?: string | null;
+  activityType?: ActivityType;
+}
+
+/* ── State ─────────────────────────────────────────────────── */
 
 interface TimerState {
   isRunning: boolean;
@@ -26,21 +39,13 @@ interface TimerState {
 }
 
 interface TimerContextType extends TimerState {
-  startTimer: (
-    clientId?: string | null,
-    taskId?: string | null,
-    projectId?: string | null,
-    description?: string | null
-  ) => Promise<void>;
+  startTimer: (input: StartActivityInput) => Promise<void>;
   stopTimer: () => Promise<boolean>;
-  switchTask: (
-    clientId?: string | null,
-    taskId?: string | null,
-    projectId?: string | null,
-    description?: string | null
-  ) => Promise<void>;
+  switchTask: (input: StartActivityInput) => Promise<void>;
   startBreakTimer: (breakType?: string) => Promise<void>;
   setManualStatus: (status: string) => Promise<void>;
+  /** Update context on the active entry without stopping */
+  updateActiveEntry: (updates: Partial<StartActivityInput>) => Promise<void>;
 }
 
 const ACTIVE_TIMER_STORAGE_KEY = "oasis_active_entry";
@@ -55,10 +60,8 @@ interface PersistedActiveEntry {
 
 const getPersistedActiveEntry = (): PersistedActiveEntry | null => {
   if (typeof window === "undefined") return null;
-
   const raw = localStorage.getItem(ACTIVE_TIMER_STORAGE_KEY);
   if (!raw) return null;
-
   try {
     return JSON.parse(raw) as PersistedActiveEntry;
   } catch {
@@ -74,7 +77,6 @@ const clearPersistedActiveEntry = () => {
 
 const persistActiveEntry = (entry: TimeEntry) => {
   if (typeof window === "undefined") return;
-
   const payload: PersistedActiveEntry = {
     entryId: entry.id,
     clientId: entry.client_id,
@@ -82,7 +84,6 @@ const persistActiveEntry = (entry: TimeEntry) => {
     projectId: entry.project_id,
     startedAt: entry.started_at,
   };
-
   localStorage.setItem(ACTIVE_TIMER_STORAGE_KEY, JSON.stringify(payload));
 };
 
@@ -102,6 +103,7 @@ const TimerContext = createContext<TimerContextType>({
   switchTask: async () => {},
   startBreakTimer: async () => {},
   setManualStatus: async () => {},
+  updateActiveEntry: async () => {},
 });
 
 export const useTimer = () => useContext(TimerContext);
@@ -129,12 +131,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     setState(initialTimerState);
   }, []);
 
-  // Calculate elapsed from started_at
   const calcElapsed = useCallback((startedAt: string) => {
     return Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000);
   }, []);
 
-  // Start interval
   const startInterval = useCallback(
     (startedAt: string) => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -151,7 +151,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   // Helper to stop an offline/break timer if one is running
   const stopOfflineTimerIfRunning = useCallback(async () => {
     if (!userId) return;
-    // Check if there's an open entry with "Offline" description
     const { data: offlineEntry } = await supabase
       .from("time_entries")
       .select("id")
@@ -168,7 +167,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         .eq("id", offlineEntry.id)
         .is("ended_at", null);
 
-      // Clear local timer state if it matches
       if (state.activeEntry?.id === offlineEntry.id) {
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
@@ -180,12 +178,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     }
   }, [userId, state.activeEntry?.id, resetTimerState]);
 
-  // === ALWAYS-ON PRESENCE: heartbeat every 30s while user is logged in ===
+  // === ALWAYS-ON PRESENCE: heartbeat every 30s ===
   useEffect(() => {
     if (!userId) return;
 
-    // Initial presence upsert — mark as online immediately
-    // Only set "online" if there's no active timer (timer sets "working")
     const initPresence = async () => {
       const { data } = await supabase
         .from("member_presence")
@@ -193,12 +189,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         .eq("user_id", userId)
         .maybeSingle();
 
-      // If no row exists or status is offline, set to online and stop offline timer
       if (!data || data.status === "offline") {
         await stopOfflineTimerIfRunning();
         await upsertPresence(userId, "online");
       } else {
-        // Just update last_seen_at to keep alive
         await supabase.from("member_presence").upsert({
           user_id: userId,
           status: data.status,
@@ -210,7 +204,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
     initPresence();
 
-    // Heartbeat every 30s
     const heartbeat = setInterval(async () => {
       const { data } = await supabase
         .from("member_presence")
@@ -234,18 +227,9 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       }
     }, 30000);
 
-    // On page unload, try to set offline
     const handleBeforeUnload = () => {
-      // Use sendBeacon for reliability
       const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/member_presence?user_id=eq.${userId}`;
-      const body = JSON.stringify({
-        status: "offline",
-        current_client: null,
-        current_task: null,
-        last_seen_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      });
-      navigator.sendBeacon?.(url); // Best effort
+      navigator.sendBeacon?.(url);
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
@@ -345,8 +329,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       });
 
       startInterval(entry.started_at);
-
-      // Update presence to working
       await upsertPresence(userId, "working", client?.name, task?.title);
     };
 
@@ -361,15 +343,13 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     };
   }, [userId, calcElapsed, resetTimerState, startInterval]);
 
+  /* ── startTimer ──────────────────────────────────────────── */
+
   const startTimer = useCallback(
-    async (
-      clientId?: string | null,
-      taskId?: string | null,
-      projectId?: string | null,
-      description?: string | null
-    ) => {
+    async (input: StartActivityInput) => {
       if (!userId) return;
 
+      const { description, projectId, taskId, clientId } = input;
       const startedAt = new Date().toISOString();
       const { data: entry, error } = await supabase
         .from("time_entries")
@@ -390,8 +370,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         toast.error("No se pudo iniciar el timer. Intenta de nuevo.");
         return;
       }
-
-      console.log("[timer] started entry", entry.id);
 
       let client: Client | null = null;
       let task: Task | null = null;
@@ -415,8 +393,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       }
 
       persistActiveEntry(entry);
-
-      // Upsert presence as working
       await upsertPresence(userId, "working", client?.name, task?.title);
 
       setState({
@@ -433,10 +409,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     [userId, startInterval]
   );
 
+  /* ── stopTimer ───────────────────────────────────────────── */
+
   const stopTimer = useCallback(async () => {
-    if (!state.activeEntry || state.isStopping) {
-      return false;
-    }
+    if (!state.activeEntry || state.isStopping) return false;
 
     const entryId = state.activeEntry.id;
     const endedAt = new Date().toISOString();
@@ -479,7 +455,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
     clearPersistedActiveEntry();
 
-    // Update presence to online (not working anymore but still here)
     if (userId) {
       await upsertPresence(userId, "online");
     }
@@ -488,21 +463,51 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     return true;
   }, [resetTimerState, state.activeEntry, state.isStopping, userId]);
 
+  /* ── switchTask ──────────────────────────────────────────── */
+
   const switchTask = useCallback(
-    async (
-      clientId?: string | null,
-      taskId?: string | null,
-      projectId?: string | null,
-      description?: string | null
-    ) => {
+    async (input: StartActivityInput) => {
       const stopped = await stopTimer();
       if (!stopped) return;
-      await startTimer(clientId, taskId, projectId, description);
+      await startTimer(input);
     },
     [stopTimer, startTimer]
   );
 
-  // Start a break timer (no client, no task)
+  /* ── updateActiveEntry ───────────────────────────────────── */
+
+  const updateActiveEntry = useCallback(async (updates: Partial<StartActivityInput>) => {
+    if (!state.activeEntry) return;
+
+    const patch: Record<string, unknown> = {};
+    if (updates.description !== undefined) patch.description = updates.description || null;
+    if (updates.projectId !== undefined) patch.project_id = updates.projectId || null;
+    if (updates.taskId !== undefined) patch.task_id = updates.taskId || null;
+    if (updates.clientId !== undefined) patch.client_id = updates.clientId || null;
+
+    if (Object.keys(patch).length === 0) return;
+
+    const { error } = await supabase
+      .from("time_entries")
+      .update(patch)
+      .eq("id", state.activeEntry.id);
+
+    if (error) {
+      toast.error("No se pudo actualizar la entrada.");
+      return;
+    }
+
+    // Update local state
+    setState((prev) => ({
+      ...prev,
+      activeEntry: prev.activeEntry ? { ...prev.activeEntry, ...patch } as TimeEntry : null,
+    }));
+
+    toast.success("Contexto actualizado");
+  }, [state.activeEntry]);
+
+  /* ── startBreakTimer ─────────────────────────────────────── */
+
   const startBreakTimer = useCallback(async (breakType?: string) => {
     if (!userId) return;
 
@@ -528,7 +533,6 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Toast de confirmación
     const toastMessages: Record<string, string> = {
       break: "☕ Comenzaste un break",
       eating: "🍽️ Comenzaste un break para comer",
@@ -554,12 +558,12 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     startInterval(entry.started_at);
   }, [userId, startInterval]);
 
-  // Manual status change (for break, eating, etc.)
+  /* ── setManualStatus ─────────────────────────────────────── */
+
   const setManualStatus = useCallback(async (status: string) => {
     if (!userId) return;
     await upsertPresence(userId, status);
 
-    // Non-blocking Slack notification for status change
     try {
       const { data: profile } = await supabase.from("profiles").select("name, email").eq("id", userId).maybeSingle();
       const userName = profile?.name || profile?.email?.split("@")[0] || "Un miembro";
@@ -580,6 +584,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         switchTask,
         startBreakTimer,
         setManualStatus,
+        updateActiveEntry,
       }}
     >
       {children}
