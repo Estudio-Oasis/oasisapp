@@ -27,7 +27,7 @@ interface TimerState {
 
 interface TimerContextType extends TimerState {
   startTimer: (
-    clientId: string,
+    clientId?: string | null,
     taskId?: string | null,
     projectId?: string | null,
     description?: string | null
