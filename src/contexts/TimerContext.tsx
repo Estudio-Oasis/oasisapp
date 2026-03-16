@@ -34,7 +34,7 @@ interface TimerContextType extends TimerState {
   ) => Promise<void>;
   stopTimer: () => Promise<boolean>;
   switchTask: (
-    clientId: string,
+    clientId?: string | null,
     taskId?: string | null,
     projectId?: string | null,
     description?: string | null
