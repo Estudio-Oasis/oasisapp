@@ -1,6 +1,5 @@
 import { Clock } from "lucide-react";
 import { formatTime, formatDuration } from "@/lib/timer-utils";
-import { UI_COPY } from "./ActivityConstants";
 
 interface GapAlertProps {
   startTime: Date;
