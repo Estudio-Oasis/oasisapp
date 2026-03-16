@@ -12,6 +12,7 @@ import { AppLayout } from "@/components/AppLayout";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import BitacoraPage from "./pages/Bitacora";
+import BitacoraDemo from "./pages/BitacoraDemo";
 import TimerPage from "./pages/Timer";
 import SetupPage from "./pages/Setup";
 import ClientsPage from "./pages/Clients";
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/setup" element={<SetupPage />} />
+              <Route path="/bitacora-demo" element={<BitacoraDemo />} />
               <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
                 <Route
                   element={
