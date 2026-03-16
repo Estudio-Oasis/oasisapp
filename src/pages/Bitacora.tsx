@@ -26,6 +26,8 @@ export default function BitacoraPage() {
 
   const [view, setView] = useState<"today" | "week">("today");
   const [entryFilter, setEntryFilter] = useState<"mine" | "all">(isAdmin ? "all" : "mine");
+  const [quickSheetOpen, setQuickSheetOpen] = useState(false);
+  const [quickSheetMode, setQuickSheetMode] = useState<"start" | "switch">("start");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"start" | "switch" | "manual">("start");
   const [gapPrefill, setGapPrefill] = useState<{ start: string; end: string } | null>(null);
