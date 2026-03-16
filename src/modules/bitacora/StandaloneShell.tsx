@@ -190,7 +190,7 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
       <main className="max-w-2xl mx-auto px-3 py-3 space-y-3">
         {/* Mode-specific top panels */}
         {showQuickStart && <QuickStartPanel />}
-        {mode === "track_day" && bita.isRunning && <TrackDayHint />}
+        {/* TrackDayHint removed when running — ActiveSessionCard is the hero */}
         {mode === "plan_tasks" && <TodoPanel />}
 
         {/* Core Bitácora — hide QuickLogInput when QuickStartPanel is visible */}

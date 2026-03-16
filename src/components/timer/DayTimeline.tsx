@@ -152,8 +152,9 @@ export function DayTimeline({
               return (
                 <Tooltip key={`entry-${i}`}>
                   <TooltipTrigger asChild>
-                    <div
-                      className="h-full rounded-sm transition-opacity hover:opacity-80"
+                    <button
+                      onClick={() => block.entry && onEntryClick?.(block.entry)}
+                      className="h-full rounded-sm transition-opacity hover:opacity-80 cursor-pointer"
                       style={{
                         width: `${widthPct}%`,
                         backgroundColor: block.color,

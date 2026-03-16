@@ -144,16 +144,16 @@ export function ContextEnrichmentPanel() {
           )}
           <button
             onClick={() => setIsOpen(true)}
-            className="inline-flex items-center gap-1 rounded-full border border-dashed border-foreground/20 px-2 py-0.5 text-[10px] font-medium text-foreground-muted hover:text-foreground-secondary hover:border-foreground/30 transition-colors"
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-border bg-accent/5 text-[12px] font-semibold text-accent hover:bg-accent/10 transition-colors"
           >
             {hasAnyContext ? (
               <>
-                <Sparkles className="h-2.5 w-2.5" />
+                <Sparkles className="h-3.5 w-3.5" />
                 Editar detalles
               </>
             ) : (
               <>
-                <Plus className="h-2.5 w-2.5" />
+                <Plus className="h-3.5 w-3.5" />
                 Añadir detalles
               </>
             )}

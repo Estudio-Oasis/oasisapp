@@ -8,12 +8,16 @@ import { DayInsights } from "@/components/timer/DayInsights";
 import { TimeEntryRow } from "@/components/timer/TimeEntryRow";
 import { GapAlert } from "@/components/timer/GapAlert";
 import { EmptyState } from "@/components/timer/EmptyState";
-import { UI_COPY } from "@/components/timer/ActivityConstants";
+import { ACTIVITY_TYPES, UI_COPY } from "@/components/timer/ActivityConstants";
+import type { ActivityType } from "@/components/timer/ActivityConstants";
 import { BitacoraQuickSheet } from "./BitacoraQuickSheet";
 import { ContextEnrichmentPanel } from "./ContextEnrichmentPanel";
 import { StartTimerModal } from "@/components/StartTimerModal";
+import { GapFillSheet } from "@/components/timer/GapFillSheet";
+import { EntryEditSheet } from "@/components/timer/EntryEditSheet";
 import { Plus } from "lucide-react";
 import { formatDateLong, formatDuration, formatDayHeader } from "@/lib/timer-utils";
+import type { EntryInfo, GapInfo } from "./types";
 
 /**
  * BitacoraCore — the shared visual nucleus.
@@ -39,13 +43,51 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
   const [modalOpen, setModalOpen] = useState(false);
   const [gapPrefill, setGapPrefill] = useState<{ start: string; end: string } | null>(null);
 
-  const { config } = bita;
+  // Gap fill sheet state
+  const [gapSheetOpen, setGapSheetOpen] = useState(false);
+  const [selectedGap, setSelectedGap] = useState<GapInfo | null>(null);
 
-  const openGapModal = (gap: { startTime: Date; endTime: Date }) => {
-    const toTimeStr = (d: Date) =>
-      `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-    setGapPrefill({ start: toTimeStr(gap.startTime), end: toTimeStr(gap.endTime) });
-    setModalOpen(true);
+  // Entry edit sheet state
+  const [editSheetOpen, setEditSheetOpen] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<EntryInfo | null>(null);
+
+  const { config } = bita;
+  const isStandalone = config.mode === "standalone";
+
+  const openGapModal = (gap: { startTime: Date; endTime: Date; durationMin: number }) => {
+    if (isStandalone) {
+      setSelectedGap(gap as GapInfo);
+      setGapSheetOpen(true);
+    } else {
+      const toTimeStr = (d: Date) =>
+        `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+      setGapPrefill({ start: toTimeStr(gap.startTime), end: toTimeStr(gap.endTime) });
+      setModalOpen(true);
+    }
+  };
+
+  const handlePause = (pauseType: string) => {
+    const actType = pauseType as ActivityType;
+    const actConfig = ACTIVITY_TYPES[actType];
+    if (actConfig) {
+      bita.switchActivity({
+        description: actConfig.label,
+        activityType: actType,
+      });
+    } else {
+      bita.switchActivity({ description: pauseType });
+    }
+  };
+
+  const handleEntryClick = (entry: { startedAt: string; endedAt: string; clientName?: string | null; clientId?: string | null; description?: string | null; durationMin?: number | null }) => {
+    // Find the matching EntryInfo from vm.entries
+    const match = vm.entries.find(
+      (e) => e.started_at === entry.startedAt && e.ended_at === entry.endedAt
+    );
+    if (match) {
+      setSelectedEntry(match);
+      setEditSheetOpen(true);
+    }
   };
 
   return (
@@ -69,7 +111,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
                   setQuickSheetMode("switch");
                   setQuickSheetOpen(true);
                 }}
-                onPause={() => {}}
+                onPause={handlePause}
                 onFinish={() => void bita.stopActivity()}
                 isStopping={bita.isStopping}
                 layout="row"
@@ -107,6 +149,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
             workEndHour={vm.workSchedule.endHour}
             workEndMinute={vm.workSchedule.endMinute}
             onGapClick={openGapModal}
+            onEntryClick={handleEntryClick}
           />
         </div>
 
@@ -259,6 +302,32 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
           if (!open) vm.refresh();
         }}
         mode={quickSheetMode}
+      />
+
+      {/* ── GAP FILL SHEET (standalone) ── */}
+      <GapFillSheet
+        open={gapSheetOpen}
+        onOpenChange={(open) => {
+          setGapSheetOpen(open);
+          if (!open) {
+            setSelectedGap(null);
+            vm.refresh();
+          }
+        }}
+        gap={selectedGap}
+      />
+
+      {/* ── ENTRY EDIT SHEET ── */}
+      <EntryEditSheet
+        open={editSheetOpen}
+        onOpenChange={(open) => {
+          setEditSheetOpen(open);
+          if (!open) {
+            setSelectedEntry(null);
+            vm.refresh();
+          }
+        }}
+        entry={selectedEntry}
       />
 
       {/* ── MANUAL MODAL (OasisOS only) ── */}
