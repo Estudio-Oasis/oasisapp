@@ -363,7 +363,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const startTimer = useCallback(
     async (
-      clientId: string,
+      clientId?: string | null,
       taskId?: string | null,
       projectId?: string | null,
       description?: string | null
