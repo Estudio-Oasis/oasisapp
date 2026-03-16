@@ -75,7 +75,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
                 layout="row"
               />
             </ActiveSessionCard>
-          ) : (
+          ) : hideQuickLog ? null : (
             <QuickLogInput
               onClick={() => {
                 setQuickSheetMode("start");
