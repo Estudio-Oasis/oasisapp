@@ -253,14 +253,24 @@ export default function BitacoraPage() {
         </div>
       )}
 
-      {/* ── MODAL ── */}
+      {/* ── QUICK SHEET (launcher + switch) ── */}
+      <QuickSheet
+        open={quickSheetOpen}
+        onOpenChange={(open) => {
+          setQuickSheetOpen(open);
+          if (!open) fetchEntries();
+        }}
+        mode={quickSheetMode}
+      />
+
+      {/* ── MODAL (manual entries only) ── */}
       <StartTimerModal
         open={modalOpen}
         onOpenChange={(open) => {
           setModalOpen(open);
           if (!open) { setGapPrefill(null); fetchEntries(); }
         }}
-        mode={modalMode}
+        mode="manual"
         prefillStartTime={gapPrefill?.start}
         prefillEndTime={gapPrefill?.end}
       />
