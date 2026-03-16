@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Coffee, Utensils, Bath, Monitor, Moon, Video } from "lucide-react";
-import { StartTimerModal } from "@/components/StartTimerModal";
+import { QuickSheet } from "@/components/timer/QuickSheet";
 
 interface MemberPresence {
   user_id: string;
@@ -167,7 +167,7 @@ export default function HubPage() {
 
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [showStopTimerDialog, setShowStopTimerDialog] = useState(false);
-  const [showStartTimerModal, setShowStartTimerModal] = useState(false);
+  const [showQuickSheet, setShowQuickSheet] = useState(false);
   const { isRunning, stopTimer, activeClient, activeTask, startBreakTimer } = useTimer();
 
   const handleStatusChange = async (status: string) => {
@@ -175,7 +175,7 @@ export default function HubPage() {
 
     if (status === "online") {
       // "En línea" → open the start/switch timer modal
-      setShowStartTimerModal(true);
+      setShowQuickSheet(true);
       return;
     }
 
@@ -348,10 +348,10 @@ export default function HubPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Start/Switch timer modal (triggered by "En línea" button) */}
-      <StartTimerModal
-        open={showStartTimerModal}
-        onOpenChange={setShowStartTimerModal}
+      {/* Start/Switch quick sheet (triggered by "En línea" button) */}
+      <QuickSheet
+        open={showQuickSheet}
+        onOpenChange={setShowQuickSheet}
         mode={isRunning ? "switch" : "start"}
       />
     </div>
