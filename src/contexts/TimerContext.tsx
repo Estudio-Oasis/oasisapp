@@ -349,6 +349,12 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     async (input: StartActivityInput) => {
       if (!userId) return;
 
+      // Stop any active session before starting a new one
+      if (state.activeEntry && !state.isStopping) {
+        const stopped = await stopTimer();
+        if (!stopped) return;
+      }
+
       const { description, projectId, taskId, clientId } = input;
       const startedAt = new Date().toISOString();
       const { data: entry, error } = await supabase
