@@ -27,14 +27,14 @@ interface TimerState {
 
 interface TimerContextType extends TimerState {
   startTimer: (
-    clientId: string,
+    clientId?: string | null,
     taskId?: string | null,
     projectId?: string | null,
     description?: string | null
   ) => Promise<void>;
   stopTimer: () => Promise<boolean>;
   switchTask: (
-    clientId: string,
+    clientId?: string | null,
     taskId?: string | null,
     projectId?: string | null,
     description?: string | null
@@ -363,7 +363,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const startTimer = useCallback(
     async (
-      clientId: string,
+      clientId?: string | null,
       taskId?: string | null,
       projectId?: string | null,
       description?: string | null
@@ -375,7 +375,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         .from("time_entries")
         .insert({
           user_id: userId,
-          client_id: clientId,
+          client_id: clientId || null,
           task_id: taskId || null,
           project_id: projectId || null,
           description: description || null,
@@ -396,12 +396,14 @@ export function TimerProvider({ children }: { children: ReactNode }) {
       let client: Client | null = null;
       let task: Task | null = null;
 
-      const { data: clientData } = await supabase
-        .from("clients")
-        .select("*")
-        .eq("id", clientId)
-        .maybeSingle();
-      client = clientData;
+      if (clientId) {
+        const { data: clientData } = await supabase
+          .from("clients")
+          .select("*")
+          .eq("id", clientId)
+          .maybeSingle();
+        client = clientData;
+      }
 
       if (taskId) {
         const { data: taskData } = await supabase
@@ -488,7 +490,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const switchTask = useCallback(
     async (
-      clientId: string,
+      clientId?: string | null,
       taskId?: string | null,
       projectId?: string | null,
       description?: string | null

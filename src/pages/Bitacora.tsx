@@ -11,6 +11,7 @@ import { TimeEntryRow } from "@/components/timer/TimeEntryRow";
 import { GapAlert } from "@/components/timer/GapAlert";
 import { EmptyState } from "@/components/timer/EmptyState";
 import { UI_COPY } from "@/components/timer/ActivityConstants";
+import { QuickSheet } from "@/components/timer/QuickSheet";
 import { StartTimerModal } from "@/components/StartTimerModal";
 import { Plus } from "lucide-react";
 import {
@@ -25,6 +26,8 @@ export default function BitacoraPage() {
 
   const [view, setView] = useState<"today" | "week">("today");
   const [entryFilter, setEntryFilter] = useState<"mine" | "all">(isAdmin ? "all" : "mine");
+  const [quickSheetOpen, setQuickSheetOpen] = useState(false);
+  const [quickSheetMode, setQuickSheetMode] = useState<"start" | "switch">("start");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"start" | "switch" | "manual">("start");
   const [gapPrefill, setGapPrefill] = useState<{ start: string; end: string } | null>(null);
@@ -83,7 +86,7 @@ export default function BitacoraPage() {
               elapsedSeconds={elapsedSeconds}
             >
               <TimerControls
-                onSwitch={() => { setModalMode("switch"); setModalOpen(true); }}
+                onSwitch={() => { setQuickSheetMode("switch"); setQuickSheetOpen(true); }}
                 onPause={() => {}}
                 onFinish={() => void stopTimer()}
                 isStopping={isStopping}
@@ -92,7 +95,7 @@ export default function BitacoraPage() {
             </ActiveSessionCard>
           ) : (
             <QuickLogInput
-              onClick={() => { setModalMode("start"); setModalOpen(true); }}
+              onClick={() => { setQuickSheetMode("start"); setQuickSheetOpen(true); }}
               todaySummary={todaySummaryText}
               totalMinutes={totalMinutes}
             />
@@ -250,14 +253,24 @@ export default function BitacoraPage() {
         </div>
       )}
 
-      {/* ── MODAL ── */}
+      {/* ── QUICK SHEET (launcher + switch) ── */}
+      <QuickSheet
+        open={quickSheetOpen}
+        onOpenChange={(open) => {
+          setQuickSheetOpen(open);
+          if (!open) fetchEntries();
+        }}
+        mode={quickSheetMode}
+      />
+
+      {/* ── MODAL (manual entries only) ── */}
       <StartTimerModal
         open={modalOpen}
         onOpenChange={(open) => {
           setModalOpen(open);
           if (!open) { setGapPrefill(null); fetchEntries(); }
         }}
-        mode={modalMode}
+        mode="manual"
         prefillStartTime={gapPrefill?.start}
         prefillEndTime={gapPrefill?.end}
       />
