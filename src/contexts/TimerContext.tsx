@@ -490,7 +490,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const switchTask = useCallback(
     async (
-      clientId: string,
+      clientId?: string | null,
       taskId?: string | null,
       projectId?: string | null,
       description?: string | null
