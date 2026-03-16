@@ -84,6 +84,7 @@ export function DayTimeline({
       end: Math.min(end, dayEnd.getTime()),
       color,
       label,
+      entry: e,
     });
   });
 
