@@ -105,7 +105,7 @@ function DeferredCTA({ onDismiss }: { onDismiss: () => void }) {
       </p>
       <div className="flex flex-wrap justify-center gap-2">
         <Link
-          to="/signup"
+          to="/signup?from=demo"
           className="inline-flex h-9 px-5 rounded-full bg-foreground text-background text-[12px] font-semibold items-center gap-1.5 hover:opacity-90 transition-opacity"
         >
           Crear cuenta <ArrowRight className="h-3 w-3" />
@@ -172,7 +172,7 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
               <span className="hidden sm:inline">Reiniciar</span>
             </button>
             <Link
-              to="/signup"
+              to="/signup?from=demo"
               className="h-8 px-4 rounded-full bg-foreground text-background text-[12px] font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity"
             >
               Probar gratis <ArrowRight className="h-3 w-3" />
@@ -193,8 +193,8 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
         {mode === "track_day" && bita.isRunning && <TrackDayHint />}
         {mode === "plan_tasks" && <TodoPanel />}
 
-        {/* Core Bitácora — no auto-open sheet, we use QuickStartPanel instead */}
-        <BitacoraCore />
+        {/* Core Bitácora — hide QuickLogInput when QuickStartPanel is visible */}
+        <BitacoraCore hideQuickLog={showQuickStart} />
 
         {/* Day summary (track_day and explore) */}
         {(mode === "track_day" || mode === "explore") && <DaySummaryCard />}

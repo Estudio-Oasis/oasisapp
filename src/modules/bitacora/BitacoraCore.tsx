@@ -20,7 +20,7 @@ import { formatDateLong, formatDuration, formatDayHeader } from "@/lib/timer-uti
  * Reads everything from BitacoraContext + ViewModelContext.
  * No direct Supabase or TimerContext imports.
  */
-export function BitacoraCore({ autoOpenSheet = false }: { autoOpenSheet?: boolean } = {}) {
+export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { autoOpenSheet?: boolean; hideQuickLog?: boolean } = {}) {
   const bita = useBitacora();
   const vm = useBitacoraVM();
 
@@ -75,7 +75,7 @@ export function BitacoraCore({ autoOpenSheet = false }: { autoOpenSheet?: boolea
                 layout="row"
               />
             </ActiveSessionCard>
-          ) : (
+          ) : hideQuickLog ? null : (
             <QuickLogInput
               onClick={() => {
                 setQuickSheetMode("start");
