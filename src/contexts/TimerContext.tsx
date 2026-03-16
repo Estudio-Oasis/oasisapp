@@ -375,7 +375,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         .from("time_entries")
         .insert({
           user_id: userId,
-          client_id: clientId,
+          client_id: clientId || null,
           task_id: taskId || null,
           project_id: projectId || null,
           description: description || null,
