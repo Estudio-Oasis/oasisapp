@@ -25,6 +25,7 @@ interface DayTimelineProps {
   workEndHour?: number;
   workEndMinute?: number;
   onGapClick?: (gap: TimelineGap) => void;
+  onEntryClick?: (entry: TimelineEntry) => void;
 }
 
 export function DayTimeline({
