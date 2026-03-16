@@ -50,7 +50,8 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 >
-                  <Route path="/timer" element={<TimerPage />} />
+                  <Route path="/bitacora" element={<BitacoraPage />} />
+                  <Route path="/timer" element={<Navigate to="/bitacora" replace />} />
                   <Route path="/hub" element={<HubPage />} />
                   <Route path="/clients" element={<ClientsPage />} />
                   <Route path="/clients/:id" element={<ClientProfilePage />} />
