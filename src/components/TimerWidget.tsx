@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useTimer } from "@/contexts/TimerContext";
+import { useLocation } from "react-router-dom";
 import { formatElapsed } from "@/lib/timer-utils";
 import { StartTimerModal } from "@/components/StartTimerModal";
-import { Loader2, Zap } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export function TimerWidget() {
   const {
@@ -14,24 +15,32 @@ export function TimerWidget() {
     elapsedSeconds,
     stopTimer,
   } = useTimer();
+  const location = useLocation();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"start" | "switch">("start");
+
+  const isBitacora = location.pathname === "/bitacora";
 
   const handleOpen = (mode: "start" | "switch") => {
     setModalMode(mode);
     setModalOpen(true);
   };
 
+  // On /bitacora, hide the idle widget — the page has its own launcher
+  // But still show running state so users can control timer from sidebar
+  if (isBitacora && !isRunning) {
+    return null;
+  }
+
   return (
     <>
       <div className="px-3 mt-auto mb-3">
         {!isRunning ? (
-          /* Idle state */
+          /* Idle state — only shown when NOT on /bitacora */
           <button
             onClick={() => handleOpen("start")}
             className="flex w-full items-center gap-2 rounded-lg border border-border bg-background-secondary px-3 py-2.5 transition-colors hover:border-foreground hover:text-foreground group"
           >
-            <Zap className="h-3.5 w-3.5 text-foreground-muted group-hover:text-foreground transition-colors" />
             <span className="text-small text-foreground-secondary group-hover:text-foreground transition-colors">
               Iniciar timer
             </span>
@@ -39,7 +48,6 @@ export function TimerWidget() {
         ) : (
           /* Running state */
           <div className="rounded-lg border border-accent bg-accent-light px-3 py-2.5 space-y-2">
-            {/* Row 1: client + time */}
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-foreground truncate max-w-[100px]">
                 {activeClient?.name || activeEntry?.description || "Cliente"}
@@ -48,14 +56,12 @@ export function TimerWidget() {
                 {formatElapsed(elapsedSeconds)}
               </span>
             </div>
-            {/* Row 2: task */}
             <p
               className="text-micro text-foreground-secondary truncate !normal-case !tracking-normal !font-normal"
               style={{ fontSize: "11px" }}
             >
               {activeTask?.title || (activeClient ? "Sin tarea" : "")}
             </p>
-            {/* Row 3: buttons */}
             <div className="flex gap-2">
               <button
                 onClick={() => handleOpen("switch")}
@@ -86,4 +92,3 @@ export function TimerWidget() {
     </>
   );
 }
-
