@@ -154,7 +154,7 @@ export function ContextEnrichmentPanel() {
             ) : (
               <>
                 <Plus className="h-2.5 w-2.5" />
-                Añadir contexto
+                Añadir detalles
               </>
             )}
           </button>
