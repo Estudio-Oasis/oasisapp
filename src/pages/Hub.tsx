@@ -348,10 +348,10 @@ export default function HubPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Start/Switch timer modal (triggered by "En línea" button) */}
-      <StartTimerModal
-        open={showStartTimerModal}
-        onOpenChange={setShowStartTimerModal}
+      {/* Start/Switch quick sheet (triggered by "En línea" button) */}
+      <QuickSheet
+        open={showQuickSheet}
+        onOpenChange={setShowQuickSheet}
         mode={isRunning ? "switch" : "start"}
       />
     </div>
