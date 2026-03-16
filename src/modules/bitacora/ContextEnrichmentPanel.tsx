@@ -149,7 +149,7 @@ export function ContextEnrichmentPanel() {
             {hasAnyContext ? (
               <>
                 <Sparkles className="h-2.5 w-2.5" />
-                Editar contexto
+                Editar detalles
               </>
             ) : (
               <>
