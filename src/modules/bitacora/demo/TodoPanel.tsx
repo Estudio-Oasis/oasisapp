@@ -160,7 +160,7 @@ export function TodoPanel() {
               addFromInput();
             }
           }}
-          placeholder={"¿Qué necesitas hacer hoy?\nEscribe todo junto, nosotros lo separamos."}
+          placeholder={"¿Qué necesitas hacer hoy?\nAnota o dicta tus pendientes en el orden que quieras. Después podrás detallarlos."}
           rows={composerMode || input.length > 60 ? 4 : 2}
           className="w-full bg-background-secondary border border-border rounded-xl px-4 py-3 text-[14px] text-foreground placeholder:text-foreground-muted resize-none focus:outline-none focus:border-accent/50 transition-all"
         />
