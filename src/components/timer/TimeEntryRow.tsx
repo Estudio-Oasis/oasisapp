@@ -52,9 +52,10 @@ export function TimeEntryRow({
 
   return (
     <div
-      className={`flex items-center gap-3 border-b border-border py-3.5 ${
+      onClick={onClick}
+      className={`flex items-center gap-3 border-b border-border py-3.5 rounded-lg transition-colors ${
         isNonProductive ? "opacity-60" : ""
-      }`}
+      } ${onClick ? "cursor-pointer hover:bg-background-secondary/50" : ""}`}
     >
       {/* Color bar or icon */}
       {isNonProductive ? (
