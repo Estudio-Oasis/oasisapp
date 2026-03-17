@@ -226,6 +226,18 @@ export function TodoPanel() {
               Agregar
             </button>
           )}
+          {speech.isSupported && (
+            <button
+              onClick={toggleMic}
+              className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all shrink-0 ${
+                speech.isListening
+                  ? "bg-accent text-accent-foreground animate-pulse"
+                  : "bg-background-secondary border border-border text-foreground-muted hover:text-foreground"
+              }`}
+            >
+              {speech.isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </button>
+          )}
           <span className="text-[10px] text-foreground-muted">
             Puedes dictar, pegar o escribir varios
           </span>
