@@ -198,7 +198,7 @@ export const UI_COPY = {
   // Active session
   sessionActive: "Sesión activa",
   sessionNoTask: "Sin tarea específica",
-  sessionNoClient: "Actividad interna",
+  sessionNoClient: "Sin cliente asociado",
 
   // Context badge
   contextDetected: "Contexto detectado",

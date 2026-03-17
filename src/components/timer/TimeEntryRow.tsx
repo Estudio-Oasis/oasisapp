@@ -126,6 +126,11 @@ export function TimeEntryRow({
           {formatDuration(dur)}
         </p>
       </div>
+
+      {/* Edit affordance */}
+      {onClick && (
+        <ChevronRight className="h-3.5 w-3.5 text-foreground-muted shrink-0" />
+      )}
     </div>
   );
 }

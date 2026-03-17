@@ -63,10 +63,8 @@ export default function Signup() {
     <div className="flex min-h-screen items-center justify-center bg-background-secondary px-6">
       <div className="w-full max-w-[400px] rounded-lg border border-border bg-card p-10">
         {/* Logo */}
-        <div className="flex justify-center">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-foreground">
-            <span className="text-[11px] font-bold tracking-widest text-background">OS</span>
-          </div>
+        <div className="text-center">
+          <span className="text-[18px] font-bold tracking-tight text-foreground">Bitácora</span>
         </div>
 
         {/* Heading */}
