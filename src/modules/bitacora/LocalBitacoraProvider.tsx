@@ -154,7 +154,12 @@ export function LocalBitacoraProvider({
       clients: active.clientName ? { name: active.clientName } : null,
       tasks: active.taskTitle ? { title: active.taskTitle } : null,
     };
-    setEntries((prev) => [newEntry, ...prev]);
+    setEntries((prev) => {
+      if (prev.filter((e) => e.ended_at).length === 0) {
+        trackEvent("demo_first_entry");
+      }
+      return [newEntry, ...prev];
+    });
     pushRecent(active);
     setActive(null);
   }, [active, pushRecent]);
