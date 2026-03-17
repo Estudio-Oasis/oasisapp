@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, ReactNode } from "react";
+import { useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTimer } from "@/contexts/TimerContext";
@@ -7,6 +7,7 @@ import { useTimeEntries } from "@/hooks/useTimeEntries";
 import { BitacoraCtx, ViewModelCtx } from "./BitacoraContext";
 import { formatDuration } from "@/lib/timer-utils";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics";
 import type {
   BitacoraProviderValue,
   BitacoraViewModel,
