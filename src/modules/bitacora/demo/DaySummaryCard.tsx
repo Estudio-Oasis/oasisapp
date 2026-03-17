@@ -41,7 +41,17 @@ function categorizeEntries(entries: { description: string | null; duration_min: 
 export function DaySummaryCard() {
   const vm = useBitacoraVM();
   const [accepted, setAccepted] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [editHintVisible, setEditHintVisible] = useState(false);
+  const [lastEntrySnapshot, setLastEntrySnapshot] = useState(vm.entries.length);
+
+  // Reset dismissed when new entries appear (so future summaries show)
+  useEffect(() => {
+    if (vm.entries.length !== lastEntrySnapshot) {
+      setLastEntrySnapshot(vm.entries.length);
+      if (dismissed) setDismissed(false);
+    }
+  }, [vm.entries.length, lastEntrySnapshot, dismissed]);
 
   // Auto-hide edit hint after 4 seconds
   useEffect(() => {
@@ -52,6 +62,9 @@ export function DaySummaryCard() {
 
   // Only show after 2+ entries
   if (vm.entries.length < 2) return null;
+
+  // After hint disappears, stay hidden until new entries arrive
+  if (dismissed && !editHintVisible) return null;
 
   const categories = categorizeEntries(vm.entries);
   const blockCount = vm.entries.length;
