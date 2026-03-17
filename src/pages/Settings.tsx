@@ -183,9 +183,12 @@ function FreeProfileView({ profile, userId, onUpdate }: { profile: { name: strin
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-background-secondary p-3">
+        <div className="rounded-lg border border-border bg-background-secondary p-3 space-y-1">
           <p className="text-[12px] text-foreground-secondary">
-            <span className="font-semibold text-foreground">Plan gratuito</span> · Registro de actividad ilimitado para uso personal.
+            <span className="font-semibold text-foreground">Bitácora Personal</span> · Registro de actividad ilimitado, 14 días de historial.
+          </p>
+          <p className="text-[11px] text-foreground-muted">
+            ¿Necesitas visibilidad de equipo? <span className="font-medium text-accent">Task Master próximamente →</span>
           </p>
         </div>
 
