@@ -44,12 +44,28 @@ export function TodoPanel() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const bita = useBitacora();
   const vm = useBitacoraVM();
+  const speech = useSpeechRecognition();
 
   useEffect(() => saveTodos(todos), [todos]);
 
   useEffect(() => {
     setTimeout(() => inputRef.current?.focus(), 300);
   }, []);
+
+  // Append speech transcript to input
+  useEffect(() => {
+    if (speech.transcript) {
+      setInput((prev) => {
+        const base = prev.trim();
+        return base ? `${base} ${speech.transcript}` : speech.transcript;
+      });
+    }
+  }, [speech.transcript]);
+
+  const toggleMic = () => {
+    if (speech.isListening) speech.stopListening();
+    else speech.startListening();
+  };
 
   // Track when active session stops — mark the in-progress todo as done with duration
   const prevRunning = useRef(bita.isRunning);
