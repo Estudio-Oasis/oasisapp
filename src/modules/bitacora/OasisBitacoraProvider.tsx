@@ -52,6 +52,14 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
     workSchedule,
   } = useTimeEntries({ view, entryFilter, refreshTrigger: timer.isRunning });
 
+  // Track first entry for new accounts
+  useEffect(() => {
+    if (!firstEntryTracked.current && entries.length === 1 && entries[0].ended_at) {
+      firstEntryTracked.current = true;
+      trackEvent("first_entry_account");
+    }
+  }, [entries]);
+
   // Catalog
   const [projects, setProjects] = useState<ProjectOption[]>([]);
   const [clients, setClients] = useState<ClientOption[]>([]);
