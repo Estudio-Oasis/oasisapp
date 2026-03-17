@@ -27,6 +27,11 @@ export function AiRefineButton({ text, onAccept, maxPerDay = 5 }: Props) {
   const limitReached = maxPerDay !== null && getDailyCount() >= maxPerDay;
 
   if (text.length <= 5 && !suggestion) return null;
+  if (limitReached && !suggestion) {
+    return (
+      <span className="text-[10px] text-foreground-muted px-1">Límite diario de IA alcanzado</span>
+    );
+  }
 
   const handleRefine = async () => {
     if (loading || !text.trim()) return;
