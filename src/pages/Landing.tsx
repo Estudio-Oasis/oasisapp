@@ -529,6 +529,9 @@ function SystemView() {
           <p className="mt-3 text-[16px] text-[#6B6B6B] max-w-lg leading-relaxed">
             Estamos construyendo un sistema completo. Empieza con el registro de actividad y expande cuando lo necesites.
           </p>
+          <p className="mt-2 text-[13px] text-[#999] italic">
+            La experiencia seguirá mejorando con resúmenes inteligentes y automatizaciones.
+          </p>
         </RevealSection>
 
         {/* Bitácora — large detailed mockup */}
