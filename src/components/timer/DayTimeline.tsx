@@ -141,15 +141,17 @@ export function DayTimeline({
     <div className="space-y-0">
       {/* Timeline bar */}
       <div className="relative">
-        <div className="flex h-8 rounded-lg overflow-hidden bg-background-tertiary gap-px border border-border/40">
+        <div className="relative h-8 rounded-lg overflow-hidden bg-background-tertiary border border-border/40">
           {isEmpty ? (
             // Empty shell — faint divisions
-            Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={`slot-${i}`}
-                className="h-full flex-1 bg-background-tertiary border-r border-border/20 last:border-r-0"
-              />
-            ))
+            <div className="flex h-full">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={`slot-${i}`}
+                  className="h-full flex-1 bg-background-tertiary border-r border-border/20 last:border-r-0"
+                />
+              ))}
+            </div>
           ) : (
             blocks.map((block, i) => {
               const widthPct = ((block.end - block.start) / totalMs) * 100;
