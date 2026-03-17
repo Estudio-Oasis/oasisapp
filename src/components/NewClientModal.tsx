@@ -299,7 +299,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
   };
 
   const saveClient = async () => {
-    if (!form.name.trim() || !user) return;
+    if (!form.name.trim() || !user || !agencyId) return;
     setSaving(true);
 
     const score = calculateCompleteness({
