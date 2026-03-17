@@ -6,8 +6,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { TimerProvider } from "@/contexts/TimerContext";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ProtectedRoute, ProRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
+import { BitacoraLayout } from "@/components/BitacoraLayout";
+import { PlanRouter } from "@/components/PlanRouter";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -38,33 +40,39 @@ const App = () => (
           <AuthProvider>
             <TimerProvider>
               <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/landing" element={<Navigate to="/" replace />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/setup" element={<SetupPage />} />
-              <Route path="/bitacora-demo" element={<BitacoraDemo />} />
-              <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
+                {/* Public routes */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/landing" element={<Navigate to="/" replace />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/setup" element={<SetupPage />} />
+                <Route path="/bitacora-demo" element={<BitacoraDemo />} />
+                <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
+
+                {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
                 <Route
                   element={
                     <ProtectedRoute>
-                      <AppLayout />
+                      <PlanRouter />
                     </ProtectedRoute>
                   }
                 >
+                  {/* Available to all plans */}
                   <Route path="/bitacora" element={<BitacoraPage />} />
                   <Route path="/timer" element={<Navigate to="/bitacora" replace />} />
-                  <Route path="/hub" element={<HubPage />} />
-                  <Route path="/clients" element={<ClientsPage />} />
-                  <Route path="/clients/:id" element={<ClientProfilePage />} />
-                  <Route path="/tasks" element={<TasksPage />} />
-                  <Route path="/finances" element={<FinancesPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
+
+                  {/* Pro-only routes */}
+                  <Route path="/hub" element={<ProRoute><HubPage /></ProRoute>} />
+                  <Route path="/clients" element={<ProRoute><ClientsPage /></ProRoute>} />
+                  <Route path="/clients/:id" element={<ProRoute><ClientProfilePage /></ProRoute>} />
+                  <Route path="/tasks" element={<ProRoute><TasksPage /></ProRoute>} />
+                  <Route path="/finances" element={<ProRoute><FinancesPage /></ProRoute>} />
+                  <Route path="/admin" element={<ProRoute><AdminDashboard /></ProRoute>} />
                 </Route>
+
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              
             </TimerProvider>
           </AuthProvider>
         </BrowserRouter>
