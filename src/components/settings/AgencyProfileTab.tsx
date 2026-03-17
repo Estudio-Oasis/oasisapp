@@ -97,22 +97,22 @@ export function AgencyProfileTab({ agency, isAdmin, onUpdate }: Props) {
       </Section>
 
       {/* Fiscal */}
-      <Section title="Fiscal information">
-        <Field label="Legal name / Razón social">
+      <Section title="Información fiscal">
+        <Field label="Razón social">
           <Input
             value={form.legal_name || ""}
             onChange={(e) => set("legal_name", e.target.value || null)}
             disabled={disabled}
           />
         </Field>
-        <Field label="Tax ID / RFC">
+        <Field label="RFC / Tax ID">
           <Input
             value={form.tax_id || ""}
             onChange={(e) => set("tax_id", e.target.value || null)}
             disabled={disabled}
           />
         </Field>
-        <Field label="Fiscal address">
+        <Field label="Domicilio fiscal">
           <Input
             value={form.fiscal_address || ""}
             onChange={(e) => set("fiscal_address", e.target.value || null)}
@@ -122,16 +122,16 @@ export function AgencyProfileTab({ agency, isAdmin, onUpdate }: Props) {
       </Section>
 
       {/* Banking */}
-      <Section title="Banking">
+      <Section title="Datos bancarios">
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Bank name">
+          <Field label="Banco">
             <Input
               value={form.bank_name || ""}
               onChange={(e) => set("bank_name", e.target.value || null)}
               disabled={disabled}
             />
           </Field>
-          <Field label="Account number">
+          <Field label="Número de cuenta">
             <Input
               value={form.bank_account_number || ""}
               onChange={(e) => set("bank_account_number", e.target.value || null)}
@@ -167,7 +167,7 @@ export function AgencyProfileTab({ agency, isAdmin, onUpdate }: Props) {
       {isAdmin && (
         <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto">
           {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-          Save changes
+          Guardar cambios
         </Button>
       )}
     </div>
