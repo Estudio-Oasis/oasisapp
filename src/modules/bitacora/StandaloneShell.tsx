@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 import { Link, useNavigate } from "react-router-dom";
 import { LocalBitacoraProvider } from "./LocalBitacoraProvider";
 import { BitacoraCore } from "./BitacoraCore";
