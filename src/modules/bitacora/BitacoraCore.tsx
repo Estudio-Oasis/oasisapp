@@ -118,14 +118,38 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
               />
             </ActiveSessionCard>
           ) : hideQuickLog ? null : (
-            <QuickLogInput
-              onClick={() => {
-                setQuickSheetMode("start");
-                setQuickSheetOpen(true);
-              }}
-              todaySummary={vm.todaySummaryText}
-              totalMinutes={vm.totalMinutes}
-            />
+            <div className="space-y-3">
+              <QuickLogInput
+                onClick={() => {
+                  setQuickSheetMode("start");
+                  setQuickSheetOpen(true);
+                }}
+                todaySummary={vm.todaySummaryText}
+                totalMinutes={vm.totalMinutes}
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setQuickSheetMode("start");
+                    setQuickSheetOpen(true);
+                  }}
+                  className="flex-1 h-10 rounded-lg bg-accent text-accent-foreground text-[13px] font-semibold hover:bg-accent/90 transition-colors"
+                >
+                  Iniciar actividad
+                </button>
+                {config.features.allowManualEntry && (
+                  <button
+                    onClick={() => {
+                      setGapPrefill(null);
+                      setModalOpen(true);
+                    }}
+                    className="flex-1 h-10 rounded-lg border border-border text-[13px] font-medium text-foreground-secondary hover:bg-background-secondary transition-colors"
+                  >
+                    Agregar registro manual
+                  </button>
+                )}
+              </div>
+            </div>
           )}
         </div>
 
