@@ -233,6 +233,15 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
   const [suggestions, setSuggestions] = useState<AiSuggestion[]>([]);
   const [form, setForm] = useState<ClientFormData>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [agencyId, setAgencyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      supabase.from("profiles").select("agency_id").eq("id", user.id).single().then(({ data }) => {
+        setAgencyId(data?.agency_id ?? null);
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!open) {
