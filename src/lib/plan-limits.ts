@@ -21,11 +21,13 @@ export const FREE_LIMITS = {
 } as const;
 
 export const PRO_LIMITS = {
+  planDisplayName: "Task Master",
   maxHistoryDays: null,
   showTeamView: true,
   allowExport: true,
   showAdvancedInsights: true,
   allowOasisModules: true,
+  maxAiRefinePerDay: null,
 } as const;
 
 export function getPlanLimits(plan: "free" | "pro") {
