@@ -18,6 +18,7 @@ interface TimeEntryRowProps {
   userId?: string;
   userName?: string | null;
   showUser?: boolean;
+  onClick?: () => void;
 }
 
 function truncate(text: string, max: number) {
