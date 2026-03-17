@@ -1,9 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Plus, Play, Trash2, CheckCircle2, Circle, ListChecks, Square, Sparkles } from "lucide-react";
+import { Plus, Play, Trash2, CheckCircle2, Circle, ListChecks, Square, Sparkles, Mic, MicOff } from "lucide-react";
 import { useBitacora, useBitacoraVM } from "../BitacoraContext";
 import type { DemoTodo } from "./types";
 import { LS_DEMO_TODOS } from "./types";
 import { formatDuration } from "@/lib/timer-utils";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 
 function loadTodos(): DemoTodo[] {
   try {
