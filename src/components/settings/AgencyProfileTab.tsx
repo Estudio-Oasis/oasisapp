@@ -37,10 +37,10 @@ export function AgencyProfileTab({ agency, isAdmin, onUpdate }: Props) {
       .single();
 
     if (error) {
-      toast.error("Failed to save");
+      toast.error("Error al guardar");
     } else if (data) {
       onUpdate(data as Agency);
-      toast.success("Agency updated");
+      toast.success("Agencia actualizada");
     }
     setSaving(false);
   };
