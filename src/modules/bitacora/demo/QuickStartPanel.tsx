@@ -85,6 +85,7 @@ export function QuickStartPanel() {
     if (speech.isListening) {
       speech.stopListening();
     } else {
+      trackEvent("dictation_used", { source: "demo_quickstart" });
       speech.startListening();
     }
   };

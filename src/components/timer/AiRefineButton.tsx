@@ -45,6 +45,7 @@ export function AiRefineButton({ text, onAccept, maxPerDay = 5 }: Props) {
       const result = data?.result?.trim();
       if (result && result !== text.trim()) {
         setSuggestion(result);
+        incrementDailyCount();
       }
     } catch {
       // Silent fail — non-critical feature

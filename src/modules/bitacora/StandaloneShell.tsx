@@ -166,6 +166,7 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
               href={FEEDBACK_URL}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackEvent("feedback_clicked", { source: "demo_header" })}
               className="h-8 px-3 rounded-full border border-border text-[11px] font-medium text-foreground-muted flex items-center gap-1.5 hover:text-foreground hover:bg-foreground/5 transition-colors"
               title="Enviar feedback"
             >

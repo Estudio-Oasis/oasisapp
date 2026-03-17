@@ -53,12 +53,19 @@ export default function Signup() {
       return;
     }
 
+    // Track signup
+    trackEvent("signup_complete", { from_demo: fromDemo, has_demo_entries: hasDemoEntries() });
+
     // Migrate demo entries if they exist
     if (data.user && hasDemoEntries()) {
       const count = await migrateDemoEntries(data.user.id);
       if (count > 0) {
-        toast.success(`${count} registros del demo guardados en tu cuenta`);
+        toast.success(`¡Listo! Tu cuenta está creada y tus ${count} registros del demo están guardados.`);
+      } else {
+        toast.success("¡Listo! Tu cuenta está creada. ¿En qué estás trabajando?");
       }
+    } else {
+      toast.success("¡Listo! Tu cuenta está creada. ¿En qué estás trabajando?");
     }
 
     navigate("/bitacora");

@@ -25,6 +25,9 @@ import {
   UserCheck,
 } from "lucide-react";
 
+// ─── Track landing view once ───
+const landingTrackedRef = { current: false };
+
 // ─── Intersection Observer hook for reveal animations ───
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);

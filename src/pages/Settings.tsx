@@ -202,6 +202,11 @@ function FreeProfileView({ profile, userId, onUpdate }: { profile: { name: strin
           href="https://tally.so/r/wMrqBp"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => {
+            import("@/lib/analytics").then(({ trackEvent }) =>
+              trackEvent("feedback_clicked", { source: "settings" })
+            );
+          }}
           className="text-[12px] text-foreground-muted hover:text-foreground transition-colors"
         >
           ¿Ideas o feedback? Cuéntanos →

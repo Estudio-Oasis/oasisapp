@@ -138,6 +138,7 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
     if (speech.isListening) {
       speech.stopListening();
     } else {
+      trackEvent("dictation_used", { source: "quick_sheet" });
       speech.startListening();
     }
   };

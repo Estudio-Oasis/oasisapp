@@ -23,6 +23,7 @@ export default function Login() {
       setError(error.message);
       setLoading(false);
     } else {
+      trackEvent("login_complete");
       navigate("/bitacora");
     }
   };
