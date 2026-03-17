@@ -137,10 +137,7 @@ export function DaySummaryCard() {
           Aceptar
         </button>
         <button
-          onClick={() => {
-            // Just dismiss — user can edit entries directly
-            setAccepted(true);
-          }}
+          onClick={() => setEditHintVisible(true)}
           className="h-8 px-4 rounded-full border border-border text-[12px] font-medium text-foreground-secondary flex items-center gap-1.5 hover:bg-background-tertiary transition-colors"
         >
           <Pencil className="h-3 w-3" />
