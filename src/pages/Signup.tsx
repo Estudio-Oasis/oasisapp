@@ -56,7 +56,7 @@ export default function Signup() {
       }
     }
 
-    navigate("/timer");
+    navigate("/bitacora");
   };
 
   return (
