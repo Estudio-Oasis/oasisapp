@@ -752,6 +752,7 @@ export type Database = {
           job_title: string | null
           name: string | null
           onboarded: boolean
+          plan: string
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string
           work_end_hour: number
@@ -768,6 +769,7 @@ export type Database = {
           job_title?: string | null
           name?: string | null
           onboarded?: boolean
+          plan?: string
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
           work_end_hour?: number
@@ -784,6 +786,7 @@ export type Database = {
           job_title?: string | null
           name?: string | null
           onboarded?: boolean
+          plan?: string
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
           work_end_hour?: number
