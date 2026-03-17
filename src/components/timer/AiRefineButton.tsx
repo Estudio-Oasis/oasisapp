@@ -34,8 +34,9 @@ export function AiRefineButton({ text, onAccept, maxPerDay = 5 }: Props) {
   }
 
   const handleRefine = async () => {
-    if (loading || !text.trim()) return;
+    if (loading || !text.trim() || limitReached) return;
     setLoading(true);
+    trackEvent("ai_refine_used");
     try {
       const { data, error } = await supabase.functions.invoke("rewrite-description", {
         body: { text: text.trim() },
