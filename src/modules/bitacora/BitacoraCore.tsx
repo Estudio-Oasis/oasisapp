@@ -253,6 +253,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
                     userId={entry.user_id}
                     userName={vm.profileMap[entry.user_id]?.name}
                     showUser={vm.entryFilter === "all"}
+                    onClick={() => handleEntryClick({ startedAt: entry.started_at, endedAt: entry.ended_at || "", clientName: entry.clients?.name, clientId: entry.client_id, description: entry.description, durationMin: entry.duration_min })}
                   />
                 </div>
               ))}
