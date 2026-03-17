@@ -321,6 +321,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
       communication_channel: form.communication_channel || null,
       notes: form.notes || null,
       completeness_score: score,
+      agency_id: agencyId,
     };
     const { error } = await supabase.from("clients").insert(insertData as never);
 
