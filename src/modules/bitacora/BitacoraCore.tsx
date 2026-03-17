@@ -168,10 +168,12 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
           <DayTimeline
             entries={vm.timelineEntries}
             gaps={vm.gaps}
-            workStartHour={vm.workSchedule.startHour}
-            workStartMinute={vm.workSchedule.startMinute}
-            workEndHour={vm.workSchedule.endHour}
-            workEndMinute={vm.workSchedule.endMinute}
+            activeSession={bita.isRunning && bita.activeEntry ? {
+              startedAt: bita.activeEntry.startedAt || new Date().toISOString(),
+              description: bita.activeEntry.description,
+              clientName: bita.activeEntry.clientName,
+              clientId: bita.activeEntry.clientId,
+            } : null}
             onGapClick={openGapModal}
             onEntryClick={handleEntryClick}
           />
