@@ -116,7 +116,7 @@ export default function Setup() {
         <div className="w-full max-w-[400px] rounded-lg border border-border bg-card p-10 text-center">
           <div className="flex justify-center">
             <div className="flex h-9 w-9 items-center justify-center rounded-md bg-foreground">
-              <span className="text-[11px] font-bold tracking-widest text-background">OS</span>
+              <span className="text-[11px] font-bold tracking-widest text-background">B</span>
             </div>
           </div>
           <h1 className="text-h2 text-foreground mt-4">Invitación inválida</h1>
@@ -137,7 +137,7 @@ export default function Setup() {
         {/* Logo */}
         <div className="flex justify-center">
           <div className="flex h-9 w-9 items-center justify-center rounded-md bg-foreground">
-            <span className="text-[11px] font-bold tracking-widest text-background">OS</span>
+            <span className="text-[11px] font-bold tracking-widest text-background">B</span>
           </div>
         </div>
 
