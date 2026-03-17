@@ -1,10 +1,24 @@
 import { useState } from "react";
 import { Sparkles, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/analytics";
+
+const DAILY_KEY_PREFIX = "bitacora_ai_refine_";
+
+function getDailyCount(): number {
+  const key = DAILY_KEY_PREFIX + new Date().toISOString().slice(0, 10);
+  return parseInt(localStorage.getItem(key) || "0", 10);
+}
+
+function incrementDailyCount(): void {
+  const key = DAILY_KEY_PREFIX + new Date().toISOString().slice(0, 10);
+  localStorage.setItem(key, String(getDailyCount() + 1));
+}
 
 interface Props {
   text: string;
   onAccept: (refined: string) => void;
+  maxPerDay?: number | null;
 }
 
 export function AiRefineButton({ text, onAccept }: Props) {
