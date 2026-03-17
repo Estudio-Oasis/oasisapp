@@ -32,14 +32,13 @@ export function InlineNewClient({ prefillName, onCreated, onCancel }: InlineNewC
   const [saving, setSaving] = useState(false);
   const [agencyId, setAgencyId] = useState<string | null>(null);
 
-  // Fetch agency_id once
-  useState(() => {
+  useEffect(() => {
     if (user) {
       supabase.from("profiles").select("agency_id").eq("id", user.id).single().then(({ data }) => {
         setAgencyId(data?.agency_id ?? null);
       });
     }
-  });
+  }, [user]);
 
   const handleCreate = async () => {
     if (!name.trim() || !agencyId) return;
