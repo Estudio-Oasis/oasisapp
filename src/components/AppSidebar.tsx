@@ -113,9 +113,9 @@ export function AppSidebar() {
         <div className="flex items-center justify-between px-4 py-5">
           <div className="flex items-center gap-2.5">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground">
-              <span className="text-micro text-background leading-none tracking-widest">OS</span>
+              <span className="text-micro text-background leading-none tracking-widest">B</span>
             </div>
-            <span className="text-sm font-semibold text-foreground">OasisOS</span>
+            <span className="text-sm font-semibold text-foreground">Bitácora</span>
           </div>
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
