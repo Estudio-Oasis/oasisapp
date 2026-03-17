@@ -112,10 +112,12 @@ export function DayTimeline({
     });
   });
 
+  // Current time
+  const now = Date.now();
+
   // Active session ghost block
   if (activeSession) {
     const s = new Date(activeSession.startedAt).getTime();
-    const now = Date.now();
     const actType = getNormalizedActivityType({ description: activeSession.description, client_id: activeSession.clientId });
     const config = getActivityConfig(actType);
     const color = activeSession.clientId ? getClientColor(activeSession.clientName || "") : config.color;
@@ -132,8 +134,7 @@ export function DayTimeline({
 
   const isEmpty = blocks.length === 0;
 
-  // Current time indicator position
-  const now = Date.now();
+  // Now indicator
   const showNowIndicator = now >= dayStart.getTime() && now <= dayEnd.getTime();
   const nowPct = showNowIndicator ? ((now - dayStart.getTime()) / totalMs) * 100 : 0;
 
