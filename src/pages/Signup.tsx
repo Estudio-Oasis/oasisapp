@@ -11,6 +11,10 @@ export default function Signup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fromDemo = searchParams.get("from") === "demo";
+
+  useEffect(() => {
+    trackEvent("signup_start", { from_demo: fromDemo });
+  }, []);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
