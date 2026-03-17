@@ -4,6 +4,7 @@ import {
   getActivityConfig,
   TRUNCATION,
 } from "./ActivityConstants";
+import { ChevronRight } from "lucide-react";
 
 interface TimeEntryRowProps {
   id: string;
