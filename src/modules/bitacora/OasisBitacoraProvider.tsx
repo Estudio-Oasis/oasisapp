@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, ReactNode } from "react";
+import { useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTimer } from "@/contexts/TimerContext";
@@ -7,6 +7,7 @@ import { useTimeEntries } from "@/hooks/useTimeEntries";
 import { BitacoraCtx, ViewModelCtx } from "./BitacoraContext";
 import { formatDuration } from "@/lib/timer-utils";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics";
 import type {
   BitacoraProviderValue,
   BitacoraViewModel,
@@ -35,6 +36,7 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { isAdmin } = useRole();
   const timer = useTimer();
+  const firstEntryTracked = useRef(false);
 
   const [view, setView] = useState<"today" | "week">("today");
   const [entryFilter, setEntryFilter] = useState<"mine" | "all">(isAdmin ? "all" : "mine");
@@ -49,6 +51,14 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
     fetchEntries,
     workSchedule,
   } = useTimeEntries({ view, entryFilter, refreshTrigger: timer.isRunning });
+
+  // Track first entry for new accounts
+  useEffect(() => {
+    if (!firstEntryTracked.current && entries.length === 1 && entries[0].ended_at) {
+      firstEntryTracked.current = true;
+      trackEvent("first_entry_account");
+    }
+  }, [entries]);
 
   // Catalog
   const [projects, setProjects] = useState<ProjectOption[]>([]);

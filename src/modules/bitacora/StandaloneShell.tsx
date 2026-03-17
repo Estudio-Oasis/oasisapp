@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 import { Link, useNavigate } from "react-router-dom";
 import { LocalBitacoraProvider } from "./LocalBitacoraProvider";
 import { BitacoraCore } from "./BitacoraCore";
@@ -57,7 +58,10 @@ function MiniOnboarding({ onComplete }: { onComplete: (mode: DemoMode) => void }
             return (
               <button
                 key={opt.key}
-                onClick={() => onComplete(opt.key)}
+                onClick={() => {
+                  trackEvent("demo_start", { mode: opt.key });
+                  onComplete(opt.key);
+                }}
                 className="flex items-center gap-3 w-full rounded-xl border border-border bg-card p-4 hover:bg-background-secondary transition-colors text-left active:scale-[0.98]"
               >
                 <div className="h-9 w-9 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
@@ -162,6 +166,7 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
               href={FEEDBACK_URL}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackEvent("feedback_clicked", { source: "demo_header" })}
               className="h-8 px-3 rounded-full border border-border text-[11px] font-medium text-foreground-muted flex items-center gap-1.5 hover:text-foreground hover:bg-foreground/5 transition-colors"
               title="Enviar feedback"
             >

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics";
 import { BitacoraCtx, ViewModelCtx } from "./BitacoraContext";
 import { formatDuration, isSameDay, startOfDay, startOfWeek } from "@/lib/timer-utils";
 import type {
@@ -153,7 +154,12 @@ export function LocalBitacoraProvider({
       clients: active.clientName ? { name: active.clientName } : null,
       tasks: active.taskTitle ? { title: active.taskTitle } : null,
     };
-    setEntries((prev) => [newEntry, ...prev]);
+    setEntries((prev) => {
+      if (prev.filter((e) => e.ended_at).length === 0) {
+        trackEvent("demo_first_entry");
+      }
+      return [newEntry, ...prev];
+    });
     pushRecent(active);
     setActive(null);
   }, [active, pushRecent]);

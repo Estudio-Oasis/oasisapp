@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { trackEvent } from "@/lib/analytics";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,9 @@ import {
   Zap,
   UserCheck,
 } from "lucide-react";
+
+// ─── Track landing view once ───
+const landingTrackedRef = { current: false };
 
 // ─── Intersection Observer hook for reveal animations ───
 function useReveal() {
@@ -682,6 +686,13 @@ function Footer() {
 
 // ─── Main Landing Page ───
 export default function LandingPage() {
+  useEffect(() => {
+    if (!landingTrackedRef.current) {
+      landingTrackedRef.current = true;
+      trackEvent("landing_view");
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#FAFAF8] font-sans">
       <Navbar />

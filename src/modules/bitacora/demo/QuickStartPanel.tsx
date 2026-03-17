@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { AiRefineButton } from "@/components/timer/AiRefineButton";
+import { trackEvent } from "@/lib/analytics";
 
 interface QuickButton {
   key: string;
@@ -83,6 +84,7 @@ export function QuickStartPanel() {
     if (speech.isListening) {
       speech.stopListening();
     } else {
+      trackEvent("dictation_used", { source: "demo_quickstart" });
       speech.startListening();
     }
   };

@@ -5,11 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { hasDemoEntries, migrateDemoEntries } from "@/modules/bitacora/demo/migrateDemoToAccount";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics";
 
 export default function Signup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fromDemo = searchParams.get("from") === "demo";
+
+  useEffect(() => {
+    trackEvent("signup_start", { from_demo: fromDemo });
+  }, []);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,12 +53,19 @@ export default function Signup() {
       return;
     }
 
+    // Track signup
+    trackEvent("signup_complete", { from_demo: fromDemo, has_demo_entries: hasDemoEntries() });
+
     // Migrate demo entries if they exist
     if (data.user && hasDemoEntries()) {
       const count = await migrateDemoEntries(data.user.id);
       if (count > 0) {
-        toast.success(`${count} registros del demo guardados en tu cuenta`);
+        toast.success(`¡Listo! Tu cuenta está creada y tus ${count} registros del demo están guardados.`);
+      } else {
+        toast.success("¡Listo! Tu cuenta está creada. ¿En qué estás trabajando?");
       }
+    } else {
+      toast.success("¡Listo! Tu cuenta está creada. ¿En qué estás trabajando?");
     }
 
     navigate("/bitacora");

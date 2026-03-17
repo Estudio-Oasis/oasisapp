@@ -1,21 +1,42 @@
 import { useState } from "react";
 import { Sparkles, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/analytics";
+
+const DAILY_KEY_PREFIX = "bitacora_ai_refine_";
+
+function getDailyCount(): number {
+  const key = DAILY_KEY_PREFIX + new Date().toISOString().slice(0, 10);
+  return parseInt(localStorage.getItem(key) || "0", 10);
+}
+
+function incrementDailyCount(): void {
+  const key = DAILY_KEY_PREFIX + new Date().toISOString().slice(0, 10);
+  localStorage.setItem(key, String(getDailyCount() + 1));
+}
 
 interface Props {
   text: string;
   onAccept: (refined: string) => void;
+  maxPerDay?: number | null;
 }
 
-export function AiRefineButton({ text, onAccept }: Props) {
+export function AiRefineButton({ text, onAccept, maxPerDay = 5 }: Props) {
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState<string | null>(null);
+  const limitReached = maxPerDay !== null && getDailyCount() >= maxPerDay;
 
   if (text.length <= 5 && !suggestion) return null;
+  if (limitReached && !suggestion) {
+    return (
+      <span className="text-[10px] text-foreground-muted px-1">Límite diario de IA alcanzado</span>
+    );
+  }
 
   const handleRefine = async () => {
-    if (loading || !text.trim()) return;
+    if (loading || !text.trim() || limitReached) return;
     setLoading(true);
+    trackEvent("ai_refine_used");
     try {
       const { data, error } = await supabase.functions.invoke("rewrite-description", {
         body: { text: text.trim() },
@@ -24,6 +45,7 @@ export function AiRefineButton({ text, onAccept }: Props) {
       const result = data?.result?.trim();
       if (result && result !== text.trim()) {
         setSuggestion(result);
+        incrementDailyCount();
       }
     } catch {
       // Silent fail — non-critical feature

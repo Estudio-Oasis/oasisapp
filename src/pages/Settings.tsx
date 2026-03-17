@@ -183,9 +183,12 @@ function FreeProfileView({ profile, userId, onUpdate }: { profile: { name: strin
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-background-secondary p-3">
+        <div className="rounded-lg border border-border bg-background-secondary p-3 space-y-1">
           <p className="text-[12px] text-foreground-secondary">
-            <span className="font-semibold text-foreground">Plan gratuito</span> · Registro de actividad ilimitado para uso personal.
+            <span className="font-semibold text-foreground">Bitácora Personal</span> · Registro de actividad ilimitado, 14 días de historial.
+          </p>
+          <p className="text-[11px] text-foreground-muted">
+            ¿Necesitas visibilidad de equipo? <span className="font-medium text-accent">Task Master próximamente →</span>
           </p>
         </div>
 
@@ -199,6 +202,11 @@ function FreeProfileView({ profile, userId, onUpdate }: { profile: { name: strin
           href="https://tally.so/r/wMrqBp"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => {
+            import("@/lib/analytics").then(({ trackEvent }) =>
+              trackEvent("feedback_clicked", { source: "settings" })
+            );
+          }}
           className="text-[12px] text-foreground-muted hover:text-foreground transition-colors"
         >
           ¿Ideas o feedback? Cuéntanos →

@@ -19,6 +19,7 @@ import { getNormalizedActivityType, getActivityConfig } from "@/components/timer
 import { toast } from "sonner";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { AiRefineButton } from "@/components/timer/AiRefineButton";
+import { trackEvent } from "@/lib/analytics";
 
 interface QuickAction {
   key: string;
@@ -137,6 +138,7 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
     if (speech.isListening) {
       speech.stopListening();
     } else {
+      trackEvent("dictation_used", { source: "quick_sheet" });
       speech.startListening();
     }
   };
