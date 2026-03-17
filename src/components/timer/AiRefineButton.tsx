@@ -21,9 +21,10 @@ interface Props {
   maxPerDay?: number | null;
 }
 
-export function AiRefineButton({ text, onAccept }: Props) {
+export function AiRefineButton({ text, onAccept, maxPerDay = 5 }: Props) {
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState<string | null>(null);
+  const limitReached = maxPerDay !== null && getDailyCount() >= maxPerDay;
 
   if (text.length <= 5 && !suggestion) return null;
 
