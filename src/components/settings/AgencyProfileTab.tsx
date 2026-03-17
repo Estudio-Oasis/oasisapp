@@ -51,7 +51,7 @@ export function AgencyProfileTab({ agency, isAdmin, onUpdate }: Props) {
     <div className="space-y-8">
       {/* General */}
       <Section title="General">
-        <Field label="Agency name">
+        <Field label="Nombre de agencia">
           <Input
             value={form.name}
             onChange={(e) => set("name", e.target.value)}
@@ -59,7 +59,7 @@ export function AgencyProfileTab({ agency, isAdmin, onUpdate }: Props) {
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Base currency">
+          <Field label="Moneda base">
             <Select
               value={form.base_currency}
               onValueChange={(v) => set("base_currency", v)}
@@ -74,24 +74,24 @@ export function AgencyProfileTab({ agency, isAdmin, onUpdate }: Props) {
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Country">
+          <Field label="País">
             <Input
               value={form.country || ""}
               onChange={(e) => set("country", e.target.value || null)}
-              placeholder="e.g. Mexico"
+              placeholder="Ej. México"
               disabled={disabled}
             />
           </Field>
         </div>
-        <Field label="Auto-join email domain">
+        <Field label="Dominio de email para auto-unirse">
           <Input
             value={form.allowed_email_domain || ""}
             onChange={(e) => set("allowed_email_domain", e.target.value || null)}
-            placeholder="e.g. oasis.studio"
+            placeholder="Ej. oasis.studio"
             disabled={disabled}
           />
           <p className="text-xs text-foreground-muted mt-1">
-            Users signing up with this email domain will auto-join your agency
+            Los usuarios que se registren con este dominio se unirán automáticamente a tu agencia
           </p>
         </Field>
       </Section>

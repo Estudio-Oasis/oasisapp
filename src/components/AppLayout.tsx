@@ -25,8 +25,9 @@ export function AppLayout() {
           <header className="flex h-11 items-center justify-between px-4 md:hidden">
             <div className="flex items-center gap-1.5">
               <div className="flex h-5 w-5 items-center justify-center rounded bg-foreground">
-                <span className="text-[7px] font-bold tracking-widest text-background">OS</span>
+                <span className="text-[7px] font-bold tracking-widest text-background">B</span>
               </div>
+              <span className="text-sm font-semibold text-foreground">Bitácora</span>
             </div>
             <div className="flex items-center gap-1">
               <Link
