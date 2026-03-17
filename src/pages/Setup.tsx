@@ -137,7 +137,7 @@ export default function Setup() {
         {/* Logo */}
         <div className="flex justify-center">
           <div className="flex h-9 w-9 items-center justify-center rounded-md bg-foreground">
-            <span className="text-[11px] font-bold tracking-widest text-background">OS</span>
+            <span className="text-[11px] font-bold tracking-widest text-background">B</span>
           </div>
         </div>
 
