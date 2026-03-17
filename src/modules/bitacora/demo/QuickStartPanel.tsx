@@ -7,9 +7,12 @@ import {
   Utensils,
   ListChecks,
   Mic,
+  MicOff,
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { AiRefineButton } from "@/components/timer/AiRefineButton";
 
 interface QuickButton {
   key: string;
@@ -27,18 +30,29 @@ const QUICK_BUTTONS: QuickButton[] = [
 
 /**
  * Central "control panel" for track_day mode — big, tactile, mobile-first.
- * Replaces the auto-open QuickSheet as the primary entry point.
  */
 export function QuickStartPanel() {
   const bita = useBitacora();
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const speech = useSpeechRecognition();
 
   useEffect(() => {
     const t = setTimeout(() => inputRef.current?.focus(), 400);
     return () => clearTimeout(t);
   }, []);
+
+  // Append speech transcript to input
+  useEffect(() => {
+    if (speech.transcript) {
+      setText((prev) => {
+        // If user was already typing, append with space
+        const base = prev.trim();
+        return base ? `${base} ${speech.transcript}` : speech.transcript;
+      });
+    }
+  }, [speech.transcript]);
 
   const handleStart = async () => {
     if (loading) return;
@@ -65,10 +79,18 @@ export function QuickStartPanel() {
     }
   };
 
+  const toggleMic = () => {
+    if (speech.isListening) {
+      speech.stopListening();
+    } else {
+      speech.startListening();
+    }
+  };
+
   return (
     <div className="rounded-2xl border border-border bg-card overflow-hidden">
       {/* Hero input */}
-      <div className="p-4 pb-3 space-y-3">
+      <div className="p-4 pb-3 space-y-2">
         <div className="flex items-center gap-2 mb-1">
           <div className="h-6 w-6 rounded-lg bg-accent/15 flex items-center justify-center">
             <Zap className="h-3.5 w-3.5 text-accent" />
@@ -90,19 +112,35 @@ export function QuickStartPanel() {
               }
             }}
             placeholder="Escribe o dicta lo que estás haciendo…"
-            className="w-full h-14 rounded-xl bg-background-secondary border border-border px-4 pr-14 text-[15px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent/50 transition-colors"
+            className="w-full h-14 rounded-xl bg-background-secondary border border-border px-4 pr-24 text-[15px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent/50 transition-colors"
             disabled={loading}
           />
-          <button
-            onClick={handleStart}
-            disabled={loading}
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-xl bg-accent flex items-center justify-center text-accent-foreground hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
-          >
-            <Play className="h-5 w-5 ml-0.5" />
-          </button>
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+            {speech.isSupported && (
+              <button
+                onClick={toggleMic}
+                disabled={loading}
+                className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all ${
+                  speech.isListening
+                    ? "bg-accent text-accent-foreground animate-pulse"
+                    : "bg-background-tertiary text-foreground-muted hover:text-foreground"
+                } disabled:opacity-50`}
+              >
+                {speech.isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              </button>
+            )}
+            <button
+              onClick={handleStart}
+              disabled={loading}
+              className="h-10 w-10 rounded-xl bg-accent flex items-center justify-center text-accent-foreground hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+            >
+              <Play className="h-5 w-5 ml-0.5" />
+            </button>
+          </div>
         </div>
 
-        {/* Removed "Empezar ahora" button — play inside input is the single primary action */}
+        {/* AI Refine suggestion */}
+        <AiRefineButton text={text} onAccept={(refined) => setText(refined)} />
       </div>
 
       {/* Quick action grid */}
