@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePlan } from "@/hooks/usePlan";
 import { X, Check, Circle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
@@ -13,6 +14,7 @@ interface OnboardingChecklistProps {
 
 export function OnboardingChecklist({ onboarded, onOpenProfile, onOpenTimer }: OnboardingChecklistProps) {
   const { user } = useAuth();
+  const { isFree } = usePlan();
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
   const [profileComplete, setProfileComplete] = useState(false);
@@ -37,7 +39,6 @@ export function OnboardingChecklist({ onboarded, onOpenProfile, onOpenTimer }: O
   useEffect(() => {
     if (!user || onboarded) return;
 
-    // Check dismissed
     const dismissedAt = localStorage.getItem(`checklist_dismissed_${user.id}`);
     if (dismissedAt) {
       const elapsed = Date.now() - parseInt(dismissedAt);
@@ -49,27 +50,35 @@ export function OnboardingChecklist({ onboarded, onOpenProfile, onOpenTimer }: O
     }
 
     checkStatus();
-
-    // Poll every 30 seconds
     const interval = setInterval(checkStatus, 30000);
     return () => clearInterval(interval);
   }, [user, onboarded, checkStatus]);
 
   // Auto-mark onboarded when all items complete
+  const allItems = isFree
+    ? [profileComplete, timeLogged]
+    : [profileComplete, hasTask, timeLogged];
+
   useEffect(() => {
-    if (profileComplete && hasTask && timeLogged && user && !onboarded) {
+    if (allItems.every(Boolean) && user && !onboarded) {
       supabase.from("profiles").update({ onboarded: true }).eq("id", user.id);
     }
-  }, [profileComplete, hasTask, timeLogged, user, onboarded]);
+  }, [allItems, user, onboarded]);
 
   if (onboarded || dismissed) return null;
 
-  const items = [
-    { label: "Cuenta creada", done: true, action: undefined },
-    { label: "Completa tu perfil", done: profileComplete, action: onOpenProfile },
-    { label: "Crea tu primera tarea", done: hasTask, action: () => navigate("/tasks") },
-    { label: "Registra 30 minutos", done: timeLogged, action: onOpenTimer },
-  ];
+  const items = isFree
+    ? [
+        { label: "Cuenta creada", done: true, action: undefined },
+        { label: "Completa tu perfil", done: profileComplete, action: onOpenProfile },
+        { label: "Registra 30 minutos", done: timeLogged, action: onOpenTimer },
+      ]
+    : [
+        { label: "Cuenta creada", done: true, action: undefined },
+        { label: "Completa tu perfil", done: profileComplete, action: onOpenProfile },
+        { label: "Crea tu primera tarea", done: hasTask, action: () => navigate("/tasks") },
+        { label: "Registra 30 minutos", done: timeLogged, action: onOpenTimer },
+      ];
 
   const doneCount = items.filter((i) => i.done).length;
   const progress = Math.round((doneCount / items.length) * 100);
@@ -84,7 +93,6 @@ export function OnboardingChecklist({ onboarded, onOpenProfile, onOpenTimer }: O
   return (
     <div className="px-3 mb-3">
       <div className="rounded-lg border border-border bg-background-secondary p-3 space-y-2.5">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-foreground">
             Tu primer día{" "}
@@ -100,10 +108,8 @@ export function OnboardingChecklist({ onboarded, onOpenProfile, onOpenTimer }: O
           </button>
         </div>
 
-        {/* Progress */}
         <Progress value={progress} className="h-1.5" />
 
-        {/* Items */}
         <div className="space-y-1">
           {items.map((item) => (
             <button

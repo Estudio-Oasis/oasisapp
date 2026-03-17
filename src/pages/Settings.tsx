@@ -5,6 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AgencyProfileTab } from "@/components/settings/AgencyProfileTab";
 import { MembersTab } from "@/components/settings/MembersTab";
 import { IntegrationsTab } from "@/components/settings/IntegrationsTab";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { usePlan } from "@/hooks/usePlan";
 import { toast } from "sonner";
 
 export interface Agency {
@@ -26,26 +29,28 @@ export interface Agency {
 
 export default function Settings() {
   const { user } = useAuth();
+  const { isFree } = usePlan();
   const [agency, setAgency] = useState<Agency | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string>("member");
+  const [profile, setProfile] = useState<{ name: string; email: string; work_start_hour: number; work_end_hour: number } | null>(null);
 
-  const fetchAgency = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     if (!user) return;
-    // Get user's profile to find agency_id
-    const { data: profile } = await supabase
+    const { data: prof } = await supabase
       .from("profiles")
-      .select("agency_id, role")
+      .select("agency_id, role, name, email, work_start_hour, work_end_hour")
       .eq("id", user.id)
       .single();
 
-    if (profile?.role) setUserRole(profile.role);
+    if (prof?.role) setUserRole(prof.role);
+    if (prof) setProfile({ name: prof.name || "", email: prof.email || "", work_start_hour: prof.work_start_hour, work_end_hour: prof.work_end_hour });
 
-    if (profile?.agency_id) {
+    if (prof?.agency_id) {
       const { data } = await supabase
         .from("agencies")
         .select("*")
-        .eq("id", profile.agency_id)
+        .eq("id", prof.agency_id)
         .single();
       if (data) setAgency(data as Agency);
     }
@@ -53,37 +58,19 @@ export default function Settings() {
   }, [user]);
 
   useEffect(() => {
-    fetchAgency();
-  }, [fetchAgency]);
+    fetchData();
+  }, [fetchData]);
 
   const handleCreateAgency = async (name: string) => {
     if (!user) return;
-
     const agencyId = crypto.randomUUID();
-
-    const { error: insertError } = await supabase
-      .from("agencies")
-      .insert({ id: agencyId, name });
-
-    if (insertError) {
-      toast.error("Failed to create agency");
-      return;
-    }
-
-    // Link user to agency as admin
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .update({ agency_id: agencyId, role: "admin" as const })
-      .eq("id", user.id);
-
-    if (profileError) {
-      toast.error("Agency created, but failed to link your profile");
-      return;
-    }
-
-    await fetchAgency();
+    const { error: insertError } = await supabase.from("agencies").insert({ id: agencyId, name });
+    if (insertError) { toast.error("No se pudo crear la agencia"); return; }
+    const { error: profileError } = await supabase.from("profiles").update({ agency_id: agencyId, role: "admin" as const }).eq("id", user.id);
+    if (profileError) { toast.error("Agencia creada, pero no se pudo vincular tu perfil"); return; }
+    await fetchData();
     setUserRole("admin");
-    toast.success("Agency created!");
+    toast.success("¡Agencia creada!");
   };
 
   if (loading) {
@@ -94,22 +81,27 @@ export default function Settings() {
     );
   }
 
-  // No agency yet — show creation prompt
+  // Free user without agency — show individual profile
+  if (!agency && isFree) {
+    return <FreeProfileView profile={profile} userId={user?.id} onUpdate={fetchData} />;
+  }
+
+  // Pro user without agency — prompt to create
   if (!agency) {
     return <CreateAgencyPrompt onCreate={handleCreateAgency} />;
   }
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-h1 text-foreground">Settings</h1>
+      <h1 className="text-h1 text-foreground">Configuración</h1>
       <p className="text-small text-foreground-secondary mt-1">
-        Manage your agency, team, and billing
+        Administra tu equipo, perfil y agencia
       </p>
 
       <Tabs defaultValue="agency" className="mt-6">
         <TabsList className="bg-background-secondary">
-          <TabsTrigger value="agency">Agency Profile</TabsTrigger>
-          <TabsTrigger value="members">Members</TabsTrigger>
+          <TabsTrigger value="agency">Perfil de agencia</TabsTrigger>
+          <TabsTrigger value="members">Miembros</TabsTrigger>
           <TabsTrigger value="integrations">Integraciones</TabsTrigger>
         </TabsList>
 
@@ -140,6 +132,82 @@ export default function Settings() {
   );
 }
 
+/* ── Free individual profile ── */
+function FreeProfileView({ profile, userId, onUpdate }: { profile: { name: string; email: string; work_start_hour: number; work_end_hour: number } | null; userId?: string; onUpdate: () => void }) {
+  const [name, setName] = useState(profile?.name || "");
+  const [startHour, setStartHour] = useState(profile?.work_start_hour ?? 9);
+  const [endHour, setEndHour] = useState(profile?.work_end_hour ?? 18);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userId) return;
+    setSaving(true);
+    const { error } = await supabase.from("profiles").update({
+      name: name.trim(),
+      work_start_hour: startHour,
+      work_end_hour: endHour,
+    }).eq("id", userId);
+    setSaving(false);
+    if (error) { toast.error("No se pudo guardar"); return; }
+    toast.success("Perfil actualizado");
+    onUpdate();
+  };
+
+  return (
+    <div className="max-w-lg">
+      <h1 className="text-h1 text-foreground">Mi perfil</h1>
+      <p className="text-small text-foreground-secondary mt-1">
+        Configura tu nombre y horario de trabajo
+      </p>
+
+      <form onSubmit={handleSave} className="mt-8 space-y-5">
+        <div className="space-y-1.5">
+          <label className="text-label">Nombre</label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre" />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-label">Correo</label>
+          <Input value={profile?.email || ""} disabled className="opacity-60" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-label">Inicio de jornada</label>
+            <Input type="number" min={0} max={23} value={startHour} onChange={(e) => setStartHour(Number(e.target.value))} />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-label">Fin de jornada</label>
+            <Input type="number" min={0} max={23} value={endHour} onChange={(e) => setEndHour(Number(e.target.value))} />
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-background-secondary p-3">
+          <p className="text-[12px] text-foreground-secondary">
+            <span className="font-semibold text-foreground">Plan gratuito</span> · Registro de actividad ilimitado para uso personal.
+          </p>
+        </div>
+
+        <Button type="submit" disabled={saving} className="w-full">
+          {saving ? "Guardando…" : "Guardar cambios"}
+        </Button>
+      </form>
+
+      <div className="mt-8 pt-6 border-t border-border">
+        <a
+          href="https://tally.so/r/wMrqBp"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[12px] text-foreground-muted hover:text-foreground transition-colors"
+        >
+          ¿Ideas o feedback? Cuéntanos →
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function CreateAgencyPrompt({ onCreate }: { onCreate: (name: string) => void }) {
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
@@ -158,14 +226,14 @@ function CreateAgencyPrompt({ onCreate }: { onCreate: (name: string) => void }) 
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-accent-light">
           <span className="text-xl">🏢</span>
         </div>
-        <h2 className="text-h2 text-foreground mt-4">Set up your agency</h2>
+        <h2 className="text-h2 text-foreground mt-4">Crea tu equipo</h2>
         <p className="text-small text-foreground-secondary mt-2">
-          Create your agency profile to manage team members, track expenses, and more.
+          Crea un espacio para gestionar a tu equipo, clientes y operación.
         </p>
         <form onSubmit={handleSubmit} className="mt-6 space-y-3">
           <input
             type="text"
-            placeholder="Agency name"
+            placeholder="Nombre de tu agencia"
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-accent"
@@ -176,7 +244,7 @@ function CreateAgencyPrompt({ onCreate }: { onCreate: (name: string) => void }) 
             disabled={!name.trim() || saving}
             className="w-full rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-background transition-colors hover:bg-primary-hover disabled:opacity-50"
           >
-            {saving ? "Creating…" : "Create agency →"}
+            {saving ? "Creando…" : "Crear agencia →"}
           </button>
         </form>
       </div>

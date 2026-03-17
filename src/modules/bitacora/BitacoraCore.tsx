@@ -195,18 +195,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
             ))}
           </div>
         )}
-        {config.features.allowManualEntry && (
-          <button
-            onClick={() => {
-              setGapPrefill(null);
-              setModalOpen(true);
-            }}
-            className="ml-auto inline-flex items-center gap-1 text-[10px] font-medium text-foreground-muted hover:text-foreground transition-colors"
-          >
-            <Plus className="h-3 w-3" />
-            Manual
-          </button>
-        )}
+        {/* Manual entry button removed — now in control surface */}
       </div>
 
       {/* ── FEED ── */}

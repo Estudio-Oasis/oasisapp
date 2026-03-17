@@ -656,6 +656,14 @@ function Footer() {
             <span className="text-[#666] text-[12px] font-medium">· by Estudio Oasis</span>
           </div>
           <div className="flex items-center gap-6">
+            <a
+              href="https://tally.so/r/wMrqBp"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[13px] text-[#666] hover:text-[#FAFAF8] transition-colors"
+            >
+              ¿Ideas o feedback?
+            </a>
             <Link to="/login" className="text-[13px] text-[#666] hover:text-[#FAFAF8] transition-colors">
               Iniciar sesión
             </Link>
