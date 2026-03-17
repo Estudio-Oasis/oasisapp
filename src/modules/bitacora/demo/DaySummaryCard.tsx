@@ -41,6 +41,14 @@ function categorizeEntries(entries: { description: string | null; duration_min: 
 export function DaySummaryCard() {
   const vm = useBitacoraVM();
   const [accepted, setAccepted] = useState(false);
+  const [editHintVisible, setEditHintVisible] = useState(false);
+
+  // Auto-hide edit hint after 4 seconds
+  useEffect(() => {
+    if (!editHintVisible) return;
+    const t = setTimeout(() => setEditHintVisible(false), 4000);
+    return () => clearTimeout(t);
+  }, [editHintVisible]);
 
   // Only show after 2+ entries
   if (vm.entries.length < 2) return null;

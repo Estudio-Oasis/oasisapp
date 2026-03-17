@@ -134,7 +134,6 @@ export function LocalBitacoraProvider({
     // Discard entries shorter than 30 seconds
     if (elapsedSec < 30) {
       setActive(null);
-      const { toast } = await import("sonner");
       toast("Registro muy corto. No se guardó.", { duration: 3000 });
       return;
     }
