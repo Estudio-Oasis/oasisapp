@@ -529,6 +529,9 @@ function SystemView() {
           <p className="mt-3 text-[16px] text-[#6B6B6B] max-w-lg leading-relaxed">
             Estamos construyendo un sistema completo. Empieza con el registro de actividad y expande cuando lo necesites.
           </p>
+          <p className="mt-2 text-[13px] text-[#999] italic">
+            La experiencia seguirá mejorando con resúmenes inteligentes y automatizaciones.
+          </p>
         </RevealSection>
 
         {/* Bitácora — large detailed mockup */}
@@ -653,6 +656,14 @@ function Footer() {
             <span className="text-[#666] text-[12px] font-medium">· by Estudio Oasis</span>
           </div>
           <div className="flex items-center gap-6">
+            <a
+              href="https://tally.so/r/wMrqBp"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[13px] text-[#666] hover:text-[#FAFAF8] transition-colors"
+            >
+              ¿Ideas o feedback?
+            </a>
             <Link to="/login" className="text-[13px] text-[#666] hover:text-[#FAFAF8] transition-colors">
               Iniciar sesión
             </Link>

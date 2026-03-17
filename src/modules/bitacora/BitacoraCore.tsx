@@ -118,14 +118,38 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
               />
             </ActiveSessionCard>
           ) : hideQuickLog ? null : (
-            <QuickLogInput
-              onClick={() => {
-                setQuickSheetMode("start");
-                setQuickSheetOpen(true);
-              }}
-              todaySummary={vm.todaySummaryText}
-              totalMinutes={vm.totalMinutes}
-            />
+            <div className="space-y-3">
+              <QuickLogInput
+                onClick={() => {
+                  setQuickSheetMode("start");
+                  setQuickSheetOpen(true);
+                }}
+                todaySummary={vm.todaySummaryText}
+                totalMinutes={vm.totalMinutes}
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setQuickSheetMode("start");
+                    setQuickSheetOpen(true);
+                  }}
+                  className="flex-1 h-10 rounded-lg bg-accent text-accent-foreground text-[13px] font-semibold hover:bg-accent/90 transition-colors"
+                >
+                  Iniciar actividad
+                </button>
+                {config.features.allowManualEntry && (
+                  <button
+                    onClick={() => {
+                      setGapPrefill(null);
+                      setModalOpen(true);
+                    }}
+                    className="flex-1 h-10 rounded-lg border border-border text-[13px] font-medium text-foreground-secondary hover:bg-background-secondary transition-colors"
+                  >
+                    Agregar registro manual
+                  </button>
+                )}
+              </div>
+            </div>
           )}
         </div>
 
@@ -195,18 +219,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
             ))}
           </div>
         )}
-        {config.features.allowManualEntry && (
-          <button
-            onClick={() => {
-              setGapPrefill(null);
-              setModalOpen(true);
-            }}
-            className="ml-auto inline-flex items-center gap-1 text-[10px] font-medium text-foreground-muted hover:text-foreground transition-colors"
-          >
-            <Plus className="h-3 w-3" />
-            Manual
-          </button>
-        )}
+        {/* Manual entry button removed — now in control surface */}
       </div>
 
       {/* ── FEED ── */}
@@ -240,6 +253,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
                     userId={entry.user_id}
                     userName={vm.profileMap[entry.user_id]?.name}
                     showUser={vm.entryFilter === "all"}
+                    onClick={() => handleEntryClick({ startedAt: entry.started_at, endedAt: entry.ended_at || "", clientName: entry.clients?.name, clientId: entry.client_id, description: entry.description, durationMin: entry.duration_min })}
                   />
                 </div>
               ))}
@@ -284,6 +298,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
                         userId={entry.user_id}
                         userName={vm.profileMap[entry.user_id]?.name}
                         showUser={vm.entryFilter === "all"}
+                        onClick={() => handleEntryClick({ startedAt: entry.started_at, endedAt: entry.ended_at || "", clientName: entry.clients?.name, clientId: entry.client_id, description: entry.description, durationMin: entry.duration_min })}
                       />
                     </div>
                   ))}

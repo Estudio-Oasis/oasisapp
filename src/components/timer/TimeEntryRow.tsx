@@ -4,6 +4,7 @@ import {
   getActivityConfig,
   TRUNCATION,
 } from "./ActivityConstants";
+import { ChevronRight } from "lucide-react";
 
 interface TimeEntryRowProps {
   id: string;
@@ -17,6 +18,7 @@ interface TimeEntryRowProps {
   userId?: string;
   userName?: string | null;
   showUser?: boolean;
+  onClick?: () => void;
 }
 
 function truncate(text: string, max: number) {
@@ -34,6 +36,7 @@ export function TimeEntryRow({
   durationMin,
   userName,
   showUser = false,
+  onClick,
 }: TimeEntryRowProps) {
   const activityType = getNormalizedActivityType({ description, client_id: clientId });
   const config = getActivityConfig(activityType);
@@ -49,9 +52,10 @@ export function TimeEntryRow({
 
   return (
     <div
-      className={`flex items-center gap-3 border-b border-border py-3.5 ${
+      onClick={onClick}
+      className={`flex items-center gap-3 border-b border-border py-3.5 rounded-lg transition-colors ${
         isNonProductive ? "opacity-60" : ""
-      }`}
+      } ${onClick ? "cursor-pointer hover:bg-background-secondary/50" : ""}`}
     >
       {/* Color bar or icon */}
       {isNonProductive ? (
@@ -122,6 +126,11 @@ export function TimeEntryRow({
           {formatDuration(dur)}
         </p>
       </div>
+
+      {/* Edit affordance */}
+      {onClick && (
+        <ChevronRight className="h-3.5 w-3.5 text-foreground-muted shrink-0" />
+      )}
     </div>
   );
 }

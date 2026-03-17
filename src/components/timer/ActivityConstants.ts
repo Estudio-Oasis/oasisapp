@@ -189,16 +189,16 @@ export const UI_COPY = {
 
   // Primary actions
   btnStart: "Registrar actividad",
-  btnSwitch: "Cambiar",
+  btnSwitch: "Cambiar actividad",
   btnPause: "Registrar pausa",
   btnFinish: "Finalizar",
   btnSaving: "Guardando…",
-  btnManualEntry: "Agregar entrada manual",
+  btnManualEntry: "Agregar registro manual",
 
   // Active session
   sessionActive: "Sesión activa",
   sessionNoTask: "Sin tarea específica",
-  sessionNoClient: "Actividad interna",
+  sessionNoClient: "Sin cliente asociado",
 
   // Context badge
   contextDetected: "Contexto detectado",

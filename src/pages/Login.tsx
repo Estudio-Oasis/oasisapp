@@ -29,17 +29,15 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background-secondary px-6">
       <div className="w-full max-w-[400px] rounded-lg border border-border bg-card p-10">
-        {/* Logo */}
-        <div className="flex justify-center">
-          <Link to="/" className="flex h-9 w-9 items-center justify-center rounded-md bg-foreground hover:opacity-80 transition-opacity">
-            <span className="text-[11px] font-bold tracking-widest text-background">OS</span>
-          </Link>
+        {/* Wordmark */}
+        <div className="text-center">
+          <span className="text-[18px] font-bold tracking-tight text-foreground">Bitácora</span>
         </div>
 
         {/* Heading */}
-        <h1 className="text-h1 text-foreground text-center mt-4">Welcome back</h1>
+        <h1 className="text-h1 text-foreground text-center mt-4">Bienvenido de vuelta</h1>
         <p className="text-sm text-foreground-secondary text-center mt-1">
-          Sign in to your workspace
+          Inicia sesión en Bitácora
         </p>
 
         {/* Form */}
@@ -51,11 +49,11 @@ export default function Login() {
           )}
 
           <div className="space-y-1.5">
-            <label htmlFor="email" className="text-label">Email</label>
+            <label htmlFor="email" className="text-label">Correo</label>
             <Input
               id="email"
               type="email"
-              placeholder="you@company.com"
+              placeholder="tu@empresa.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -63,7 +61,7 @@ export default function Login() {
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="password" className="text-label">Password</label>
+            <label htmlFor="password" className="text-label">Contraseña</label>
             <Input
               id="password"
               type="password"
@@ -75,15 +73,15 @@ export default function Login() {
           </div>
 
           <Button type="submit" className="w-full h-11" disabled={loading}>
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? "Iniciando sesión…" : "Iniciar sesión"}
           </Button>
         </form>
 
         {/* Footer */}
         <p className="text-small text-foreground-secondary text-center mt-6">
-          Don't have an account?{" "}
+          ¿No tienes cuenta?{" "}
           <Link to="/signup" className="font-semibold text-foreground hover:text-accent transition-colors">
-            Sign up
+            Regístrate
           </Link>
         </p>
       </div>

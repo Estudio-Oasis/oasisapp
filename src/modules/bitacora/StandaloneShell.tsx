@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { LocalBitacoraProvider } from "./LocalBitacoraProvider";
 import { BitacoraCore } from "./BitacoraCore";
 import { useBitacora, useBitacoraVM } from "./BitacoraContext";
-import { ArrowRight, ArrowLeft, RotateCcw, Sparkles, ListChecks, Compass } from "lucide-react";
+import { ArrowRight, ArrowLeft, RotateCcw, Sparkles, ListChecks, Compass, MessageSquare } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TodoPanel } from "./demo/TodoPanel";
 import { DaySummaryCard } from "./demo/DaySummaryCard";
@@ -22,6 +22,8 @@ const LS_KEYS_TO_CLEAR = [
   LS_DEMO_TODOS,
 ];
 
+const FEEDBACK_URL = "https://tally.so/r/wMrqBp";
+
 /* ── Mini onboarding ── */
 function MiniOnboarding({ onComplete }: { onComplete: (mode: DemoMode) => void }) {
   const navigate = useNavigate();
@@ -39,14 +41,11 @@ function MiniOnboarding({ onComplete }: { onComplete: (mode: DemoMode) => void }
           className="inline-flex items-center gap-1.5 text-[12px] text-foreground-muted hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Volver a Oasis
+          Volver al inicio
         </button>
 
         <div className="text-center space-y-2">
-          <div className="h-10 w-10 rounded-xl bg-foreground flex items-center justify-center mx-auto">
-            <span className="text-[9px] font-bold tracking-widest text-background">OS</span>
-          </div>
-          <h1 className="text-xl font-bold text-foreground">Bitácora</h1>
+          <span className="text-[18px] font-bold tracking-tight text-foreground">Bitácora</span>
           <p className="text-sm text-foreground-secondary">
             ¿Cómo quieres probar Bitácora hoy?
           </p>
@@ -107,7 +106,7 @@ function DeferredCTA({ onDismiss }: { onDismiss: () => void }) {
           to="/signup?from=demo"
           className="inline-flex h-9 px-5 rounded-full bg-foreground text-background text-[12px] font-semibold items-center gap-1.5 hover:opacity-90 transition-opacity"
         >
-          Crear cuenta <ArrowRight className="h-3 w-3" />
+          Crear cuenta gratis <ArrowRight className="h-3 w-3" />
         </Link>
         <button
           onClick={onDismiss}
@@ -149,19 +148,26 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
             <button
               onClick={() => navigate("/")}
               className="h-7 w-7 rounded-lg flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-foreground/10 transition-colors"
-              title="Volver a Oasis"
+              title="Volver al inicio"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
-            <div className="h-6 w-6 rounded-md bg-foreground flex items-center justify-center">
-              <span className="text-[8px] font-bold tracking-widest text-background">OS</span>
-            </div>
-            <span className="text-[13px] font-semibold text-foreground">Bitácora</span>
+            <span className="text-[14px] font-bold tracking-tight text-foreground">Bitácora</span>
             <span className="text-[10px] font-medium text-accent bg-accent/10 px-1.5 py-0.5 rounded-full">
               {modeLabels[mode]}
             </span>
           </div>
           <div className="flex items-center gap-2">
+            <a
+              href={FEEDBACK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="h-8 px-3 rounded-full border border-border text-[11px] font-medium text-foreground-muted flex items-center gap-1.5 hover:text-foreground hover:bg-foreground/5 transition-colors"
+              title="Enviar feedback"
+            >
+              <MessageSquare className="h-3 w-3" />
+              <span className="hidden sm:inline">Feedback</span>
+            </a>
             <button
               onClick={handleReset}
               className="h-8 px-3 rounded-full border border-border text-[11px] font-medium text-foreground-muted flex items-center gap-1.5 hover:text-foreground hover:bg-foreground/5 transition-colors"
@@ -174,7 +180,7 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
               to="/signup?from=demo"
               className="hidden sm:flex h-8 px-4 rounded-full bg-foreground text-background text-[12px] font-semibold items-center gap-1.5 hover:opacity-90 transition-opacity"
             >
-              Probar gratis <ArrowRight className="h-3 w-3" />
+              Crear cuenta <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
         </div>
@@ -189,17 +195,26 @@ function StandaloneInner({ mode, onReset }: { mode: DemoMode; onReset: () => voi
       <main className="max-w-2xl mx-auto px-3 py-3 space-y-3">
         {/* Mode-specific top panels */}
         {showQuickStart && <QuickStartPanel />}
-        {/* TrackDayHint removed when running — ActiveSessionCard is the hero */}
         {mode === "plan_tasks" && <TodoPanel />}
 
-        {/* Core Bitácora — hide QuickLogInput when QuickStartPanel is visible */}
+        {/* Core Bitácora */}
         <BitacoraCore hideQuickLog={showQuickStart} />
 
-        {/* Day summary (track_day and explore) */}
+        {/* Day summary */}
         {(mode === "track_day" || mode === "explore") && <DaySummaryCard />}
 
         {/* CTA */}
         {!ctaDismissed && <DeferredCTA onDismiss={() => setCtaDismissed(true)} />}
+
+        {/* Mobile CTA — always visible on mobile for signed-out users */}
+        <div className="sm:hidden mt-4">
+          <Link
+            to="/signup?from=demo"
+            className="flex h-11 w-full rounded-full bg-foreground text-background text-[13px] font-semibold items-center justify-center gap-1.5 hover:opacity-90 transition-opacity"
+          >
+            Guardar mi progreso <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </main>
     </div>
   );
