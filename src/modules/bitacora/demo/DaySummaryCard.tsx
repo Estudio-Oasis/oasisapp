@@ -62,6 +62,18 @@ export function DaySummaryCard() {
     );
   }
 
+  // Edit hint: shown briefly after user taps "Editar", then auto-hides
+  if (editHintVisible) {
+    return (
+      <div className="rounded-2xl border border-accent/20 bg-accent/5 p-4 text-center space-y-1 animate-in fade-in duration-300">
+        <Pencil className="h-4 w-4 text-accent mx-auto" />
+        <p className="text-[12px] font-medium text-foreground">
+          Toca cualquier bloque para editarlo
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-2xl border border-accent/20 bg-accent/5 overflow-hidden">
       {/* Header */}
