@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { trackEvent } from "@/lib/analytics";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
