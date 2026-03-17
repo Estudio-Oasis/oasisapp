@@ -24,18 +24,29 @@ interface InlineNewClientProps {
 }
 
 export function InlineNewClient({ prefillName, onCreated, onCancel }: InlineNewClientProps) {
+  const { user } = useAuth();
   const [name, setName] = useState(prefillName);
   const [email, setEmail] = useState("");
   const [monthlyRate, setMonthlyRate] = useState("");
   const [currency, setCurrency] = useState("USD");
   const [saving, setSaving] = useState(false);
+  const [agencyId, setAgencyId] = useState<string | null>(null);
+
+  // Fetch agency_id once
+  useState(() => {
+    if (user) {
+      supabase.from("profiles").select("agency_id").eq("id", user.id).single().then(({ data }) => {
+        setAgencyId(data?.agency_id ?? null);
+      });
+    }
+  });
 
   const handleCreate = async () => {
-    if (!name.trim()) return;
+    if (!name.trim() || !agencyId) return;
     setSaving(true);
     try {
       const rate = parseFloat(monthlyRate) || 0;
-      const fields = { name: name.trim(), email: email || null, monthly_rate: rate, currency };
+      const fields = { name: name.trim(), email: email || null, monthly_rate: rate, currency, agency_id: agencyId };
       const score = calculateCompleteness({
         ...fields,
         phone: null,
