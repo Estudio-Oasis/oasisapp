@@ -189,11 +189,11 @@ export const UI_COPY = {
 
   // Primary actions
   btnStart: "Registrar actividad",
-  btnSwitch: "Cambiar",
+  btnSwitch: "Cambiar actividad",
   btnPause: "Registrar pausa",
   btnFinish: "Finalizar",
   btnSaving: "Guardando…",
-  btnManualEntry: "Agregar entrada manual",
+  btnManualEntry: "Agregar registro manual",
 
   // Active session
   sessionActive: "Sesión activa",
