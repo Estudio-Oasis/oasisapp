@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useBitacoraVM } from "../BitacoraContext";
 import { Sparkles, Check, Pencil } from "lucide-react";
 import { formatDuration } from "@/lib/timer-utils";
