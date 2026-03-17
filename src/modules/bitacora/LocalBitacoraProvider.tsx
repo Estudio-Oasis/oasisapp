@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics";
 import { BitacoraCtx, ViewModelCtx } from "./BitacoraContext";
 import { formatDuration, isSameDay, startOfDay, startOfWeek } from "@/lib/timer-utils";
 import type {
