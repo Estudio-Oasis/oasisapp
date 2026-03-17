@@ -686,6 +686,13 @@ function Footer() {
 
 // ─── Main Landing Page ───
 export default function LandingPage() {
+  useEffect(() => {
+    if (!landingTrackedRef.current) {
+      landingTrackedRef.current = true;
+      trackEvent("landing_view");
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#FAFAF8] font-sans">
       <Navbar />
