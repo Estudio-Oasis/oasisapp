@@ -36,6 +36,7 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { isAdmin } = useRole();
   const timer = useTimer();
+  const firstEntryTracked = useRef(false);
 
   const [view, setView] = useState<"today" | "week">("today");
   const [entryFilter, setEntryFilter] = useState<"mine" | "all">(isAdmin ? "all" : "mine");
