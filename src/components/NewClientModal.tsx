@@ -233,6 +233,15 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
   const [suggestions, setSuggestions] = useState<AiSuggestion[]>([]);
   const [form, setForm] = useState<ClientFormData>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [agencyId, setAgencyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      supabase.from("profiles").select("agency_id").eq("id", user.id).single().then(({ data }) => {
+        setAgencyId(data?.agency_id ?? null);
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!open) {
@@ -290,7 +299,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
   };
 
   const saveClient = async () => {
-    if (!form.name.trim() || !user) return;
+    if (!form.name.trim() || !user || !agencyId) return;
     setSaving(true);
 
     const score = calculateCompleteness({
@@ -312,6 +321,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
       communication_channel: form.communication_channel || null,
       notes: form.notes || null,
       completeness_score: score,
+      agency_id: agencyId,
     };
     const { error } = await supabase.from("clients").insert(insertData as never);
 

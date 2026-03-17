@@ -360,6 +360,7 @@ export type Database = {
       }
       clients: {
         Row: {
+          agency_id: string
           billing_entity: string | null
           billing_type: Database["public"]["Enums"]["billing_type"]
           communication_channel: string | null
@@ -380,6 +381,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          agency_id: string
           billing_entity?: string | null
           billing_type?: Database["public"]["Enums"]["billing_type"]
           communication_channel?: string | null
@@ -400,6 +402,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          agency_id?: string
           billing_entity?: string | null
           billing_type?: Database["public"]["Enums"]["billing_type"]
           communication_channel?: string | null
@@ -419,7 +422,15 @@ export type Database = {
           updated_at?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clients_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_send_log: {
         Row: {
@@ -1050,6 +1061,8 @@ export type Database = {
           read_ct: number
         }[]
       }
+      same_agency_as: { Args: { target_user_id: string }; Returns: boolean }
+      user_agency_id: { Args: never; Returns: string }
     }
     Enums: {
       app_role: "admin" | "member" | "user"
