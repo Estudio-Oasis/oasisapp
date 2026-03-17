@@ -1,9 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Plus, Play, Trash2, CheckCircle2, Circle, ListChecks, Square, Sparkles } from "lucide-react";
+import { Plus, Play, Trash2, CheckCircle2, Circle, ListChecks, Square, Sparkles, Mic, MicOff } from "lucide-react";
 import { useBitacora, useBitacoraVM } from "../BitacoraContext";
 import type { DemoTodo } from "./types";
 import { LS_DEMO_TODOS } from "./types";
 import { formatDuration } from "@/lib/timer-utils";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 
 function loadTodos(): DemoTodo[] {
   try {
@@ -43,12 +44,28 @@ export function TodoPanel() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const bita = useBitacora();
   const vm = useBitacoraVM();
+  const speech = useSpeechRecognition();
 
   useEffect(() => saveTodos(todos), [todos]);
 
   useEffect(() => {
     setTimeout(() => inputRef.current?.focus(), 300);
   }, []);
+
+  // Append speech transcript to input
+  useEffect(() => {
+    if (speech.transcript) {
+      setInput((prev) => {
+        const base = prev.trim();
+        return base ? `${base} ${speech.transcript}` : speech.transcript;
+      });
+    }
+  }, [speech.transcript]);
+
+  const toggleMic = () => {
+    if (speech.isListening) speech.stopListening();
+    else speech.startListening();
+  };
 
   // Track when active session stops — mark the in-progress todo as done with duration
   const prevRunning = useRef(bita.isRunning);
@@ -160,7 +177,7 @@ export function TodoPanel() {
               addFromInput();
             }
           }}
-          placeholder={"¿Qué necesitas hacer hoy?\nEscribe todo junto, nosotros lo separamos."}
+          placeholder={"¿Qué necesitas hacer hoy?\nAnota o dicta tus pendientes en el orden que quieras. Después podrás detallarlos."}
           rows={composerMode || input.length > 60 ? 4 : 2}
           className="w-full bg-background-secondary border border-border rounded-xl px-4 py-3 text-[14px] text-foreground placeholder:text-foreground-muted resize-none focus:outline-none focus:border-accent/50 transition-all"
         />
@@ -209,8 +226,20 @@ export function TodoPanel() {
               Agregar
             </button>
           )}
+          {speech.isSupported && (
+            <button
+              onClick={toggleMic}
+              className={`h-10 w-10 rounded-xl flex items-center justify-center transition-all shrink-0 ${
+                speech.isListening
+                  ? "bg-accent text-accent-foreground animate-pulse"
+                  : "bg-background-secondary border border-border text-foreground-muted hover:text-foreground"
+              }`}
+            >
+              {speech.isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </button>
+          )}
           <span className="text-[10px] text-foreground-muted">
-            Dictar o pegar varios y lo separamos
+            Puedes dictar, pegar o escribir varios
           </span>
         </div>
       </div>

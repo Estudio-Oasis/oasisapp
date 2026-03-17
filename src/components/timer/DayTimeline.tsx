@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { getClientColor } from "@/lib/timer-utils";
 import { getNormalizedActivityType, getActivityConfig } from "./ActivityConstants";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -17,6 +18,13 @@ interface TimelineGap {
   durationMin: number;
 }
 
+interface ActiveSessionInfo {
+  startedAt: string;
+  description?: string | null;
+  clientName?: string | null;
+  clientId?: string | null;
+}
+
 interface DayTimelineProps {
   entries: TimelineEntry[];
   gaps: TimelineGap[];
@@ -24,6 +32,7 @@ interface DayTimelineProps {
   workStartMinute?: number;
   workEndHour?: number;
   workEndMinute?: number;
+  activeSession?: ActiveSessionInfo | null;
   onGapClick?: (gap: TimelineGap) => void;
   onEntryClick?: (entry: TimelineEntry) => void;
 }
@@ -31,35 +40,39 @@ interface DayTimelineProps {
 export function DayTimeline({
   entries,
   gaps,
-  workStartHour = 9,
-  workStartMinute = 0,
-  workEndHour = 18,
-  workEndMinute = 0,
+  activeSession,
   onGapClick,
   onEntryClick,
 }: DayTimelineProps) {
+  // Force re-render every 30s so active session block grows
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!activeSession) return;
+    const iv = setInterval(() => setTick((t) => t + 1), 30000);
+    return () => clearInterval(iv);
+  }, [activeSession]);
+
   const today = new Date();
   const dayStart = new Date(today);
-  dayStart.setHours(workStartHour, workStartMinute, 0, 0);
+  dayStart.setHours(0, 0, 0, 0);
   const dayEnd = new Date(today);
-  dayEnd.setHours(workEndHour, workEndMinute, 0, 0);
+  dayEnd.setHours(23, 59, 59, 999);
 
   const totalMs = dayEnd.getTime() - dayStart.getTime();
-  if (totalMs <= 0) return null;
 
-  // Generate hour markers
+  // Hour markers every 3 hours: 00, 03, 06, 09, 12, 15, 18, 21
   const hourMarkers: { label: string; pct: number }[] = [];
-  for (let h = workStartHour; h <= workEndHour; h++) {
+  for (let h = 0; h <= 24; h += 3) {
     const markerTime = new Date(today);
-    markerTime.setHours(h, 0, 0, 0);
+    markerTime.setHours(h === 24 ? 23 : h, h === 24 ? 59 : 0, 0, 0);
     const pct = ((markerTime.getTime() - dayStart.getTime()) / totalMs) * 100;
     if (pct >= 0 && pct <= 100) {
-      hourMarkers.push({ label: `${String(h).padStart(2, "0")}`, pct });
+      hourMarkers.push({ label: h === 24 ? "24" : String(h).padStart(2, "0"), pct });
     }
   }
 
   type Block = {
-    type: "entry" | "gap";
+    type: "entry" | "gap" | "active";
     start: number;
     end: number;
     color: string;
@@ -99,38 +112,54 @@ export function DayTimeline({
     });
   });
 
+  // Current time
+  const now = Date.now();
+
+  // Active session ghost block
+  if (activeSession) {
+    const s = new Date(activeSession.startedAt).getTime();
+    const actType = getNormalizedActivityType({ description: activeSession.description, client_id: activeSession.clientId });
+    const config = getActivityConfig(actType);
+    const color = activeSession.clientId ? getClientColor(activeSession.clientName || "") : config.color;
+    blocks.push({
+      type: "active",
+      start: Math.max(s, dayStart.getTime()),
+      end: Math.min(now, dayEnd.getTime()),
+      color,
+      label: activeSession.description || "En progreso…",
+    });
+  }
+
   blocks.sort((a, b) => a.start - b.start);
 
   const isEmpty = blocks.length === 0;
 
-  // Current time indicator position
-  const now = Date.now();
+  // Now indicator
   const showNowIndicator = now >= dayStart.getTime() && now <= dayEnd.getTime();
   const nowPct = showNowIndicator ? ((now - dayStart.getTime()) / totalMs) * 100 : 0;
 
   return (
     <div className="space-y-0">
-      {/* Timeline bar — the instrument's core visual */}
+      {/* Timeline bar */}
       <div className="relative">
-        <div className="flex h-8 rounded-lg overflow-hidden bg-background-tertiary gap-px border border-border/40">
+        <div className="relative h-8 rounded-lg overflow-hidden bg-background-tertiary border border-border/40">
           {isEmpty ? (
-            // Empty shell — faint hour divisions hint at structure
-            hourMarkers.slice(0, -1).map((m, i) => {
-              const next = hourMarkers[i + 1];
-              if (!next) return null;
-              const width = next.pct - m.pct;
-              return (
+            // Empty shell — faint divisions
+            <div className="flex h-full">
+              {Array.from({ length: 8 }).map((_, i) => (
                 <div
                   key={`slot-${i}`}
-                  className="h-full bg-background-tertiary border-r border-border/20 last:border-r-0"
-                  style={{ width: `${width}%` }}
+                  className="h-full flex-1 bg-background-tertiary border-r border-border/20 last:border-r-0"
                 />
-              );
-            })
+              ))}
+            </div>
           ) : (
             blocks.map((block, i) => {
               const widthPct = ((block.end - block.start) / totalMs) * 100;
               if (widthPct <= 0) return null;
+
+              // Position absolutely within the bar
+              const leftPct = ((block.start - dayStart.getTime()) / totalMs) * 100;
 
               if (block.type === "gap") {
                 return (
@@ -138,12 +167,34 @@ export function DayTimeline({
                     <TooltipTrigger asChild>
                       <button
                         onClick={() => onGapClick?.(block.gap!)}
-                        className="h-full border border-dashed border-accent/30 rounded-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer"
-                        style={{ width: `${widthPct}%`, minWidth: "4px" }}
+                        className="absolute h-full border border-dashed border-accent/30 rounded-sm bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer"
+                        style={{ left: `${leftPct}%`, width: `${widthPct}%`, minWidth: "4px" }}
                       />
                     </TooltipTrigger>
                     <TooltipContent side="bottom" className="text-xs">
                       {block.label}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              }
+
+              if (block.type === "active") {
+                return (
+                  <Tooltip key={`active-${i}`}>
+                    <TooltipTrigger asChild>
+                      <div
+                        className="absolute h-full rounded-sm animate-pulse"
+                        style={{
+                          left: `${leftPct}%`,
+                          width: `${Math.max(widthPct, 0.3)}%`,
+                          backgroundColor: block.color,
+                          opacity: 0.7,
+                          minWidth: "4px",
+                        }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="text-xs">
+                      🔴 {block.label}
                     </TooltipContent>
                   </Tooltip>
                 );
@@ -154,8 +205,9 @@ export function DayTimeline({
                   <TooltipTrigger asChild>
                     <button
                       onClick={() => block.entry && onEntryClick?.(block.entry)}
-                      className="h-full rounded-sm transition-opacity hover:opacity-80 cursor-pointer"
+                      className="absolute h-full rounded-sm transition-opacity hover:opacity-80 cursor-pointer"
                       style={{
+                        left: `${leftPct}%`,
                         width: `${widthPct}%`,
                         backgroundColor: block.color,
                         minWidth: "3px",
@@ -171,7 +223,7 @@ export function DayTimeline({
           )}
         </div>
 
-        {/* Current time needle — prominent */}
+        {/* Current time needle */}
         {showNowIndicator && (
           <div
             className="absolute top-0 h-full w-[3px] bg-accent z-10 rounded-full shadow-[0_0_6px_hsl(var(--accent)/0.5)]"
@@ -184,7 +236,7 @@ export function DayTimeline({
 
       {/* Hour labels below */}
       <div className="relative h-4 mt-0.5">
-        {hourMarkers.filter((_, i) => i % 2 === 0 || i === hourMarkers.length - 1).map((m) => (
+        {hourMarkers.map((m) => (
           <span
             key={m.label}
             className="absolute text-[9px] text-foreground-muted/60 tabular-nums font-medium -translate-x-1/2"

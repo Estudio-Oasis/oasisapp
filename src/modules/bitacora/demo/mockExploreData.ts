@@ -59,10 +59,6 @@ export function generateExploreEntries(): EntryInfo[] {
     makeEntry(17, 0, 17, 20, "Cierre del día y pendientes 📋"),
   ];
 
-  // Only show entries that have ended by now
-  return allEntries.filter((e) => {
-    const endH = new Date(e.ended_at!).getHours();
-    const endM = new Date(e.ended_at!).getMinutes();
-    return endH < currentHour || (endH === currentHour && endM <= now.getMinutes());
-  });
+  // Always return all entries — explore mode shows a complete example day
+  return allEntries;
 }

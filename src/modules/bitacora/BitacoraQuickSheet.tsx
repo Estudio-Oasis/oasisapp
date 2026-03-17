@@ -11,10 +11,14 @@ import {
   ListTodo,
   ChevronDown,
   ChevronUp,
+  Mic,
+  MicOff,
 } from "lucide-react";
 import { getClientColor } from "@/lib/timer-utils";
 import { getNormalizedActivityType, getActivityConfig } from "@/components/timer/ActivityConstants";
 import { toast } from "sonner";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { AiRefineButton } from "@/components/timer/AiRefineButton";
 
 interface QuickAction {
   key: string;
@@ -36,12 +40,9 @@ interface Props {
   mode?: "start" | "switch";
 }
 
-/**
- * QuickSheet that reads from the abstract BitacoraContext.
- * Works identically in OasisOS and standalone.
- */
 export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props) {
   const bita = useBitacora();
+  const speech = useSpeechRecognition();
 
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -57,8 +58,21 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
       setSelectedClientId(null);
       setSelectedProjectId(null);
       setTimeout(() => inputRef.current?.focus(), 100);
+    } else {
+      // Stop listening when sheet closes
+      if (speech.isListening) speech.stopListening();
     }
   }, [open]);
+
+  // Append speech transcript
+  useEffect(() => {
+    if (speech.transcript) {
+      setText((prev) => {
+        const base = prev.trim();
+        return base ? `${base} ${speech.transcript}` : speech.transcript;
+      });
+    }
+  }, [speech.transcript]);
 
   const handleStart = useCallback(
     async (
@@ -119,6 +133,14 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
     if (project) setSelectedClientId(project.clientId);
   };
 
+  const toggleMic = () => {
+    if (speech.isListening) {
+      speech.stopListening();
+    } else {
+      speech.startListening();
+    }
+  };
+
   const { projects, clients, recents } = bita;
 
   return (
@@ -136,23 +158,43 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
         </div>
 
         {/* Input */}
-        <div className="relative">
-          <Input
-            ref={inputRef}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="¿Qué estás haciendo?"
-            className="h-12 text-[15px] pr-14 bg-background-secondary border-0 rounded-xl placeholder:text-foreground-muted focus-visible:ring-1 focus-visible:ring-accent/40"
-            disabled={loading}
-          />
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 w-9 rounded-lg bg-accent flex items-center justify-center text-accent-foreground hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
-          >
-            <Play className="h-4 w-4 ml-0.5" />
-          </button>
+        <div className="space-y-2">
+          <div className="relative">
+            <Input
+              ref={inputRef}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Escribe o dicta lo que estás haciendo…"
+              className="h-12 text-[15px] pr-24 bg-background-secondary border-0 rounded-xl placeholder:text-foreground-muted focus-visible:ring-1 focus-visible:ring-accent/40"
+              disabled={loading}
+            />
+            <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              {speech.isSupported && (
+                <button
+                  onClick={toggleMic}
+                  disabled={loading}
+                  className={`h-9 w-9 rounded-lg flex items-center justify-center transition-all ${
+                    speech.isListening
+                      ? "bg-accent text-accent-foreground animate-pulse"
+                      : "bg-background-tertiary text-foreground-muted hover:text-foreground"
+                  } disabled:opacity-50`}
+                >
+                  {speech.isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+                </button>
+              )}
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="h-9 w-9 rounded-lg bg-accent flex items-center justify-center text-accent-foreground hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+              >
+                <Play className="h-4 w-4 ml-0.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* AI Refine */}
+          <AiRefineButton text={text} onAccept={(refined) => setText(refined)} />
         </div>
 
         {/* Quick Actions */}
