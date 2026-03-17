@@ -28,7 +28,7 @@ export function trackEvent(
     };
 
     supabase
-      .from("analytics_events")
+      .from("analytics_events" as any)
       .insert({
         event,
         session_id: getSessionId(),
