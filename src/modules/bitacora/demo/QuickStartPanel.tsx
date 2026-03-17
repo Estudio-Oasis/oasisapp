@@ -89,7 +89,7 @@ export function QuickStartPanel() {
                 handleStart();
               }
             }}
-            placeholder="Ej: revisando correos, diseñando logo…"
+            placeholder="Escribe o dicta lo que estás haciendo…"
             className="w-full h-14 rounded-xl bg-background-secondary border border-border px-4 pr-14 text-[15px] text-foreground placeholder:text-foreground-muted focus:outline-none focus:border-accent/50 transition-colors"
             disabled={loading}
           />

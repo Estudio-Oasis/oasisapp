@@ -225,10 +225,28 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
       </div>
 
       {/* ── FEED ── */}
+      {/* In-progress feed card */}
+      {bita.isRunning && bita.activeEntry && vm.view === "today" && (
+        <div className="rounded-xl border border-accent/30 bg-accent/5 overflow-hidden px-3 py-2.5 flex items-center gap-3">
+          <span className="relative flex h-2.5 w-2.5 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-semibold text-foreground truncate">
+              {bita.activeEntry.description || "Actividad en curso"}
+            </p>
+            <p className="text-[11px] text-foreground-muted">
+              En progreso · {Math.floor(bita.elapsedSeconds / 60)}:{String(bita.elapsedSeconds % 60).padStart(2, "0")}
+            </p>
+          </div>
+        </div>
+      )}
+
       {vm.view === "today" ? (
-        !vm.hasData ? (
+        !vm.hasData && !bita.isRunning ? (
           <EmptyState context="no_entries" />
-        ) : (
+        ) : vm.entries.length === 0 && bita.isRunning ? null : (
           <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="divide-y divide-border">
               {vm.gaps.map((g, i) => (

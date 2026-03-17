@@ -210,7 +210,7 @@ export function TodoPanel() {
             </button>
           )}
           <span className="text-[10px] text-foreground-muted">
-            Dictar o pegar varios y lo separamos
+            Puedes dictar, pegar o escribir varios
           </span>
         </div>
       </div>

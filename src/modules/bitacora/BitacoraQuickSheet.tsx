@@ -142,7 +142,7 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="¿Qué estás haciendo?"
+            placeholder="Escribe o dicta lo que estás haciendo…"
             className="h-12 text-[15px] pr-14 bg-background-secondary border-0 rounded-xl placeholder:text-foreground-muted focus-visible:ring-1 focus-visible:ring-accent/40"
             disabled={loading}
           />
