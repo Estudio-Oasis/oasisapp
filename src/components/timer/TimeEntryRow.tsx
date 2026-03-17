@@ -36,6 +36,7 @@ export function TimeEntryRow({
   durationMin,
   userName,
   showUser = false,
+  onClick,
 }: TimeEntryRowProps) {
   const activityType = getNormalizedActivityType({ description, client_id: clientId });
   const config = getActivityConfig(activityType);
