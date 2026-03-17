@@ -14,7 +14,6 @@ import { toast } from "sonner";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { AiRefineButton } from "@/components/timer/AiRefineButton";
 import { trackEvent } from "@/lib/analytics";
-import { AiRefineButton } from "@/components/timer/AiRefineButton";
 
 interface QuickButton {
   key: string;
