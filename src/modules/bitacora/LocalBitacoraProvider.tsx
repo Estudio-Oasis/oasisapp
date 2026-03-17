@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, ReactNode } from "react";
+import { toast } from "sonner";
 import { BitacoraCtx, ViewModelCtx } from "./BitacoraContext";
 import { formatDuration, isSameDay, startOfDay, startOfWeek } from "@/lib/timer-utils";
 import type {
@@ -128,9 +129,17 @@ export function LocalBitacoraProvider({
   const stopCurrent = useCallback(() => {
     if (!active) return;
     const endedAt = new Date().toISOString();
-    const durMin = Math.round(
-      (new Date(endedAt).getTime() - new Date(active.startedAt).getTime()) / 60000
-    );
+    const elapsedSec = (new Date(endedAt).getTime() - new Date(active.startedAt).getTime()) / 1000;
+
+    // Discard entries shorter than 30 seconds
+    if (elapsedSec < 30) {
+      setActive(null);
+      toast("Registro muy corto. No se guardó.", { duration: 3000 });
+      return;
+    }
+
+    const durMin = elapsedSec < 60 ? 1 : Math.round(elapsedSec / 60);
+
     const newEntry: EntryInfo = {
       id: active.id,
       description: active.description,

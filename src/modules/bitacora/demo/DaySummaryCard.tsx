@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useBitacoraVM } from "../BitacoraContext";
 import { Sparkles, Check, Pencil } from "lucide-react";
 import { formatDuration } from "@/lib/timer-utils";
@@ -41,6 +41,14 @@ function categorizeEntries(entries: { description: string | null; duration_min: 
 export function DaySummaryCard() {
   const vm = useBitacoraVM();
   const [accepted, setAccepted] = useState(false);
+  const [editHintVisible, setEditHintVisible] = useState(false);
+
+  // Auto-hide edit hint after 4 seconds
+  useEffect(() => {
+    if (!editHintVisible) return;
+    const t = setTimeout(() => setEditHintVisible(false), 4000);
+    return () => clearTimeout(t);
+  }, [editHintVisible]);
 
   // Only show after 2+ entries
   if (vm.entries.length < 2) return null;
@@ -57,6 +65,18 @@ export function DaySummaryCard() {
         </p>
         <p className="text-[10px] text-foreground-muted">
           {blockCount} bloques · {formatDuration(vm.totalMinutes)} registradas
+        </p>
+      </div>
+    );
+  }
+
+  // Edit hint: shown briefly after user taps "Editar", then auto-hides
+  if (editHintVisible) {
+    return (
+      <div className="rounded-2xl border border-accent/20 bg-accent/5 p-4 text-center space-y-1 animate-in fade-in duration-300">
+        <Pencil className="h-4 w-4 text-accent mx-auto" />
+        <p className="text-[12px] font-medium text-foreground">
+          Toca cualquier bloque para editarlo
         </p>
       </div>
     );
@@ -125,10 +145,7 @@ export function DaySummaryCard() {
           Aceptar
         </button>
         <button
-          onClick={() => {
-            // Just dismiss — user can edit entries directly
-            setAccepted(true);
-          }}
+          onClick={() => setEditHintVisible(true)}
           className="h-8 px-4 rounded-full border border-border text-[12px] font-medium text-foreground-secondary flex items-center gap-1.5 hover:bg-background-tertiary transition-colors"
         >
           <Pencil className="h-3 w-3" />

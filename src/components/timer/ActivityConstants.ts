@@ -234,7 +234,7 @@ export const UI_COPY = {
 
 // ── Truncation rules ──────────────────────────────────────────────
 export const TRUNCATION = {
-  activityName: 28,
-  clientName: 20,
-  taskName: 24,
+  activityName: 36,
+  clientName: 28,
+  taskName: 40,
 } as const;
