@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { hasDemoEntries, migrateDemoEntries } from "@/modules/bitacora/demo/migrateDemoToAccount";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/analytics";
 
 export default function Signup() {
   const navigate = useNavigate();
