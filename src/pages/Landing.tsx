@@ -786,8 +786,11 @@ function Footer() {
             </Link>
           </div>
         </div>
-        <div className="mt-6 pt-5 border-t border-[#222]">
+        <div className="mt-6 pt-5 border-t border-[#222] flex items-center justify-between">
           <p className="text-[12px] text-[#444]">© {new Date().getFullYear()} Estudio Oasis. Todos los derechos reservados.</p>
+          <Link to="/login" className="text-[11px] text-[#333] hover:text-[#666] transition-colors">
+            Acceso equipo Oasis
+          </Link>
         </div>
       </div>
     </footer>
