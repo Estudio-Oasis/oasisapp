@@ -77,6 +77,12 @@ export default function Login() {
           <Button type="submit" className="w-full h-11" disabled={loading}>
             {loading ? "Iniciando sesión…" : "Iniciar sesión"}
           </Button>
+
+          <div className="text-center">
+            <Link to="/forgot-password" className="text-small text-foreground-secondary hover:text-foreground transition-colors">
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
         </form>
 
         {/* Footer */}

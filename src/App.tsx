@@ -13,6 +13,8 @@ import { PlanRouter } from "@/components/PlanRouter";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import BitacoraPage from "./pages/Bitacora";
 import BitacoraDemo from "./pages/BitacoraDemo";
 import TimerPage from "./pages/Timer";
@@ -45,6 +47,8 @@ const App = () => (
                 <Route path="/landing" element={<Navigate to="/" replace />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/setup" element={<SetupPage />} />
                 <Route path="/bitacora-demo" element={<BitacoraDemo />} />
                 <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
