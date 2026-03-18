@@ -255,3 +255,76 @@ function CreateAgencyPrompt({ onCreate }: { onCreate: (name: string) => void }) 
     </div>
   );
 }
+
+/* ── Plan / Subscription section ── */
+function PlanSection() {
+  const { subscribed, planName, subscriptionEnd, loading, openCheckout, openPortal } = useSubscription();
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+
+  const handleCheckout = async (priceId: string) => {
+    setCheckoutLoading(priceId);
+    try {
+      await openCheckout(priceId);
+    } catch {
+      toast.error("No se pudo iniciar el checkout");
+    }
+    setCheckoutLoading(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-lg border border-border bg-background-secondary p-4">
+        <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+      </div>
+    );
+  }
+
+  if (subscribed) {
+    return (
+      <div className="rounded-lg border-2 border-accent bg-accent/5 p-4 space-y-2">
+        <div className="flex items-center gap-2">
+          <Crown className="h-4 w-4 text-accent" />
+          <span className="text-sm font-semibold text-foreground">{planName || "Plan de equipo"}</span>
+        </div>
+        {subscriptionEnd && (
+          <p className="text-[11px] text-foreground-secondary">
+            Próxima renovación: {new Date(subscriptionEnd).toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
+          </p>
+        )}
+        <Button variant="outline" size="sm" onClick={openPortal} className="mt-2 gap-1.5">
+          Administrar suscripción <ExternalLink className="h-3 w-3" />
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border border-border bg-background-secondary p-3">
+        <p className="text-[12px] text-foreground-secondary">
+          <span className="font-semibold text-foreground">Bitácora Personal</span> · Registro ilimitado, 14 días de historial.
+        </p>
+      </div>
+      <p className="text-[12px] font-medium text-foreground-secondary">Pasa a un plan de equipo:</p>
+      <div className="grid gap-2">
+        {Object.values(STRIPE_PLANS).map((plan) => (
+          <div key={plan.price_id} className={`rounded-lg border p-3 flex items-center justify-between ${plan.popular ? "border-accent bg-accent/5" : "border-border"}`}>
+            <div>
+              <span className="text-sm font-semibold text-foreground">{plan.name}</span>
+              {plan.popular && <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-accent text-accent-foreground font-medium">Popular</span>}
+              <p className="text-[11px] text-foreground-secondary">{plan.seats} miembros · {plan.label}</p>
+            </div>
+            <Button
+              size="sm"
+              variant={plan.popular ? "default" : "outline"}
+              disabled={checkoutLoading === plan.price_id}
+              onClick={() => handleCheckout(plan.price_id)}
+            >
+              {checkoutLoading === plan.price_id ? "…" : "Elegir"}
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -72,6 +72,7 @@ function Navbar() {
   const navLinks = [
     { label: "Funciones", href: "#funciones" },
     { label: "Para quién", href: "#para-quien" },
+    { label: "Precios", href: "#precios" },
     { label: "Cómo funciona", href: "#como-funciona" },
   ];
 
