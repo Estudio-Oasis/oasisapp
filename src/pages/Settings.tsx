@@ -8,7 +8,10 @@ import { IntegrationsTab } from "@/components/settings/IntegrationsTab";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { usePlan } from "@/hooks/usePlan";
+import { useSubscription } from "@/hooks/useSubscription";
+import { STRIPE_PLANS } from "@/lib/stripe-plans";
 import { toast } from "sonner";
+import { CheckCircle2, Crown, ExternalLink } from "lucide-react";
 
 export interface Agency {
   id: string;
