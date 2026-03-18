@@ -813,6 +813,7 @@ export default function LandingPage() {
       <ForAdmins />
       <ForIndividuals />
       <HowItWorks />
+      <PricingSection />
       <SystemView />
       <CtaSection />
       <Footer />
