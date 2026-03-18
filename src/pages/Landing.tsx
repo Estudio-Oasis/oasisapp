@@ -72,6 +72,7 @@ function Navbar() {
   const navLinks = [
     { label: "Funciones", href: "#funciones" },
     { label: "Para quién", href: "#para-quien" },
+    { label: "Precios", href: "#precios" },
     { label: "Cómo funciona", href: "#como-funciona" },
   ];
 
@@ -617,6 +618,115 @@ function SystemView() {
   );
 }
 
+// ─── 9b. Pricing Section ───
+function PricingSection() {
+  const plans = [
+    {
+      name: "Bitácora Personal",
+      price: "Gratis",
+      period: "",
+      desc: "Para individuos que quieren orden",
+      features: ["Registro ilimitado", "Historial de 14 días", "5 refinamientos AI/día", "Timer + registro manual"],
+      cta: "Empezar gratis",
+      link: "/signup",
+      popular: false,
+      accent: false,
+    },
+    {
+      name: "Equipo 3",
+      price: "$9",
+      period: "/mes",
+      desc: "Para freelancers y equipos pequeños",
+      features: ["Hasta 3 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo"],
+      cta: "Elegir plan",
+      link: "/signup",
+      popular: false,
+      accent: false,
+    },
+    {
+      name: "Equipo 6",
+      price: "$16",
+      period: "/mes",
+      desc: "Para estudios y agencias medianas",
+      features: ["Hasta 6 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo", "Soporte prioritario"],
+      cta: "Elegir plan",
+      link: "/signup",
+      popular: true,
+      accent: true,
+    },
+    {
+      name: "Equipo 10",
+      price: "$20",
+      period: "/mes",
+      desc: "Para agencias y equipos grandes",
+      features: ["Hasta 10 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo", "Soporte prioritario", "Onboarding personalizado"],
+      cta: "Elegir plan",
+      link: "/signup",
+      popular: false,
+      accent: false,
+    },
+  ];
+
+  return (
+    <section id="precios" className="py-20 md:py-28 bg-[#FAFAF8]">
+      <div className="max-w-6xl mx-auto px-6">
+        <RevealSection>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.15em] text-[#B8956A] mb-4">Precios</p>
+          <h2 className="text-[clamp(24px,3.5vw,40px)] font-bold leading-tight text-[#1A1A1A] max-w-lg">
+            Simple y transparente.
+          </h2>
+          <p className="mt-3 text-[16px] text-[#6B6B6B] max-w-lg leading-relaxed">
+            Empieza gratis. Escala cuando tu equipo lo necesite.
+          </p>
+        </RevealSection>
+
+        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {plans.map((plan, i) => (
+            <RevealSection key={plan.name} delay={i * 80}>
+              <div className={`rounded-2xl border-2 p-5 h-full flex flex-col ${plan.accent ? "border-[#B8956A] bg-white shadow-[0_8px_30px_-10px_rgba(184,149,106,0.2)]" : "border-[#E8E8E4] bg-white"}`}>
+                {plan.popular && (
+                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#B8956A] text-white w-fit mb-3">
+                    Más popular
+                  </span>
+                )}
+                <h3 className="text-[16px] font-bold text-[#1A1A1A]">{plan.name}</h3>
+                <div className="mt-2 flex items-baseline gap-0.5">
+                  <span className="text-[32px] font-bold text-[#1A1A1A] leading-none">{plan.price}</span>
+                  {plan.period && <span className="text-[14px] text-[#999]">{plan.period}</span>}
+                </div>
+                <p className="mt-2 text-[13px] text-[#6B6B6B] leading-relaxed">{plan.desc}</p>
+                <ul className="mt-4 space-y-2 flex-1">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-[#B8956A] mt-0.5 shrink-0" />
+                      <span className="text-[12px] text-[#6B6B6B]">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  to={plan.link}
+                  className={`mt-5 h-10 rounded-full text-[13px] font-semibold flex items-center justify-center transition-colors ${plan.accent ? "bg-[#B8956A] text-white hover:bg-[#A07D5A]" : "border border-[#D4D4D0] text-[#1A1A1A] hover:bg-[#F0EDE6]"}`}
+                >
+                  {plan.cta}
+                </Link>
+              </div>
+            </RevealSection>
+          ))}
+        </div>
+
+        <RevealSection delay={400}>
+          <p className="mt-8 text-center text-[13px] text-[#999]">
+            ¿Necesitas más de 10 miembros?{" "}
+            <a href="https://tally.so/r/wMrqBp" target="_blank" rel="noopener noreferrer" className="text-[#B8956A] font-medium hover:underline">
+              Contáctanos →
+            </a>
+          </p>
+        </RevealSection>
+      </div>
+    </section>
+  );
+}
+
 // ─── 10. CTA final ───
 function CtaSection() {
   return (
@@ -703,6 +813,7 @@ export default function LandingPage() {
       <ForAdmins />
       <ForIndividuals />
       <HowItWorks />
+      <PricingSection />
       <SystemView />
       <CtaSection />
       <Footer />
