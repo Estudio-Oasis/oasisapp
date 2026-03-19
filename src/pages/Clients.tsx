@@ -154,15 +154,15 @@ export default function ClientsPage() {
 
       {/* List */}
       {loading ? (
-        <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Cargando...</div>
+        <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">{t("common.loading")}</div>
       ) : filtered.length === 0 && clients.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <Users className="h-12 w-12 text-border mb-4" />
-          <h2 className="text-h3 text-foreground">Aún no hay clientes</h2>
-          <p className="text-sm text-foreground-secondary mt-2">Agrega tu primer cliente para empezar a registrar tiempo e ingresos.</p>
+          <h2 className="text-h3 text-foreground">{t("clients.noClients")}</h2>
+          <p className="text-sm text-foreground-secondary mt-2">{t("clients.addFirst")}</p>
           <Button onClick={() => setModalOpen(true)} className="mt-4">
             <Plus className="h-4 w-4" />
-            Nuevo cliente
+            {t("clients.newClient")}
           </Button>
         </div>
       ) : filtered.length === 0 ? (
