@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
 import { useUnreadChats } from "@/hooks/useUnreadChats";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { TimerWidget } from "@/components/TimerWidget";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProfileSheet } from "@/components/ProfileSheet";
@@ -20,15 +21,16 @@ import {
   SidebarContent,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import type { TranslationKey } from "@/lib/translations";
 
 const allNavItems = [
-  { title: "Bitácora", url: "/bitacora", icon: Timer },
-  { title: "Hub", url: "/hub", icon: Radio },
-  { title: "Clientes", url: "/clients", icon: Users },
-  { title: "Tareas", url: "/tasks", icon: CheckSquare, tourId: "tasks" },
-  { title: "Finanzas", url: "/finances", icon: DollarSign, adminOnly: true },
-  { title: "Admin", url: "/admin", icon: LayoutDashboard, adminOnly: true },
-  { title: "Ajustes", url: "/settings", icon: Settings },
+  { titleKey: "nav.bitacora" as TranslationKey, url: "/bitacora", icon: Timer },
+  { titleKey: "nav.hub" as TranslationKey, url: "/hub", icon: Radio },
+  { titleKey: "nav.clients" as TranslationKey, url: "/clients", icon: Users },
+  { titleKey: "nav.tasks" as TranslationKey, url: "/tasks", icon: CheckSquare, tourId: "tasks" },
+  { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true },
+  { titleKey: "nav.admin" as TranslationKey, url: "/admin", icon: LayoutDashboard, adminOnly: true },
+  { titleKey: "nav.settings" as TranslationKey, url: "/settings", icon: Settings },
 ];
 
 interface Profile {
