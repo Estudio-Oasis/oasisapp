@@ -1,10 +1,9 @@
-import { formatElapsed, formatElapsedShort } from "@/lib/timer-utils";
+import { formatElapsed } from "@/lib/timer-utils";
 import {
   getNormalizedActivityType,
   getActivityConfig,
   UI_COPY,
 } from "./ActivityConstants";
-
 
 interface ActiveSessionCardProps {
   variant: "compact" | "mobile" | "expanded";
@@ -13,7 +12,7 @@ interface ActiveSessionCardProps {
   description?: string | null;
   clientId?: string | null;
   elapsedSeconds: number;
-  children?: React.ReactNode; // slot for TimerControls
+  children?: React.ReactNode;
 }
 
 export function ActiveSessionCard({
@@ -49,10 +48,7 @@ export function ActiveSessionCard({
             {formatElapsed(elapsedSeconds)}
           </span>
         </div>
-        <p
-          className="text-[11px] text-foreground-secondary truncate"
-          style={{ lineHeight: "1.4" }}
-        >
+        <p className="text-[11px] text-foreground-secondary truncate" style={{ lineHeight: "1.4" }}>
           {displayTask}
         </p>
         {children}
@@ -64,13 +60,8 @@ export function ActiveSessionCard({
     return (
       <div className="space-y-2 text-center">
         <div className="flex items-center justify-center gap-2">
-          <div
-            className="h-2.5 w-2.5 rounded-full animate-pulse"
-            style={{ backgroundColor: config.color }}
-          />
-          <span className="text-micro text-accent uppercase tracking-wider">
-            {UI_COPY.sessionActive}
-          </span>
+          <div className="h-2.5 w-2.5 rounded-full animate-pulse" style={{ backgroundColor: config.color }} />
+          <span className="text-micro text-accent uppercase tracking-wider">{UI_COPY.sessionActive}</span>
         </div>
         <p className="text-h3 text-foreground">{displayName}</p>
         <div className="flex items-center justify-center gap-1.5 text-foreground-secondary">
@@ -83,50 +74,43 @@ export function ActiveSessionCard({
             </>
           )}
         </div>
-        <p className="text-display text-accent tabular-nums pt-2">
-          {formatElapsed(elapsedSeconds)}
-        </p>
+        <p className="text-display text-accent tabular-nums pt-2">{formatElapsed(elapsedSeconds)}</p>
         {children}
       </div>
     );
   }
 
-  // expanded
+  // expanded — with scrollable details and sticky controls
   return (
-    <div className="rounded-xl border border-accent bg-accent-light px-4 py-4 space-y-3 overflow-hidden">
-      {/* Status + timer */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div
-            className="h-2.5 w-2.5 rounded-full animate-pulse shrink-0"
-            style={{ backgroundColor: config.color }}
-          />
-          <span className="text-micro text-accent uppercase tracking-wider">
-            {UI_COPY.sessionActive}
-          </span>
+    <div className="rounded-xl border border-accent bg-accent-light overflow-hidden flex flex-col max-h-[60vh]">
+      {/* Fixed header: status + timer + activity name */}
+      <div className="px-4 pt-4 pb-2 space-y-2 shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-2.5 w-2.5 rounded-full animate-pulse shrink-0" style={{ backgroundColor: config.color }} />
+            <span className="text-micro text-accent uppercase tracking-wider">{UI_COPY.sessionActive}</span>
+          </div>
+          <p className="text-h2 text-accent tabular-nums">{formatElapsed(elapsedSeconds)}</p>
         </div>
-        <p className="text-h2 text-accent tabular-nums">
-          {formatElapsed(elapsedSeconds)}
-        </p>
+        <p className="text-h3 text-foreground truncate">{displayName}</p>
+        <div className="flex items-center gap-1.5 text-foreground-secondary flex-wrap">
+          <Icon className="h-3.5 w-3.5 shrink-0" />
+          <span className="text-sm">{config.label}</span>
+          {taskTitle && (
+            <>
+              <span className="text-foreground-muted">·</span>
+              <span className="text-sm truncate max-w-[180px]">{taskTitle}</span>
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Activity name */}
-      <p className="text-h3 text-foreground truncate">{displayName}</p>
-
-      {/* Type + task chips */}
-      <div className="flex items-center gap-1.5 text-foreground-secondary flex-wrap">
-        <Icon className="h-3.5 w-3.5 shrink-0" />
-        <span className="text-sm">{config.label}</span>
-        {taskTitle && (
-          <>
-            <span className="text-foreground-muted">·</span>
-            <span className="text-sm truncate max-w-[180px]">{taskTitle}</span>
-          </>
-        )}
-      </div>
-
-      {/* Controls slot */}
-      {children && <div className="pt-1">{children}</div>}
+      {/* Scrollable middle: context enrichment panel etc. */}
+      {children && (
+        <div className="flex-1 overflow-y-auto px-4 pb-2 min-h-0">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
