@@ -97,10 +97,10 @@ export default function ClientsPage() {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-h1 text-foreground">Clientes</h1>
+        <h1 className="text-h1 text-foreground">{t("clients.title")}</h1>
         <Button onClick={() => setModalOpen(true)}>
           <Plus className="h-4 w-4" />
-          Nuevo cliente
+          {t("clients.newClient")}
         </Button>
       </div>
 
