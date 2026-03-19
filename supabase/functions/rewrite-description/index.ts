@@ -28,6 +28,16 @@ serve(async (req) => {
       });
     }
 
+    const systemPrompt = `Eres un asistente de redacción para registros de actividad laboral. El usuario te da una descripción de lo que está haciendo o va a hacer. Tu trabajo es:
+
+1. Generar un TÍTULO CORTO (máximo 10 palabras) que capture la esencia de la actividad. Debe ser claro y accionable, como un nombre de tarea.
+2. Generar una DESCRIPCIÓN MEJORADA que limpie la redacción pero conserve TODA la información y contexto que el usuario proporcionó. No resumas ni elimines detalles. Mejora la claridad y estructura.
+
+Responde SOLO en formato JSON:
+{"title": "...", "description": "..."}
+
+No agregues explicaciones. Respeta el idioma original del usuario.`;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -37,11 +47,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          {
-            role: "system",
-            content:
-              "Rewrite this work session description to be clear and professional, max 10 words. Return ONLY the rewritten text, nothing else.",
-          },
+          { role: "system", content: systemPrompt },
           { role: "user", content: text },
         ],
         temperature: 0.3,
@@ -70,9 +76,24 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const result = data.choices?.[0]?.message?.content?.trim() ?? "";
+    const raw = data.choices?.[0]?.message?.content?.trim() ?? "";
 
-    return new Response(JSON.stringify({ result }), {
+    // Try to parse JSON from the response
+    let title = "";
+    let description = "";
+    try {
+      // Strip markdown code fences if present
+      const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+      const parsed = JSON.parse(cleaned);
+      title = parsed.title || "";
+      description = parsed.description || "";
+    } catch {
+      // Fallback: use raw as single result for backwards compat
+      title = raw;
+      description = "";
+    }
+
+    return new Response(JSON.stringify({ result: title, title, description }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
