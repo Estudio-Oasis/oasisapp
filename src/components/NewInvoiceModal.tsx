@@ -50,7 +50,6 @@ export function NewInvoiceModal({ open, onOpenChange, onCreated, prefillClientId
     setPeriodEnd("");
     setNotes("");
 
-    // Generate invoice number
     const now = new Date();
     const y = now.getFullYear();
     const n = String(Math.floor(Math.random() * 900) + 100);
@@ -70,7 +69,6 @@ export function NewInvoiceModal({ open, onOpenChange, onCreated, prefillClientId
       });
   }, [open, prefillClientId]);
 
-  // Update currency when client changes
   useEffect(() => {
     if (!clientId) return;
     const c = clients.find((cl) => cl.id === clientId);
@@ -96,10 +94,10 @@ export function NewInvoiceModal({ open, onOpenChange, onCreated, prefillClientId
 
     setSaving(false);
     if (error) {
-      toast.error("Failed to create invoice");
+      toast.error("Error al crear la factura");
       return;
     }
-    toast.success(markSent ? "Invoice created & marked as sent" : "Invoice created as draft");
+    toast.success(markSent ? "Factura creada y marcada como enviada" : "Factura creada como borrador");
     onCreated();
     onOpenChange(false);
   };
@@ -108,14 +106,14 @@ export function NewInvoiceModal({ open, onOpenChange, onCreated, prefillClientId
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[460px] p-6 gap-0 border-border">
         <DialogHeader className="pb-0">
-          <DialogTitle className="text-h3">New Invoice</DialogTitle>
+          <DialogTitle className="text-h3">Nueva factura</DialogTitle>
         </DialogHeader>
 
         <div className="mt-5 space-y-4">
           <div className="space-y-1.5">
-            <label className="text-label">Client</label>
+            <label className="text-label">Cliente</label>
             <Select value={clientId} onValueChange={setClientId}>
-              <SelectTrigger><SelectValue placeholder="Select client..." /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Selecciona un cliente..." /></SelectTrigger>
               <SelectContent>
                 {clients.map((c) => (
                   <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
@@ -126,49 +124,49 @@ export function NewInvoiceModal({ open, onOpenChange, onCreated, prefillClientId
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-label">Invoice #</label>
+              <label className="text-label">Factura #</label>
               <Input value={number} onChange={(e) => setNumber(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-label">Currency</label>
+              <label className="text-label">Moneda</label>
               <Input value={currency} onChange={(e) => setCurrency(e.target.value)} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-label">Amount</label>
+              <label className="text-label">Monto</label>
               <Input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-label">Due date</label>
+              <label className="text-label">Fecha de vencimiento</label>
               <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-label">Period from (optional)</label>
+              <label className="text-label">Periodo desde (opcional)</label>
               <Input type="date" value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <label className="text-label">Period to (optional)</label>
+              <label className="text-label">Periodo hasta (opcional)</label>
               <Input type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-label">Notes (optional)</label>
+            <label className="text-label">Notas (opcional)</label>
             <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} className="resize-none" />
           </div>
         </div>
 
         <div className="flex gap-3 mt-6">
           <Button variant="secondary" className="flex-1 h-11" onClick={() => handleCreate(false)} disabled={saving || !clientId || !amount}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create draft"}
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Crear borrador"}
           </Button>
           <Button className="flex-1 h-11" onClick={() => handleCreate(true)} disabled={saving || !clientId || !amount}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create & send"}
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Crear y enviar"}
           </Button>
         </div>
       </DialogContent>

@@ -8,21 +8,21 @@ export function RateBreakdown({ monthlyRate, paymentFrequency, currency = "USD" 
   if (!monthlyRate || monthlyRate <= 0) return null;
 
   const fmt = (n: number) =>
-    n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    n.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   let text = "";
   switch (paymentFrequency) {
     case "biweekly":
-      text = `$${fmt(monthlyRate / 2)} × 2 payments = $${fmt(monthlyRate)}/mo`;
+      text = `$${fmt(monthlyRate / 2)} × 2 pagos = $${fmt(monthlyRate)}/mes`;
       break;
     case "weekly":
-      text = `$${fmt(monthlyRate / 4)} × 4 payments = $${fmt(monthlyRate)}/mo`;
+      text = `$${fmt(monthlyRate / 4)} × 4 pagos = $${fmt(monthlyRate)}/mes`;
       break;
     case "project":
-      text = "Project-based rate";
+      text = "Tarifa por proyecto";
       break;
     default:
-      text = `$${fmt(monthlyRate)} per month`;
+      text = `$${fmt(monthlyRate)} por mes`;
   }
 
   return (

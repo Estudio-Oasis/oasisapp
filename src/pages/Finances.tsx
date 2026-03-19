@@ -75,8 +75,15 @@ function isOverdue(inv: { status: string; due_date: string | null }): boolean {
 const DISPLAY_CURRENCIES = ["USD", "MXN", "EUR", "COP"] as const;
 type DisplayCurrency = typeof DISPLAY_CURRENCIES[number];
 
+const STATUS_LABELS: Record<string, string> = {
+  all: "Todas",
+  draft: "Borrador",
+  sent: "Enviada",
+  paid: "Pagada",
+  overdue: "Vencida",
+};
+
 export default function FinancesPage() {
-  // Redirect non-admins
   const { isAdmin, loading: roleLoading } = useRole();
   const navigate = useNavigate();
   const [clients, setClients] = useState<Client[]>([]);
@@ -93,9 +100,8 @@ export default function FinancesPage() {
   const [mrrCurrency, setMrrCurrency] = useState<DisplayCurrency>("USD");
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
 
-  // Expense form
   const [expFormOpen, setExpFormOpen] = useState(false);
-  const [expForm, setExpForm] = useState({ category: "Other", description: "", amount: "", currency: "USD", date: new Date().toISOString().split("T")[0], client_id: "", recurring: false });
+  const [expForm, setExpForm] = useState({ category: "Otro", description: "", amount: "", currency: "USD", date: new Date().toISOString().split("T")[0], client_id: "", recurring: false });
   const [expSaving, setExpSaving] = useState(false);
 
   const fetchAll = useCallback(async () => {
@@ -113,13 +119,13 @@ export default function FinancesPage() {
     const invoiceMap = new Map(invoiceList.map((i) => [i.id, i.number]));
 
     setInvoices(
-      invoiceList.map((inv) => ({ ...inv, client_name: clientMap.get(inv.client_id) || "Unknown" }))
+      invoiceList.map((inv) => ({ ...inv, client_name: clientMap.get(inv.client_id) || "Desconocido" }))
     );
     setExpenses((expensesRes.data || []) as ExpenseRow[]);
     setPayments(
       ((paymentsRes.data || []) as unknown as PaymentRow[]).map((p) => ({
         ...p,
-        client_name: clientMap.get(p.client_id) || "Unknown",
+        client_name: clientMap.get(p.client_id) || "Desconocido",
         invoice_number: p.invoice_id ? invoiceMap.get(p.invoice_id) || undefined : undefined,
       }))
     );
@@ -128,7 +134,6 @@ export default function FinancesPage() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  // Fetch exchange rates from free API
   useEffect(() => {
     fetch("https://open.er-api.com/v6/latest/USD")
       .then((res) => res.json())
@@ -138,7 +143,6 @@ export default function FinancesPage() {
       .catch(() => {});
   }, []);
 
-  // Invoice stats
   const stats = useMemo(() => {
     const activeClients = clients.filter((c) => c.status === "active");
     const mrr = activeClients.reduce((sum, c) => sum + (c.monthly_rate || 0), 0);
@@ -156,7 +160,6 @@ export default function FinancesPage() {
     return { mrr, collected, pending, overdue };
   }, [clients, invoices]);
 
-  // Payment stats
   const paymentStats = useMemo(() => {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -182,14 +185,13 @@ export default function FinancesPage() {
     return { usdThisMonth, mxnThisMonth, avgRate };
   }, [payments]);
 
-  // Chart data
   const chartData = useMemo(() => {
     const months: { label: string; revenue: number; expenses: number; net: number }[] = [];
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-      const label = d.toLocaleDateString("en-US", { month: "short" });
+      const label = d.toLocaleDateString("es-MX", { month: "short" });
       const rev = invoices
         .filter((inv) => inv.status === "paid" && inv.paid_at && new Date(inv.paid_at) >= d && new Date(inv.paid_at) <= monthEnd)
         .reduce((s, inv) => s + inv.amount, 0);
@@ -207,7 +209,6 @@ export default function FinancesPage() {
     return invoices.filter((inv) => inv.status === invFilter && !isOverdue(inv));
   }, [invoices, invFilter]);
 
-  // Expense submit
   const handleExpenseSubmit = async () => {
     if (!expForm.amount || !expForm.category) return;
     setExpSaving(true);
@@ -221,10 +222,10 @@ export default function FinancesPage() {
       recurring: expForm.recurring,
     } as Record<string, unknown>);
     setExpSaving(false);
-    if (error) { toast.error("Failed to add expense"); return; }
-    toast.success("Expense added");
+    if (error) { toast.error("Error al agregar el gasto"); return; }
+    toast.success("Gasto agregado");
     setExpFormOpen(false);
-    setExpForm({ category: "Other", description: "", amount: "", currency: "USD", date: new Date().toISOString().split("T")[0], client_id: "", recurring: false });
+    setExpForm({ category: "Otro", description: "", amount: "", currency: "USD", date: new Date().toISOString().split("T")[0], client_id: "", recurring: false });
     fetchAll();
   };
 
@@ -234,11 +235,11 @@ export default function FinancesPage() {
     return expenses.filter((e) => new Date(e.date + "T00:00:00") >= monthStart).reduce((s, e) => s + e.amount, 0);
   }, [expenses]);
 
-  const EXPENSE_CATEGORIES = ["Payroll", "AI Credits", "Software", "Ad Spend", "Freelancers", "Other"];
+  const EXPENSE_CATEGORIES = ["Nómina", "Créditos IA", "Software", "Publicidad", "Freelancers", "Otro"];
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
-      toast.error("You don't have permission to view this section.");
+      toast.error("No tienes permiso para ver esta sección.");
       navigate("/tasks", { replace: true });
     }
   }, [roleLoading, isAdmin, navigate]);
@@ -254,12 +255,11 @@ export default function FinancesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-h1 text-foreground">Finances</h1>
+        <h1 className="text-h1 text-foreground">Finanzas</h1>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        {/* MRR with currency toggle */}
         <div className="border border-border rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-foreground-muted"><TrendingUp className="h-4 w-4" /></span>
@@ -281,71 +281,69 @@ export default function FinancesPage() {
             </button>
           </div>
         </div>
-        <StatCard label="Collected this month" value={`$${stats.collected.toLocaleString()}`} icon={<CheckCircle className="h-4 w-4" />} />
-        <StatCard label="Pending" value={`$${stats.pending.toLocaleString()}`} icon={<DollarSign className="h-4 w-4" />} />
-        <StatCard label="Overdue" value={`$${stats.overdue.toLocaleString()}`} icon={<AlertTriangle className="h-4 w-4" />} danger={stats.overdue > 0} />
+        <StatCard label="Cobrado este mes" value={`$${stats.collected.toLocaleString()}`} icon={<CheckCircle className="h-4 w-4" />} />
+        <StatCard label="Pendiente" value={`$${stats.pending.toLocaleString()}`} icon={<DollarSign className="h-4 w-4" />} />
+        <StatCard label="Vencido" value={`$${stats.overdue.toLocaleString()}`} icon={<AlertTriangle className="h-4 w-4" />} danger={stats.overdue > 0} />
       </div>
 
       {/* Chart */}
       <div className="border border-border rounded-lg p-4 mb-6">
-        <p className="text-micro text-foreground-muted mb-3">Revenue vs Expenses (6 months)</p>
+        <p className="text-micro text-foreground-muted mb-3">Ingresos vs Gastos (6 meses)</p>
         <div className="h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={chartData}>
               <XAxis dataKey="label" tick={{ fontSize: 12, fill: "hsl(var(--foreground-muted))" }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: "hsl(var(--foreground-muted))" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
               <Tooltip contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 13 }} formatter={(value: number) => [`$${value.toLocaleString()}`, undefined]} />
-              <Bar dataKey="revenue" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} name="Revenue" />
-              <Bar dataKey="expenses" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} name="Expenses" />
-              <Line type="monotone" dataKey="net" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} name="Net" />
+              <Bar dataKey="revenue" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} name="Ingresos" />
+              <Bar dataKey="expenses" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} name="Gastos" />
+              <Line type="monotone" dataKey="net" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} name="Neto" />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* ─── PAYMENTS ─── */}
+      {/* PAGOS */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-h2 text-foreground">Payments</h2>
+          <h2 className="text-h2 text-foreground">Pagos</h2>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="secondary" onClick={() => setBulkPayOpen(true)}>
-              <Sparkles className="h-3.5 w-3.5 mr-1" /> Bulk scan
+              <Sparkles className="h-3.5 w-3.5 mr-1" /> Escaneo masivo
             </Button>
             <Button size="sm" onClick={() => setNewPayOpen(true)}>
-              <Plus className="h-3.5 w-3.5 mr-1" /> Log payment
+              <Plus className="h-3.5 w-3.5 mr-1" /> Registrar pago
             </Button>
           </div>
         </div>
 
-        {/* Payment stats */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="border border-border rounded-lg p-4">
-            <p className="text-micro text-foreground-muted mb-1">USD this month</p>
+            <p className="text-micro text-foreground-muted mb-1">USD este mes</p>
             <p className="text-h2 text-foreground">${paymentStats.usdThisMonth.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-            <p className="text-small text-foreground-muted">USD direct</p>
+            <p className="text-small text-foreground-muted">USD directo</p>
           </div>
           <div className="border border-border rounded-lg p-4">
-            <p className="text-micro text-foreground-muted mb-1">MXN this month</p>
+            <p className="text-micro text-foreground-muted mb-1">MXN este mes</p>
             <p className="text-h2 text-foreground">${paymentStats.mxnThisMonth.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-            <p className="text-small text-foreground-muted">MXN (converted + direct)</p>
+            <p className="text-small text-foreground-muted">MXN (convertido + directo)</p>
           </div>
           <div className="border border-border rounded-lg p-4">
-            <p className="text-micro text-foreground-muted mb-1">Avg exchange rate</p>
+            <p className="text-micro text-foreground-muted mb-1">Tipo de cambio prom.</p>
             <p className="text-h2 text-foreground">
-              {paymentStats.avgRate ? `${paymentStats.avgRate.toFixed(2)}` : "—"}
+              {paymentStats.avgRate ? `${paymentStats.avgRate.toFixed(2)}` : "Sin datos"}
             </p>
             <p className="text-small text-foreground-muted">
-              {paymentStats.avgRate ? "1 USD = X MXN" : "No conversions"}
+              {paymentStats.avgRate ? "1 USD = X MXN" : "Sin conversiones"}
             </p>
           </div>
         </div>
 
-        {/* Payment list */}
         {payments.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-sm text-foreground-muted mb-1">No payments recorded yet</p>
-            <p className="text-small text-foreground-muted mb-3">Log your first payment to start tracking actual income</p>
-            <Button variant="secondary" size="sm" onClick={() => setNewPayOpen(true)}>Log payment</Button>
+            <p className="text-sm text-foreground-muted mb-1">Aún no hay pagos registrados</p>
+            <p className="text-small text-foreground-muted mb-3">Registra tu primer pago para empezar a rastrear ingresos reales</p>
+            <Button variant="secondary" size="sm" onClick={() => setNewPayOpen(true)}>Registrar pago</Button>
           </div>
         ) : (
           <div className="flex flex-col">
@@ -360,7 +358,7 @@ export default function FinancesPage() {
                   <div className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: clientColor }} />
                   <div className="w-20 shrink-0">
                     <p className="text-small text-foreground-muted">
-                      {new Date(p.date_received + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      {new Date(p.date_received + "T00:00:00").toLocaleDateString("es-MX", { month: "short", day: "numeric" })}
                     </p>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -369,7 +367,7 @@ export default function FinancesPage() {
                   </div>
                   {p.breakdown && Array.isArray(p.breakdown) && (p.breakdown as unknown[]).length > 0 && (
                     <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-accent-light text-accent-foreground shrink-0">
-                      {(p.breakdown as unknown[]).length} items
+                      {(p.breakdown as unknown[]).length} conceptos
                     </span>
                   )}
                   {p.exchange_rate && (
@@ -395,23 +393,23 @@ export default function FinancesPage() {
         )}
       </div>
 
-      {/* ─── INVOICES ─── */}
+      {/* FACTURAS */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-h2 text-foreground">Invoices</h2>
+          <h2 className="text-h2 text-foreground">Facturas</h2>
           <Button size="sm" onClick={() => setNewInvOpen(true)}>
-            <Plus className="h-3.5 w-3.5 mr-1" /> New invoice
+            <Plus className="h-3.5 w-3.5 mr-1" /> Nueva factura
           </Button>
         </div>
         <div className="flex gap-1 mb-4 flex-wrap">
           {(["all", "draft", "sent", "paid", "overdue"] as const).map((f) => (
             <button key={f} onClick={() => setInvFilter(f)} className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${invFilter === f ? "bg-primary text-primary-foreground" : "border border-border text-foreground-secondary hover:bg-background-secondary"}`}>
-              {f.charAt(0).toUpperCase() + f.slice(1)}
+              {STATUS_LABELS[f]}
             </button>
           ))}
         </div>
         {filteredInvoices.length === 0 ? (
-          <p className="text-sm text-foreground-muted py-8 text-center">No invoices found.</p>
+          <p className="text-sm text-foreground-muted py-8 text-center">No se encontraron facturas.</p>
         ) : (
           <div className="flex flex-col">
             {filteredInvoices.map((inv) => {
@@ -429,12 +427,12 @@ export default function FinancesPage() {
                     <p className="text-sm font-medium text-foreground">{inv.number}</p>
                     <p className="text-small text-foreground-muted">{inv.client_name}</p>
                   </div>
-                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[displayStatus] || ""}`}>{displayStatus}</span>
+                  <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0 ${STATUS_BADGE[displayStatus] || ""}`}>{STATUS_LABELS[displayStatus] || displayStatus}</span>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-semibold text-foreground">{inv.currency} ${inv.amount.toLocaleString()}</p>
                     {inv.due_date && (
                       <p className={`text-small ${effectivelyOverdue ? "text-destructive" : "text-foreground-muted"}`}>
-                        Due {new Date(inv.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        Vence {new Date(inv.due_date).toLocaleDateString("es-MX", { month: "short", day: "numeric" })}
                       </p>
                     )}
                   </div>
@@ -445,15 +443,15 @@ export default function FinancesPage() {
         )}
       </div>
 
-      {/* ─── EXPENSES ─── */}
+      {/* GASTOS */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-h2 text-foreground">Expenses</h2>
-            <p className="text-small text-foreground-muted">${monthExpenses.toLocaleString()} this month</p>
+            <h2 className="text-h2 text-foreground">Gastos</h2>
+            <p className="text-small text-foreground-muted">${monthExpenses.toLocaleString()} este mes</p>
           </div>
           <Button variant="secondary" size="sm" onClick={() => setExpFormOpen(!expFormOpen)}>
-            <Plus className="h-3.5 w-3.5 mr-1" /> Add expense
+            <Plus className="h-3.5 w-3.5 mr-1" /> Agregar gasto
           </Button>
         </div>
 
@@ -461,7 +459,7 @@ export default function FinancesPage() {
           <div className="border border-border rounded-lg p-4 mb-4 space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-label">Category</label>
+                <label className="text-label">Categoría</label>
                 <Select value={expForm.category} onValueChange={(v) => setExpForm({ ...expForm, category: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -470,49 +468,49 @@ export default function FinancesPage() {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-label">Amount</label>
+                <label className="text-label">Monto</label>
                 <Input type="number" step="0.01" value={expForm.amount} onChange={(e) => setExpForm({ ...expForm, amount: e.target.value })} placeholder="0.00" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-label">Date</label>
+                <label className="text-label">Fecha</label>
                 <Input type="date" value={expForm.date} onChange={(e) => setExpForm({ ...expForm, date: e.target.value })} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-label">Currency</label>
+                <label className="text-label">Moneda</label>
                 <Input value={expForm.currency} onChange={(e) => setExpForm({ ...expForm, currency: e.target.value })} />
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-label">Description</label>
-              <Input value={expForm.description} onChange={(e) => setExpForm({ ...expForm, description: e.target.value })} placeholder="What was this expense for?" />
+              <label className="text-label">Descripción</label>
+              <Input value={expForm.description} onChange={(e) => setExpForm({ ...expForm, description: e.target.value })} placeholder="¿En qué fue este gasto?" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-label">Client</label>
+              <label className="text-label">Cliente</label>
               <Select value={expForm.client_id || "none"} onValueChange={(v) => setExpForm({ ...expForm, client_id: v === "none" ? "" : v })}>
-                <SelectTrigger><SelectValue placeholder="Optional — link to a client" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Opcional - vincular a un cliente" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">No client (general expense)</SelectItem>
+                  <SelectItem value="none">Sin cliente (gasto general)</SelectItem>
                   {clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <label className="flex items-center gap-2 text-sm text-foreground-secondary cursor-pointer">
               <input type="checkbox" checked={expForm.recurring} onChange={(e) => setExpForm({ ...expForm, recurring: e.target.checked })} className="rounded border-border" />
-              Recurring expense
+              Gasto recurrente
             </label>
             <div className="flex gap-2">
               <Button size="sm" onClick={handleExpenseSubmit} disabled={expSaving || !expForm.amount}>
-                {expSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save expense"}
+                {expSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar gasto"}
               </Button>
-              <Button variant="secondary" size="sm" onClick={() => setExpFormOpen(false)}>Cancel</Button>
+              <Button variant="secondary" size="sm" onClick={() => setExpFormOpen(false)}>Cancelar</Button>
             </div>
           </div>
         )}
 
         {expenses.length === 0 ? (
-          <p className="text-sm text-foreground-muted py-8 text-center">No expenses recorded yet.</p>
+          <p className="text-sm text-foreground-muted py-8 text-center">Aún no hay gastos registrados.</p>
         ) : (
           <div className="flex flex-col">
             {expenses.slice(0, 20).map((exp) => {
@@ -525,7 +523,7 @@ export default function FinancesPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">{exp.category}</p>
                     <p className="text-small text-foreground-muted truncate">
-                      {exp.description || "—"}
+                      {exp.description || "Sin descripción"}
                       {clientName && <span> · {clientName}</span>}
                       {exp.recurring && <span> · 🔁</span>}
                     </p>
@@ -533,7 +531,7 @@ export default function FinancesPage() {
                   <div className="text-right shrink-0">
                     <p className="text-sm font-semibold text-foreground">{exp.currency} ${exp.amount.toLocaleString()}</p>
                     <p className="text-small text-foreground-muted">
-                      {new Date(exp.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      {new Date(exp.date + "T00:00:00").toLocaleDateString("es-MX", { month: "short", day: "numeric" })}
                     </p>
                   </div>
                 </div>
@@ -543,10 +541,10 @@ export default function FinancesPage() {
         )}
       </div>
 
-      {/* ─── INSIGHTS / BI ─── */}
+      {/* INSIGHTS / BI */}
       <InsightsSection payments={payments} clients={clients} />
 
-      {/* Modals & Panels */}
+      {/* Modales y paneles */}
       <NewInvoiceModal open={newInvOpen} onOpenChange={setNewInvOpen} onCreated={fetchAll} />
       <LogPaymentModal open={newPayOpen} onOpenChange={setNewPayOpen} onCreated={fetchAll} />
       <BulkReceiptUploadModal open={bulkPayOpen} onOpenChange={setBulkPayOpen} onCreated={fetchAll} />
@@ -573,14 +571,13 @@ function StatCard({ label, value, icon, danger }: { label: string; value: string
 }
 
 function InsightsSection({ payments, clients }: { payments: PaymentRow[]; clients: Client[] }) {
-  // Chart 1: Income by month (last 6 months, grouped by currency)
   const incomeByMonth = useMemo(() => {
     const now = new Date();
     const months: { label: string; usd: number; mxn: number }[] = [];
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-      const label = d.toLocaleDateString("en-US", { month: "short" });
+      const label = d.toLocaleDateString("es-MX", { month: "short" });
       let usd = 0, mxn = 0;
       payments.forEach((p) => {
         const pd = new Date(p.date_received + "T00:00:00");
@@ -594,13 +591,12 @@ function InsightsSection({ payments, clients }: { payments: PaymentRow[]; client
     return months;
   }, [payments]);
 
-  // Chart 2: Exchange rate over time
   const rateData = useMemo(() => {
     return payments
       .filter((p) => p.exchange_rate && p.exchange_rate > 0)
       .sort((a, b) => a.date_received.localeCompare(b.date_received))
       .map((p) => ({
-        date: new Date(p.date_received + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        date: new Date(p.date_received + "T00:00:00").toLocaleDateString("es-MX", { month: "short", day: "numeric" }),
         rate: p.exchange_rate!,
         amount: p.amount_received,
         currency: p.currency_received,
@@ -609,11 +605,10 @@ function InsightsSection({ payments, clients }: { payments: PaymentRow[]; client
       }));
   }, [payments]);
 
-  // Chart 3: Revenue by client
   const clientRevenue = useMemo(() => {
     const map = new Map<string, { name: string; usd: number; mxn: number }>();
     payments.forEach((p) => {
-      const name = p.client_name || "Unknown";
+      const name = p.client_name || "Desconocido";
       const existing = map.get(name) || { name, usd: 0, mxn: 0 };
       if (p.currency_received === "USD") existing.usd += p.amount_received;
       else if (p.currency_received === "MXN") existing.mxn += p.amount_received;
@@ -633,13 +628,12 @@ function InsightsSection({ payments, clients }: { payments: PaymentRow[]; client
 
       {!hasData ? (
         <p className="text-sm text-foreground-muted py-8 text-center">
-          Log payments to see insights here
+          Registra pagos para ver insights aquí
         </p>
       ) : (
         <div className="space-y-6">
-          {/* Income by month */}
           <div className="border border-border rounded-lg p-4">
-            <p className="text-micro text-foreground-muted mb-3">Income received by month</p>
+            <p className="text-micro text-foreground-muted mb-3">Ingresos recibidos por mes</p>
             <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={incomeByMonth}>
@@ -654,10 +648,9 @@ function InsightsSection({ payments, clients }: { payments: PaymentRow[]; client
             </div>
           </div>
 
-          {/* Exchange rate */}
           {rateData.length >= 2 && (
             <div className="border border-border rounded-lg p-4">
-              <p className="text-micro text-foreground-muted mb-3">Real exchange rate (Wise) over time</p>
+              <p className="text-micro text-foreground-muted mb-3">Tipo de cambio real (Wise) en el tiempo</p>
               <div className="h-[160px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={rateData}>
@@ -667,7 +660,7 @@ function InsightsSection({ payments, clients }: { payments: PaymentRow[]; client
                       contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 13 }}
                       formatter={(value: number, _name: string, entry: { payload: typeof rateData[0] }) => {
                         const d = entry.payload;
-                        return [`${value.toFixed(2)} MXN/USD ($${d.amount.toLocaleString()} ${d.currency} → $${d.bankAmount?.toLocaleString()} ${d.bankCurrency})`, "Rate"];
+                        return [`${value.toFixed(2)} MXN/USD ($${d.amount.toLocaleString()} ${d.currency} → $${d.bankAmount?.toLocaleString()} ${d.bankCurrency})`, "TC"];
                       }}
                     />
                     <Line type="monotone" dataKey="rate" stroke="hsl(var(--accent))" strokeWidth={2} dot={{ r: 4, fill: "hsl(var(--accent))" }} />
@@ -675,15 +668,14 @@ function InsightsSection({ payments, clients }: { payments: PaymentRow[]; client
                 </ResponsiveContainer>
               </div>
               <p className="text-small text-foreground-muted mt-2">
-                Each point represents a real Wise conversion rate you received
+                Cada punto representa un tipo de cambio real de conversión en Wise
               </p>
             </div>
           )}
 
-          {/* Revenue by client */}
           {clientRevenue.length > 0 && (
             <div className="border border-border rounded-lg p-4">
-              <p className="text-micro text-foreground-muted mb-3">Revenue by client (all time)</p>
+              <p className="text-micro text-foreground-muted mb-3">Ingresos por cliente (histórico)</p>
               <div style={{ height: Math.max(80, clientRevenue.length * 40) }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={clientRevenue} layout="vertical">

@@ -80,8 +80,8 @@ function CompletenessBar({ form }: { form: ClientFormData }) {
         />
       </div>
       <p className="text-small text-foreground-secondary mt-1">
-        Score: {score}/100
-        {missing.length > 0 && ` · Missing: ${missing.join(", ")}`}
+        Puntaje: {score}/100
+        {missing.length > 0 && ` · Falta: ${missing.join(", ")}`}
       </p>
     </div>
   );
@@ -105,94 +105,94 @@ function ManualForm({
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Basic info */}
+      {/* Información básica */}
       <div className="flex flex-col gap-4">
-        <p className="text-micro text-foreground-muted">Basic info</p>
+        <p className="text-micro text-foreground-muted">Información básica</p>
         <div>
-          <label className="text-label mb-1 block">Client name *</label>
-          <Input value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Company or client name" />
+          <label className="text-label mb-1 block">Nombre del cliente *</label>
+          <Input value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Empresa o nombre del cliente" />
         </div>
         <div>
-          <label className="text-label mb-1 block">Contact name</label>
-          <Input value={form.contact_name} onChange={(e) => update("contact_name", e.target.value)} placeholder="Main contact person" />
+          <label className="text-label mb-1 block">Nombre de contacto</label>
+          <Input value={form.contact_name} onChange={(e) => update("contact_name", e.target.value)} placeholder="Persona principal de contacto" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-label mb-1 block">Email</label>
-            <Input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="email@example.com" />
+            <label className="text-label mb-1 block">Correo</label>
+            <Input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="correo@ejemplo.com" />
           </div>
           <div>
-            <label className="text-label mb-1 block">Phone</label>
-            <Input value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="+1 555 000 0000" />
+            <label className="text-label mb-1 block">Teléfono</label>
+            <Input value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="+52 555 000 0000" />
           </div>
         </div>
         <div>
-          <label className="text-label mb-1 block">Website</label>
+          <label className="text-label mb-1 block">Sitio web</label>
           <Input value={form.website} onChange={(e) => update("website", e.target.value)} placeholder="https://..." />
         </div>
       </div>
 
       <div className="h-px bg-border" />
 
-      {/* Financials */}
+      {/* Finanzas */}
       <div className="flex flex-col gap-4">
-        <p className="text-micro text-foreground-muted">Financials</p>
+        <p className="text-micro text-foreground-muted">Finanzas</p>
         <div>
-          <label className="text-label mb-1 block">Who pays (billing entity)</label>
-          <Input value={form.billing_entity} onChange={(e) => update("billing_entity", e.target.value)} placeholder="Same as client name (leave empty if so)" />
+          <label className="text-label mb-1 block">Quién paga (entidad de facturación)</label>
+          <Input value={form.billing_entity} onChange={(e) => update("billing_entity", e.target.value)} placeholder="Igual al nombre del cliente (dejar vacío si es el mismo)" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <div className="flex items-center gap-1.5 mb-1">
-              <label className="text-label">Monthly rate</label>
+              <label className="text-label">Tarifa mensual</label>
               <AiFieldHelper
                 action="rate_context"
                 context={{ monthly_rate: form.monthly_rate ? parseFloat(form.monthly_rate) : 0, currency: form.currency, payment_frequency: form.payment_frequency }}
                 readOnly
-                label="Rate context"
+                label="Contexto de tarifa"
               />
             </div>
             <Input type="number" value={form.monthly_rate} onChange={(e) => update("monthly_rate", e.target.value)} placeholder="0" />
             <RateBreakdown monthlyRate={form.monthly_rate ? parseFloat(form.monthly_rate) : null} paymentFrequency={form.payment_frequency} currency={form.currency} />
           </div>
           <div>
-            <label className="text-label mb-1 block">Currency</label>
+            <label className="text-label mb-1 block">Moneda</label>
             <Input value={form.currency} onChange={(e) => update("currency", e.target.value)} placeholder="USD" />
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-label mb-1 block">Payment frequency</label>
+            <label className="text-label mb-1 block">Frecuencia de pago</label>
             <select
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:border-foreground"
               value={form.payment_frequency}
               onChange={(e) => update("payment_frequency", e.target.value)}
             >
-              <option value="monthly">Monthly</option>
-              <option value="biweekly">Biweekly</option>
-              <option value="weekly">Weekly</option>
-              <option value="project">Per project</option>
+              <option value="monthly">Mensual</option>
+              <option value="biweekly">Quincenal</option>
+              <option value="weekly">Semanal</option>
+              <option value="project">Por proyecto</option>
             </select>
           </div>
           <div>
-            <label className="text-label mb-1 block">Payment method</label>
-            <Input value={form.payment_method} onChange={(e) => update("payment_method", e.target.value)} placeholder="Wise, PayPal, Bank transfer..." />
+            <label className="text-label mb-1 block">Método de pago</label>
+            <Input value={form.payment_method} onChange={(e) => update("payment_method", e.target.value)} placeholder="Wise, PayPal, transferencia..." />
           </div>
         </div>
       </div>
 
       <div className="h-px bg-border" />
 
-      {/* Communication */}
+      {/* Comunicación */}
       <div className="flex flex-col gap-4">
-        <p className="text-micro text-foreground-muted">Communication</p>
+        <p className="text-micro text-foreground-muted">Comunicación</p>
         <div>
           <div className="flex items-center gap-1.5 mb-1">
-            <label className="text-label">Main channel</label>
+            <label className="text-label">Canal principal</label>
             <AiFieldHelper
               action="channel_tips"
               context={{ communication_channel: form.communication_channel, name: form.name }}
-              label="Channel tips"
+              label="Tips de canal"
             />
           </div>
           <Input value={form.communication_channel} onChange={(e) => update("communication_channel", e.target.value)} placeholder="Slack, WhatsApp, Email..." />
@@ -201,24 +201,24 @@ function ManualForm({
 
       <div className="h-px bg-border" />
 
-      {/* Notes */}
+      {/* Notas */}
       <div>
         <div className="flex items-center gap-1.5 mb-1">
-          <label className="text-label">Notes</label>
+          <label className="text-label">Notas</label>
           <AiFieldHelper
             action="enrich_notes"
             context={formContext}
             onResult={(r) => update("notes", r)}
-            label="Enrich with AI"
+            label="Enriquecer con IA"
           />
         </div>
-        <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} placeholder="Any additional notes..." rows={4} />
+        <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} placeholder="Notas adicionales..." rows={4} />
       </div>
 
       <CompletenessBar form={form} />
 
       <Button onClick={onSave} disabled={saving || !form.name.trim()} className="w-full h-11">
-        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save client"}
+        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cliente"}
       </Button>
     </div>
   );
@@ -275,7 +275,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
         notes: data.notes || "",
       });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Extraction failed");
+      toast.error(err instanceof Error ? err.message : "Error en la extracción");
     } finally {
       setExtracting(false);
     }
@@ -285,16 +285,13 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
     if (!suggestion.suggested_value || !extracted) return;
     const field = suggestion.field as keyof ExtractedClientData;
 
-    // Update extracted preview
     const updated = { ...extracted, [field]: suggestion.suggested_value };
     setExtracted(updated);
 
-    // Update form
     if (field in form) {
       setForm({ ...form, [field]: suggestion.suggested_value });
     }
 
-    // Remove applied suggestion
     setSuggestions((prev) => prev.filter((s) => s !== suggestion));
   };
 
@@ -328,12 +325,12 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
     setSaving(false);
 
     if (error) {
-      toast.error("Failed to save client");
+      toast.error("Error al guardar el cliente");
       console.error(error);
       return;
     }
 
-    toast.success("Client created!");
+    toast.success("¡Cliente creado!");
     onCreated?.();
     onClose();
   };
@@ -368,16 +365,16 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
 
   const fields: { label: string; value: string | number | null | undefined }[] = extracted
     ? [
-        { label: "Client name", value: extracted.name },
-        { label: "Contact", value: extracted.contact_name },
-        { label: "Email", value: extracted.email },
-        { label: "Phone", value: extracted.phone },
-        { label: "Billing entity", value: extracted.billing_entity },
-        { label: "Rate", value: extracted.monthly_rate ? `${extracted.currency || "USD"} ${extracted.monthly_rate}` : null },
-        { label: "Payment", value: extracted.payment_method },
-        { label: "Frequency", value: extracted.payment_frequency },
-        { label: "Channel", value: extracted.communication_channel },
-        { label: "Notes", value: extracted.notes },
+        { label: "Nombre del cliente", value: extracted.name },
+        { label: "Contacto", value: extracted.contact_name },
+        { label: "Correo", value: extracted.email },
+        { label: "Teléfono", value: extracted.phone },
+        { label: "Entidad de facturación", value: extracted.billing_entity },
+        { label: "Tarifa", value: extracted.monthly_rate ? `${extracted.currency || "USD"} ${extracted.monthly_rate}` : null },
+        { label: "Método de pago", value: extracted.payment_method },
+        { label: "Frecuencia", value: extracted.payment_frequency },
+        { label: "Canal", value: extracted.communication_channel },
+        { label: "Notas", value: extracted.notes },
       ]
     : [];
 
@@ -388,11 +385,11 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h2 className="text-h2 text-foreground">New client</h2>
+            <h2 className="text-h2 text-foreground">Nuevo cliente</h2>
             <p className="text-small text-foreground-secondary mt-1">
               {tab === "ai"
-                ? "Describe your client in plain text — AI will fill in the form"
-                : "Fill in the client details manually"}
+                ? "Describe a tu cliente en texto libre, la IA llenará el formulario"
+                : "Llena los datos del cliente manualmente"}
             </p>
           </div>
           <button onClick={onClose} className="h-8 w-8 flex items-center justify-center rounded-md text-foreground-muted hover:text-foreground hover:bg-background-tertiary">
@@ -405,7 +402,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
           <TabsList className="bg-background-secondary w-full">
             <TabsTrigger value="ai" className="flex-1 gap-1.5">
               <Sparkles className="h-3.5 w-3.5" />
-              AI Intake
+              IA Intake
             </TabsTrigger>
             <TabsTrigger value="manual" className="flex-1">Manual</TabsTrigger>
           </TabsList>
@@ -414,7 +411,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
             <Textarea
               value={aiText}
               onChange={(e) => setAiText(e.target.value)}
-              placeholder='e.g. New client, 7H Studios, brought in by Kajae who pays us $2,500 via Wise every two weeks. Main contact is Thomas Higgins, thomashiggins@gmail.com. We communicate on their Slack workspace.'
+              placeholder='Ej: Nuevo cliente, 7H Studios, nos lo trajo Kajae que nos paga $2,500 USD por Wise cada quincena. El contacto principal es Thomas Higgins, thomashiggins@gmail.com. Nos comunicamos por su Slack.'
               className="min-h-[120px] resize-y"
             />
 
@@ -427,12 +424,12 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
               {extracting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Extracting...
+                  Extrayendo...
                 </>
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  Extract with AI
+                  Extraer con IA
                 </>
               )}
             </Button>
@@ -445,7 +442,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
                       <div key={f.label} className="flex items-baseline gap-2">
                         <span className="text-micro text-foreground-muted w-28 shrink-0">{f.label}</span>
                         <span className={`text-sm ${f.value ? "text-foreground" : "text-foreground-muted"}`}>
-                          {f.value ?? "—"}
+                          {f.value ?? "Sin datos"}
                         </span>
                       </div>
                     ))}
@@ -477,8 +474,8 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
                       />
                     </div>
                     <p className="text-small text-foreground-secondary mt-1">
-                      Score: {extractedScore}/100
-                      {extractedMissing.length > 0 && ` · Missing: ${extractedMissing.join(", ")}`}
+                      Puntaje: {extractedScore}/100
+                      {extractedMissing.length > 0 && ` · Falta: ${extractedMissing.join(", ")}`}
                     </p>
                   </div>
 
@@ -488,10 +485,10 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
                       className="flex-1"
                       onClick={() => setTab("manual")}
                     >
-                      Edit fields
+                      Editar campos
                     </Button>
                     <Button className="flex-1" onClick={saveClient} disabled={saving || !form.name.trim()}>
-                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save client"}
+                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cliente"}
                     </Button>
                   </div>
                 </div>
@@ -500,7 +497,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
                 {suggestions.length > 0 && (
                   <div className="mt-4">
                     <p className="text-xs font-semibold text-accent-foreground mb-2 flex items-center gap-1">
-                      <Sparkles className="h-3 w-3" /> AI noticed
+                      <Sparkles className="h-3 w-3" /> La IA detectó
                     </p>
                     <div className="flex flex-col gap-1.5">
                       {suggestions.map((s, i) => (
@@ -514,7 +511,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
                             <p className="text-small text-foreground">{s.issue}</p>
                             {s.suggested_value && (
                               <p className="text-small text-success font-medium mt-0.5">
-                                Suggested: {s.suggested_value}
+                                Sugerido: {s.suggested_value}
                               </p>
                             )}
                           </div>
@@ -523,7 +520,7 @@ export function NewClientModal({ open, onClose, onCreated }: NewClientModalProps
                               onClick={() => applySuggestion(s)}
                               className="shrink-0 text-xs font-medium bg-background border border-accent text-accent-foreground rounded-md px-2.5 py-1 hover:bg-accent-light transition-colors"
                             >
-                              Apply
+                              Aplicar
                             </button>
                           )}
                         </div>

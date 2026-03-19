@@ -24,18 +24,18 @@ interface ClientRow {
 }
 
 const frequencyLabel: Record<string, string> = {
-  monthly: "/mo",
-  biweekly: "/2wk",
-  weekly: "/wk",
-  project: "/proj",
+  monthly: "/mes",
+  biweekly: "/qna",
+  weekly: "/sem",
+  project: "/proy",
 };
 
 function CompletenessPill({ score }: { score: number }) {
   const level = getCompletenessLevel(score);
   const config = {
-    complete: { bg: "bg-success-light", text: "text-success", label: "Complete" },
-    incomplete: { bg: "bg-accent-light", text: "text-accent-foreground", label: "Incomplete" },
-    critical: { bg: "bg-destructive-light", text: "text-destructive", label: "Critical" },
+    complete: { bg: "bg-success-light", text: "text-success", label: "Completo" },
+    incomplete: { bg: "bg-accent-light", text: "text-accent-foreground", label: "Incompleto" },
+    critical: { bg: "bg-destructive-light", text: "text-destructive", label: "Crítico" },
   }[level];
 
   return (
@@ -84,20 +84,20 @@ export default function ClientsPage() {
   const incompleteCount = clients.filter((c) => (c.completeness_score ?? 0) < 80).length;
 
   const filters: { key: typeof filter; label: string }[] = [
-    { key: "all", label: "All" },
-    { key: "active", label: "Active" },
-    { key: "inactive", label: "Inactive" },
-    { key: "incomplete", label: "Incomplete" },
+    { key: "all", label: "Todos" },
+    { key: "active", label: "Activos" },
+    { key: "inactive", label: "Inactivos" },
+    { key: "incomplete", label: "Incompletos" },
   ];
 
   return (
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-h1 text-foreground">Clients</h1>
+        <h1 className="text-h1 text-foreground">Clientes</h1>
         <Button onClick={() => setModalOpen(true)}>
           <Plus className="h-4 w-4" />
-          New client
+          Nuevo cliente
         </Button>
       </div>
 
@@ -105,18 +105,18 @@ export default function ClientsPage() {
       <div className={`grid grid-cols-1 ${isAdmin ? "sm:grid-cols-3" : "sm:grid-cols-1"} gap-4 mb-6`}>
         <div className="border border-border rounded-lg p-5">
           <p className="text-h1 text-foreground">{activeClients.length}</p>
-          <p className="text-small text-foreground-secondary">Active clients</p>
+          <p className="text-small text-foreground-secondary">Clientes activos</p>
         </div>
         {isAdmin && (
           <div className="border border-border rounded-lg p-5">
             <p className="text-h1 text-foreground">${totalMRR.toLocaleString()}</p>
-            <p className="text-small text-foreground-secondary">Monthly recurring</p>
+            <p className="text-small text-foreground-secondary">Ingreso mensual recurrente</p>
           </div>
         )}
         {isAdmin && (
           <div className="border border-border rounded-lg p-5">
             <p className="text-h1 text-foreground">{incompleteCount}</p>
-            <p className="text-small text-foreground-secondary">Incomplete profiles</p>
+            <p className="text-small text-foreground-secondary">Perfiles incompletos</p>
           </div>
         )}
       </div>
@@ -128,7 +128,7 @@ export default function ClientsPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search clients..."
+            placeholder="Buscar clientes..."
             className="pl-9"
           />
         </div>
@@ -151,19 +151,19 @@ export default function ClientsPage() {
 
       {/* List */}
       {loading ? (
-        <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Loading...</div>
+        <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Cargando...</div>
       ) : filtered.length === 0 && clients.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <Users className="h-12 w-12 text-border mb-4" />
-          <h2 className="text-h3 text-foreground">No clients yet</h2>
-          <p className="text-sm text-foreground-secondary mt-2">Add your first client to start tracking time and revenue.</p>
+          <h2 className="text-h3 text-foreground">Aún no hay clientes</h2>
+          <p className="text-sm text-foreground-secondary mt-2">Agrega tu primer cliente para empezar a registrar tiempo e ingresos.</p>
           <Button onClick={() => setModalOpen(true)} className="mt-4">
             <Plus className="h-4 w-4" />
-            New client
+            Nuevo cliente
           </Button>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">No clients match your filters.</div>
+        <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">No hay clientes que coincidan con los filtros.</div>
       ) : (
         <div className="flex flex-col gap-2">
           {filtered.map((client) => {
@@ -191,7 +191,7 @@ export default function ClientsPage() {
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-[15px] font-semibold text-foreground truncate">{client.name}</span>
                     {client.billing_entity && client.billing_entity !== client.name && (
-                      <span className="text-small text-foreground-secondary truncate">via {client.billing_entity}</span>
+                      <span className="text-small text-foreground-secondary truncate">vía {client.billing_entity}</span>
                     )}
                   </div>
                   <div className="flex items-center gap-1 text-small text-foreground-secondary truncate">
@@ -202,15 +202,15 @@ export default function ClientsPage() {
                   </div>
                 </div>
 
-                {/* Rate + Completeness — admin only */}
+                {/* Rate + Completeness - admin only */}
                 {isAdmin && (
                   <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
                     {rate ? (
                       <span className="text-sm font-semibold text-foreground">
-                        ${rate.toLocaleString()}{frequencyLabel[freq] || "/mo"}
+                        ${rate.toLocaleString()}{frequencyLabel[freq] || "/mes"}
                       </span>
                     ) : (
-                      <span className="text-sm text-foreground-muted">No rate</span>
+                      <span className="text-sm text-foreground-muted">Sin tarifa</span>
                     )}
                     <CompletenessPill score={client.completeness_score ?? 0} />
                   </div>

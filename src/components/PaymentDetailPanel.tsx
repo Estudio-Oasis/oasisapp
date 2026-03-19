@@ -52,16 +52,16 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
     setSaving(true);
     await supabase.from("payments").update({ notes: notes || null } as Record<string, unknown>).eq("id", payment.id);
     setSaving(false);
-    toast.success("Notes saved");
+    toast.success("Notas guardadas");
     onUpdated();
   };
 
   const deletePayment = async () => {
-    if (!window.confirm("Delete this payment? This cannot be undone.")) return;
+    if (!window.confirm("¿Eliminar este pago? Esta acción no se puede deshacer.")) return;
     setSaving(true);
     await supabase.from("payments").delete().eq("id", payment.id);
     setSaving(false);
-    toast.success("Payment deleted");
+    toast.success("Pago eliminado");
     onUpdated();
     onClose();
   };
@@ -69,7 +69,7 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) { toast.error("File must be under 10MB"); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error("El archivo debe ser menor a 10MB"); return; }
     setReceiptFile(file);
     setEditorOpen(true);
   };
@@ -83,7 +83,7 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
       .upload(path, editedFile, { contentType: "image/jpeg" });
 
     if (uploadError) {
-      toast.error("Failed to upload receipt");
+      toast.error("Error al subir el comprobante");
       setUploading(false);
       return;
     }
@@ -96,7 +96,7 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
       await supabase.from("payments")
         .update({ receipt_url: signedData.signedUrl } as Record<string, unknown>)
         .eq("id", payment.id);
-      toast.success("Receipt uploaded");
+      toast.success("Comprobante subido");
       onUpdated();
     }
     setUploading(false);
@@ -110,44 +110,44 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
       <div className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-[400px] bg-background border-l border-border overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-h2 text-foreground">Payment details</h2>
+            <h2 className="text-h2 text-foreground">Detalle del pago</h2>
             <button onClick={onClose} className="h-8 w-8 flex items-center justify-center rounded-md text-foreground-muted hover:text-foreground hover:bg-background-tertiary">
               <X className="h-4 w-4" />
             </button>
           </div>
 
           <div className="flex flex-col gap-4">
-            {/* Amount */}
+            {/* Monto */}
             <div className="border border-border rounded-lg p-4">
-              <p className="text-micro text-foreground-muted mb-1">Amount received</p>
+              <p className="text-micro text-foreground-muted mb-1">Monto recibido</p>
               <p className="text-h1 text-foreground">
                 ${payment.amount_received.toLocaleString(undefined, { minimumFractionDigits: 2 })} {payment.currency_received}
               </p>
             </div>
 
-            {/* Conversion */}
+            {/* Conversión */}
             {payment.bank_amount && payment.bank_currency && (
               <div className="bg-accent-light border border-accent/20 rounded-lg p-4">
-                <p className="text-micro text-foreground-muted mb-1">Currency conversion</p>
+                <p className="text-micro text-foreground-muted mb-1">Conversión de moneda</p>
                 <p className="text-sm text-foreground">
-                  Received ${payment.amount_received.toLocaleString()} {payment.currency_received} → arrived ${payment.bank_amount.toLocaleString()} {payment.bank_currency}
+                  Recibido ${payment.amount_received.toLocaleString()} {payment.currency_received} → llegó ${payment.bank_amount.toLocaleString()} {payment.bank_currency}
                 </p>
                 {payment.exchange_rate && (
                   <p className="text-small text-accent-foreground mt-1">
-                    Rate: 1 {payment.currency_received} = {payment.exchange_rate.toFixed(4)} {payment.bank_currency}
+                    Tipo de cambio: 1 {payment.currency_received} = {payment.exchange_rate.toFixed(4)} {payment.bank_currency}
                   </p>
                 )}
               </div>
             )}
 
-            {/* Receipt */}
+            {/* Comprobante */}
             <div>
-              <p className="text-micro text-foreground-muted mb-2">Receipt</p>
+              <p className="text-micro text-foreground-muted mb-2">Comprobante</p>
               {payment.receipt_url ? (
                 <div className="space-y-2">
                   <img
                     src={payment.receipt_url}
-                    alt="Payment receipt"
+                    alt="Comprobante de pago"
                     className="w-full max-h-[280px] object-contain border border-border rounded-lg"
                   />
                   <div className="flex gap-2">
@@ -157,11 +157,11 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
                       rel="noopener noreferrer"
                       className="text-small text-accent-foreground hover:underline flex items-center gap-1"
                     >
-                      <ExternalLink className="h-3 w-3" /> View full size
+                      <ExternalLink className="h-3 w-3" /> Ver tamaño completo
                     </a>
                     <label className="text-small text-foreground-muted hover:underline cursor-pointer">
                       <input type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
-                      Replace receipt
+                      Reemplazar comprobante
                     </label>
                   </div>
                 </div>
@@ -173,63 +173,63 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
                   ) : (
                     <ImagePlus className="h-5 w-5 text-foreground-muted" />
                   )}
-                  <span className="text-small text-foreground-muted">Add receipt</span>
+                  <span className="text-small text-foreground-muted">Agregar comprobante</span>
                 </label>
               )}
             </div>
 
-            {/* Details */}
+            {/* Detalles */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-micro text-foreground-muted mb-1">Date</p>
+                <p className="text-micro text-foreground-muted mb-1">Fecha</p>
                 <p className="text-sm text-foreground">
-                  {new Date(payment.date_received + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  {new Date(payment.date_received + "T00:00:00").toLocaleDateString("es-MX", { month: "short", day: "numeric", year: "numeric" })}
                 </p>
               </div>
               <div>
-                <p className="text-micro text-foreground-muted mb-1">Method</p>
-                <p className="text-sm text-foreground capitalize">{payment.method || "—"}</p>
+                <p className="text-micro text-foreground-muted mb-1">Método</p>
+                <p className="text-sm text-foreground capitalize">{payment.method || "Sin datos"}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-micro text-foreground-muted mb-1">Sender</p>
-                <p className="text-sm text-foreground">{payment.sender_name || "—"}</p>
+                <p className="text-micro text-foreground-muted mb-1">Remitente</p>
+                <p className="text-sm text-foreground">{payment.sender_name || "Sin datos"}</p>
               </div>
               <div>
-                <p className="text-micro text-foreground-muted mb-1">Reference</p>
-                <p className="text-sm text-foreground">{payment.reference || "—"}</p>
+                <p className="text-micro text-foreground-muted mb-1">Referencia</p>
+                <p className="text-sm text-foreground">{payment.reference || "Sin datos"}</p>
               </div>
             </div>
 
             {payment.transaction_id && (
               <div>
-                <p className="text-micro text-foreground-muted mb-1">Transaction ID</p>
+                <p className="text-micro text-foreground-muted mb-1">ID de transacción</p>
                 <p className="text-sm text-foreground font-mono">{payment.transaction_id}</p>
               </div>
             )}
 
             {payment.client_name && (
               <div>
-                <p className="text-micro text-foreground-muted mb-1">Client</p>
+                <p className="text-micro text-foreground-muted mb-1">Cliente</p>
                 <p className="text-sm text-foreground">{payment.client_name}</p>
               </div>
             )}
 
             {payment.invoice_number && (
               <div>
-                <p className="text-micro text-foreground-muted mb-1">Linked invoice</p>
+                <p className="text-micro text-foreground-muted mb-1">Factura vinculada</p>
                 <span className="inline-flex items-center bg-accent-light text-accent-foreground text-xs font-medium px-2.5 py-1 rounded-full">
                   {payment.invoice_number}
                 </span>
               </div>
             )}
 
-            {/* Breakdown */}
+            {/* Desglose */}
             {breakdown.length > 0 && (
               <div>
-                <p className="text-micro text-foreground-muted mb-2">Breakdown</p>
+                <p className="text-micro text-foreground-muted mb-2">Desglose</p>
                 <div className="border border-border rounded-lg overflow-hidden">
                   {breakdown.map((item, i) => (
                     <div key={i} className="flex items-center justify-between px-3 py-2 border-b border-border last:border-b-0">
@@ -244,17 +244,17 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
             <div className="h-px bg-border" />
 
             <div className="space-y-1.5">
-              <label className="text-label">Notes</label>
+              <label className="text-label">Notas</label>
               <Textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} className="resize-none" />
               <Button variant="secondary" size="sm" onClick={saveNotes} disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save notes"}
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar notas"}
               </Button>
             </div>
 
             <div className="h-px bg-border" />
 
             <button onClick={deletePayment} className="text-sm text-destructive hover:underline text-left" disabled={saving}>
-              Delete payment
+              Eliminar pago
             </button>
           </div>
         </div>
