@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTimer } from "@/contexts/TimerContext";
 import { useUnreadChats } from "@/hooks/useUnreadChats";
 import { MemberBubble } from "@/components/hub/MemberBubble";
+import { MemberActivityDrawer } from "@/components/hub/MemberActivityDrawer";
 import { ChatPanel } from "@/components/hub/ChatPanel";
 import { ChatList } from "@/components/hub/ChatList";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ export interface Conversation {
   is_archived: boolean;
 }
 
-const OFFLINE_THRESHOLD_MS = 2 * 60 * 1000; // 2 minutes
+const OFFLINE_THRESHOLD_MS = 2 * 60 * 1000;
 
 const STATUS_MAP: Record<string, { label: string; color: "working" | "break" | "offline" | "online" }> = {
   working: { label: "Trabajando", color: "working" },
@@ -62,7 +63,10 @@ export default function HubPage() {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [myStatus, setMyStatus] = useState<string>("online");
 
-  // Load profiles + presence
+  // Member activity drawer state
+  const [drawerMember, setDrawerMember] = useState<MemberWithProfile | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   useEffect(() => {
     if (!user) return;
 
@@ -80,7 +84,6 @@ export default function HubPage() {
       const presenceMap = new Map<string, MemberPresence>();
       (presenceData || []).forEach((p: any) => presenceMap.set(p.user_id, p));
 
-      // Find my status
       const myPresence = presenceMap.get(user.id);
       if (myPresence) setMyStatus(myPresence.status);
 
@@ -101,7 +104,6 @@ export default function HubPage() {
           };
         });
 
-      // Sort: self first, then working, online, break, offline
       const order: Record<string, number> = { working: 0, online: 1, meeting: 1, break: 2, eating: 2, bathroom: 2, offline: 3 };
       merged.sort((a, b) => {
         if (a.user_id === user.id) return -1;
@@ -113,7 +115,6 @@ export default function HubPage() {
 
     loadData();
 
-    // Realtime presence
     const channel = supabase
       .channel("hub-presence")
       .on("postgres_changes", { event: "*", schema: "public", table: "member_presence" }, () => {
@@ -124,34 +125,13 @@ export default function HubPage() {
     return () => { supabase.removeChannel(channel); };
   }, [user]);
 
-  const handleMemberClick = async (memberId: string) => {
-    if (!user || memberId === user.id) return;
-
-    // Find or create conversation
-    const existing = conversations.find(
-      (c) =>
-        (c.participant_a === user.id && c.participant_b === memberId) ||
-        (c.participant_b === user.id && c.participant_a === memberId)
-    );
-
-    if (existing) {
-      setActiveConversationId(existing.id);
-      setActiveChatUserId(memberId);
-      markConversationRead(existing.id);
-      return;
-    }
-
-    const { data: newConvo, error } = await supabase
-      .from("chat_conversations")
-      .insert({ participant_a: user.id, participant_b: memberId })
-      .select("*")
-      .single();
-
-    if (!error && newConvo) {
-      setConversations((prev) => [newConvo as Conversation, ...prev]);
-      setActiveConversationId(newConvo.id);
-      setActiveChatUserId(memberId);
-      markConversationRead(newConvo.id);
+  const handleMemberClick = (memberId: string) => {
+    if (!user) return;
+    // Open activity drawer for any member (including self)
+    const member = members.find((m) => m.user_id === memberId);
+    if (member) {
+      setDrawerMember(member);
+      setDrawerOpen(true);
     }
   };
 
@@ -174,13 +154,11 @@ export default function HubPage() {
     const breakStatuses = ["break", "eating", "bathroom", "meeting"];
 
     if (status === "online") {
-      // "En línea" → open the start/switch timer modal
       setShowQuickSheet(true);
       return;
     }
 
     if (status === "offline") {
-      // Offline → stop any running timer, start offline entry, set offline
       if (isRunning) await stopTimer();
       await startBreakTimer("offline");
       setMyStatus("offline");
@@ -190,18 +168,15 @@ export default function HubPage() {
 
     if (breakStatuses.includes(status)) {
       if (isRunning) {
-        // Timer running → ask to stop first
         setPendingStatus(status);
         setShowStopTimerDialog(true);
       } else {
-        // No timer → directly start break timer
         setMyStatus(status);
         await startBreakTimer(status);
       }
       return;
     }
 
-    // Fallback
     setMyStatus(status);
     await setManualStatus(status);
   };
@@ -243,7 +218,7 @@ export default function HubPage() {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
-      {/* Quick status — primary surface */}
+      {/* Quick status */}
       <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
         <h2 className="text-[11px] font-semibold uppercase tracking-wider text-foreground-muted">Tu estado</h2>
         <TooltipProvider delayDuration={300}>
@@ -325,6 +300,17 @@ export default function HubPage() {
         partnerProfile={chatPartnerProfile}
       />
 
+      {/* Member Activity Drawer */}
+      <MemberActivityDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        profile={drawerMember?.profile || null}
+        status={drawerMember?.status || "offline"}
+        statusLabel={drawerMember ? getMemberStatusLabel(drawerMember.status) : "Offline"}
+        currentClient={drawerMember?.current_client || null}
+        currentTask={drawerMember?.current_task || null}
+      />
+
       {/* Stop timer confirmation dialog */}
       <Dialog open={showStopTimerDialog} onOpenChange={setShowStopTimerDialog}>
         <DialogContent className="sm:max-w-sm">
@@ -333,7 +319,7 @@ export default function HubPage() {
             <DialogDescription>
               Tienes el timer activo
               {activeClient ? ` para ${activeClient.name}` : ""}
-              {activeTask ? ` — ${activeTask.title}` : ""}.
+              {activeTask ? ` · ${activeTask.title}` : ""}.
               ¿Deseas detenerlo antes de cambiar tu estado?
             </DialogDescription>
           </DialogHeader>
@@ -348,7 +334,7 @@ export default function HubPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Start/Switch quick sheet (triggered by "En línea" button) */}
+      {/* Start/Switch quick sheet */}
       <QuickSheet
         open={showQuickSheet}
         onOpenChange={setShowQuickSheet}
