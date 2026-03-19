@@ -79,6 +79,8 @@ export function AppSidebar() {
 
   const navItems = allNavItems.filter((item) => !item.adminOnly || (!roleLoading && isAdmin));
 
+  const toggleLanguage = () => setLanguage(language === "es" ? "en" : "es");
+
   const handleStartTour = () => {
     setShowWelcome(false);
     setShowTour(true);
