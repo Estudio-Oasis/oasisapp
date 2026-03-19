@@ -138,7 +138,7 @@ export function MemberActivityDrawer({
   // Productive vs break
   const productiveMin = entries.reduce((sum, e) => {
     const actType = getNormalizedActivityType({ description: e.description, client_id: e.client_id });
-    return actType === "break" || actType === "food" ? sum : sum + (Number(e.duration_min) || 0);
+    return actType === "break" || actType === "comida" || actType === "ausente" || actType === "offline" ? sum : sum + (Number(e.duration_min) || 0);
   }, 0);
   const breakMin = totalMinutes - productiveMin;
 
