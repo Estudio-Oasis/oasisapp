@@ -122,13 +122,22 @@ export function AppSidebar() {
             </div>
             <span className="text-sm font-semibold text-foreground">Bitácora</span>
           </div>
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-background-tertiary transition-colors text-foreground-secondary"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleLanguage}
+              className="flex h-7 min-w-[28px] items-center justify-center rounded-md hover:bg-background-tertiary transition-colors text-foreground-secondary text-[10px] font-bold uppercase tracking-wider"
+              aria-label="Toggle language"
+            >
+              {language === "es" ? "EN" : "ES"}
+            </button>
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-background-tertiary transition-colors text-foreground-secondary"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
 
         {/* Navigation */}
