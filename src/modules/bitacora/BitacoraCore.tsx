@@ -104,6 +104,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
                 description={bita.activeEntry?.description}
                 clientId={bita.activeEntry?.clientId}
                 elapsedSeconds={bita.elapsedSeconds}
+                onDescriptionChange={(newDesc) => bita.updateActiveEntry({ description: newDesc })}
               >
                 {/* Context enrichment panel — scrollable area */}
                 <ContextEnrichmentPanel />

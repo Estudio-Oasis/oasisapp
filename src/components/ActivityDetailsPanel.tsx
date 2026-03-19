@@ -100,7 +100,6 @@ export function ActivityDetailsPanel({
   const [newTaskName, setNewTaskName] = useState("");
   const [creatingTask, setCreatingTask] = useState(false);
 
-  // Auto-set billable based on activity type
   useEffect(() => {
     if (!onBillableChange) return;
     if (selectedActivityType === "break" || selectedActivityType === "comida") {
@@ -120,7 +119,6 @@ export function ActivityDetailsPanel({
       ? tasks.filter((t) => t.clientId === selectedClientId)
       : tasks;
 
-  // Deduplicate tasks by id
   const uniqueTasks = filteredTasks.filter(
     (t, i, arr) => arr.findIndex((x) => x.id === t.id) === i
   );
@@ -232,6 +230,55 @@ export function ActivityDetailsPanel({
     }
   };
 
+  const renderInlineCreate = (
+    show: boolean,
+    setShow: (v: boolean) => void,
+    value: string,
+    setValue: (v: string) => void,
+    creating: boolean,
+    onCreate: () => void,
+    label: string,
+    placeholder: string,
+  ) => {
+    if (!show) {
+      return (
+        <button
+          onClick={() => setShow(true)}
+          className="inline-flex items-center gap-1 rounded-full border border-dashed border-accent/40 px-2.5 py-1 text-[11px] font-medium text-accent hover:bg-accent/10 hover:border-accent/60 transition-colors"
+        >
+          <Plus className="h-3 w-3" />
+          {label}
+        </button>
+      );
+    }
+    return (
+      <div className="inline-flex items-center gap-1">
+        <Input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && onCreate()}
+          placeholder={placeholder}
+          className="h-7 w-32 text-[11px] border-accent/30"
+          autoFocus
+          disabled={creating}
+        />
+        <button
+          onClick={onCreate}
+          disabled={!value.trim() || creating}
+          className="h-7 px-2 rounded-md bg-accent/15 text-[11px] text-accent hover:bg-accent/25 disabled:opacity-40 transition-colors"
+        >
+          {creating ? "…" : "Crear"}
+        </button>
+        <button
+          onClick={() => { setShow(false); setValue(""); }}
+          className="h-7 px-1.5 text-foreground-muted hover:text-foreground text-[11px]"
+        >
+          ×
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4 animate-in fade-in-0 slide-in-from-top-2 duration-200">
       {/* Section 1: Cliente y Proyecto */}
@@ -240,13 +287,14 @@ export function ActivityDetailsPanel({
           Cliente y proyecto
         </p>
 
-        {/* Clients */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+        {/* Clients — wrap layout, create-first */}
+        <div className="flex flex-wrap gap-1.5">
+          {renderInlineCreate(showNewClient, setShowNewClient, newClientName, setNewClientName, creatingClient, handleCreateClient, "Nuevo cliente", "Nombre del cliente")}
           {clients.map((c) => (
             <button
               key={c.id}
               onClick={() => onClientChange(selectedClientId === c.id ? null : c.id)}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors shrink-0 ${
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
                 selectedClientId === c.id
                   ? "border-accent bg-accent/15 text-accent"
                   : "border-border text-foreground-secondary hover:text-foreground hover:border-foreground/30"
@@ -260,47 +308,14 @@ export function ActivityDetailsPanel({
               {selectedClientId === c.id && <span className="text-accent/60 ml-0.5">×</span>}
             </button>
           ))}
-          {!showNewClient ? (
-            <button
-              onClick={() => setShowNewClient(true)}
-              className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-[11px] font-medium text-foreground-muted hover:text-foreground hover:border-foreground/30 transition-colors shrink-0"
-            >
-              <Plus className="h-3 w-3" />
-              Nuevo cliente
-            </button>
-          ) : (
-            <div className="inline-flex items-center gap-1 shrink-0">
-              <Input
-                value={newClientName}
-                onChange={(e) => setNewClientName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleCreateClient()}
-                placeholder="Nombre del cliente"
-                className="h-7 w-32 text-[11px] border-accent/30"
-                autoFocus
-                disabled={creatingClient}
-              />
-              <button
-                onClick={handleCreateClient}
-                disabled={!newClientName.trim() || creatingClient}
-                className="h-7 px-2 rounded-md bg-accent/15 text-[11px] text-accent hover:bg-accent/25 disabled:opacity-40 transition-colors"
-              >
-                {creatingClient ? "…" : "Crear"}
-              </button>
-              <button
-                onClick={() => { setShowNewClient(false); setNewClientName(""); }}
-                className="h-7 px-1.5 text-foreground-muted hover:text-foreground text-[11px]"
-              >
-                ×
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Projects (only if client selected) */}
         {selectedClientId && (
           <div className="animate-in fade-in-0 slide-in-from-top-1 duration-150">
             <p className="text-[10px] text-foreground-muted mb-1.5">Proyecto</p>
-            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+            <div className="flex flex-wrap gap-1.5">
+              {renderInlineCreate(showNewProject, setShowNewProject, newProjectName, setNewProjectName, creatingProject, handleCreateProject, "Nuevo proyecto", "Nombre del proyecto")}
               {filteredProjects.map((p) => (
                 <button
                   key={p.id}
@@ -309,7 +324,7 @@ export function ActivityDetailsPanel({
                       ? onProjectChange(null)
                       : handleProjectSelect(p.id)
                   }
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors shrink-0 ${
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
                     selectedProjectId === p.id
                       ? "border-accent bg-accent/15 text-accent"
                       : "border-border text-foreground-secondary hover:text-foreground hover:border-foreground/30"
@@ -319,40 +334,6 @@ export function ActivityDetailsPanel({
                   {selectedProjectId === p.id && <span className="text-accent/60">×</span>}
                 </button>
               ))}
-              {!showNewProject ? (
-                <button
-                  onClick={() => setShowNewProject(true)}
-                  className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-[11px] font-medium text-foreground-muted hover:text-foreground hover:border-foreground/30 transition-colors shrink-0"
-                >
-                  <Plus className="h-3 w-3" />
-                  Nuevo proyecto
-                </button>
-              ) : (
-                <div className="inline-flex items-center gap-1 shrink-0">
-                  <Input
-                    value={newProjectName}
-                    onChange={(e) => setNewProjectName(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleCreateProject()}
-                    placeholder="Nombre del proyecto"
-                    className="h-7 w-32 text-[11px] border-accent/30"
-                    autoFocus
-                    disabled={creatingProject}
-                  />
-                  <button
-                    onClick={handleCreateProject}
-                    disabled={!newProjectName.trim() || creatingProject}
-                    className="h-7 px-2 rounded-md bg-accent/15 text-[11px] text-accent hover:bg-accent/25 disabled:opacity-40 transition-colors"
-                  >
-                    {creatingProject ? "…" : "Crear"}
-                  </button>
-                  <button
-                    onClick={() => { setShowNewProject(false); setNewProjectName(""); }}
-                    className="h-7 px-1.5 text-foreground-muted hover:text-foreground text-[11px]"
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
               {filteredProjects.length === 0 && !showNewProject && (
                 <span className="text-[11px] text-foreground-muted py-1">Sin proyectos para este cliente</span>
               )}
@@ -364,7 +345,8 @@ export function ActivityDetailsPanel({
         {selectedProjectId && onTaskChange && (
           <div className="animate-in fade-in-0 slide-in-from-top-1 duration-150">
             <p className="text-[10px] text-foreground-muted mb-1.5">Tarea</p>
-            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+            <div className="flex flex-wrap gap-1.5">
+              {renderInlineCreate(showNewTask, setShowNewTask, newTaskName, setNewTaskName, creatingTask, handleCreateTask, "Nueva tarea", "Nombre de la tarea")}
               {uniqueTasks.map((t) => (
                 <button
                   key={t.id}
@@ -373,7 +355,7 @@ export function ActivityDetailsPanel({
                       ? onTaskChange(null)
                       : handleTaskSelect(t.id)
                   }
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors shrink-0 ${
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
                     selectedTaskId === t.id
                       ? "border-accent bg-accent/15 text-accent"
                       : "border-border text-foreground-secondary hover:text-foreground hover:border-foreground/30"
@@ -383,40 +365,6 @@ export function ActivityDetailsPanel({
                   {selectedTaskId === t.id && <span className="text-accent/60">×</span>}
                 </button>
               ))}
-              {!showNewTask ? (
-                <button
-                  onClick={() => setShowNewTask(true)}
-                  className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2.5 py-1 text-[11px] font-medium text-foreground-muted hover:text-foreground hover:border-foreground/30 transition-colors shrink-0"
-                >
-                  <Plus className="h-3 w-3" />
-                  Nueva tarea
-                </button>
-              ) : (
-                <div className="inline-flex items-center gap-1 shrink-0">
-                  <Input
-                    value={newTaskName}
-                    onChange={(e) => setNewTaskName(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleCreateTask()}
-                    placeholder="Nombre de la tarea"
-                    className="h-7 w-32 text-[11px] border-accent/30"
-                    autoFocus
-                    disabled={creatingTask}
-                  />
-                  <button
-                    onClick={handleCreateTask}
-                    disabled={!newTaskName.trim() || creatingTask}
-                    className="h-7 px-2 rounded-md bg-accent/15 text-[11px] text-accent hover:bg-accent/25 disabled:opacity-40 transition-colors"
-                  >
-                    {creatingTask ? "…" : "Crear"}
-                  </button>
-                  <button
-                    onClick={() => { setShowNewTask(false); setNewTaskName(""); }}
-                    className="h-7 px-1.5 text-foreground-muted hover:text-foreground text-[11px]"
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
               {uniqueTasks.length === 0 && !showNewTask && (
                 <span className="text-[11px] text-foreground-muted py-1">Sin tareas para este proyecto</span>
               )}
