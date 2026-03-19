@@ -96,27 +96,33 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
         <div className="p-3 pb-0">
           {bita.isRunning ? (
-            <ActiveSessionCard
-              variant="expanded"
-              clientName={bita.activeEntry?.clientName}
-              taskTitle={bita.activeEntry?.taskTitle}
-              description={bita.activeEntry?.description}
-              clientId={bita.activeEntry?.clientId}
-              elapsedSeconds={bita.elapsedSeconds}
-            >
-              {/* Context enrichment panel — works in both modes */}
-              <ContextEnrichmentPanel />
-              <TimerControls
-                onSwitch={() => {
-                  setQuickSheetMode("switch");
-                  setQuickSheetOpen(true);
-                }}
-                onPause={handlePause}
-                onFinish={() => void bita.stopActivity()}
-                isStopping={bita.isStopping}
-                layout="row"
-              />
-            </ActiveSessionCard>
+            <>
+              <ActiveSessionCard
+                variant="expanded"
+                clientName={bita.activeEntry?.clientName}
+                taskTitle={bita.activeEntry?.taskTitle}
+                description={bita.activeEntry?.description}
+                clientId={bita.activeEntry?.clientId}
+                elapsedSeconds={bita.elapsedSeconds}
+              >
+                {/* Context enrichment panel — scrollable area */}
+                <ContextEnrichmentPanel />
+              </ActiveSessionCard>
+              {/* Sticky controls — always visible */}
+              <div className="sticky bottom-0 bg-card pt-2 pb-1">
+                <TimerControls
+                  onSwitch={() => {
+                    setQuickSheetMode("switch");
+                    setQuickSheetOpen(true);
+                  }}
+                  onPause={handlePause}
+                  onFinish={() => void bita.stopActivity()}
+                  isStopping={bita.isStopping}
+                  layout="row"
+                />
+              </div>
+            </>
+          ) : hideQuickLog ? null : (
           ) : hideQuickLog ? null : (
             <div className="space-y-3">
               <QuickLogInput
