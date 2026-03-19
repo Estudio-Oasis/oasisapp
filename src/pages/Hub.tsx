@@ -336,6 +336,7 @@ export default function HubPage() {
         statusLabel={drawerMember ? getMemberStatusLabel(drawerMember.status) : "Offline"}
         currentClient={drawerMember?.current_client || null}
         currentTask={drawerMember?.current_task || null}
+        onOpenChat={handleOpenChatFromDrawer}
       />
 
       {/* Stop timer confirmation dialog */}
