@@ -119,7 +119,7 @@ export default function ClientsPage() {
         {isAdmin && (
           <div className="border border-border rounded-lg p-5">
             <p className="text-h1 text-foreground">{incompleteCount}</p>
-            <p className="text-small text-foreground-secondary">Perfiles incompletos</p>
+            <p className="text-small text-foreground-secondary">{t("clients.incompleteProfiles")}</p>
           </div>
         )}
       </div>
