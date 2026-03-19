@@ -155,7 +155,7 @@ export default function TasksPage() {
                   : "border border-border text-foreground-secondary hover:bg-background-secondary"
               }`}
             >
-              {s === "all" ? "Todas" : STATUS_LABELS[s]}
+              {s === "all" ? t("tasks.allStatuses") : STATUS_LABELS[s]}
             </button>
           ))}
         </div>
