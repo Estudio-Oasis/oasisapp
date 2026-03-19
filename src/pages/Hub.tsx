@@ -127,11 +127,38 @@ export default function HubPage() {
 
   const handleMemberClick = (memberId: string) => {
     if (!user) return;
-    // Open activity drawer for any member (including self)
     const member = members.find((m) => m.user_id === memberId);
     if (member) {
       setDrawerMember(member);
       setDrawerOpen(true);
+    }
+  };
+
+  const handleOpenChatFromDrawer = async (memberId: string) => {
+    if (!user) return;
+    // Check if conversation already exists
+    const existing = conversations.find(
+      (c) =>
+        (c.participant_a === user.id && c.participant_b === memberId) ||
+        (c.participant_b === user.id && c.participant_a === memberId)
+    );
+    if (existing) {
+      const otherId = existing.participant_a === user.id ? existing.participant_b : existing.participant_a;
+      setActiveConversationId(existing.id);
+      setActiveChatUserId(otherId);
+      markConversationRead(existing.id);
+    } else {
+      // Create new conversation
+      const { data: newConvo } = await supabase
+        .from("chat_conversations")
+        .insert({ participant_a: user.id, participant_b: memberId })
+        .select("*")
+        .single();
+      if (newConvo) {
+        setConversations((prev) => [newConvo as Conversation, ...prev]);
+        setActiveConversationId(newConvo.id);
+        setActiveChatUserId(memberId);
+      }
     }
   };
 
