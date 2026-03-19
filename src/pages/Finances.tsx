@@ -87,6 +87,7 @@ const STATUS_LABELS: Record<string, string> = {
 export default function FinancesPage() {
   const { isAdmin, loading: roleLoading } = useRole();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
