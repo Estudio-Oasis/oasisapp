@@ -30,6 +30,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function TasksPage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [clients, setClients] = useState<ClientInfo[]>([]);
   const [assignees, setAssignees] = useState<Record<string, AssigneeInfo>>({});
