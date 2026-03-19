@@ -131,7 +131,7 @@ export default function ClientsPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar clientes..."
+            placeholder={t("clients.searchPlaceholder")}
             className="pl-9"
           />
         </div>
