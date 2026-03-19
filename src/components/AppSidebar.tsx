@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
 import { useUnreadChats } from "@/hooks/useUnreadChats";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { TimerWidget } from "@/components/TimerWidget";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProfileSheet } from "@/components/ProfileSheet";
@@ -20,15 +21,16 @@ import {
   SidebarContent,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import type { TranslationKey } from "@/lib/translations";
 
 const allNavItems = [
-  { title: "Bitácora", url: "/bitacora", icon: Timer },
-  { title: "Hub", url: "/hub", icon: Radio },
-  { title: "Clientes", url: "/clients", icon: Users },
-  { title: "Tareas", url: "/tasks", icon: CheckSquare, tourId: "tasks" },
-  { title: "Finanzas", url: "/finances", icon: DollarSign, adminOnly: true },
-  { title: "Admin", url: "/admin", icon: LayoutDashboard, adminOnly: true },
-  { title: "Ajustes", url: "/settings", icon: Settings },
+  { titleKey: "nav.bitacora" as TranslationKey, url: "/bitacora", icon: Timer },
+  { titleKey: "nav.hub" as TranslationKey, url: "/hub", icon: Radio },
+  { titleKey: "nav.clients" as TranslationKey, url: "/clients", icon: Users },
+  { titleKey: "nav.tasks" as TranslationKey, url: "/tasks", icon: CheckSquare, tourId: "tasks" },
+  { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true },
+  { titleKey: "nav.admin" as TranslationKey, url: "/admin", icon: LayoutDashboard, adminOnly: true },
+  { titleKey: "nav.settings" as TranslationKey, url: "/settings", icon: Settings },
 ];
 
 interface Profile {
@@ -44,6 +46,7 @@ export function AppSidebar() {
   const { isAdmin, loading: roleLoading } = useRole();
   const { theme, setTheme } = useTheme();
   const { unreadCount } = useUnreadChats();
+  const { language, setLanguage, t } = useLanguage();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -75,6 +78,8 @@ export function AppSidebar() {
   const role = profile?.role || "member";
 
   const navItems = allNavItems.filter((item) => !item.adminOnly || (!roleLoading && isAdmin));
+
+  const toggleLanguage = () => setLanguage(language === "es" ? "en" : "es");
 
   const handleStartTour = () => {
     setShowWelcome(false);
@@ -117,13 +122,22 @@ export function AppSidebar() {
             </div>
             <span className="text-sm font-semibold text-foreground">Bitácora</span>
           </div>
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-background-tertiary transition-colors text-foreground-secondary"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleLanguage}
+              className="flex h-7 min-w-[28px] items-center justify-center rounded-md hover:bg-background-tertiary transition-colors text-foreground-secondary text-[10px] font-bold uppercase tracking-wider"
+              aria-label="Toggle language"
+            >
+              {language === "es" ? "EN" : "ES"}
+            </button>
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-background-tertiary transition-colors text-foreground-secondary"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
 
         {/* Navigation */}
@@ -133,7 +147,7 @@ export function AppSidebar() {
               const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + "/");
               return (
                 <Link
-                  key={item.title}
+                  key={item.titleKey}
                   to={item.url}
                   data-tour={item.tourId}
                   className={`relative flex h-9 items-center gap-2.5 rounded-md px-3 text-sm font-medium transition-colors ${
@@ -146,7 +160,7 @@ export function AppSidebar() {
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-accent" />
                   )}
                   <item.icon className="h-4 w-4 shrink-0" />
-                  <span>{item.title}</span>
+                  <span>{t(item.titleKey)}</span>
                   {item.url === "/hub" && unreadCount > 0 && (
                     <span className="ml-auto flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1">
                       {unreadCount}

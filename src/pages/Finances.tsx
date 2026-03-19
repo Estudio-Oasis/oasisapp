@@ -12,6 +12,7 @@ import {
 import { Loader2, DollarSign, TrendingUp, AlertTriangle, CheckCircle, Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useRole } from "@/hooks/useRole";
 import {
   Bar,
@@ -86,6 +87,7 @@ const STATUS_LABELS: Record<string, string> = {
 export default function FinancesPage() {
   const { isAdmin, loading: roleLoading } = useRole();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
   const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
@@ -255,7 +257,7 @@ export default function FinancesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-h1 text-foreground">Finanzas</h1>
+        <h1 className="text-h1 text-foreground">{t("finances.title")}</h1>
       </div>
 
       {/* Stats */}

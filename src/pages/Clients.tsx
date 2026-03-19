@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useRole } from "@/hooks/useRole";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Users, ChevronRight } from "lucide-react";
@@ -31,11 +32,12 @@ const frequencyLabel: Record<string, string> = {
 };
 
 function CompletenessPill({ score }: { score: number }) {
+  const { t } = useLanguage();
   const level = getCompletenessLevel(score);
   const config = {
-    complete: { bg: "bg-success-light", text: "text-success", label: "Completo" },
-    incomplete: { bg: "bg-accent-light", text: "text-accent-foreground", label: "Incompleto" },
-    critical: { bg: "bg-destructive-light", text: "text-destructive", label: "Crítico" },
+    complete: { bg: "bg-success-light", text: "text-success", label: t("clients.completeness.complete") },
+    incomplete: { bg: "bg-accent-light", text: "text-accent-foreground", label: t("clients.completeness.incomplete") },
+    critical: { bg: "bg-destructive-light", text: "text-destructive", label: t("clients.completeness.critical") },
   }[level];
 
   return (
@@ -49,6 +51,7 @@ function CompletenessPill({ score }: { score: number }) {
 export default function ClientsPage() {
   const navigate = useNavigate();
   const { isAdmin } = useRole();
+  const { t } = useLanguage();
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -84,20 +87,20 @@ export default function ClientsPage() {
   const incompleteCount = clients.filter((c) => (c.completeness_score ?? 0) < 80).length;
 
   const filters: { key: typeof filter; label: string }[] = [
-    { key: "all", label: "Todos" },
-    { key: "active", label: "Activos" },
-    { key: "inactive", label: "Inactivos" },
-    { key: "incomplete", label: "Incompletos" },
+    { key: "all", label: t("common.all") },
+    { key: "active", label: t("common.active") },
+    { key: "inactive", label: t("common.inactive") },
+    { key: "incomplete", label: t("clients.incomplete") },
   ];
 
   return (
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-h1 text-foreground">Clientes</h1>
+        <h1 className="text-h1 text-foreground">{t("clients.title")}</h1>
         <Button onClick={() => setModalOpen(true)}>
           <Plus className="h-4 w-4" />
-          Nuevo cliente
+          {t("clients.newClient")}
         </Button>
       </div>
 
@@ -105,18 +108,18 @@ export default function ClientsPage() {
       <div className={`grid grid-cols-1 ${isAdmin ? "sm:grid-cols-3" : "sm:grid-cols-1"} gap-4 mb-6`}>
         <div className="border border-border rounded-lg p-5">
           <p className="text-h1 text-foreground">{activeClients.length}</p>
-          <p className="text-small text-foreground-secondary">Clientes activos</p>
+          <p className="text-small text-foreground-secondary">{t("clients.activeClients")}</p>
         </div>
         {isAdmin && (
           <div className="border border-border rounded-lg p-5">
             <p className="text-h1 text-foreground">${totalMRR.toLocaleString()}</p>
-            <p className="text-small text-foreground-secondary">Ingreso mensual recurrente</p>
+            <p className="text-small text-foreground-secondary">{t("clients.mrr")}</p>
           </div>
         )}
         {isAdmin && (
           <div className="border border-border rounded-lg p-5">
             <p className="text-h1 text-foreground">{incompleteCount}</p>
-            <p className="text-small text-foreground-secondary">Perfiles incompletos</p>
+            <p className="text-small text-foreground-secondary">{t("clients.incompleteProfiles")}</p>
           </div>
         )}
       </div>
@@ -128,7 +131,7 @@ export default function ClientsPage() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar clientes..."
+            placeholder={t("clients.searchPlaceholder")}
             className="pl-9"
           />
         </div>
@@ -151,15 +154,15 @@ export default function ClientsPage() {
 
       {/* List */}
       {loading ? (
-        <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Cargando...</div>
+        <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">{t("common.loading")}</div>
       ) : filtered.length === 0 && clients.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <Users className="h-12 w-12 text-border mb-4" />
-          <h2 className="text-h3 text-foreground">Aún no hay clientes</h2>
-          <p className="text-sm text-foreground-secondary mt-2">Agrega tu primer cliente para empezar a registrar tiempo e ingresos.</p>
+          <h2 className="text-h3 text-foreground">{t("clients.noClients")}</h2>
+          <p className="text-sm text-foreground-secondary mt-2">{t("clients.addFirst")}</p>
           <Button onClick={() => setModalOpen(true)} className="mt-4">
             <Plus className="h-4 w-4" />
-            Nuevo cliente
+            {t("clients.newClient")}
           </Button>
         </div>
       ) : filtered.length === 0 ? (

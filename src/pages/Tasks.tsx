@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NewTaskModal } from "@/components/NewTaskModal";
@@ -29,6 +30,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function TasksPage() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [clients, setClients] = useState<ClientInfo[]>([]);
   const [assignees, setAssignees] = useState<Record<string, AssigneeInfo>>({});
@@ -85,12 +87,12 @@ export default function TasksPage() {
   });
 
   const stats = [
-    { label: "Backlog", value: tasks.filter((t) => t.status === "backlog").length, color: "text-foreground-muted" },
-    { label: "Por hacer", value: tasks.filter((t) => t.status === "todo").length, color: "text-foreground-secondary" },
-    { label: "En progreso", value: tasks.filter((t) => t.status === "in_progress").length, color: "text-accent" },
-    { label: "Revisión", value: tasks.filter((t) => t.status === "review").length, color: "text-foreground-secondary" },
-    { label: "Listo", value: tasks.filter((t) => t.status === "done").length, color: "text-success" },
-    { label: "Vencidas", value: tasks.filter((t) => t.due_date && new Date(t.due_date) < today && t.status !== "done").length, danger: true },
+    { label: t("tasks.backlog"), value: tasks.filter((t2) => t2.status === "backlog").length, color: "text-foreground-muted" },
+    { label: t("tasks.todo"), value: tasks.filter((t2) => t2.status === "todo").length, color: "text-foreground-secondary" },
+    { label: t("tasks.inProgress"), value: tasks.filter((t2) => t2.status === "in_progress").length, color: "text-accent" },
+    { label: t("tasks.review"), value: tasks.filter((t2) => t2.status === "review").length, color: "text-foreground-secondary" },
+    { label: t("tasks.done"), value: tasks.filter((t2) => t2.status === "done").length, color: "text-success" },
+    { label: t("tasks.overdue"), value: tasks.filter((t2) => t2.due_date && new Date(t2.due_date) < today && t2.status !== "done").length, danger: true },
   ];
 
   const cycleStatus = async (task: Task) => {
@@ -118,9 +120,9 @@ export default function TasksPage() {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-h1 text-foreground">Tareas</h1>
+        <h1 className="text-h1 text-foreground">{t("tasks.title")}</h1>
         <Button data-tour="new-task-btn" onClick={() => { setNewTaskPrefillStatus(undefined); setNewTaskOpen(true); }}>
-          <Plus className="h-4 w-4" /> Nueva tarea
+          <Plus className="h-4 w-4" /> {t("tasks.newTask")}
         </Button>
       </div>
 
@@ -137,7 +139,7 @@ export default function TasksPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <Input
-          placeholder="Buscar tareas..."
+          placeholder={t("tasks.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="sm:w-[280px]"
@@ -153,7 +155,7 @@ export default function TasksPage() {
                   : "border border-border text-foreground-secondary hover:bg-background-secondary"
               }`}
             >
-              {s === "all" ? "Todas" : STATUS_LABELS[s]}
+              {s === "all" ? t("tasks.allStatuses") : STATUS_LABELS[s]}
             </button>
           ))}
         </div>
@@ -163,7 +165,7 @@ export default function TasksPage() {
             value={clientFilter}
             onChange={(e) => setClientFilter(e.target.value)}
           >
-            <option value="all">Todos los clientes</option>
+            <option value="all">{t("tasks.allClients")}</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
           <div className="flex border border-border rounded-md">
@@ -196,8 +198,8 @@ export default function TasksPage() {
       {tasks.length === 0 ? (
         <div className="flex flex-col items-center py-12 text-center">
           <CheckSquare className="h-12 w-12 text-border mb-4" />
-          <p className="text-lg font-semibold text-foreground">Aún no hay tareas</p>
-          <p className="text-sm text-foreground-secondary mt-1">Crea tu primera tarea para empezar a organizar tu trabajo.</p>
+          <p className="text-lg font-semibold text-foreground">{t("tasks.noTasks")}</p>
+          <p className="text-sm text-foreground-secondary mt-1">{t("tasks.addFirst")}</p>
           <Button className="mt-4" onClick={() => setNewTaskOpen(true)}>
             <Plus className="h-4 w-4" /> Nueva tarea
           </Button>
