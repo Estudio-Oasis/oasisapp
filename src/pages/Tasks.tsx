@@ -120,9 +120,9 @@ export default function TasksPage() {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-h1 text-foreground">Tareas</h1>
+        <h1 className="text-h1 text-foreground">{t("tasks.title")}</h1>
         <Button data-tour="new-task-btn" onClick={() => { setNewTaskPrefillStatus(undefined); setNewTaskOpen(true); }}>
-          <Plus className="h-4 w-4" /> Nueva tarea
+          <Plus className="h-4 w-4" /> {t("tasks.newTask")}
         </Button>
       </div>
 
