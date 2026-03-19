@@ -49,8 +49,7 @@ export function MemberBubble({ name, avatarUrl, status, statusLabel, currentClie
     <button
       onClick={onClick}
       className={cn(
-        "flex flex-col items-center gap-2 w-20 group",
-        isMe ? "cursor-default" : "cursor-pointer"
+        "flex flex-col items-center gap-2 w-20 group cursor-pointer"
       )}
     >
       {/* Avatar */}
