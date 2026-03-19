@@ -46,6 +46,7 @@ export function AppSidebar() {
   const { isAdmin, loading: roleLoading } = useRole();
   const { theme, setTheme } = useTheme();
   const { unreadCount } = useUnreadChats();
+  const { language, setLanguage, t } = useLanguage();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
