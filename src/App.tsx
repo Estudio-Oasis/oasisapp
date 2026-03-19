@@ -35,6 +35,7 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <LanguageProvider>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
