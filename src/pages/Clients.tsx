@@ -87,10 +87,10 @@ export default function ClientsPage() {
   const incompleteCount = clients.filter((c) => (c.completeness_score ?? 0) < 80).length;
 
   const filters: { key: typeof filter; label: string }[] = [
-    { key: "all", label: "Todos" },
-    { key: "active", label: "Activos" },
-    { key: "inactive", label: "Inactivos" },
-    { key: "incomplete", label: "Incompletos" },
+    { key: "all", label: t("common.all") },
+    { key: "active", label: t("common.active") },
+    { key: "inactive", label: t("common.inactive") },
+    { key: "incomplete", label: t("clients.incomplete") },
   ];
 
   return (
