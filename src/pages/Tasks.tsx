@@ -198,8 +198,8 @@ export default function TasksPage() {
       {tasks.length === 0 ? (
         <div className="flex flex-col items-center py-12 text-center">
           <CheckSquare className="h-12 w-12 text-border mb-4" />
-          <p className="text-lg font-semibold text-foreground">Aún no hay tareas</p>
-          <p className="text-sm text-foreground-secondary mt-1">Crea tu primera tarea para empezar a organizar tu trabajo.</p>
+          <p className="text-lg font-semibold text-foreground">{t("tasks.noTasks")}</p>
+          <p className="text-sm text-foreground-secondary mt-1">{t("tasks.addFirst")}</p>
           <Button className="mt-4" onClick={() => setNewTaskOpen(true)}>
             <Plus className="h-4 w-4" /> Nueva tarea
           </Button>
