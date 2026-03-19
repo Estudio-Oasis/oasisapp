@@ -257,7 +257,7 @@ export default function FinancesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-h1 text-foreground">Finanzas</h1>
+        <h1 className="text-h1 text-foreground">{t("finances.title")}</h1>
       </div>
 
       {/* Stats */}
