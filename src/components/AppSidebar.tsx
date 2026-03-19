@@ -147,7 +147,7 @@ export function AppSidebar() {
               const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + "/");
               return (
                 <Link
-                  key={item.title}
+                  key={item.titleKey}
                   to={item.url}
                   data-tour={item.tourId}
                   className={`relative flex h-9 items-center gap-2.5 rounded-md px-3 text-sm font-medium transition-colors ${
