@@ -32,11 +32,12 @@ const frequencyLabel: Record<string, string> = {
 };
 
 function CompletenessPill({ score }: { score: number }) {
+  const { t } = useLanguage();
   const level = getCompletenessLevel(score);
   const config = {
-    complete: { bg: "bg-success-light", text: "text-success", label: "Completo" },
-    incomplete: { bg: "bg-accent-light", text: "text-accent-foreground", label: "Incompleto" },
-    critical: { bg: "bg-destructive-light", text: "text-destructive", label: "Crítico" },
+    complete: { bg: "bg-success-light", text: "text-success", label: t("clients.completeness.complete") },
+    incomplete: { bg: "bg-accent-light", text: "text-accent-foreground", label: t("clients.completeness.incomplete") },
+    critical: { bg: "bg-destructive-light", text: "text-destructive", label: t("clients.completeness.critical") },
   }[level];
 
   return (
