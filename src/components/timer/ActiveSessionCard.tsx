@@ -4,6 +4,7 @@ import {
   getActivityConfig,
   UI_COPY,
 } from "./ActivityConstants";
+import { InlineEditableText } from "@/components/ui/inline-editable-text";
 
 interface ActiveSessionCardProps {
   variant: "compact" | "mobile" | "expanded";
@@ -12,6 +13,7 @@ interface ActiveSessionCardProps {
   description?: string | null;
   clientId?: string | null;
   elapsedSeconds: number;
+  onDescriptionChange?: (newDesc: string) => void;
   children?: React.ReactNode;
 }
 
@@ -22,6 +24,7 @@ export function ActiveSessionCard({
   description,
   clientId,
   elapsedSeconds,
+  onDescriptionChange,
   children,
 }: ActiveSessionCardProps) {
   const activityType = getNormalizedActivityType({ description, client_id: clientId });
@@ -29,7 +32,7 @@ export function ActiveSessionCard({
   const Icon = config.icon;
 
   const displayName = clientName || description || UI_COPY.sessionNoClient;
-  const displayTask = taskTitle || UI_COPY.sessionNoTask;
+  const displayTask = taskTitle;
 
   if (variant === "compact") {
     return (
@@ -48,9 +51,11 @@ export function ActiveSessionCard({
             {formatElapsed(elapsedSeconds)}
           </span>
         </div>
-        <p className="text-[11px] text-foreground-secondary truncate" style={{ lineHeight: "1.4" }}>
-          {displayTask}
-        </p>
+        {displayTask && (
+          <p className="text-[11px] text-foreground-secondary truncate" style={{ lineHeight: "1.4" }}>
+            {displayTask}
+          </p>
+        )}
         {children}
       </div>
     );
@@ -63,7 +68,17 @@ export function ActiveSessionCard({
           <div className="h-2.5 w-2.5 rounded-full animate-pulse" style={{ backgroundColor: config.color }} />
           <span className="text-micro text-accent uppercase tracking-wider">{UI_COPY.sessionActive}</span>
         </div>
-        <p className="text-h3 text-foreground">{displayName}</p>
+        {onDescriptionChange ? (
+          <InlineEditableText
+            value={description || ""}
+            onSave={onDescriptionChange}
+            placeholder="Añadir descripción..."
+            className="text-h3 text-foreground justify-center"
+            inputClassName="text-h3 text-center"
+          />
+        ) : (
+          <p className="text-h3 text-foreground">{displayName}</p>
+        )}
         <div className="flex items-center justify-center gap-1.5 text-foreground-secondary">
           <Icon className="h-3.5 w-3.5" />
           <span className="text-small">{config.label}</span>
@@ -92,7 +107,17 @@ export function ActiveSessionCard({
           </div>
           <p className="text-h2 text-accent tabular-nums">{formatElapsed(elapsedSeconds)}</p>
         </div>
-        <p className="text-h3 text-foreground truncate">{displayName}</p>
+        {onDescriptionChange ? (
+          <InlineEditableText
+            value={description || ""}
+            onSave={onDescriptionChange}
+            placeholder="Añadir descripción..."
+            className="text-h3 text-foreground"
+            inputClassName="text-h3"
+          />
+        ) : (
+          <p className="text-h3 text-foreground truncate">{displayName}</p>
+        )}
         <div className="flex items-center gap-1.5 text-foreground-secondary flex-wrap">
           <Icon className="h-3.5 w-3.5 shrink-0" />
           <span className="text-sm">{config.label}</span>
