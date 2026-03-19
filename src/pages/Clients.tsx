@@ -108,7 +108,7 @@ export default function ClientsPage() {
       <div className={`grid grid-cols-1 ${isAdmin ? "sm:grid-cols-3" : "sm:grid-cols-1"} gap-4 mb-6`}>
         <div className="border border-border rounded-lg p-5">
           <p className="text-h1 text-foreground">{activeClients.length}</p>
-          <p className="text-small text-foreground-secondary">Clientes activos</p>
+          <p className="text-small text-foreground-secondary">{t("clients.activeClients")}</p>
         </div>
         {isAdmin && (
           <div className="border border-border rounded-lg p-5">
