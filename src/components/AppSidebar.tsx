@@ -160,7 +160,7 @@ export function AppSidebar() {
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-accent" />
                   )}
                   <item.icon className="h-4 w-4 shrink-0" />
-                  <span>{item.title}</span>
+                  <span>{t(item.titleKey)}</span>
                   {item.url === "/hub" && unreadCount > 0 && (
                     <span className="ml-auto flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1">
                       {unreadCount}
