@@ -31,12 +31,12 @@ export function calculateCompleteness(client: ClientFields): number {
 export function getMissingFields(client: ClientFields): string[] {
   const missing: string[] = [];
 
-  if (!client.email && !client.phone) missing.push("Email or phone");
-  if (!client.monthly_rate || client.monthly_rate <= 0) missing.push("Monthly rate");
-  if (!client.contact_name) missing.push("Contact name");
-  if (!client.payment_method) missing.push("Payment method");
-  if (!client.communication_channel) missing.push("Communication channel");
-  if (!client.billing_entity) missing.push("Billing entity");
+  if (!client.email && !client.phone) missing.push("Correo o teléfono");
+  if (!client.monthly_rate || client.monthly_rate <= 0) missing.push("Tarifa mensual");
+  if (!client.contact_name) missing.push("Nombre de contacto");
+  if (!client.payment_method) missing.push("Método de pago");
+  if (!client.communication_channel) missing.push("Canal de comunicación");
+  if (!client.billing_entity) missing.push("Entidad de facturación");
 
   return missing;
 }

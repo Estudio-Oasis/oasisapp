@@ -60,10 +60,10 @@ export function InlineNewClient({ prefillName, onCreated, onCancel }: InlineNewC
         .select()
         .single();
       if (error || !data) {
-        toast.error("Failed to create client");
+        toast.error("Error al crear el cliente");
         return;
       }
-      toast.success(`Client "${data.name}" created`);
+      toast.success(`Cliente "${data.name}" creado`);
       onCreated(data);
     } finally {
       setSaving(false);
@@ -73,7 +73,7 @@ export function InlineNewClient({ prefillName, onCreated, onCancel }: InlineNewC
   return (
     <div className="bg-background-secondary border border-border rounded-xl p-4 mt-2 flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-foreground">New client</span>
+        <span className="text-sm font-semibold text-foreground">Nuevo cliente</span>
         <button
           onClick={onCancel}
           className="h-6 w-6 flex items-center justify-center rounded text-foreground-muted hover:text-foreground"
@@ -82,16 +82,16 @@ export function InlineNewClient({ prefillName, onCreated, onCancel }: InlineNewC
         </button>
       </div>
       <div>
-        <label className="text-label mb-1 block">Name *</label>
+        <label className="text-label mb-1 block">Nombre *</label>
         <Input value={name} onChange={(e) => setName(e.target.value)} autoFocus />
       </div>
       <div>
-        <label className="text-label mb-1 block">Email</label>
+        <label className="text-label mb-1 block">Correo</label>
         <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" />
       </div>
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-label mb-1 block">Monthly rate</label>
+          <label className="text-label mb-1 block">Tarifa mensual</label>
           <Input
             value={monthlyRate}
             onChange={(e) => setMonthlyRate(e.target.value)}
@@ -100,7 +100,7 @@ export function InlineNewClient({ prefillName, onCreated, onCancel }: InlineNewC
           />
         </div>
         <div>
-          <label className="text-label mb-1 block">Currency</label>
+          <label className="text-label mb-1 block">Moneda</label>
           <Select value={currency} onValueChange={setCurrency}>
             <SelectTrigger>
               <SelectValue />
@@ -116,10 +116,10 @@ export function InlineNewClient({ prefillName, onCreated, onCancel }: InlineNewC
       </div>
       <div className="flex gap-2">
         <Button variant="secondary" size="sm" onClick={onCancel} className="flex-1">
-          Cancel
+          Cancelar
         </Button>
         <Button size="sm" onClick={handleCreate} disabled={!name.trim() || saving} className="flex-1">
-          {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Create & select →"}
+          {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Crear y seleccionar →"}
         </Button>
       </div>
     </div>

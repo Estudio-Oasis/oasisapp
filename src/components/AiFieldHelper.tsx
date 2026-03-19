@@ -38,7 +38,7 @@ export function AiFieldHelper({ action, context, onResult, label, readOnly = fal
       const r = await callAiFieldHelper(action, context);
       setResult(r);
     } catch {
-      setResult("Failed to get AI suggestion.");
+      setResult("No se pudo obtener la sugerencia de IA.");
     } finally {
       setLoading(false);
     }
@@ -50,7 +50,7 @@ export function AiFieldHelper({ action, context, onResult, label, readOnly = fal
         type="button"
         onClick={handleClick}
         className="inline-flex items-center gap-0.5 text-foreground-muted hover:text-accent transition-colors"
-        title={label || "AI helper"}
+        title={label || "Asistente IA"}
       >
         <Sparkles className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
       </button>
@@ -61,7 +61,7 @@ export function AiFieldHelper({ action, context, onResult, label, readOnly = fal
           className="absolute top-full left-0 mt-1 z-50 w-[280px] bg-background border border-border rounded-lg p-3 shadow-md"
         >
           <div className="flex items-start justify-between gap-2 mb-2">
-            <span className="text-micro text-foreground-muted">{label || "AI suggestion"}</span>
+            <span className="text-micro text-foreground-muted">{label || "Sugerencia IA"}</span>
             <button onClick={() => setOpen(false)} className="text-foreground-muted hover:text-foreground">
               <X className="h-3 w-3" />
             </button>
@@ -69,7 +69,7 @@ export function AiFieldHelper({ action, context, onResult, label, readOnly = fal
 
           {loading ? (
             <div className="flex items-center gap-2 py-3 text-sm text-foreground-secondary">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Thinking...
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Pensando...
             </div>
           ) : (
             <>
@@ -84,7 +84,7 @@ export function AiFieldHelper({ action, context, onResult, label, readOnly = fal
                     setOpen(false);
                   }}
                 >
-                  Use this
+                  Usar esto
                 </Button>
               )}
             </>
