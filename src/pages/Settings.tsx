@@ -33,6 +33,7 @@ export interface Agency {
 
 export default function Settings() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { isFree } = usePlan();
   const [agency, setAgency] = useState<Agency | null>(null);
   const [loading, setLoading] = useState(true);
