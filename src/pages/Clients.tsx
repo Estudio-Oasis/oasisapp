@@ -113,7 +113,7 @@ export default function ClientsPage() {
         {isAdmin && (
           <div className="border border-border rounded-lg p-5">
             <p className="text-h1 text-foreground">${totalMRR.toLocaleString()}</p>
-            <p className="text-small text-foreground-secondary">Ingreso mensual recurrente</p>
+            <p className="text-small text-foreground-secondary">{t("clients.mrr")}</p>
           </div>
         )}
         {isAdmin && (
