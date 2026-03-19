@@ -98,16 +98,16 @@ export default function Settings() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-h1 text-foreground">Configuración</h1>
+      <h1 className="text-h1 text-foreground">{t("settings.title")}</h1>
       <p className="text-small text-foreground-secondary mt-1">
-        Administra tu equipo, perfil y agencia
+        {t("settings.subtitle")}
       </p>
 
       <Tabs defaultValue="agency" className="mt-6">
         <TabsList className="bg-background-secondary">
-          <TabsTrigger value="agency">Perfil de agencia</TabsTrigger>
-          <TabsTrigger value="members">Miembros</TabsTrigger>
-          <TabsTrigger value="integrations">Integraciones</TabsTrigger>
+          <TabsTrigger value="agency">{t("settings.agencyProfile")}</TabsTrigger>
+          <TabsTrigger value="members">{t("settings.members")}</TabsTrigger>
+          <TabsTrigger value="integrations">{t("settings.integrations")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="agency" className="mt-4">
