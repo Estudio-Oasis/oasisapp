@@ -139,7 +139,7 @@ export default function TasksPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <Input
-          placeholder="Buscar tareas..."
+          placeholder={t("tasks.searchPlaceholder")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="sm:w-[280px]"
