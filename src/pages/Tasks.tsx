@@ -87,12 +87,12 @@ export default function TasksPage() {
   });
 
   const stats = [
-    { label: "Backlog", value: tasks.filter((t) => t.status === "backlog").length, color: "text-foreground-muted" },
-    { label: "Por hacer", value: tasks.filter((t) => t.status === "todo").length, color: "text-foreground-secondary" },
-    { label: "En progreso", value: tasks.filter((t) => t.status === "in_progress").length, color: "text-accent" },
-    { label: "Revisión", value: tasks.filter((t) => t.status === "review").length, color: "text-foreground-secondary" },
-    { label: "Listo", value: tasks.filter((t) => t.status === "done").length, color: "text-success" },
-    { label: "Vencidas", value: tasks.filter((t) => t.due_date && new Date(t.due_date) < today && t.status !== "done").length, danger: true },
+    { label: t("tasks.backlog"), value: tasks.filter((t2) => t2.status === "backlog").length, color: "text-foreground-muted" },
+    { label: t("tasks.todo"), value: tasks.filter((t2) => t2.status === "todo").length, color: "text-foreground-secondary" },
+    { label: t("tasks.inProgress"), value: tasks.filter((t2) => t2.status === "in_progress").length, color: "text-accent" },
+    { label: t("tasks.review"), value: tasks.filter((t2) => t2.status === "review").length, color: "text-foreground-secondary" },
+    { label: t("tasks.done"), value: tasks.filter((t2) => t2.status === "done").length, color: "text-success" },
+    { label: t("tasks.overdue"), value: tasks.filter((t2) => t2.due_date && new Date(t2.due_date) < today && t2.status !== "done").length, danger: true },
   ];
 
   const cycleStatus = async (task: Task) => {
