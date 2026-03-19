@@ -123,7 +123,6 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
               </div>
             </>
           ) : hideQuickLog ? null : (
-          ) : hideQuickLog ? null : (
             <div className="space-y-3">
               <QuickLogInput
                 onClick={() => {
