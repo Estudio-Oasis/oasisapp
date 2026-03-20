@@ -190,7 +190,7 @@ export default function ClientProfilePage() {
     <div>
       <button onClick={() => navigate("/clients")} className="flex items-center gap-1.5 text-sm text-foreground-secondary hover:text-foreground mb-4">
         <ArrowLeft className="h-4 w-4" />
-        Clients
+        Clientes
       </button>
 
       <div className={`flex flex-col ${tab === "overview" ? "lg:flex-row" : ""} gap-6`}>
