@@ -404,7 +404,7 @@ export default function ClientProfilePage() {
             </div>
 
             <div className="border border-border rounded-lg p-5">
-              <p className="text-micro text-foreground-muted mb-3">Contact</p>
+              <p className="text-micro text-foreground-muted mb-3">Contacto</p>
               <div className="flex flex-col gap-2 text-sm">
                 {client.contact_name && <p><span className="text-foreground-secondary">Contact:</span> {client.contact_name}</p>}
                 {client.email && <p><span className="text-foreground-secondary">Email:</span> {client.email}</p>}
