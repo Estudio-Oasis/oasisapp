@@ -119,10 +119,18 @@ export function MemberActivityDrawer({
 
   if (!profile) return null;
 
-  const totalMinutes = entries.reduce((sum, e) => sum + (Number(e.duration_min) || 0), 0);
+  const totalMinutes = entries.reduce((sum, e) => {
+    const min = e.ended_at
+      ? (Number(e.duration_min) || 0)
+      : Math.round((Date.now() - new Date(e.started_at).getTime()) / 60000);
+    return sum + min;
+  }, 0);
   const productiveMin = entries.reduce((sum, e) => {
     const actType = getNormalizedActivityType({ description: e.description, client_id: e.client_id });
-    return actType === "break" || actType === "comida" || actType === "ausente" || actType === "offline" ? sum : sum + (Number(e.duration_min) || 0);
+    const min = e.ended_at
+      ? (Number(e.duration_min) || 0)
+      : Math.round((Date.now() - new Date(e.started_at).getTime()) / 60000);
+    return actType === "break" || actType === "comida" || actType === "ausente" || actType === "offline" ? sum : sum + min;
   }, 0);
   const breakMin = totalMinutes - productiveMin;
 
