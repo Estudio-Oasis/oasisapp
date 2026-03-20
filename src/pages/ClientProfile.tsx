@@ -406,11 +406,11 @@ export default function ClientProfilePage() {
             <div className="border border-border rounded-lg p-5">
               <p className="text-micro text-foreground-muted mb-3">Contacto</p>
               <div className="flex flex-col gap-2 text-sm">
-                {client.contact_name && <p><span className="text-foreground-secondary">Contact:</span> {client.contact_name}</p>}
-                {client.email && <p><span className="text-foreground-secondary">Email:</span> {client.email}</p>}
-                {client.phone && <p><span className="text-foreground-secondary">Phone:</span> {client.phone}</p>}
+                {client.contact_name && <p><span className="text-foreground-secondary">Contacto:</span> {client.contact_name}</p>}
+                {client.email && <p><span className="text-foreground-secondary">Correo:</span> {client.email}</p>}
+                {client.phone && <p><span className="text-foreground-secondary">Teléfono:</span> {client.phone}</p>}
                 {client.website && <p><span className="text-foreground-secondary">Web:</span> <a href={client.website} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{client.website}</a></p>}
-                {client.communication_channel && <p><span className="text-foreground-secondary">Channel:</span> {client.communication_channel}</p>}
+                {client.communication_channel && <p><span className="text-foreground-secondary">Canal:</span> {client.communication_channel}</p>}
               </div>
             </div>
 
