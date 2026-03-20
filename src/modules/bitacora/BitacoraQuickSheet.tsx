@@ -9,8 +9,6 @@ import {
   Coffee,
   Utensils,
   ListTodo,
-  ChevronDown,
-  ChevronUp,
   Mic,
   MicOff,
   Check,
@@ -53,7 +51,6 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
 
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showContext, setShowContext] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedActivityType, setSelectedActivityType] = useState<string | null>(null);
@@ -69,7 +66,6 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
   useEffect(() => {
     if (open) {
       setText("");
-      setShowContext(false);
       setSelectedClientId(null);
       setSelectedProjectId(null);
       setSelectedActivityType(null);
@@ -184,6 +180,24 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
           <div className="h-1 w-10 rounded-full bg-foreground/15" />
         </div>
 
+        {/* Quick Actions — above the input */}
+        <div className="flex gap-1.5 mb-3">
+          {QUICK_ACTIONS.map((action) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.key}
+                onClick={() => handleQuickAction(action)}
+                disabled={loading}
+                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-background-secondary py-2.5 text-[11px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background-tertiary transition-colors active:scale-[0.97] disabled:opacity-50"
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {action.label}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Input */}
         <div className="space-y-2">
           <div className="relative">
@@ -259,65 +273,31 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
           />
         </div>
 
-        {/* Quick Actions */}
-        <div className="flex gap-1.5 mt-3">
-          {QUICK_ACTIONS.map((action) => {
-            const Icon = action.icon;
-            return (
-              <button
-                key={action.key}
-                onClick={() => handleQuickAction(action)}
-                disabled={loading}
-                className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-background-secondary py-2.5 text-[11px] font-medium text-foreground-secondary hover:text-foreground hover:bg-background-tertiary transition-colors active:scale-[0.97] disabled:opacity-50"
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {action.label}
-              </button>
-            );
-          })}
+        {/* Details — always visible, no collapsible toggle */}
+        <div className="mt-3 px-1">
+          <ActivityDetailsPanel
+            clients={clients}
+            projects={projects}
+            selectedClientId={selectedClientId}
+            selectedProjectId={selectedProjectId}
+            selectedActivityType={selectedActivityType}
+            isBillable={isBillable}
+            notes={notes}
+            onClientChange={setSelectedClientId}
+            onProjectChange={(id) => {
+              setSelectedProjectId(id);
+              if (id) {
+                const project = projects.find((p) => p.id === id);
+                if (project) setSelectedClientId(project.clientId);
+              }
+            }}
+            onActivityTypeChange={setSelectedActivityType}
+            onBillableChange={setIsBillable}
+            onNotesChange={setNotes}
+            onClientCreated={() => bita.refreshClients()}
+            onProjectCreated={() => bita.refreshProjects()}
+          />
         </div>
-
-        {/* Añadir detalles */}
-        <button
-          onClick={() => setShowContext(!showContext)}
-          className="flex items-center gap-1 mt-3 px-1 text-[11px] font-medium text-foreground-muted hover:text-foreground-secondary transition-colors"
-        >
-          {showContext ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-          Añadir detalles
-          {(selectedProjectId || selectedClientId) && <span className="text-accent ml-1">·</span>}
-          {selectedProjectId && (
-            <span className="text-accent text-[10px]">
-              {projects.find((p) => p.id === selectedProjectId)?.name}
-            </span>
-          )}
-        </button>
-
-        {showContext && (
-          <div className="mt-2 px-1">
-            <ActivityDetailsPanel
-              clients={clients}
-              projects={projects}
-              selectedClientId={selectedClientId}
-              selectedProjectId={selectedProjectId}
-              selectedActivityType={selectedActivityType}
-              isBillable={isBillable}
-              notes={notes}
-              onClientChange={setSelectedClientId}
-              onProjectChange={(id) => {
-                setSelectedProjectId(id);
-                if (id) {
-                  const project = projects.find((p) => p.id === id);
-                  if (project) setSelectedClientId(project.clientId);
-                }
-              }}
-              onActivityTypeChange={setSelectedActivityType}
-              onBillableChange={setIsBillable}
-              onNotesChange={setNotes}
-              onClientCreated={() => bita.refreshClients()}
-              onProjectCreated={() => bita.refreshProjects()}
-            />
-          </div>
-        )}
 
         {/* Recents */}
         {recents.length > 0 && (
