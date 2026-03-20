@@ -285,7 +285,7 @@ export default function ClientProfilePage() {
                         <RateBreakdown monthlyRate={client.monthly_rate} paymentFrequency={client.payment_frequency || "monthly"} currency={client.currency} />
                       </>
                     ) : (
-                      <p className="text-sm text-foreground-muted">Not set</p>
+                      <p className="text-sm text-foreground-muted">Sin definir</p>
                     )}
                     {client.payment_method && <p className="text-small text-foreground-secondary mt-1">via {client.payment_method}</p>}
                   </div>
