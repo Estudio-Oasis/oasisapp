@@ -302,7 +302,7 @@ export default function ClientProfilePage() {
               </div>
               {client.notes && (
                 <div className="border border-border rounded-lg p-5">
-                  <p className="text-micro text-foreground-muted mb-2">Notes</p>
+                  <p className="text-micro text-foreground-muted mb-2">Notas</p>
                   <p className="text-sm text-foreground whitespace-pre-wrap">{client.notes}</p>
                 </div>
               )}
