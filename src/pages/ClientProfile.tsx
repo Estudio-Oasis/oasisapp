@@ -184,7 +184,7 @@ export default function ClientProfilePage() {
   const color = getClientColor(client.name);
   const initials = client.name.slice(0, 2).toUpperCase();
 
-  const freqLabel: Record<string, string> = { monthly: "/mo", biweekly: "/2wk", weekly: "/wk", project: "/proj" };
+  const freqLabel: Record<string, string> = { monthly: "/mes", biweekly: "/qna", weekly: "/sem", project: "/proy" };
 
   return (
     <div>
