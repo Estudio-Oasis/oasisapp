@@ -185,11 +185,25 @@ export function ActivityDetailsPanel({
 
   const handleCreateProject = async () => {
     if (!newProjectName.trim() || !selectedClientId) return;
+    const trimmedName = newProjectName.trim();
+
+    // Duplicate prevention
+    const existingLocal = projects.find(
+      (p) => p.clientId === selectedClientId && p.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (existingLocal) {
+      onProjectChange(existingLocal.id);
+      toast.info(`"${existingLocal.name}" ya existe. Seleccionado.`);
+      setNewProjectName("");
+      setShowNewProject(false);
+      return;
+    }
+
     setCreatingProject(true);
     try {
       const { data: newProj, error } = await supabase
         .from("projects")
-        .insert({ name: newProjectName.trim(), client_id: selectedClientId })
+        .insert({ name: trimmedName, client_id: selectedClientId })
         .select("id, name, client_id")
         .single();
       if (error) throw error;

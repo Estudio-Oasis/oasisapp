@@ -92,7 +92,6 @@ export function MemberActivityDrawer({
       .from("time_entries")
       .select("*, clients(name), tasks(title), projects(name)")
       .eq("user_id", profile.id)
-      .not("ended_at", "is", null)
       .gte("started_at", start.toISOString())
       .lte("started_at", end.toISOString())
       .order("started_at", { ascending: false });
