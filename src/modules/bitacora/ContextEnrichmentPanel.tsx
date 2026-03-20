@@ -167,6 +167,8 @@ export function ContextEnrichmentPanel() {
             showActivityType={false}
             showBillable={false}
             showNotes={false}
+            onClientCreated={() => refreshClients()}
+            onProjectCreated={() => refreshProjects()}
           />
         </div>
       )}
