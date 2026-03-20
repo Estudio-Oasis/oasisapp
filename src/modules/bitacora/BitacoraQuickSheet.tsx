@@ -10,7 +10,6 @@ import {
   Utensils,
   ListTodo,
   ChevronDown,
-  ChevronUp,
   Mic,
   MicOff,
   Check,
