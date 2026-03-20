@@ -68,7 +68,6 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
   useEffect(() => {
     if (open) {
       setText("");
-      setShowContext(false);
       setSelectedClientId(null);
       setSelectedProjectId(null);
       setSelectedActivityType(null);
