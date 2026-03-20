@@ -291,7 +291,7 @@ export default function ClientProfilePage() {
                   </div>
                 )}
                 <div className="border border-border rounded-lg p-5">
-                  <p className="text-micro text-foreground-muted mb-2">This month</p>
+                  <p className="text-micro text-foreground-muted mb-2">Este mes</p>
                   <p className="text-h2 text-foreground">{stats.monthHours}h</p>
                   {isAdmin && client.monthly_rate && stats.monthHours > 0 && (
                     <p className="text-small text-foreground-secondary mt-1">
