@@ -53,7 +53,6 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
 
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showContext, setShowContext] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedActivityType, setSelectedActivityType] = useState<string | null>(null);
