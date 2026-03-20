@@ -318,9 +318,11 @@ export function MemberActivityDrawer({
                   </div>
                   <div className="text-right shrink-0 flex items-center gap-1.5">
                     <div>
-                      <p className="text-[12px] font-medium text-foreground tabular-nums">{formatDuration(entry.duration_min)}</p>
+                      <p className="text-[12px] font-medium text-foreground tabular-nums">
+                        {entry.ended_at ? formatDuration(entry.duration_min) : formatDuration(Math.round((Date.now() - new Date(entry.started_at).getTime()) / 60000))}
+                      </p>
                       <p className="text-[10px] text-foreground-muted tabular-nums">
-                        {formatTime(entry.started_at)}{entry.ended_at ? ` - ${formatTime(entry.ended_at)}` : ""}
+                        {formatTime(entry.started_at)}{entry.ended_at ? ` - ${formatTime(entry.ended_at)}` : " — En progreso"}
                       </p>
                     </div>
                     <ChevronRight
