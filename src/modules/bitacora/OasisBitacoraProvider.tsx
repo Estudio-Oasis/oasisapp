@@ -65,7 +65,16 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
   const [clients, setClients] = useState<ClientOption[]>([]);
   const [recents, setRecents] = useState<RecentEntry[]>([]);
 
-  useEffect(() => {
+  const loadClients = useCallback(() => {
+    supabase
+      .from("clients")
+      .select("id, name")
+      .eq("status", "active")
+      .order("name")
+      .then(({ data }) => setClients(data || []));
+  }, []);
+
+  const loadProjects = useCallback(() => {
     supabase
       .from("projects")
       .select("id, name, client_id")
@@ -74,13 +83,12 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
       .then(({ data }) =>
         setProjects((data || []).map((p) => ({ id: p.id, name: p.name, clientId: p.client_id })))
       );
-    supabase
-      .from("clients")
-      .select("id, name")
-      .eq("status", "active")
-      .order("name")
-      .then(({ data }) => setClients(data || []));
   }, []);
+
+  useEffect(() => {
+    loadProjects();
+    loadClients();
+  }, [loadProjects, loadClients]);
 
   // Load recents
   const loadRecents = useCallback(async () => {
