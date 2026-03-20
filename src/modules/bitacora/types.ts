@@ -121,6 +121,10 @@ export interface BitacoraProviderValue {
   clients: ClientOption[];
   recents: RecentEntry[];
 
+  // Catalog refresh
+  refreshClients(): void;
+  refreshProjects(): void;
+
   // Config
   config: BitacoraConfig;
 }
