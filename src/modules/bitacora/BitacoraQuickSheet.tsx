@@ -9,7 +9,6 @@ import {
   Coffee,
   Utensils,
   ListTodo,
-  ChevronDown,
   Mic,
   MicOff,
   Check,
