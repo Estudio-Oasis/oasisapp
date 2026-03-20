@@ -256,13 +256,20 @@ export default function ClientProfilePage() {
           {/* Tabs */}
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="bg-transparent border-b border-border rounded-none p-0 h-auto gap-4 flex-wrap">
-              {["Overview", "Time", "Tasks", "Credentials", "Interactions", ...(isAdmin ? ["Finances"] : [])].map((t) => (
+              {[
+                { key: "overview", label: "Resumen" },
+                { key: "time", label: "Tiempo" },
+                { key: "tasks", label: "Tareas" },
+                { key: "credentials", label: "Credenciales" },
+                { key: "interactions", label: "Interacciones" },
+                ...(isAdmin ? [{ key: "finances", label: "Finanzas" }] : []),
+              ].map((t) => (
                 <TabsTrigger
-                  key={t}
-                  value={t.toLowerCase()}
+                  key={t.key}
+                  value={t.key}
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 pb-2 pt-0 text-sm"
                 >
-                  {t}
+                  {t.label}
                 </TabsTrigger>
               ))}
             </TabsList>
