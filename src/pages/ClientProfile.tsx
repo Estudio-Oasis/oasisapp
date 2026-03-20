@@ -166,8 +166,8 @@ export default function ClientProfilePage() {
     fetchProfiles();
   }, [fetchClient, fetchTimeEntries, fetchInteractions, fetchCredentials, fetchProfiles]);
 
-  if (loading) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Loading...</div>;
-  if (!client) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Client not found.</div>;
+  if (loading) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Cargando...</div>;
+  if (!client) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Cliente no encontrado.</div>;
 
   const score = client.completeness_score ?? 0;
   const level = getCompletenessLevel(score);
