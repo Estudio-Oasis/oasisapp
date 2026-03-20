@@ -278,7 +278,7 @@ export default function ClientProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 {isAdmin && (
                   <div className="border border-border rounded-lg p-5">
-                    <p className="text-micro text-foreground-muted mb-2">Rate</p>
+                    <p className="text-micro text-foreground-muted mb-2">Tarifa</p>
                     {client.monthly_rate ? (
                       <>
                         <p className="text-h2 text-foreground">${client.monthly_rate.toLocaleString()}{freqLabel[client.payment_frequency || "monthly"]}</p>
