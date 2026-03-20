@@ -152,6 +152,9 @@ export function MemberActivityDrawer({
       }))
     : [];
 
+  // Active entry for this member (no ended_at)
+  const memberActiveEntry = entries.find((e) => !e.ended_at);
+
   const activeSession: ActiveSession | null =
     status === "working" && currentClient
       ? { startedAt: new Date().toISOString(), description: currentTask, clientName: currentClient, clientId: null }
