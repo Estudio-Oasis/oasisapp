@@ -19,6 +19,8 @@ const BitacoraCtx = createContext<BitacoraProviderValue>({
   projects: [],
   clients: [],
   recents: [],
+  refreshClients: () => {},
+  refreshProjects: () => {},
   config: defaultConfig,
 });
 

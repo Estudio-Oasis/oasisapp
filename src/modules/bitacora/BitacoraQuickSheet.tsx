@@ -313,6 +313,8 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
               onActivityTypeChange={setSelectedActivityType}
               onBillableChange={setIsBillable}
               onNotesChange={setNotes}
+              onClientCreated={() => bita.refreshClients()}
+              onProjectCreated={() => bita.refreshProjects()}
             />
           </div>
         )}

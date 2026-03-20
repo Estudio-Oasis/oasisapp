@@ -166,8 +166,8 @@ export default function ClientProfilePage() {
     fetchProfiles();
   }, [fetchClient, fetchTimeEntries, fetchInteractions, fetchCredentials, fetchProfiles]);
 
-  if (loading) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Loading...</div>;
-  if (!client) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Client not found.</div>;
+  if (loading) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Cargando...</div>;
+  if (!client) return <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">Cliente no encontrado.</div>;
 
   const score = client.completeness_score ?? 0;
   const level = getCompletenessLevel(score);
@@ -184,13 +184,13 @@ export default function ClientProfilePage() {
   const color = getClientColor(client.name);
   const initials = client.name.slice(0, 2).toUpperCase();
 
-  const freqLabel: Record<string, string> = { monthly: "/mo", biweekly: "/2wk", weekly: "/wk", project: "/proj" };
+  const freqLabel: Record<string, string> = { monthly: "/mes", biweekly: "/qna", weekly: "/sem", project: "/proy" };
 
   return (
     <div>
       <button onClick={() => navigate("/clients")} className="flex items-center gap-1.5 text-sm text-foreground-secondary hover:text-foreground mb-4">
         <ArrowLeft className="h-4 w-4" />
-        Clients
+        Clientes
       </button>
 
       <div className={`flex flex-col ${tab === "overview" ? "lg:flex-row" : ""} gap-6`}>
@@ -202,7 +202,7 @@ export default function ClientProfilePage() {
                 <AlertTriangle className={`h-5 w-5 shrink-0 mt-0.5 ${level === "critical" ? "text-destructive" : "text-accent"}`} />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-foreground">
-                    {level === "critical" ? "This client is missing critical information" : "Complete this client's profile to unlock full tracking"}
+                    {level === "critical" ? "Este cliente tiene información incompleta" : "Completa el perfil del cliente para activar el seguimiento completo"}
                   </p>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {missing.map((m) => (
@@ -213,7 +213,7 @@ export default function ClientProfilePage() {
                   </div>
                 </div>
                 <Button variant="accent" size="sm" onClick={() => setEditOpen(true)}>
-                  Complete profile →
+                  Completar perfil →
                 </Button>
               </div>
             </div>
@@ -249,20 +249,27 @@ export default function ClientProfilePage() {
             </div>
             <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
               <Pencil className="h-3.5 w-3.5" />
-              Edit
+              Editar
             </Button>
           </div>
 
           {/* Tabs */}
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="bg-transparent border-b border-border rounded-none p-0 h-auto gap-4 flex-wrap">
-              {["Overview", "Time", "Tasks", "Credentials", "Interactions", ...(isAdmin ? ["Finances"] : [])].map((t) => (
+              {[
+                { key: "overview", label: "Resumen" },
+                { key: "time", label: "Tiempo" },
+                { key: "tasks", label: "Tareas" },
+                { key: "credentials", label: "Credenciales" },
+                { key: "interactions", label: "Interacciones" },
+                ...(isAdmin ? [{ key: "finances", label: "Finanzas" }] : []),
+              ].map((t) => (
                 <TabsTrigger
-                  key={t}
-                  value={t.toLowerCase()}
+                  key={t.key}
+                  value={t.key}
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-accent data-[state=active]:bg-transparent data-[state=active]:shadow-none px-1 pb-2 pt-0 text-sm"
                 >
-                  {t}
+                  {t.label}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -271,20 +278,20 @@ export default function ClientProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 {isAdmin && (
                   <div className="border border-border rounded-lg p-5">
-                    <p className="text-micro text-foreground-muted mb-2">Rate</p>
+                    <p className="text-micro text-foreground-muted mb-2">Tarifa</p>
                     {client.monthly_rate ? (
                       <>
                         <p className="text-h2 text-foreground">${client.monthly_rate.toLocaleString()}{freqLabel[client.payment_frequency || "monthly"]}</p>
                         <RateBreakdown monthlyRate={client.monthly_rate} paymentFrequency={client.payment_frequency || "monthly"} currency={client.currency} />
                       </>
                     ) : (
-                      <p className="text-sm text-foreground-muted">Not set</p>
+                      <p className="text-sm text-foreground-muted">Sin definir</p>
                     )}
                     {client.payment_method && <p className="text-small text-foreground-secondary mt-1">via {client.payment_method}</p>}
                   </div>
                 )}
                 <div className="border border-border rounded-lg p-5">
-                  <p className="text-micro text-foreground-muted mb-2">This month</p>
+                  <p className="text-micro text-foreground-muted mb-2">Este mes</p>
                   <p className="text-h2 text-foreground">{stats.monthHours}h</p>
                   {isAdmin && client.monthly_rate && stats.monthHours > 0 && (
                     <p className="text-small text-foreground-secondary mt-1">
@@ -295,7 +302,7 @@ export default function ClientProfilePage() {
               </div>
               {client.notes && (
                 <div className="border border-border rounded-lg p-5">
-                  <p className="text-micro text-foreground-muted mb-2">Notes</p>
+                  <p className="text-micro text-foreground-muted mb-2">Notas</p>
                   <p className="text-sm text-foreground whitespace-pre-wrap">{client.notes}</p>
                 </div>
               )}
@@ -304,19 +311,19 @@ export default function ClientProfilePage() {
             <TabsContent value="time" className="mt-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
-                  <span className="text-sm text-foreground-secondary">This week: <strong className="text-foreground">{stats.weekHours}h</strong></span>
-                  <span className="text-sm text-foreground-secondary">This month: <strong className="text-foreground">{stats.monthHours}h</strong></span>
+                  <span className="text-sm text-foreground-secondary">Esta semana: <strong className="text-foreground">{stats.weekHours}h</strong></span>
+                  <span className="text-sm text-foreground-secondary">Este mes: <strong className="text-foreground">{stats.monthHours}h</strong></span>
                 </div>
                 <div className="inline-flex rounded-lg bg-background-secondary p-1">
                   {(["mine", "all"] as const).map((f) => (
                     <button key={f} onClick={() => setTimeFilter(f)} className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${timeFilter === f ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
-                      {f === "mine" ? "My entries" : "All entries"}
+                      {f === "mine" ? "Mis registros" : "Todos"}
                     </button>
                   ))}
                 </div>
               </div>
               {timeEntries.length === 0 ? (
-                <p className="text-sm text-foreground-muted py-8 text-center">No time tracked for this client yet.</p>
+                <p className="text-sm text-foreground-muted py-8 text-center">Sin registros de tiempo para este cliente.</p>
               ) : (
                 <div className="flex flex-col">
                   {timeEntries.map((e) => {
@@ -379,43 +386,43 @@ export default function ClientProfilePage() {
         {tab === "overview" && (
           <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4">
             <div className="border border-border rounded-lg p-5">
-              <p className="text-micro text-foreground-muted mb-3">Quick stats</p>
+              <p className="text-micro text-foreground-muted mb-3">Estadísticas</p>
               <div className="flex flex-col gap-3">
                 <div>
                   <p className="text-h2 text-foreground">{stats.weekHours}h</p>
-                  <p className="text-small text-foreground-secondary">This week</p>
+                  <p className="text-small text-foreground-secondary">Esta semana</p>
                 </div>
                 <div>
                   <p className="text-h2 text-foreground">{stats.monthHours}h</p>
-                  <p className="text-small text-foreground-secondary">This month</p>
+                  <p className="text-small text-foreground-secondary">Este mes</p>
                 </div>
                 <div>
                   <p className="text-h2 text-foreground">{stats.totalHours}h</p>
-                  <p className="text-small text-foreground-secondary">All time</p>
+                  <p className="text-small text-foreground-secondary">Total</p>
                 </div>
               </div>
             </div>
 
             <div className="border border-border rounded-lg p-5">
-              <p className="text-micro text-foreground-muted mb-3">Contact</p>
+              <p className="text-micro text-foreground-muted mb-3">Contacto</p>
               <div className="flex flex-col gap-2 text-sm">
-                {client.contact_name && <p><span className="text-foreground-secondary">Contact:</span> {client.contact_name}</p>}
-                {client.email && <p><span className="text-foreground-secondary">Email:</span> {client.email}</p>}
-                {client.phone && <p><span className="text-foreground-secondary">Phone:</span> {client.phone}</p>}
+                {client.contact_name && <p><span className="text-foreground-secondary">Contacto:</span> {client.contact_name}</p>}
+                {client.email && <p><span className="text-foreground-secondary">Correo:</span> {client.email}</p>}
+                {client.phone && <p><span className="text-foreground-secondary">Teléfono:</span> {client.phone}</p>}
                 {client.website && <p><span className="text-foreground-secondary">Web:</span> <a href={client.website} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">{client.website}</a></p>}
-                {client.communication_channel && <p><span className="text-foreground-secondary">Channel:</span> {client.communication_channel}</p>}
+                {client.communication_channel && <p><span className="text-foreground-secondary">Canal:</span> {client.communication_channel}</p>}
               </div>
             </div>
 
             {isAdmin && (
               <div className="border border-border rounded-lg p-5">
-                <p className="text-micro text-foreground-muted mb-3">Payment</p>
-                <div className="flex flex-col gap-2 text-sm">
-                  <p><span className="text-foreground-secondary">Rate:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
-                  <p><span className="text-foreground-secondary">Frequency:</span> {client.payment_frequency || "monthly"}</p>
-                  <p><span className="text-foreground-secondary">Method:</span> {client.payment_method || "—"}</p>
-                  {client.billing_entity && <p><span className="text-foreground-secondary">Billed by:</span> {client.billing_entity}</p>}
-                </div>
+              <p className="text-micro text-foreground-muted mb-3">Pago</p>
+              <div className="flex flex-col gap-2 text-sm">
+                <p><span className="text-foreground-secondary">Tarifa:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
+                <p><span className="text-foreground-secondary">Frecuencia:</span> {client.payment_frequency || "mensual"}</p>
+                <p><span className="text-foreground-secondary">Método:</span> {client.payment_method || "—"}</p>
+                {client.billing_entity && <p><span className="text-foreground-secondary">Factura vía:</span> {client.billing_entity}</p>}
+              </div>
               </div>
             )}
           </div>
@@ -932,6 +939,7 @@ function InteractionsTab({ clientId, interactions, onRefresh }: { clientId: stri
 
 /* ─── Edit Panel ─── */
 function EditClientPanel({ client, onClose, onSaved }: { client: ClientFull; onClose: () => void; onSaved: () => void }) {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: client.name,
     contact_name: client.contact_name || "",
@@ -948,6 +956,8 @@ function EditClientPanel({ client, onClose, onSaved }: { client: ClientFull; onC
     status: client.status,
   });
   const [saving, setSaving] = useState(false);
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+  const [archiving, setArchiving] = useState(false);
 
   const update = (field: string, value: string) => setForm({ ...form, [field]: value });
 
@@ -982,11 +992,32 @@ function EditClientPanel({ client, onClose, onSaved }: { client: ClientFull; onC
 
     setSaving(false);
     if (error) {
-      toast.error("Failed to update client");
+      toast.error("No se pudo actualizar el cliente");
       return;
     }
-    toast.success("Client updated!");
+    toast.success("Cliente actualizado");
     onSaved();
+  };
+
+  const handleArchive = async () => {
+    setArchiving(true);
+    // Unlink time entries, tasks, projects
+    await supabase.from("time_entries").update({ client_id: null }).eq("client_id", client.id);
+    await supabase.from("tasks").update({ client_id: null }).eq("client_id", client.id);
+    // Delete projects (they are client-specific)
+    await supabase.from("projects").delete().eq("client_id", client.id);
+    // Delete the client
+    const { error } = await supabase.from("clients").delete().eq("id", client.id);
+    setArchiving(false);
+    if (error) {
+      // If delete fails (FK constraints), archive instead
+      await supabase.from("clients").update({ status: "inactive" as const }).eq("id", client.id);
+      toast.success("Cliente archivado");
+    } else {
+      toast.success("Cliente eliminado");
+    }
+    onClose();
+    navigate("/clients");
   };
 
   const formContext = { ...form, monthly_rate: form.monthly_rate ? parseFloat(form.monthly_rate) : 0 };
@@ -997,7 +1028,7 @@ function EditClientPanel({ client, onClose, onSaved }: { client: ClientFull; onC
       <div className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-[400px] bg-background border-l border-border overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-h2 text-foreground">Edit client</h2>
+            <h2 className="text-h2 text-foreground">Editar cliente</h2>
             <button onClick={onClose} className="h-8 w-8 flex items-center justify-center rounded-md text-foreground-muted hover:text-foreground hover:bg-background-tertiary">
               <X className="h-4 w-4" />
             </button>
@@ -1005,80 +1036,80 @@ function EditClientPanel({ client, onClose, onSaved }: { client: ClientFull; onC
 
           <div className="flex flex-col gap-4">
             <div>
-              <label className="text-label mb-1 block">Status</label>
+              <label className="text-label mb-1 block">Estado</label>
               <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.status} onChange={(e) => update("status", e.target.value)}>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option value="active">Activo</option>
+                <option value="inactive">Inactivo</option>
               </select>
             </div>
             <div>
-              <label className="text-label mb-1 block">Client name *</label>
+              <label className="text-label mb-1 block">Nombre del cliente *</label>
               <Input value={form.name} onChange={(e) => update("name", e.target.value)} />
             </div>
             <div>
-              <label className="text-label mb-1 block">Contact name</label>
+              <label className="text-label mb-1 block">Nombre de contacto</label>
               <Input value={form.contact_name} onChange={(e) => update("contact_name", e.target.value)} />
             </div>
             <div>
-              <label className="text-label mb-1 block">Email</label>
+              <label className="text-label mb-1 block">Correo</label>
               <Input value={form.email} onChange={(e) => update("email", e.target.value)} />
             </div>
             <div>
-              <label className="text-label mb-1 block">Phone</label>
+              <label className="text-label mb-1 block">Teléfono</label>
               <Input value={form.phone} onChange={(e) => update("phone", e.target.value)} />
             </div>
             <div>
-              <label className="text-label mb-1 block">Website</label>
+              <label className="text-label mb-1 block">Sitio web</label>
               <Input value={form.website} onChange={(e) => update("website", e.target.value)} />
             </div>
 
             <div className="h-px bg-border" />
 
             <div>
-              <label className="text-label mb-1 block">Billing entity</label>
+              <label className="text-label mb-1 block">Entidad de facturación</label>
               <Input value={form.billing_entity} onChange={(e) => update("billing_entity", e.target.value)} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <div className="flex items-center gap-1.5 mb-1">
-                  <label className="text-label">Monthly rate</label>
+                  <label className="text-label">Tarifa mensual</label>
                   <AiFieldHelper
                     action="rate_context"
                     context={{ monthly_rate: formContext.monthly_rate, currency: form.currency, payment_frequency: form.payment_frequency }}
                     readOnly
-                    label="Rate context"
+                    label="Contexto de tarifa"
                   />
                 </div>
                 <Input type="number" value={form.monthly_rate} onChange={(e) => update("monthly_rate", e.target.value)} />
                 <RateBreakdown monthlyRate={form.monthly_rate ? parseFloat(form.monthly_rate) : null} paymentFrequency={form.payment_frequency} currency={form.currency} />
               </div>
               <div>
-                <label className="text-label mb-1 block">Currency</label>
+                <label className="text-label mb-1 block">Moneda</label>
                 <Input value={form.currency} onChange={(e) => update("currency", e.target.value)} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-label mb-1 block">Frequency</label>
+                <label className="text-label mb-1 block">Frecuencia</label>
                 <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.payment_frequency} onChange={(e) => update("payment_frequency", e.target.value)}>
-                  <option value="monthly">Monthly</option>
-                  <option value="biweekly">Biweekly</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="project">Per project</option>
+                  <option value="monthly">Mensual</option>
+                  <option value="biweekly">Quincenal</option>
+                  <option value="weekly">Semanal</option>
+                  <option value="project">Por proyecto</option>
                 </select>
               </div>
               <div>
-                <label className="text-label mb-1 block">Method</label>
+                <label className="text-label mb-1 block">Método</label>
                 <Input value={form.payment_method} onChange={(e) => update("payment_method", e.target.value)} />
               </div>
             </div>
             <div>
               <div className="flex items-center gap-1.5 mb-1">
-                <label className="text-label">Channel</label>
+                <label className="text-label">Canal</label>
                 <AiFieldHelper
                   action="channel_tips"
                   context={{ communication_channel: form.communication_channel, name: form.name }}
-                  label="Channel tips"
+                  label="Tips de canal"
                 />
               </div>
               <Input value={form.communication_channel} onChange={(e) => update("communication_channel", e.target.value)} />
@@ -1088,20 +1119,59 @@ function EditClientPanel({ client, onClose, onSaved }: { client: ClientFull; onC
 
             <div>
               <div className="flex items-center gap-1.5 mb-1">
-                <label className="text-label">Notes</label>
+                <label className="text-label">Notas</label>
                 <AiFieldHelper
                   action="enrich_notes"
                   context={formContext}
                   onResult={(r) => update("notes", r)}
-                  label="Enrich with AI"
+                  label="Enriquecer con IA"
                 />
               </div>
               <Textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={4} />
             </div>
 
             <Button onClick={handleSave} disabled={saving || !form.name.trim()} className="w-full h-11">
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save changes"}
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar cambios"}
             </Button>
+
+            {/* Archive / Delete section */}
+            <div className="border-t border-border pt-4 mt-2">
+              {!showArchiveConfirm ? (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setShowArchiveConfirm(true)}
+                >
+                  Eliminar cliente
+                </Button>
+              ) : (
+                <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 space-y-3">
+                  <p className="text-sm text-foreground">
+                    ¿Eliminar <strong>{client.name}</strong>? Se desvincularán todos los registros de actividad, proyectos y tareas asociadas. Esta acción no se puede deshacer.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex-1"
+                      onClick={handleArchive}
+                      disabled={archiving}
+                    >
+                      {archiving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sí, eliminar"}
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => setShowArchiveConfirm(false)}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

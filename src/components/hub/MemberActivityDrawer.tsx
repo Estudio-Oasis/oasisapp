@@ -92,7 +92,6 @@ export function MemberActivityDrawer({
       .from("time_entries")
       .select("*, clients(name), tasks(title), projects(name)")
       .eq("user_id", profile.id)
-      .not("ended_at", "is", null)
       .gte("started_at", start.toISOString())
       .lte("started_at", end.toISOString())
       .order("started_at", { ascending: false });
@@ -120,10 +119,18 @@ export function MemberActivityDrawer({
 
   if (!profile) return null;
 
-  const totalMinutes = entries.reduce((sum, e) => sum + (Number(e.duration_min) || 0), 0);
+  const totalMinutes = entries.reduce((sum, e) => {
+    const min = e.ended_at
+      ? (Number(e.duration_min) || 0)
+      : Math.round((Date.now() - new Date(e.started_at).getTime()) / 60000);
+    return sum + min;
+  }, 0);
   const productiveMin = entries.reduce((sum, e) => {
     const actType = getNormalizedActivityType({ description: e.description, client_id: e.client_id });
-    return actType === "break" || actType === "comida" || actType === "ausente" || actType === "offline" ? sum : sum + (Number(e.duration_min) || 0);
+    const min = e.ended_at
+      ? (Number(e.duration_min) || 0)
+      : Math.round((Date.now() - new Date(e.started_at).getTime()) / 60000);
+    return actType === "break" || actType === "comida" || actType === "ausente" || actType === "offline" ? sum : sum + min;
   }, 0);
   const breakMin = totalMinutes - productiveMin;
 
@@ -144,6 +151,9 @@ export function MemberActivityDrawer({
         clientId: e.client_id, description: e.description, durationMin: e.duration_min,
       }))
     : [];
+
+  // Active entry for this member (no ended_at)
+  const memberActiveEntry = entries.find((e) => !e.ended_at);
 
   const activeSession: ActiveSession | null =
     status === "working" && currentClient
@@ -294,6 +304,7 @@ export function MemberActivityDrawer({
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-medium text-foreground truncate">
+                      {!entry.ended_at && <span className="inline-block h-2 w-2 rounded-full bg-success animate-pulse mr-1.5 align-middle" />}
                       {entry.description || config.label}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
@@ -307,9 +318,11 @@ export function MemberActivityDrawer({
                   </div>
                   <div className="text-right shrink-0 flex items-center gap-1.5">
                     <div>
-                      <p className="text-[12px] font-medium text-foreground tabular-nums">{formatDuration(entry.duration_min)}</p>
+                      <p className="text-[12px] font-medium text-foreground tabular-nums">
+                        {entry.ended_at ? formatDuration(entry.duration_min) : formatDuration(Math.round((Date.now() - new Date(entry.started_at).getTime()) / 60000))}
+                      </p>
                       <p className="text-[10px] text-foreground-muted tabular-nums">
-                        {formatTime(entry.started_at)}{entry.ended_at ? ` - ${formatTime(entry.ended_at)}` : ""}
+                        {formatTime(entry.started_at)}{entry.ended_at ? ` - ${formatTime(entry.ended_at)}` : " — En progreso"}
                       </p>
                     </div>
                     <ChevronRight

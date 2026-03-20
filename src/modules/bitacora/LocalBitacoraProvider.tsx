@@ -357,6 +357,8 @@ export function LocalBitacoraProvider({
     projects: [],
     clients: [],
     recents,
+    refreshClients: () => {},
+    refreshProjects: () => {},
     config: STANDALONE_CONFIG,
   };
 

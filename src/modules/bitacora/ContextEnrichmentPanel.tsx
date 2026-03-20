@@ -24,7 +24,7 @@ interface TaskOption {
  * Now uses the shared ActivityDetailsPanel component.
  */
 export function ContextEnrichmentPanel() {
-  const { activeEntry, projects, clients, updateActiveEntry, config } = useBitacora();
+  const { activeEntry, projects, clients, updateActiveEntry, config, refreshClients, refreshProjects } = useBitacora();
   const [isOpen, setIsOpen] = useState(false);
   const [tasks, setTasks] = useState<TaskOption[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
@@ -167,6 +167,8 @@ export function ContextEnrichmentPanel() {
             showActivityType={false}
             showBillable={false}
             showNotes={false}
+            onClientCreated={() => refreshClients()}
+            onProjectCreated={() => refreshProjects()}
           />
         </div>
       )}

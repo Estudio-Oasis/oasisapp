@@ -125,6 +125,20 @@ export function ActivityDetailsPanel({
 
   const handleCreateClient = async () => {
     if (!newClientName.trim() || !user) return;
+    const trimmedName = newClientName.trim();
+
+    // Duplicate prevention: check local list first
+    const existingLocal = clients.find(
+      (c) => c.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (existingLocal) {
+      onClientChange(existingLocal.id);
+      toast.info(`"${existingLocal.name}" ya existe. Seleccionado.`);
+      setNewClientName("");
+      setShowNewClient(false);
+      return;
+    }
+
     setCreatingClient(true);
     try {
       const { data: profile } = await supabase
@@ -133,9 +147,25 @@ export function ActivityDetailsPanel({
         .eq("id", user.id)
         .single();
       if (!profile?.agency_id) throw new Error("No agency");
+
+      // Server-side duplicate check
+      const { data: existing } = await supabase
+        .from("clients")
+        .select("id, name")
+        .eq("agency_id", profile.agency_id)
+        .ilike("name", trimmedName);
+      if (existing && existing.length > 0) {
+        onClientChange(existing[0].id);
+        onClientCreated?.({ id: existing[0].id, name: existing[0].name });
+        toast.info(`"${existing[0].name}" ya existe. Seleccionado.`);
+        setNewClientName("");
+        setShowNewClient(false);
+        return;
+      }
+
       const { data: newClient, error } = await supabase
         .from("clients")
-        .insert({ name: newClientName.trim(), agency_id: profile.agency_id })
+        .insert({ name: trimmedName, agency_id: profile.agency_id })
         .select("id, name")
         .single();
       if (error) throw error;
@@ -155,11 +185,25 @@ export function ActivityDetailsPanel({
 
   const handleCreateProject = async () => {
     if (!newProjectName.trim() || !selectedClientId) return;
+    const trimmedName = newProjectName.trim();
+
+    // Duplicate prevention
+    const existingLocal = projects.find(
+      (p) => p.clientId === selectedClientId && p.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+    if (existingLocal) {
+      onProjectChange(existingLocal.id);
+      toast.info(`"${existingLocal.name}" ya existe. Seleccionado.`);
+      setNewProjectName("");
+      setShowNewProject(false);
+      return;
+    }
+
     setCreatingProject(true);
     try {
       const { data: newProj, error } = await supabase
         .from("projects")
-        .insert({ name: newProjectName.trim(), client_id: selectedClientId })
+        .insert({ name: trimmedName, client_id: selectedClientId })
         .select("id, name, client_id")
         .single();
       if (error) throw error;
