@@ -304,6 +304,7 @@ export function MemberActivityDrawer({
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-medium text-foreground truncate">
+                      {!entry.ended_at && <span className="inline-block h-2 w-2 rounded-full bg-success animate-pulse mr-1.5 align-middle" />}
                       {entry.description || config.label}
                     </p>
                     <div className="flex items-center gap-2 mt-0.5">
