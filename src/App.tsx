@@ -28,6 +28,7 @@ import SettingsPage from "./pages/Settings";
 import HubPage from "./pages/Hub";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
+import VaultPage from "./pages/Vault";
 import LandingPage from "./pages/Landing";
 import PlaygroundActivityEngine from "./pages/PlaygroundActivityEngine";
 
@@ -73,6 +74,7 @@ const App = () => (
                   <Route path="/clients" element={<ProRoute><ClientsPage /></ProRoute>} />
                   <Route path="/clients/:id" element={<ProRoute><ClientProfilePage /></ProRoute>} />
                   <Route path="/tasks" element={<ProRoute><TasksPage /></ProRoute>} />
+                  <Route path="/vault" element={<ProRoute><VaultPage /></ProRoute>} />
                   <Route path="/finances" element={<ProRoute><FinancesPage /></ProRoute>} />
                   <Route path="/admin" element={<ProRoute><AdminDashboard /></ProRoute>} />
                 </Route>

@@ -6,6 +6,7 @@ const es = {
   "nav.tasks": "Tareas",
   "nav.finances": "Finanzas",
   "nav.admin": "Admin",
+  "nav.vault": "Vault",
   "nav.settings": "Ajustes",
 
   // Common
@@ -252,6 +253,7 @@ const en: Record<keyof typeof es, string> = {
   "nav.tasks": "Tasks",
   "nav.finances": "Finances",
   "nav.admin": "Admin",
+  "nav.vault": "Vault",
   "nav.settings": "Settings",
 
   // Common
