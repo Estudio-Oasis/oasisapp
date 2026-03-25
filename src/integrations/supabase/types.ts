@@ -305,8 +305,11 @@ export type Database = {
       }
       client_credentials: {
         Row: {
-          client_id: string
+          agency_id: string | null
+          category: string
+          client_id: string | null
           created_at: string
+          favicon_url: string | null
           id: string
           notes: string | null
           password: string | null
@@ -315,8 +318,11 @@ export type Database = {
           username: string | null
         }
         Insert: {
-          client_id: string
+          agency_id?: string | null
+          category?: string
+          client_id?: string | null
           created_at?: string
+          favicon_url?: string | null
           id?: string
           notes?: string | null
           password?: string | null
@@ -325,8 +331,11 @@ export type Database = {
           username?: string | null
         }
         Update: {
-          client_id?: string
+          agency_id?: string | null
+          category?: string
+          client_id?: string | null
           created_at?: string
+          favicon_url?: string | null
           id?: string
           notes?: string | null
           password?: string | null
@@ -335,6 +344,13 @@ export type Database = {
           username?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "client_credentials_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "client_credentials_client_id_fkey"
             columns: ["client_id"]
