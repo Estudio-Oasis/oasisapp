@@ -294,7 +294,10 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
             onActivityTypeChange={setSelectedActivityType}
             onBillableChange={setIsBillable}
             onNotesChange={setNotes}
-            onClientCreated={() => bita.refreshClients()}
+            onClientCreated={(client) => {
+              // Immediately refresh so new client appears in chips
+              bita.refreshClients();
+            }}
             onProjectCreated={() => bita.refreshProjects()}
           />
         </div>

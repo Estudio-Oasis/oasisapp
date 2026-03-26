@@ -74,6 +74,14 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
       .then(({ data }) => setClients(data || []));
   }, []);
 
+  // Optimistic add to avoid reload delay (bug fix 4A)
+  const addClientOptimistic = useCallback((client: ClientOption) => {
+    setClients((prev) => {
+      if (prev.some((c) => c.id === client.id)) return prev;
+      return [...prev, client].sort((a, b) => a.name.localeCompare(b.name));
+    });
+  }, []);
+
   const loadProjects = useCallback(() => {
     supabase
       .from("projects")
@@ -259,7 +267,9 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
     projects,
     clients,
     recents,
-    refreshClients: loadClients,
+    refreshClients: () => {
+      loadClients();
+    },
     refreshProjects: loadProjects,
     config: OASIS_CONFIG,
   };
