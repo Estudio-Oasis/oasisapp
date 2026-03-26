@@ -295,9 +295,8 @@ export function BitacoraQuickSheet({ open, onOpenChange, mode = "start" }: Props
             onBillableChange={setIsBillable}
             onNotesChange={setNotes}
             onClientCreated={(client) => {
+              // Immediately refresh so new client appears in chips
               bita.refreshClients();
-              // Also add optimistically to avoid stale list
-              if ('addClientOptimistic' in bita) (bita as any).addClientOptimistic(client);
             }}
             onProjectCreated={() => bita.refreshProjects()}
           />
