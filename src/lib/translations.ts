@@ -243,6 +243,31 @@ const es = {
   "paymentForm.logging": "Registrando...",
   "paymentForm.scanReceipt": "Escanear recibo con IA",
   "paymentForm.scanning": "Escaneando...",
+
+  // Briefing
+  "briefing.title": "Tu briefing",
+  "briefing.yesterday": "Ayer",
+  "briefing.lastWeek": "La semana pasada",
+  "briefing.billable": "facturable",
+  "briefing.topClient": "Cliente principal",
+  "briefing.startDay": "Empezar mi dia",
+  "briefing.fillGaps": "Completar huecos",
+  "briefing.today": "Hoy",
+  "briefing.noDataYesterday": "Sin registros del dia anterior. Empieza tu dia registrando tu actividad.",
+  "briefing.welcomeTitle": "Bienvenido a Bitacora",
+  "briefing.welcomeSubtitle": "Registra tu primera actividad para empezar a ver tu operacion.",
+  "briefing.firstActivity": "Registrar mi primera actividad",
+
+  // Digest
+  "digest.title": "Resumen del dia",
+  "digest.totalLogged": "Total",
+  "digest.billable": "Facturable",
+  "digest.clients": "Clientes",
+  "digest.share": "Compartir",
+  "digest.copied": "Resumen copiado al portapapeles",
+  "digest.insightGreatDay": "Gran dia productivo. 🎯",
+  "digest.insightTooMuchAdmin": "Mucho tiempo en administracion. ¿Puedes delegar algo?",
+  "digest.insightGaps": "Huecos sin registrar. Completarlos mejora tu facturacion.",
 } as const;
 
 const en: Record<keyof typeof es, string> = {
@@ -490,6 +515,31 @@ const en: Record<keyof typeof es, string> = {
   "paymentForm.logging": "Logging...",
   "paymentForm.scanReceipt": "Scan receipt with AI",
   "paymentForm.scanning": "Scanning...",
+
+  // Briefing
+  "briefing.title": "Your briefing",
+  "briefing.yesterday": "Yesterday",
+  "briefing.lastWeek": "Last week",
+  "briefing.billable": "billable",
+  "briefing.topClient": "Top client",
+  "briefing.startDay": "Start my day",
+  "briefing.fillGaps": "Fill gaps",
+  "briefing.today": "Today",
+  "briefing.noDataYesterday": "No records from yesterday. Start your day by logging your activity.",
+  "briefing.welcomeTitle": "Welcome to Bitacora",
+  "briefing.welcomeSubtitle": "Log your first activity to start seeing your operations.",
+  "briefing.firstActivity": "Log my first activity",
+
+  // Digest
+  "digest.title": "Day summary",
+  "digest.totalLogged": "Total",
+  "digest.billable": "Billable",
+  "digest.clients": "Clients",
+  "digest.share": "Share",
+  "digest.copied": "Summary copied to clipboard",
+  "digest.insightGreatDay": "Great productive day. 🎯",
+  "digest.insightTooMuchAdmin": "Too much time on admin. Can you delegate?",
+  "digest.insightGaps": "Unlogged gaps. Filling them improves your billing.",
 };
 
 export type TranslationKey = keyof typeof es;
