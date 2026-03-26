@@ -267,7 +267,9 @@ export function OasisBitacoraProvider({ children }: { children: ReactNode }) {
     projects,
     clients,
     recents,
-    refreshClients: loadClients,
+    refreshClients: () => {
+      loadClients();
+    },
     refreshProjects: loadProjects,
     config: OASIS_CONFIG,
   };
