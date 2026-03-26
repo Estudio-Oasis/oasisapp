@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useBitacora, useBitacoraVM } from "./BitacoraContext";
 import { ActiveSessionCard } from "@/components/timer/ActiveSessionCard";
 import { TimerControls } from "@/components/timer/TimerControls";
 import { QuickLogInput } from "@/components/timer/QuickLogInput";
-import { DayTimeline } from "@/components/timer/DayTimeline";
+import { InteractiveTimeline } from "@/components/bitacora/InteractiveTimeline";
+import { MorningBriefing } from "@/components/bitacora/MorningBriefing";
+import { DailyDigest } from "@/components/bitacora/DailyDigest";
 import { DayInsights } from "@/components/timer/DayInsights";
 import { TimeEntryRow } from "@/components/timer/TimeEntryRow";
 import { GapAlert } from "@/components/timer/GapAlert";
@@ -15,7 +17,6 @@ import { ContextEnrichmentPanel } from "./ContextEnrichmentPanel";
 import { StartTimerModal } from "@/components/StartTimerModal";
 import { GapFillSheet } from "@/components/timer/GapFillSheet";
 import { EntryEditSheet } from "@/components/timer/EntryEditSheet";
-import { Plus } from "lucide-react";
 import { formatDateLong, formatDuration, formatDayHeader } from "@/lib/timer-utils";
 import type { EntryInfo, GapInfo } from "./types";
 
@@ -54,6 +55,12 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
   const { config } = bita;
   const isStandalone = config.mode === "standalone";
 
+  // Show morning briefing when no active session and in today view
+  const showBriefing = !bita.isRunning && vm.view === "today";
+
+  // Compute gap minutes for digest
+  const gapMinutes = useMemo(() => vm.gaps.reduce((s, g) => s + g.durationMin, 0), [vm.gaps]);
+
   const openGapModal = (gap: { startTime: Date; endTime: Date; durationMin: number }) => {
     if (isStandalone) {
       setSelectedGap(gap as GapInfo);
@@ -80,7 +87,6 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
   };
 
   const handleEntryClick = (entry: { startedAt: string; endedAt: string; clientName?: string | null; clientId?: string | null; description?: string | null; durationMin?: number | null }) => {
-    // Find the matching EntryInfo from vm.entries
     const match = vm.entries.find(
       (e) => e.started_at === entry.startedAt && e.ended_at === entry.endedAt
     );
@@ -92,6 +98,20 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
 
   return (
     <div className="space-y-2.5 max-w-2xl mx-auto">
+      {/* ── MORNING BRIEFING ── */}
+      {showBriefing && !vm.hasData && (
+        <MorningBriefing
+          onStartDay={() => {
+            setQuickSheetMode("start");
+            setQuickSheetOpen(true);
+          }}
+          onFillGaps={() => {
+            // Scroll to gaps or open first gap
+            if (vm.gaps.length > 0) openGapModal(vm.gaps[0]);
+          }}
+        />
+      )}
+
       {/* ── CONTROL SURFACE ── */}
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
         <div className="p-3 pb-0">
@@ -106,10 +126,8 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
                 elapsedSeconds={bita.elapsedSeconds}
                 onDescriptionChange={(newDesc) => bita.updateActiveEntry({ description: newDesc })}
               >
-                {/* Context enrichment panel — scrollable area */}
                 <ContextEnrichmentPanel />
               </ActiveSessionCard>
-              {/* Sticky controls — always visible */}
               <div className="sticky bottom-0 bg-card pt-2 pb-1">
                 <TimerControls
                   onSwitch={() => {
@@ -159,7 +177,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
           )}
         </div>
 
-        {/* Day state */}
+        {/* Day state with Interactive Timeline */}
         <div className="px-3 pt-2.5 pb-2">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-[11px] font-medium text-foreground-muted uppercase tracking-wider">
@@ -171,7 +189,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
               </span>
             )}
           </div>
-          <DayTimeline
+          <InteractiveTimeline
             entries={vm.timelineEntries}
             gaps={vm.gaps}
             activeSession={bita.isRunning && bita.activeEntry ? {
@@ -182,6 +200,8 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
             } : null}
             onGapClick={openGapModal}
             onEntryClick={handleEntryClick}
+            workStartHour={vm.workSchedule.startHour}
+            workEndHour={vm.workSchedule.endHour}
           />
         </div>
 
@@ -227,11 +247,19 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
             ))}
           </div>
         )}
-        {/* Manual entry button removed — now in control surface */}
       </div>
 
+      {/* ── DAILY DIGEST ── */}
+      {vm.view === "today" && vm.entries.length > 0 && (
+        <DailyDigest
+          entries={vm.entries}
+          gapCount={vm.gaps.length}
+          gapMinutes={gapMinutes}
+          onFillGaps={vm.gaps.length > 0 ? () => openGapModal(vm.gaps[0]) : undefined}
+        />
+      )}
+
       {/* ── FEED ── */}
-      {/* In-progress feed card */}
       {bita.isRunning && bita.activeEntry && vm.view === "today" && (
         <div className="rounded-xl border border-accent/30 bg-accent/5 overflow-hidden px-3 py-2.5 flex items-center gap-3">
           <span className="relative flex h-2.5 w-2.5 shrink-0">
@@ -250,9 +278,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
       )}
 
       {vm.view === "today" ? (
-        !vm.hasData && !bita.isRunning ? (
-          <EmptyState context="no_entries" />
-        ) : vm.entries.length === 0 && bita.isRunning ? null : (
+        !vm.hasData && !bita.isRunning ? null : vm.entries.length === 0 && bita.isRunning ? null : (
           <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="divide-y divide-border">
               {vm.gaps.map((g, i) => (
