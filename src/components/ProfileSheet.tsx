@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Loader2, Users, Sun, Moon, Monitor, UserPlus, Clock, RotateCw, X } from "lucide-react";
+import { LogOut, Loader2, Users, Sun, Moon, Monitor, UserPlus, Clock, RotateCw, X, Camera, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { getClientColor } from "@/lib/timer-utils";
 import { InviteMemberModal } from "@/components/InviteMemberModal";
@@ -14,8 +14,8 @@ import { InviteMemberModal } from "@/components/InviteMemberModal";
 interface ProfileSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  profile: { name: string; role: string };
-  onProfileUpdated: (updated: { name: string }) => void;
+  profile: { name: string; role: string; avatar_url?: string | null; job_title?: string | null };
+  onProfileUpdated: (updated: { name: string; avatar_url?: string | null; job_title?: string | null }) => void;
   onSignOut: () => void;
 }
 
@@ -23,6 +23,7 @@ interface TeamMember {
   id: string;
   name: string | null;
   email: string | null;
+  avatar_url: string | null;
   role: "admin" | "member" | "user";
 }
 
@@ -39,6 +40,7 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
   const { isAdmin } = useRole();
   const { theme, setTheme } = useTheme();
   const [name, setName] = useState(profile.name);
+  const [jobTitle, setJobTitle] = useState(profile.job_title || "");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [savingName, setSavingName] = useState(false);
@@ -54,10 +56,19 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
   const [workEndHour, setWorkEndHour] = useState(18);
   const [workEndMinute, setWorkEndMinute] = useState(0);
   const [savingSchedule, setSavingSchedule] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatar_url || null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setName(profile.name);
+    setJobTitle(profile.job_title || "");
+    setAvatarUrl(profile.avatar_url || null);
+  }, [profile]);
 
   const loadTeamData = async () => {
     const [{ data: members }, { data: invites }] = await Promise.all([
-      supabase.from("profiles").select("id, name, email, role").order("name"),
+      supabase.from("profiles").select("id, name, email, avatar_url, role").order("name"),
       supabase
         .from("agency_invitations")
         .select("id, email, full_name, status, created_at")
@@ -74,12 +85,12 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     }
   }, [open, isAdmin]);
 
-  // Load work schedule
+  // Load work schedule and job_title
   useEffect(() => {
     if (open && user) {
       supabase
         .from("profiles")
-        .select("work_start_hour, work_start_minute, work_end_hour, work_end_minute")
+        .select("work_start_hour, work_start_minute, work_end_hour, work_end_minute, job_title, avatar_url")
         .eq("id", user.id)
         .single()
         .then(({ data }) => {
@@ -88,10 +99,52 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
             setWorkStartMinute((data as any).work_start_minute ?? 0);
             setWorkEndHour((data as any).work_end_hour ?? 18);
             setWorkEndMinute((data as any).work_end_minute ?? 0);
+            setJobTitle((data as any).job_title || "");
+            if ((data as any).avatar_url) setAvatarUrl((data as any).avatar_url);
           }
         });
     }
   }, [open, user]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("La imagen debe ser menor a 2MB");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${user.id}/avatar.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", user.id);
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(publicUrl);
+      onProfileUpdated({ name, avatar_url: publicUrl, job_title: jobTitle });
+      toast.success("Foto actualizada");
+    } catch {
+      toast.error("No se pudo subir la foto");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const handleSaveSchedule = async () => {
     if (!user) return;
@@ -113,24 +166,24 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     setSavingName(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ name: name.trim() })
+      .update({ name: name.trim(), job_title: jobTitle.trim() || null })
       .eq("id", user.id);
     setSavingName(false);
     if (error) {
-      toast.error("Failed to update name");
+      toast.error("No se pudo actualizar");
     } else {
-      toast.success("Name updated");
-      onProfileUpdated({ name: name.trim() });
+      toast.success("Perfil actualizado");
+      onProfileUpdated({ name: name.trim(), job_title: jobTitle.trim() || null, avatar_url: avatarUrl });
     }
   };
 
   const handleChangePassword = async () => {
     if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error("La contraseña debe tener al menos 6 caracteres");
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords don't match");
+      toast.error("Las contraseñas no coinciden");
       return;
     }
     setSavingPassword(true);
@@ -139,7 +192,7 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Password updated");
+      toast.success("Contraseña actualizada");
       setNewPassword("");
       setConfirmPassword("");
     }
@@ -154,12 +207,12 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
       .eq("id", memberId);
     setTogglingId(null);
     if (error) {
-      toast.error("Failed to update role");
+      toast.error("No se pudo actualizar el rol");
     } else {
       setTeam((prev) =>
         prev.map((m) => (m.id === memberId ? { ...m, role: newRole as TeamMember["role"] } : m))
       );
-      toast.success(`Role updated to ${newRole}`);
+      toast.success(`Rol actualizado a ${newRole}`);
     }
   };
 
@@ -191,47 +244,82 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     }
   };
 
+  const displayInitials = name.charAt(0).toUpperCase();
+
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="w-[340px] sm:w-[380px] overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Profile</SheetTitle>
+            <SheetTitle>Mi perfil</SheetTitle>
           </SheetHeader>
 
           <div className="mt-6 space-y-6">
             {/* Avatar + role */}
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-background-tertiary text-lg font-semibold text-foreground-secondary">
-                {profile.name.charAt(0).toUpperCase()}
+              <div className="relative group">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-background-tertiary text-lg font-semibold text-foreground-secondary overflow-hidden">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+                  ) : (
+                    displayInitials
+                  )}
+                </div>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  {uploadingAvatar ? (
+                    <Loader2 className="h-4 w-4 text-white animate-spin" />
+                  ) : (
+                    <Camera className="h-4 w-4 text-white" />
+                  )}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
               </div>
               <div>
-                <p className="text-sm font-medium text-foreground">{profile.name}</p>
+                <p className="text-sm font-medium text-foreground">{name}</p>
+                {jobTitle && <p className="text-[12px] text-foreground-secondary">{jobTitle}</p>}
                 <span className={`text-[11px] font-semibold uppercase tracking-wider ${profile.role === "admin" ? "text-accent" : "text-foreground-muted"}`}>
                   {profile.role}
                 </span>
               </div>
             </div>
 
-            {/* Edit name */}
-            <div className="space-y-1.5">
-              <label className="text-label">Full name</label>
-              <div className="flex gap-2">
+            {/* Edit name + job title */}
+            <div className="space-y-2">
+              <div className="space-y-1.5">
+                <label className="text-label">Nombre completo</label>
                 <Input value={name} onChange={(e) => setName(e.target.value)} />
-                <Button size="sm" onClick={handleSaveName} disabled={savingName || name.trim() === profile.name}>
-                  {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
-                </Button>
               </div>
+              <div className="space-y-1.5">
+                <label className="text-label">Rol / Puesto</label>
+                <Input
+                  value={jobTitle}
+                  onChange={(e) => setJobTitle(e.target.value)}
+                  placeholder="Ej: Diseñador, Project Manager..."
+                />
+              </div>
+              <Button size="sm" onClick={handleSaveName} disabled={savingName || (name.trim() === profile.name && jobTitle.trim() === (profile.job_title || ""))}>
+                {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
+              </Button>
             </div>
 
             {/* Change password */}
             <div className="space-y-1.5">
-              <label className="text-label">New password</label>
+              <label className="text-label">Nueva contraseña</label>
               <Input type="password" placeholder="••••••••" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-              <label className="text-label">Confirm password</label>
+              <label className="text-label">Confirmar contraseña</label>
               <Input type="password" placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
               <Button size="sm" variant="secondary" onClick={handleChangePassword} disabled={savingPassword || !newPassword} className="mt-1">
-                {savingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : "Change password"}
+                {savingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : "Cambiar contraseña"}
               </Button>
             </div>
 
@@ -241,7 +329,7 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-foreground-muted" />
-                    <label className="text-label">Team</label>
+                    <label className="text-label">Equipo</label>
                   </div>
                   <Button
                     size="sm"
@@ -311,17 +399,21 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
                       return (
                         <div key={m.id} className="flex items-center gap-2.5 px-2 py-1.5 rounded-md hover:bg-background-secondary">
                           <div
-                            className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-semibold text-background shrink-0"
-                            style={{ backgroundColor: getClientColor(displayName) }}
+                            className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 overflow-hidden"
+                            style={m.avatar_url ? {} : { backgroundColor: getClientColor(displayName) }}
                           >
-                            {displayName.slice(0, 2).toUpperCase()}
+                            {m.avatar_url ? (
+                              <img src={m.avatar_url} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                              <span className="text-background">{displayName.slice(0, 2).toUpperCase()}</span>
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm text-foreground truncate">{displayName}</p>
                             <p className="text-[11px] text-foreground-muted truncate">{m.email}</p>
                           </div>
                           {isCurrentUser ? (
-                            <span className="text-[11px] font-semibold text-foreground-muted uppercase">You</span>
+                            <span className="text-[11px] font-semibold text-foreground-muted uppercase">Tú</span>
                           ) : (
                             <button
                               onClick={() => toggleRole(m.id, m.role)}
@@ -385,12 +477,12 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
 
             {/* Theme */}
             <div className="space-y-1.5">
-              <label className="text-label">Theme</label>
+              <label className="text-label">Tema</label>
               <div className="flex gap-2">
                 {([
-                  { value: "light", icon: Sun, label: "Light" },
-                  { value: "dark", icon: Moon, label: "Dark" },
-                  { value: "system", icon: Monitor, label: "System" },
+                  { value: "light", icon: Sun, label: "Claro" },
+                  { value: "dark", icon: Moon, label: "Oscuro" },
+                  { value: "system", icon: Monitor, label: "Sistema" },
                 ] as const).map(({ value, icon: Icon, label }) => (
                   <Button
                     key={value}
@@ -399,7 +491,7 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
                     className="flex-1 gap-1.5"
                     onClick={() => setTheme(value)}
                   >
-                    <Icon className="h-3.5 w-3.5" />
+                    <Icon className="h-4 w-4" />
                     {label}
                   </Button>
                 ))}
@@ -407,9 +499,13 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
             </div>
 
             {/* Sign out */}
-            <Button variant="outline" className="w-full" onClick={onSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign out
+            <Button
+              variant="ghost"
+              className="w-full text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
+              onClick={onSignOut}
+            >
+              <LogOut className="h-4 w-4" />
+              Cerrar sesión
             </Button>
           </div>
         </SheetContent>
@@ -417,8 +513,8 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
 
       <InviteMemberModal
         open={inviteModalOpen}
-        onOpenChange={setInviteModalOpen}
-        onInvited={loadTeamData}
+        onClose={() => setInviteModalOpen(false)}
+        onInvited={() => loadTeamData()}
       />
     </>
   );

@@ -220,7 +220,7 @@ export function AppSidebar() {
       <ProfileSheet
         open={profileOpen}
         onOpenChange={setProfileOpen}
-        profile={{ name: displayName, role }}
+        profile={{ name: displayName, role, avatar_url: profile?.avatar_url, job_title: profile?.job_title }}
         onProfileUpdated={(updated) => setProfile((prev) => prev ? { ...prev, ...updated } : prev)}
         onSignOut={signOut}
       />
