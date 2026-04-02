@@ -797,13 +797,13 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
 
       {adding && (
         <div className="border border-border rounded-lg p-4 mb-4 flex flex-col gap-3">
-          <Input value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} placeholder="Service (e.g. Slack, GitHub)" />
-          <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="URL (optional)" />
+          <Input value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} placeholder="Servicio (ej: Slack, GitHub)" />
+          <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="URL (opcional)" />
           <div className="grid grid-cols-2 gap-3">
-            <Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="Username" />
-            <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Password" />
+            <Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="Usuario" />
+            <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Contraseña" />
           </div>
-          <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Notes (optional)" rows={2} />
+          <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Notas (opcional)" rows={2} />
           <div className="flex gap-2">
             <Button size="sm" onClick={handleSave} disabled={saving || !form.service.trim()}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
