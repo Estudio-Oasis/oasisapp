@@ -303,6 +303,22 @@ export default function ClientsPage() {
         onClose={() => setModalOpen(false)}
         onCreated={fetchClients}
       />
+
+      {/* Delete confirmation */}
+      <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>¿Eliminar "{deleteTarget?.name}"?</DialogTitle>
+            <DialogDescription>
+              Se desvinculará de sus entradas de tiempo y tareas. Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleDeleteClient}>Eliminar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

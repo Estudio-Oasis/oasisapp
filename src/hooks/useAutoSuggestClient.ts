@@ -40,6 +40,28 @@ function fuzzyMatch(text: string, target: string): number {
   return 0;
 }
 
+// Auto-detect activity type from description keywords
+const ACTIVITY_KEYWORDS: Record<string, string[]> = {
+  reunion: ["reunión", "reunion", "call", "llamada", "junta", "meeting", "videollamada", "sync"],
+  trabajo: ["diseño", "diseñar", "crear", "programar", "código", "landing", "desarrollo", "maqueta", "contenido", "campaña", "copy", "editar", "implementar"],
+  comida: ["comida", "almuerzo", "lunch", "comer"],
+  break: ["break", "descanso", "café", "cafe", "pausa"],
+  revision: ["revisar", "review", "feedback", "revisión", "aprobación", "qa"],
+  administracion: ["admin", "correos", "emails", "factura", "facturación", "contabilidad", "organizar", "planeación"],
+};
+
+export function detectActivityType(text: string): string | null {
+  if (!text || text.length < 3) return null;
+  const norm = normalize(text);
+  
+  for (const [type, keywords] of Object.entries(ACTIVITY_KEYWORDS)) {
+    for (const kw of keywords) {
+      if (norm.includes(kw)) return type;
+    }
+  }
+  return null;
+}
+
 export function useAutoSuggestClient(
   text: string,
   clients: ClientOption[],
