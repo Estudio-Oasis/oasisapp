@@ -61,7 +61,7 @@ export function AppSidebar() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("name, avatar_url, role, onboarded")
+      .select("name, avatar_url, role, onboarded, job_title")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
