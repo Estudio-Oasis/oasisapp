@@ -331,6 +331,10 @@ const en: Record<keyof typeof es, string> = {
   "clients.completeness.complete": "Complete",
   "clients.completeness.incomplete": "Incomplete",
   "clients.completeness.critical": "Critical",
+  "clients.completeness.noActivity": "No activity",
+  "clients.noMatch": "No clients match your filters.",
+  "clients.via": "via",
+  "clients.noRate": "No rate",
 
   // Client form
   "clientForm.title": "New client",
