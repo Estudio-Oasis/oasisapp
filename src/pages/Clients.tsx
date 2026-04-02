@@ -267,6 +267,30 @@ export default function ClientsPage() {
                   </div>
                 )}
 
+                {/* Menu */}
+                {isAdmin && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="h-8 w-8 flex items-center justify-center rounded-lg text-foreground-muted hover:text-foreground hover:bg-background-secondary opacity-0 group-hover:opacity-100 transition-all shrink-0"
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenuItem onClick={() => handleArchiveClient(client)} className="gap-2">
+                        <Archive className="h-3.5 w-3.5" />
+                        Archivar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setDeleteTarget(client)} className="gap-2 text-destructive focus:text-destructive">
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Eliminar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+
                 <ChevronRight className="h-4 w-4 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
               </div>
             );
