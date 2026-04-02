@@ -39,6 +39,7 @@ interface Profile {
   avatar_url: string | null;
   role: string;
   onboarded: boolean;
+  job_title: string | null;
 }
 
 export function AppSidebar() {
