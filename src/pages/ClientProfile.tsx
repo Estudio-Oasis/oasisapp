@@ -313,13 +313,13 @@ export default function ClientProfilePage() {
             <TabsContent value="time" className="mt-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
-                  <span className="text-sm text-foreground-secondary">Esta semana: <strong className="text-foreground">{stats.weekHours}h</strong></span>
-                  <span className="text-sm text-foreground-secondary">Este mes: <strong className="text-foreground">{stats.monthHours}h</strong></span>
+                  <span className="text-sm text-foreground-secondary">{t("clientProfile.thisWeek")}: <strong className="text-foreground">{stats.weekHours}h</strong></span>
+                  <span className="text-sm text-foreground-secondary">{t("clientProfile.thisMonth")}: <strong className="text-foreground">{stats.monthHours}h</strong></span>
                 </div>
                 <div className="inline-flex rounded-lg bg-background-secondary p-1">
                   {(["mine", "all"] as const).map((f) => (
                     <button key={f} onClick={() => setTimeFilter(f)} className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${timeFilter === f ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
-                      {f === "mine" ? "Mis registros" : "Todos"}
+                      {f === "mine" ? t("clientProfile.myEntries") : t("clientProfile.allEntries")}
                     </button>
                   ))}
                 </div>
