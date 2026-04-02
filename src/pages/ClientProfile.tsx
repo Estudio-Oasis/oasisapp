@@ -658,7 +658,7 @@ function ClientTasksTab({ clientId, clientName }: { clientId: string; clientName
           ))}
         </div>
         <Button variant="secondary" size="sm" onClick={() => setNewTaskOpen(true)}>
-          + New task for {clientName}
+          + Nueva tarea para {clientName}
         </Button>
       </div>
 
