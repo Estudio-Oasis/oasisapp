@@ -99,9 +99,25 @@ export function TimerWidget() {
   const handleNoteSave = useCallback((value: string) => {
     setQuickNote(value);
     if (noteDebounceRef.current) clearTimeout(noteDebounceRef.current);
-    // Notes could be stored on time_entry description or a notes field
-    // For now we append to description if needed
   }, []);
+
+  const handleStopTimer = useCallback(async () => {
+    const taskId = activeEntry?.task_id;
+    const taskTitle = activeTask?.title;
+    await stopTimer();
+    if (taskId && taskTitle) {
+      setTaskCompletionDialog({ taskId, taskTitle });
+    }
+  }, [activeEntry, activeTask, stopTimer]);
+
+  const handleTaskComplete = async (completed: boolean) => {
+    if (!taskCompletionDialog) return;
+    if (completed) {
+      await supabase.from("tasks").update({ status: "done" as const }).eq("id", taskCompletionDialog.taskId);
+      toast.success("✅ Tarea marcada como completada");
+    }
+    setTaskCompletionDialog(null);
+  };
 
   const handleSaveIdea = async () => {
     if (!ideaText.trim() || !user) return;
