@@ -172,7 +172,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
                   }}
                   className="w-full h-9 rounded-xl border border-border/60 dark:border-border/40 text-[12px] font-medium text-foreground-secondary hover:bg-background-secondary transition-colors"
                 >
-                  {UI_COPY.addManual || "Agregar registro manual"}
+                  Agregar registro manual
                 </button>
               )}
             </div>
