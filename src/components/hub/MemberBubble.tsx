@@ -8,6 +8,7 @@ interface MemberBubbleProps {
   currentClient: string | null;
   currentTask: string | null;
   lastSeenAt?: string;
+  todayHours?: number;
   isMe?: boolean;
   onClick: () => void;
 }
