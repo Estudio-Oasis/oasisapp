@@ -49,8 +49,9 @@ export function useUnreadChats() {
     checkUnread();
 
     // Listen for new messages
+    const channelName = `unread-chat-notifier-${user.id}-${Date.now()}`;
     const channel = supabase
-      .channel("unread-chat-notifier")
+      .channel(channelName)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "chat_messages" },
