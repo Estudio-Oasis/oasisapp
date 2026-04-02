@@ -907,7 +907,7 @@ function InteractionsTab({ clientId, interactions, onRefresh }: { clientId: stri
             </select>
             <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Título" className="flex-1" />
           </div>
-          <Textarea value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} placeholder="Details (optional)" rows={2} />
+          <Textarea value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} placeholder="Detalles (opcional)" rows={2} />
           <div className="flex gap-2">
             <Button size="sm" onClick={handleSave} disabled={saving || !form.title.trim()}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
