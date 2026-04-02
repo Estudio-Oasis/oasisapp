@@ -309,6 +309,7 @@ export default function HubPage() {
                 currentClient={m.current_client}
                 currentTask={m.current_task}
                 lastSeenAt={m.last_seen_at}
+                todayHours={m.todayHours}
                 isMe={m.user_id === user?.id}
                 onClick={() => handleMemberClick(m.user_id)}
               />
