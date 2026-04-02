@@ -905,7 +905,7 @@ function InteractionsTab({ clientId, interactions, onRefresh }: { clientId: stri
               <option value="call">Llamada</option>
               <option value="payment">Pago</option>
             </select>
-            <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Title" className="flex-1" />
+            <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Título" className="flex-1" />
           </div>
           <Textarea value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} placeholder="Details (optional)" rows={2} />
           <div className="flex gap-2">
