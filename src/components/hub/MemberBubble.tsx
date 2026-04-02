@@ -38,7 +38,7 @@ const statusDot = {
   offline: "bg-foreground-muted",
 };
 
-export function MemberBubble({ name, avatarUrl, status, statusLabel, currentClient, currentTask, lastSeenAt, isMe, onClick }: MemberBubbleProps) {
+export function MemberBubble({ name, avatarUrl, status, statusLabel, currentClient, currentTask, lastSeenAt, todayHours, isMe, onClick }: MemberBubbleProps) {
   const initials = name
     .split(" ")
     .map((w) => w[0])
