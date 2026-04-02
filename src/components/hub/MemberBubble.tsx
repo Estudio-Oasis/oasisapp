@@ -8,6 +8,7 @@ interface MemberBubbleProps {
   currentClient: string | null;
   currentTask: string | null;
   lastSeenAt?: string;
+  todayHours?: number;
   isMe?: boolean;
   onClick: () => void;
 }
@@ -37,7 +38,7 @@ const statusDot = {
   offline: "bg-foreground-muted",
 };
 
-export function MemberBubble({ name, avatarUrl, status, statusLabel, currentClient, currentTask, lastSeenAt, isMe, onClick }: MemberBubbleProps) {
+export function MemberBubble({ name, avatarUrl, status, statusLabel, currentClient, currentTask, lastSeenAt, todayHours, isMe, onClick }: MemberBubbleProps) {
   const initials = name
     .split(" ")
     .map((w) => w[0])
@@ -95,9 +96,11 @@ export function MemberBubble({ name, avatarUrl, status, statusLabel, currentClie
         ) : (
           <>
             <span className="text-[10px] text-foreground-muted">{statusLabel}</span>
-            {status === "offline" && lastSeenAt && (
+            {status === "offline" && todayHours != null && todayHours > 0 ? (
+              <span className="text-[9px] text-foreground-muted/60">Hoy: {todayHours}h</span>
+            ) : status === "offline" && lastSeenAt ? (
               <span className="text-[9px] text-foreground-muted/60">{formatLastSeen(lastSeenAt)}</span>
-            )}
+            ) : null}
           </>
         )}
       </div>

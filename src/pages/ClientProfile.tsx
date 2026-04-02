@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -74,6 +75,7 @@ export default function ClientProfilePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isAdmin } = useRole();
+  const { t } = useLanguage();
   const [client, setClient] = useState<ClientFull | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("overview");
@@ -202,7 +204,7 @@ export default function ClientProfilePage() {
                 <AlertTriangle className={`h-5 w-5 shrink-0 mt-0.5 ${level === "critical" ? "text-destructive" : "text-accent"}`} />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-foreground">
-                    {level === "critical" ? "Este cliente tiene información incompleta" : "Completa el perfil del cliente para activar el seguimiento completo"}
+                    {level === "critical" ? t("clientProfile.missingInfo") : t("clientProfile.completeForTracking")}
                   </p>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {missing.map((m) => (
@@ -213,7 +215,7 @@ export default function ClientProfilePage() {
                   </div>
                 </div>
                 <Button variant="accent" size="sm" onClick={() => setEditOpen(true)}>
-                  Completar perfil →
+                  {t("clientProfile.completeProfile")}
                 </Button>
               </div>
             </div>
@@ -249,7 +251,7 @@ export default function ClientProfilePage() {
             </div>
             <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
               <Pencil className="h-3.5 w-3.5" />
-              Editar
+              {t("clientProfile.editClient")}
             </Button>
           </div>
 
@@ -257,12 +259,12 @@ export default function ClientProfilePage() {
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="bg-transparent border-b border-border rounded-none p-0 h-auto gap-4 flex-wrap">
               {[
-                { key: "overview", label: "Resumen" },
-                { key: "time", label: "Tiempo" },
-                { key: "tasks", label: "Tareas" },
-                { key: "credentials", label: "Credenciales" },
-                { key: "interactions", label: "Interacciones" },
-                ...(isAdmin ? [{ key: "finances", label: "Finanzas" }] : []),
+                { key: "overview", label: t("clientProfile.overview") },
+                { key: "time", label: t("clientProfile.time") },
+                { key: "tasks", label: t("clientProfile.tasks") },
+                { key: "credentials", label: t("clientProfile.credentials") },
+                { key: "interactions", label: t("clientProfile.interactions") },
+                ...(isAdmin ? [{ key: "finances", label: t("clientProfile.finances") }] : []),
               ].map((t) => (
                 <TabsTrigger
                   key={t.key}
@@ -278,24 +280,24 @@ export default function ClientProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 {isAdmin && (
                   <div className="border border-border rounded-lg p-5">
-                    <p className="text-micro text-foreground-muted mb-2">Tarifa</p>
+                    <p className="text-micro text-foreground-muted mb-2">{t("clientProfile.rate")}</p>
                     {client.monthly_rate ? (
                       <>
                         <p className="text-h2 text-foreground">${client.monthly_rate.toLocaleString()}{freqLabel[client.payment_frequency || "monthly"]}</p>
                         <RateBreakdown monthlyRate={client.monthly_rate} paymentFrequency={client.payment_frequency || "monthly"} currency={client.currency} />
                       </>
                     ) : (
-                      <p className="text-sm text-foreground-muted">Sin definir</p>
+                      <p className="text-sm text-foreground-muted">{t("clientProfile.notSet")}</p>
                     )}
                     {client.payment_method && <p className="text-small text-foreground-secondary mt-1">via {client.payment_method}</p>}
                   </div>
                 )}
                 <div className="border border-border rounded-lg p-5">
-                  <p className="text-micro text-foreground-muted mb-2">Este mes</p>
+                  <p className="text-micro text-foreground-muted mb-2">{t("clientProfile.thisMonth")}</p>
                   <p className="text-h2 text-foreground">{stats.monthHours}h</p>
                   {isAdmin && client.monthly_rate && stats.monthHours > 0 && (
                     <p className="text-small text-foreground-secondary mt-1">
-                      ~${Math.round(client.monthly_rate / stats.monthHours)}/hr effective
+                      ~${Math.round(client.monthly_rate / stats.monthHours)}/hr {t("clientProfile.effectiveRate")}
                     </p>
                   )}
                 </div>
@@ -311,19 +313,19 @@ export default function ClientProfilePage() {
             <TabsContent value="time" className="mt-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
-                  <span className="text-sm text-foreground-secondary">Esta semana: <strong className="text-foreground">{stats.weekHours}h</strong></span>
-                  <span className="text-sm text-foreground-secondary">Este mes: <strong className="text-foreground">{stats.monthHours}h</strong></span>
+                  <span className="text-sm text-foreground-secondary">{t("clientProfile.thisWeek")}: <strong className="text-foreground">{stats.weekHours}h</strong></span>
+                  <span className="text-sm text-foreground-secondary">{t("clientProfile.thisMonth")}: <strong className="text-foreground">{stats.monthHours}h</strong></span>
                 </div>
                 <div className="inline-flex rounded-lg bg-background-secondary p-1">
                   {(["mine", "all"] as const).map((f) => (
                     <button key={f} onClick={() => setTimeFilter(f)} className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${timeFilter === f ? "bg-foreground text-background" : "text-foreground-secondary hover:text-foreground"}`}>
-                      {f === "mine" ? "Mis registros" : "Todos"}
+                      {f === "mine" ? t("clientProfile.myEntries") : t("clientProfile.allEntries")}
                     </button>
                   ))}
                 </div>
               </div>
               {timeEntries.length === 0 ? (
-                <p className="text-sm text-foreground-muted py-8 text-center">Sin registros de tiempo para este cliente.</p>
+                <p className="text-sm text-foreground-muted py-8 text-center">{t("clientProfile.noTimeEntries")}</p>
               ) : (
                 <div className="flex flex-col">
                   {timeEntries.map((e) => {
@@ -343,7 +345,7 @@ export default function ClientProfilePage() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{e.description || "No description"}</p>
+                          <p className="text-sm font-medium text-foreground truncate">{e.description || t("clientProfile.noDescription")}</p>
                           <p className="text-small text-foreground-muted">
                             {start.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                             {timeFilter === "all" && <span> · {loggerName}</span>}
@@ -351,7 +353,7 @@ export default function ClientProfilePage() {
                         </div>
                         <div className="text-right shrink-0">
                           <p className="text-small text-foreground-secondary">
-                            {formatTime(start)}{end ? ` – ${formatTime(end)}` : " – running"}
+                            {formatTime(start)}{end ? ` – ${formatTime(end)}` : ` – ${t("clientProfile.running")}`}
                           </p>
                           <p className="text-sm font-semibold text-foreground">
                             {e.duration_min ? formatDuration(e.duration_min) : "—"}
@@ -386,25 +388,25 @@ export default function ClientProfilePage() {
         {tab === "overview" && (
           <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4">
             <div className="border border-border rounded-lg p-5">
-              <p className="text-micro text-foreground-muted mb-3">Estadísticas</p>
+              <p className="text-micro text-foreground-muted mb-3">{t("clientProfile.quickStats")}</p>
               <div className="flex flex-col gap-3">
                 <div>
                   <p className="text-h2 text-foreground">{stats.weekHours}h</p>
-                  <p className="text-small text-foreground-secondary">Esta semana</p>
+                  <p className="text-small text-foreground-secondary">{t("clientProfile.thisWeek")}</p>
                 </div>
                 <div>
                   <p className="text-h2 text-foreground">{stats.monthHours}h</p>
-                  <p className="text-small text-foreground-secondary">Este mes</p>
+                  <p className="text-small text-foreground-secondary">{t("clientProfile.thisMonth")}</p>
                 </div>
                 <div>
                   <p className="text-h2 text-foreground">{stats.totalHours}h</p>
-                  <p className="text-small text-foreground-secondary">Total</p>
+                  <p className="text-small text-foreground-secondary">{t("clientProfile.allTime")}</p>
                 </div>
               </div>
             </div>
 
             <div className="border border-border rounded-lg p-5">
-              <p className="text-micro text-foreground-muted mb-3">Contacto</p>
+              <p className="text-micro text-foreground-muted mb-3">{t("clientProfile.contact")}</p>
               <div className="flex flex-col gap-2 text-sm">
                 {client.contact_name && <p><span className="text-foreground-secondary">Contacto:</span> {client.contact_name}</p>}
                 {client.email && <p><span className="text-foreground-secondary">Correo:</span> {client.email}</p>}
@@ -416,7 +418,7 @@ export default function ClientProfilePage() {
 
             {isAdmin && (
               <div className="border border-border rounded-lg p-5">
-              <p className="text-micro text-foreground-muted mb-3">Pago</p>
+              <p className="text-micro text-foreground-muted mb-3">{t("clientProfile.payment")}</p>
               <div className="flex flex-col gap-2 text-sm">
                 <p><span className="text-foreground-secondary">Tarifa:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
                 <p><span className="text-foreground-secondary">Frecuencia:</span> {client.payment_frequency || "mensual"}</p>
@@ -482,32 +484,32 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
     <div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
         <div className="border border-border rounded-lg p-4">
-          <p className="text-micro text-foreground-muted mb-1">Total invoiced</p>
+          <p className="text-micro text-foreground-muted mb-1">Total facturado</p>
           <p className="text-h2 text-foreground">${totalInvoiced.toLocaleString()}</p>
         </div>
         <div className="border border-border rounded-lg p-4">
-          <p className="text-micro text-foreground-muted mb-1">Outstanding</p>
+          <p className="text-micro text-foreground-muted mb-1">Pendiente</p>
           <p className={`text-h2 ${outstanding > 0 ? "text-destructive" : "text-foreground"}`}>${outstanding.toLocaleString()}</p>
         </div>
         {effectiveRate && (
           <div className="border border-border rounded-lg p-4">
-            <p className="text-micro text-foreground-muted mb-1">Effective $/hr</p>
+            <p className="text-micro text-foreground-muted mb-1">$/hr efectivo</p>
             <p className="text-h2 text-foreground">${effectiveRate}</p>
-            <p className="text-small text-foreground-muted">{monthHours}h this month</p>
+            <p className="text-small text-foreground-muted">{monthHours}h este mes</p>
           </div>
         )}
       </div>
 
       {/* Invoices */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-h3 text-foreground">Invoices</h3>
+        <h3 className="text-h3 text-foreground">Facturas</h3>
         <Button variant="secondary" size="sm" onClick={() => setNewInvOpen(true)}>
-          + New invoice for {clientName}
+          + Nueva factura para {clientName}
         </Button>
       </div>
 
       {invoices.length === 0 ? (
-        <p className="text-sm text-foreground-muted py-6 text-center">No invoices for this client yet.</p>
+        <p className="text-sm text-foreground-muted py-6 text-center">Aún no hay facturas para este cliente.</p>
       ) : (
         <div className="flex flex-col mb-6">
           {invoices.map((inv) => {
@@ -533,22 +535,22 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
 
       {/* Payments received */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-h3 text-foreground">Payments received</h3>
+        <h3 className="text-h3 text-foreground">Pagos recibidos</h3>
         <Button variant="secondary" size="sm" onClick={() => setNewPayOpen(true)}>
-          + Log payment for {clientName}
+          + Registrar pago para {clientName}
         </Button>
       </div>
 
       {payments.length > 0 && (
         <div className="border border-border rounded-lg p-3 mb-3 text-sm text-foreground-secondary">
-          Total received: {totalReceivedUSD > 0 && <span className="font-medium text-foreground">${totalReceivedUSD.toLocaleString()} USD</span>}
+          Total recibido: {totalReceivedUSD > 0 && <span className="font-medium text-foreground">${totalReceivedUSD.toLocaleString()} USD</span>}
           {totalReceivedUSD > 0 && totalReceivedMXN > 0 && " · "}
           {totalReceivedMXN > 0 && <span className="font-medium text-foreground">${totalReceivedMXN.toLocaleString()} MXN</span>}
         </div>
       )}
 
       {payments.length === 0 ? (
-        <p className="text-sm text-foreground-muted py-6 text-center mb-6">No payments recorded for this client yet.</p>
+        <p className="text-sm text-foreground-muted py-6 text-center mb-6">Aún no hay pagos registrados para este cliente.</p>
       ) : (
         <div className="flex flex-col mb-6">
           {payments.slice(0, 10).map((p) => (
@@ -573,7 +575,7 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
 
       {expenses.length > 0 && (
         <>
-          <h3 className="text-h3 text-foreground mb-3">Linked expenses</h3>
+          <h3 className="text-h3 text-foreground mb-3">Gastos vinculados</h3>
           <div className="flex flex-col">
             {expenses.map((exp) => (
               <div key={exp.id} className="flex items-center gap-3 py-3 border-b border-border">
@@ -651,21 +653,21 @@ function ClientTasksTab({ clientId, clientName }: { clientId: string; clientName
                 filter === f ? "bg-primary text-primary-foreground" : "border border-border text-foreground-secondary hover:bg-background-secondary"
               }`}
             >
-              {f === "active" ? "Active" : f === "done" ? "Done" : "All"}
+              {f === "active" ? "Activas" : f === "done" ? "Completadas" : "Todas"}
             </button>
           ))}
         </div>
         <Button variant="secondary" size="sm" onClick={() => setNewTaskOpen(true)}>
-          + New task for {clientName}
+          + Nueva tarea para {clientName}
         </Button>
       </div>
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center py-16 text-center">
           <CheckSquare className="h-8 w-8 text-border mb-3" />
-          <p className="text-sm text-foreground-muted">No tasks for this client yet</p>
+          <p className="text-sm text-foreground-muted">Aún no hay tareas para este cliente</p>
           <Button variant="secondary" size="sm" className="mt-3" onClick={() => setNewTaskOpen(true)}>
-            + New task
+            + Nueva tarea
           </Button>
         </div>
       ) : (
@@ -689,13 +691,13 @@ function ClientTasksTab({ clientId, clientName }: { clientId: string; clientName
                 </button>
                 <div className="flex-1 min-w-0">
                   <span className={`text-sm font-medium ${isDone ? "line-through opacity-50" : "text-foreground"}`}>{task.title}</span>
-                  {overdue && <span className="ml-2 text-[11px] font-medium bg-destructive-light text-destructive px-2 py-0.5 rounded-full">Overdue</span>}
+                  {overdue && <span className="ml-2 text-[11px] font-medium bg-destructive-light text-destructive px-2 py-0.5 rounded-full">Vencida</span>}
                 </div>
                 {(task.priority === "urgent" || task.priority === "high") && (
                   <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                     task.priority === "urgent" ? "bg-destructive-light text-destructive" : "bg-accent-light text-accent-foreground"
                   }`}>
-                    {task.priority === "urgent" ? "⚡ Urgent" : "↑ High"}
+                    {task.priority === "urgent" ? "⚡ Urgente" : "↑ Alta"}
                   </span>
                 )}
                 {task.due_date && (
@@ -732,13 +734,13 @@ function NewTaskModalInline({ clientId, onClose, onCreated }: { clientId: string
   return (
     <div className="border border-border rounded-lg p-4 mt-4 flex gap-3 items-end">
       <div className="flex-1">
-        <label className="text-label mb-1 block">Task title</label>
-        <Input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs to be done?" onKeyDown={(e) => e.key === "Enter" && handleSave()} />
+        <label className="text-label mb-1 block">Título de la tarea</label>
+        <Input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="¿Qué necesita hacerse?" onKeyDown={(e) => e.key === "Enter" && handleSave()} />
       </div>
       <Button size="sm" onClick={handleSave} disabled={saving || !title.trim()}>
-        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add"}
+        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Agregar"}
       </Button>
-      <Button size="sm" variant="secondary" onClick={onClose}>Cancel</Button>
+      <Button size="sm" variant="secondary" onClick={onClose}>Cancelar</Button>
     </div>
   );
 }
@@ -755,7 +757,7 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
 
   const copyPassword = async (pw: string) => {
     await navigator.clipboard.writeText(pw);
-    toast.success("Password copied!");
+    toast.success("Contraseña copiada");
   };
 
   const handleSave = async () => {
@@ -771,7 +773,7 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
     }] as never);
     setSaving(false);
     if (error) {
-      toast.error("Failed to save credential");
+      toast.error("No se pudo guardar la credencial");
       return;
     }
     setAdding(false);
@@ -787,26 +789,26 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-h3 text-foreground">Access & Credentials</h3>
+        <h3 className="text-h3 text-foreground">Accesos y credenciales</h3>
         <Button variant="secondary" size="sm" onClick={() => setAdding(!adding)}>
-          + Add credential
+          + Agregar credencial
         </Button>
       </div>
 
       {adding && (
         <div className="border border-border rounded-lg p-4 mb-4 flex flex-col gap-3">
-          <Input value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} placeholder="Service (e.g. Slack, GitHub)" />
-          <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="URL (optional)" />
+          <Input value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} placeholder="Servicio (ej: Slack, GitHub)" />
+          <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="URL (opcional)" />
           <div className="grid grid-cols-2 gap-3">
-            <Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="Username" />
-            <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Password" />
+            <Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} placeholder="Usuario" />
+            <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Contraseña" />
           </div>
-          <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Notes (optional)" rows={2} />
+          <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Notas (opcional)" rows={2} />
           <div className="flex gap-2">
             <Button size="sm" onClick={handleSave} disabled={saving || !form.service.trim()}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => setAdding(false)}>Cancel</Button>
+            <Button variant="secondary" size="sm" onClick={() => setAdding(false)}>Cancelar</Button>
           </div>
         </div>
       )}
@@ -814,9 +816,9 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
       {credentials.length === 0 && !adding ? (
         <div className="flex flex-col items-center py-16 text-center">
           <Key className="h-8 w-8 text-border mb-3" />
-          <p className="text-sm text-foreground-muted">No credentials saved yet</p>
+          <p className="text-sm text-foreground-muted">Aún no hay credenciales guardadas</p>
           <Button variant="secondary" size="sm" className="mt-3" onClick={() => setAdding(true)}>
-            + Add credential
+            + Agregar credencial
           </Button>
         </div>
       ) : (
@@ -887,7 +889,7 @@ function InteractionsTab({ clientId, interactions, onRefresh }: { clientId: stri
   return (
     <div>
       <Button variant="secondary" size="sm" onClick={() => setAdding(!adding)} className="mb-4">
-        + Add interaction
+        + Agregar interacción
       </Button>
 
       {adding && (
@@ -898,25 +900,25 @@ function InteractionsTab({ clientId, interactions, onRefresh }: { clientId: stri
               value={form.type}
               onChange={(e) => setForm({ ...form, type: e.target.value })}
             >
-              <option value="note">Note</option>
-              <option value="meeting">Meeting</option>
-              <option value="call">Call</option>
-              <option value="payment">Payment</option>
+              <option value="note">Nota</option>
+              <option value="meeting">Reunión</option>
+              <option value="call">Llamada</option>
+              <option value="payment">Pago</option>
             </select>
-            <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Title" className="flex-1" />
+            <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Título" className="flex-1" />
           </div>
-          <Textarea value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} placeholder="Details (optional)" rows={2} />
+          <Textarea value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} placeholder="Detalles (opcional)" rows={2} />
           <div className="flex gap-2">
             <Button size="sm" onClick={handleSave} disabled={saving || !form.title.trim()}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => setAdding(false)}>Cancel</Button>
+            <Button variant="secondary" size="sm" onClick={() => setAdding(false)}>Cancelar</Button>
           </div>
         </div>
       )}
 
       {interactions.length === 0 ? (
-        <p className="text-sm text-foreground-muted py-8 text-center">No interactions recorded yet.</p>
+        <p className="text-sm text-foreground-muted py-8 text-center">Aún no hay interacciones registradas.</p>
       ) : (
         <div className="flex flex-col">
           {interactions.map((i) => (

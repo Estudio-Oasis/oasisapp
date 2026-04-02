@@ -18,6 +18,15 @@ import {
   getNormalizedActivityType,
   getActivityConfig,
 } from "@/components/timer/ActivityConstants";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export function TimerWidget() {
   const {
@@ -39,6 +48,7 @@ export function TimerWidget() {
   const [ideaText, setIdeaText] = useState("");
   const [showIdeaInput, setShowIdeaInput] = useState(false);
   const [savingIdea, setSavingIdea] = useState(false);
+  const [taskCompletionDialog, setTaskCompletionDialog] = useState<{ taskId: string; taskTitle: string } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const noteDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -89,9 +99,25 @@ export function TimerWidget() {
   const handleNoteSave = useCallback((value: string) => {
     setQuickNote(value);
     if (noteDebounceRef.current) clearTimeout(noteDebounceRef.current);
-    // Notes could be stored on time_entry description or a notes field
-    // For now we append to description if needed
   }, []);
+
+  const handleStopTimer = useCallback(async () => {
+    const taskId = activeEntry?.task_id;
+    const taskTitle = activeTask?.title;
+    await stopTimer();
+    if (taskId && taskTitle) {
+      setTaskCompletionDialog({ taskId, taskTitle });
+    }
+  }, [activeEntry, activeTask, stopTimer]);
+
+  const handleTaskComplete = async (completed: boolean) => {
+    if (!taskCompletionDialog) return;
+    if (completed) {
+      await supabase.from("tasks").update({ status: "done" as const }).eq("id", taskCompletionDialog.taskId);
+      toast.success("✅ Tarea marcada como completada");
+    }
+    setTaskCompletionDialog(null);
+  };
 
   const handleSaveIdea = async () => {
     if (!ideaText.trim() || !user) return;
@@ -215,7 +241,7 @@ export function TimerWidget() {
                   Cambiar
                 </button>
                 <button
-                  onClick={() => { setExpanded(false); void stopTimer(); }}
+                  onClick={() => { setExpanded(false); void handleStopTimer(); }}
                   disabled={isStopping}
                   className="flex-1 h-8 rounded-md bg-destructive text-xs font-semibold text-destructive-foreground hover:opacity-90 transition-opacity disabled:opacity-70"
                 >
@@ -274,7 +300,7 @@ export function TimerWidget() {
                 Cambiar
               </button>
               <button
-                onClick={() => void stopTimer()}
+                onClick={() => void handleStopTimer()}
                 disabled={isStopping}
                 className="flex-1 h-7 rounded-md bg-destructive text-xs font-semibold text-destructive-foreground hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
               >
@@ -293,6 +319,26 @@ export function TimerWidget() {
       </div>
 
       <QuickSheet open={modalOpen} onOpenChange={setModalOpen} mode={modalMode} />
+
+      {/* Task completion dialog */}
+      <Dialog open={!!taskCompletionDialog} onOpenChange={(open) => { if (!open) setTaskCompletionDialog(null); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>¿Completaste esta tarea?</DialogTitle>
+            <DialogDescription>
+              "{taskCompletionDialog?.taskTitle}"
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => handleTaskComplete(false)}>
+              No, sigue en progreso
+            </Button>
+            <Button variant="default" onClick={() => handleTaskComplete(true)}>
+              Sí, completada ✅
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
