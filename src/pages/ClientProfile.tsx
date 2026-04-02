@@ -691,7 +691,7 @@ function ClientTasksTab({ clientId, clientName }: { clientId: string; clientName
                 </button>
                 <div className="flex-1 min-w-0">
                   <span className={`text-sm font-medium ${isDone ? "line-through opacity-50" : "text-foreground"}`}>{task.title}</span>
-                  {overdue && <span className="ml-2 text-[11px] font-medium bg-destructive-light text-destructive px-2 py-0.5 rounded-full">Overdue</span>}
+                  {overdue && <span className="ml-2 text-[11px] font-medium bg-destructive-light text-destructive px-2 py-0.5 rounded-full">Vencida</span>}
                 </div>
                 {(task.priority === "urgent" || task.priority === "high") && (
                   <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
