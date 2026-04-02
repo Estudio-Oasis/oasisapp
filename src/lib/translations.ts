@@ -53,6 +53,10 @@ const es = {
   "clients.completeness.complete": "Completo",
   "clients.completeness.incomplete": "Incompleto",
   "clients.completeness.critical": "Crítico",
+  "clients.completeness.noActivity": "Sin actividad",
+  "clients.noMatch": "No hay clientes que coincidan.",
+  "clients.via": "vía",
+  "clients.noRate": "Sin tarifa",
 
   // Client form
   "clientForm.title": "Nuevo cliente",
