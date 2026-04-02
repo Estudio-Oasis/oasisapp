@@ -99,6 +99,8 @@ const es = {
   "tasks.priority.urgent": "Urgente",
   "tasks.noTasks": "Sin tareas",
   "tasks.addFirst": "Crea tu primera tarea",
+  "tasks.pending": "Pendientes",
+  "tasks.noMatch": "No hay tareas que coincidan con tus filtros.",
 
   // Task form
   "taskForm.title": "Nueva tarea",
