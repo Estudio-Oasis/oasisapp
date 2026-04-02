@@ -418,7 +418,7 @@ export default function ClientProfilePage() {
 
             {isAdmin && (
               <div className="border border-border rounded-lg p-5">
-              <p className="text-micro text-foreground-muted mb-3">Pago</p>
+              <p className="text-micro text-foreground-muted mb-3">{t("clientProfile.payment")}</p>
               <div className="flex flex-col gap-2 text-sm">
                 <p><span className="text-foreground-secondary">Tarifa:</span> {client.monthly_rate ? `$${client.monthly_rate.toLocaleString()}` : "—"}</p>
                 <p><span className="text-foreground-secondary">Frecuencia:</span> {client.payment_frequency || "mensual"}</p>
