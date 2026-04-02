@@ -757,7 +757,7 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
 
   const copyPassword = async (pw: string) => {
     await navigator.clipboard.writeText(pw);
-    toast.success("Password copied!");
+    toast.success("Contraseña copiada");
   };
 
   const handleSave = async () => {
