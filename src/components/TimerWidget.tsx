@@ -18,6 +18,15 @@ import {
   getNormalizedActivityType,
   getActivityConfig,
 } from "@/components/timer/ActivityConstants";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export function TimerWidget() {
   const {
