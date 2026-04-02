@@ -353,7 +353,7 @@ export default function ClientProfilePage() {
                         </div>
                         <div className="text-right shrink-0">
                           <p className="text-small text-foreground-secondary">
-                            {formatTime(start)}{end ? ` – ${formatTime(end)}` : " – running"}
+                            {formatTime(start)}{end ? ` – ${formatTime(end)}` : ` – ${t("clientProfile.running")}`}
                           </p>
                           <p className="text-sm font-semibold text-foreground">
                             {e.duration_min ? formatDuration(e.duration_min) : "—"}
