@@ -550,7 +550,7 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
       )}
 
       {payments.length === 0 ? (
-        <p className="text-sm text-foreground-muted py-6 text-center mb-6">No payments recorded for this client yet.</p>
+        <p className="text-sm text-foreground-muted py-6 text-center mb-6">Aún no hay pagos registrados para este cliente.</p>
       ) : (
         <div className="flex flex-col mb-6">
           {payments.slice(0, 10).map((p) => (
