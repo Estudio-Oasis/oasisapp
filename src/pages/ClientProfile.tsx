@@ -251,7 +251,7 @@ export default function ClientProfilePage() {
             </div>
             <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
               <Pencil className="h-3.5 w-3.5" />
-              Editar
+              {t("clientProfile.editClient")}
             </Button>
           </div>
 
