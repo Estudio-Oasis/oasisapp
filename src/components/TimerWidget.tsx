@@ -241,7 +241,7 @@ export function TimerWidget() {
                   Cambiar
                 </button>
                 <button
-                  onClick={() => { setExpanded(false); void stopTimer(); }}
+                  onClick={() => { setExpanded(false); void handleStopTimer(); }}
                   disabled={isStopping}
                   className="flex-1 h-8 rounded-md bg-destructive text-xs font-semibold text-destructive-foreground hover:opacity-90 transition-opacity disabled:opacity-70"
                 >
