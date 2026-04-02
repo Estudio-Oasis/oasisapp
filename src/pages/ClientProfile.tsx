@@ -259,12 +259,12 @@ export default function ClientProfilePage() {
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="bg-transparent border-b border-border rounded-none p-0 h-auto gap-4 flex-wrap">
               {[
-                { key: "overview", label: "Resumen" },
-                { key: "time", label: "Tiempo" },
-                { key: "tasks", label: "Tareas" },
-                { key: "credentials", label: "Credenciales" },
-                { key: "interactions", label: "Interacciones" },
-                ...(isAdmin ? [{ key: "finances", label: "Finanzas" }] : []),
+                { key: "overview", label: t("clientProfile.overview") },
+                { key: "time", label: t("clientProfile.time") },
+                { key: "tasks", label: t("clientProfile.tasks") },
+                { key: "credentials", label: t("clientProfile.credentials") },
+                { key: "interactions", label: t("clientProfile.interactions") },
+                ...(isAdmin ? [{ key: "finances", label: t("clientProfile.finances") }] : []),
               ].map((t) => (
                 <TabsTrigger
                   key={t.key}
