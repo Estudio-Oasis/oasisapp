@@ -39,6 +39,7 @@ interface Profile {
   avatar_url: string | null;
   role: string;
   onboarded: boolean;
+  job_title: string | null;
 }
 
 export function AppSidebar() {
@@ -60,7 +61,7 @@ export function AppSidebar() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("name, avatar_url, role, onboarded")
+      .select("name, avatar_url, role, onboarded, job_title")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
@@ -199,8 +200,12 @@ export function AppSidebar() {
             data-tour="profile-btn"
             className="flex items-center gap-2.5 px-3 py-2 w-full rounded-md hover:bg-background-tertiary transition-colors text-left"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background-tertiary text-xs font-semibold text-foreground-secondary">
-              {displayName.charAt(0).toUpperCase()}
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background-tertiary text-xs font-semibold text-foreground-secondary overflow-hidden">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                displayName.charAt(0).toUpperCase()
+              )}
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-medium text-foreground truncate">{displayName}</span>
@@ -215,7 +220,7 @@ export function AppSidebar() {
       <ProfileSheet
         open={profileOpen}
         onOpenChange={setProfileOpen}
-        profile={{ name: displayName, role }}
+        profile={{ name: displayName, role, avatar_url: profile?.avatar_url, job_title: profile?.job_title }}
         onProfileUpdated={(updated) => setProfile((prev) => prev ? { ...prev, ...updated } : prev)}
         onSignOut={signOut}
       />

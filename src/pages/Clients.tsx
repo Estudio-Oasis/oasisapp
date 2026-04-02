@@ -6,10 +6,13 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatWidget } from "@/components/ui/widget-card";
-import { Plus, Search, Users, ChevronRight, Building2, TrendingUp, AlertTriangle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Search, Users, ChevronRight, Building2, TrendingUp, AlertTriangle, MoreHorizontal, Trash2, Archive } from "lucide-react";
 import { getClientColor } from "@/lib/timer-utils";
 import { getCompletenessLevel, type CompletenessLevel } from "@/lib/clientCompleteness";
 import { NewClientModal } from "@/components/NewClientModal";
+import { toast } from "sonner";
 
 interface ClientRow {
   id: string;
@@ -69,6 +72,31 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "inactive" | "incomplete">("all");
   const [modalOpen, setModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ClientRow | null>(null);
+
+  const handleArchiveClient = async (client: ClientRow) => {
+    const { error } = await supabase
+      .from("clients")
+      .update({ status: "inactive" })
+      .eq("id", client.id);
+    if (error) { toast.error("No se pudo archivar"); return; }
+    toast.success(`"${client.name}" archivado`);
+    fetchClients();
+  };
+
+  const handleDeleteClient = async () => {
+    if (!deleteTarget) return;
+    // Unlink time_entries and tasks first
+    await Promise.all([
+      supabase.from("time_entries").update({ client_id: null }).eq("client_id", deleteTarget.id),
+      supabase.from("tasks").update({ client_id: null }).eq("client_id", deleteTarget.id),
+    ]);
+    const { error } = await supabase.from("clients").delete().eq("id", deleteTarget.id);
+    if (error) { toast.error("No se pudo eliminar"); return; }
+    toast.success(`"${deleteTarget.name}" eliminado`);
+    setDeleteTarget(null);
+    fetchClients();
+  };
 
   const fetchClients = async () => {
     const { data } = await supabase
@@ -239,6 +267,30 @@ export default function ClientsPage() {
                   </div>
                 )}
 
+                {/* Menu */}
+                {isAdmin && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        onClick={(e) => e.stopPropagation()}
+                        className="h-8 w-8 flex items-center justify-center rounded-lg text-foreground-muted hover:text-foreground hover:bg-background-secondary opacity-0 group-hover:opacity-100 transition-all shrink-0"
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenuItem onClick={() => handleArchiveClient(client)} className="gap-2">
+                        <Archive className="h-3.5 w-3.5" />
+                        Archivar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setDeleteTarget(client)} className="gap-2 text-destructive focus:text-destructive">
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Eliminar
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+
                 <ChevronRight className="h-4 w-4 text-foreground-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
               </div>
             );
@@ -251,6 +303,22 @@ export default function ClientsPage() {
         onClose={() => setModalOpen(false)}
         onCreated={fetchClients}
       />
+
+      {/* Delete confirmation */}
+      <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>¿Eliminar "{deleteTarget?.name}"?</DialogTitle>
+            <DialogDescription>
+              Se desvinculará de sus entradas de tiempo y tareas. Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancelar</Button>
+            <Button variant="destructive" onClick={handleDeleteClient}>Eliminar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
