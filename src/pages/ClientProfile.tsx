@@ -388,19 +388,19 @@ export default function ClientProfilePage() {
         {tab === "overview" && (
           <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4">
             <div className="border border-border rounded-lg p-5">
-              <p className="text-micro text-foreground-muted mb-3">Estadísticas</p>
+              <p className="text-micro text-foreground-muted mb-3">{t("clientProfile.quickStats")}</p>
               <div className="flex flex-col gap-3">
                 <div>
                   <p className="text-h2 text-foreground">{stats.weekHours}h</p>
-                  <p className="text-small text-foreground-secondary">Esta semana</p>
+                  <p className="text-small text-foreground-secondary">{t("clientProfile.thisWeek")}</p>
                 </div>
                 <div>
                   <p className="text-h2 text-foreground">{stats.monthHours}h</p>
-                  <p className="text-small text-foreground-secondary">Este mes</p>
+                  <p className="text-small text-foreground-secondary">{t("clientProfile.thisMonth")}</p>
                 </div>
                 <div>
                   <p className="text-h2 text-foreground">{stats.totalHours}h</p>
-                  <p className="text-small text-foreground-secondary">Total</p>
+                  <p className="text-small text-foreground-secondary">{t("clientProfile.allTime")}</p>
                 </div>
               </div>
             </div>
