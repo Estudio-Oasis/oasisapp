@@ -918,7 +918,7 @@ function InteractionsTab({ clientId, interactions, onRefresh }: { clientId: stri
       )}
 
       {interactions.length === 0 ? (
-        <p className="text-sm text-foreground-muted py-8 text-center">No interactions recorded yet.</p>
+        <p className="text-sm text-foreground-muted py-8 text-center">Aún no hay interacciones registradas.</p>
       ) : (
         <div className="flex flex-col">
           {interactions.map((i) => (
