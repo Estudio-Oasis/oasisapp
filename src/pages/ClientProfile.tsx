@@ -806,9 +806,9 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
           <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Notas (opcional)" rows={2} />
           <div className="flex gap-2">
             <Button size="sm" onClick={handleSave} disabled={saving || !form.service.trim()}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar"}
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => setAdding(false)}>Cancel</Button>
+            <Button variant="secondary" size="sm" onClick={() => setAdding(false)}>Cancelar</Button>
           </div>
         </div>
       )}
