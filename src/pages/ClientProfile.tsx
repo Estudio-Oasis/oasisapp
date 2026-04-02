@@ -502,9 +502,9 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
 
       {/* Invoices */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-h3 text-foreground">Invoices</h3>
+        <h3 className="text-h3 text-foreground">Facturas</h3>
         <Button variant="secondary" size="sm" onClick={() => setNewInvOpen(true)}>
-          + New invoice for {clientName}
+          + Nueva factura para {clientName}
         </Button>
       </div>
 
