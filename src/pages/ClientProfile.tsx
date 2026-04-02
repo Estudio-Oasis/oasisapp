@@ -665,9 +665,9 @@ function ClientTasksTab({ clientId, clientName }: { clientId: string; clientName
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center py-16 text-center">
           <CheckSquare className="h-8 w-8 text-border mb-3" />
-          <p className="text-sm text-foreground-muted">No tasks for this client yet</p>
+          <p className="text-sm text-foreground-muted">Aún no hay tareas para este cliente</p>
           <Button variant="secondary" size="sm" className="mt-3" onClick={() => setNewTaskOpen(true)}>
-            + New task
+            + Nueva tarea
           </Button>
         </div>
       ) : (
