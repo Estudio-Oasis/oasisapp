@@ -575,7 +575,7 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
 
       {expenses.length > 0 && (
         <>
-          <h3 className="text-h3 text-foreground mb-3">Linked expenses</h3>
+          <h3 className="text-h3 text-foreground mb-3">Gastos vinculados</h3>
           <div className="flex flex-col">
             {expenses.map((exp) => (
               <div key={exp.id} className="flex items-center gap-3 py-3 border-b border-border">
