@@ -484,18 +484,18 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
     <div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
         <div className="border border-border rounded-lg p-4">
-          <p className="text-micro text-foreground-muted mb-1">Total invoiced</p>
+          <p className="text-micro text-foreground-muted mb-1">Total facturado</p>
           <p className="text-h2 text-foreground">${totalInvoiced.toLocaleString()}</p>
         </div>
         <div className="border border-border rounded-lg p-4">
-          <p className="text-micro text-foreground-muted mb-1">Outstanding</p>
+          <p className="text-micro text-foreground-muted mb-1">Pendiente</p>
           <p className={`text-h2 ${outstanding > 0 ? "text-destructive" : "text-foreground"}`}>${outstanding.toLocaleString()}</p>
         </div>
         {effectiveRate && (
           <div className="border border-border rounded-lg p-4">
-            <p className="text-micro text-foreground-muted mb-1">Effective $/hr</p>
+            <p className="text-micro text-foreground-muted mb-1">$/hr efectivo</p>
             <p className="text-h2 text-foreground">${effectiveRate}</p>
-            <p className="text-small text-foreground-muted">{monthHours}h this month</p>
+            <p className="text-small text-foreground-muted">{monthHours}h este mes</p>
           </div>
         )}
       </div>
