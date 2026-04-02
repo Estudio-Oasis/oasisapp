@@ -75,6 +75,7 @@ export default function ClientProfilePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isAdmin } = useRole();
+  const { t } = useLanguage();
   const [client, setClient] = useState<ClientFull | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("overview");
