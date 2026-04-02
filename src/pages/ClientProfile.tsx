@@ -325,7 +325,7 @@ export default function ClientProfilePage() {
                 </div>
               </div>
               {timeEntries.length === 0 ? (
-                <p className="text-sm text-foreground-muted py-8 text-center">Sin registros de tiempo para este cliente.</p>
+                <p className="text-sm text-foreground-muted py-8 text-center">{t("clientProfile.noTimeEntries")}</p>
               ) : (
                 <div className="flex flex-col">
                   {timeEntries.map((e) => {
