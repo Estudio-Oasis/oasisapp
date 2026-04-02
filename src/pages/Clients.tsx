@@ -72,6 +72,31 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "inactive" | "incomplete">("all");
   const [modalOpen, setModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ClientRow | null>(null);
+
+  const handleArchiveClient = async (client: ClientRow) => {
+    const { error } = await supabase
+      .from("clients")
+      .update({ status: "inactive" })
+      .eq("id", client.id);
+    if (error) { toast.error("No se pudo archivar"); return; }
+    toast.success(`"${client.name}" archivado`);
+    fetchClients();
+  };
+
+  const handleDeleteClient = async () => {
+    if (!deleteTarget) return;
+    // Unlink time_entries and tasks first
+    await Promise.all([
+      supabase.from("time_entries").update({ client_id: null }).eq("client_id", deleteTarget.id),
+      supabase.from("tasks").update({ client_id: null }).eq("client_id", deleteTarget.id),
+    ]);
+    const { error } = await supabase.from("clients").delete().eq("id", deleteTarget.id);
+    if (error) { toast.error("No se pudo eliminar"); return; }
+    toast.success(`"${deleteTarget.name}" eliminado`);
+    setDeleteTarget(null);
+    fetchClients();
+  };
 
   const fetchClients = async () => {
     const { data } = await supabase
