@@ -280,24 +280,24 @@ export default function ClientProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 {isAdmin && (
                   <div className="border border-border rounded-lg p-5">
-                    <p className="text-micro text-foreground-muted mb-2">Tarifa</p>
+                    <p className="text-micro text-foreground-muted mb-2">{t("clientProfile.rate")}</p>
                     {client.monthly_rate ? (
                       <>
                         <p className="text-h2 text-foreground">${client.monthly_rate.toLocaleString()}{freqLabel[client.payment_frequency || "monthly"]}</p>
                         <RateBreakdown monthlyRate={client.monthly_rate} paymentFrequency={client.payment_frequency || "monthly"} currency={client.currency} />
                       </>
                     ) : (
-                      <p className="text-sm text-foreground-muted">Sin definir</p>
+                      <p className="text-sm text-foreground-muted">{t("clientProfile.notSet")}</p>
                     )}
                     {client.payment_method && <p className="text-small text-foreground-secondary mt-1">via {client.payment_method}</p>}
                   </div>
                 )}
                 <div className="border border-border rounded-lg p-5">
-                  <p className="text-micro text-foreground-muted mb-2">Este mes</p>
+                  <p className="text-micro text-foreground-muted mb-2">{t("clientProfile.thisMonth")}</p>
                   <p className="text-h2 text-foreground">{stats.monthHours}h</p>
                   {isAdmin && client.monthly_rate && stats.monthHours > 0 && (
                     <p className="text-small text-foreground-secondary mt-1">
-                      ~${Math.round(client.monthly_rate / stats.monthHours)}/hr effective
+                      ~${Math.round(client.monthly_rate / stats.monthHours)}/hr {t("clientProfile.effectiveRate")}
                     </p>
                   )}
                 </div>
