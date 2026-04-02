@@ -509,7 +509,7 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
       </div>
 
       {invoices.length === 0 ? (
-        <p className="text-sm text-foreground-muted py-6 text-center">No invoices for this client yet.</p>
+        <p className="text-sm text-foreground-muted py-6 text-center">Aún no hay facturas para este cliente.</p>
       ) : (
         <div className="flex flex-col mb-6">
           {invoices.map((inv) => {
