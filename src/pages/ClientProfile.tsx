@@ -889,7 +889,7 @@ function InteractionsTab({ clientId, interactions, onRefresh }: { clientId: stri
   return (
     <div>
       <Button variant="secondary" size="sm" onClick={() => setAdding(!adding)} className="mb-4">
-        + Add interaction
+        + Agregar interacción
       </Button>
 
       {adding && (
