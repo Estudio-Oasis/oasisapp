@@ -72,15 +72,26 @@ export default function HubPage() {
     if (!user) return;
 
     const loadData = async () => {
-      const [{ data: profiles }, { data: presenceData }, { data: convos }] = await Promise.all([
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+
+      const [{ data: profiles }, { data: presenceData }, { data: convos }, { data: todayEntries }] = await Promise.all([
         supabase.from("profiles").select("id, name, avatar_url, email"),
         supabase.from("member_presence").select("*"),
         supabase.from("chat_conversations").select("*").order("updated_at", { ascending: false }),
+        supabase.from("time_entries").select("user_id, duration_min, started_at, ended_at").gte("started_at", todayStart.toISOString()),
       ]);
 
       const profileList = (profiles || []) as Profile[];
       setAllProfiles(profileList);
       setConversations((convos || []) as Conversation[]);
+
+      // Calculate today hours per user
+      const hoursMap: Record<string, number> = {};
+      (todayEntries || []).forEach((e: any) => {
+        const mins = e.duration_min || (e.ended_at ? (new Date(e.ended_at).getTime() - new Date(e.started_at).getTime()) / 60000 : (Date.now() - new Date(e.started_at).getTime()) / 60000);
+        hoursMap[e.user_id] = (hoursMap[e.user_id] || 0) + mins;
+      });
 
       const presenceMap = new Map<string, MemberPresence>();
       (presenceData || []).forEach((p: any) => presenceMap.set(p.user_id, p));
@@ -102,6 +113,7 @@ export default function HubPage() {
             current_task: presence?.current_task || null,
             last_seen_at: presence?.last_seen_at || new Date().toISOString(),
             profile: p,
+            todayHours: Math.round((hoursMap[p.id] || 0) / 60 * 10) / 10,
           };
         });
 
@@ -120,8 +132,8 @@ export default function HubPage() {
       .channel("hub-presence")
       .on("postgres_changes", { event: "*", schema: "public", table: "member_presence" }, () => {
         loadData();
-      })
-      .subscribe();
+      });
+    channel.subscribe();
 
     return () => { supabase.removeChannel(channel); };
   }, [user]);
