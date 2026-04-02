@@ -269,6 +269,10 @@ export function StartTimerModal({
           description: description || null,
         });
       }
+      // If a task was selected, mark it as in_progress
+      if (selectedTaskId) {
+        await supabase.from("tasks").update({ status: "in_progress" as const }).eq("id", selectedTaskId).neq("status", "done");
+      }
       onOpenChange(false);
     } finally {
       setLoading(false);
