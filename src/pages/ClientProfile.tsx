@@ -535,9 +535,9 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
 
       {/* Payments received */}
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-h3 text-foreground">Payments received</h3>
+        <h3 className="text-h3 text-foreground">Pagos recibidos</h3>
         <Button variant="secondary" size="sm" onClick={() => setNewPayOpen(true)}>
-          + Log payment for {clientName}
+          + Registrar pago para {clientName}
         </Button>
       </div>
 
