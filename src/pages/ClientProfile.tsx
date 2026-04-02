@@ -789,9 +789,9 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-h3 text-foreground">Access & Credentials</h3>
+        <h3 className="text-h3 text-foreground">Accesos y credenciales</h3>
         <Button variant="secondary" size="sm" onClick={() => setAdding(!adding)}>
-          + Add credential
+          + Agregar credencial
         </Button>
       </div>
 
