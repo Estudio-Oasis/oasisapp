@@ -6,10 +6,13 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatWidget } from "@/components/ui/widget-card";
-import { Plus, Search, Users, ChevronRight, Building2, TrendingUp, AlertTriangle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Search, Users, ChevronRight, Building2, TrendingUp, AlertTriangle, MoreHorizontal, Trash2, Archive } from "lucide-react";
 import { getClientColor } from "@/lib/timer-utils";
 import { getCompletenessLevel, type CompletenessLevel } from "@/lib/clientCompleteness";
 import { NewClientModal } from "@/components/NewClientModal";
+import { toast } from "sonner";
 
 interface ClientRow {
   id: string;
