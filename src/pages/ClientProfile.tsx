@@ -697,7 +697,7 @@ function ClientTasksTab({ clientId, clientName }: { clientId: string; clientName
                   <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                     task.priority === "urgent" ? "bg-destructive-light text-destructive" : "bg-accent-light text-accent-foreground"
                   }`}>
-                    {task.priority === "urgent" ? "⚡ Urgent" : "↑ High"}
+                    {task.priority === "urgent" ? "⚡ Urgente" : "↑ Alta"}
                   </span>
                 )}
                 {task.due_date && (
