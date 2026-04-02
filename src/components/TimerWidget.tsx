@@ -48,6 +48,7 @@ export function TimerWidget() {
   const [ideaText, setIdeaText] = useState("");
   const [showIdeaInput, setShowIdeaInput] = useState(false);
   const [savingIdea, setSavingIdea] = useState(false);
+  const [taskCompletionDialog, setTaskCompletionDialog] = useState<{ taskId: string; taskTitle: string } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const noteDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
