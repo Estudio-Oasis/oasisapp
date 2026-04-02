@@ -30,6 +30,7 @@ interface Profile {
 
 interface MemberWithProfile extends MemberPresence {
   profile: Profile;
+  todayHours: number;
 }
 
 export interface Conversation {
