@@ -96,9 +96,11 @@ export function MemberBubble({ name, avatarUrl, status, statusLabel, currentClie
         ) : (
           <>
             <span className="text-[10px] text-foreground-muted">{statusLabel}</span>
-            {status === "offline" && lastSeenAt && (
+            {status === "offline" && todayHours != null && todayHours > 0 ? (
+              <span className="text-[9px] text-foreground-muted/60">Hoy: {todayHours}h</span>
+            ) : status === "offline" && lastSeenAt ? (
               <span className="text-[9px] text-foreground-muted/60">{formatLastSeen(lastSeenAt)}</span>
-            )}
+            ) : null}
           </>
         )}
       </div>
