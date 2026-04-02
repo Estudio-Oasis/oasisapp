@@ -513,7 +513,7 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
 
       <InviteMemberModal
         open={inviteModalOpen}
-        onClose={() => setInviteModalOpen(false)}
+        onOpenChange={setInviteModalOpen}
         onInvited={() => loadTeamData()}
       />
     </>
