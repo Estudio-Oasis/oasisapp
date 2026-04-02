@@ -204,7 +204,7 @@ export default function ClientProfilePage() {
                 <AlertTriangle className={`h-5 w-5 shrink-0 mt-0.5 ${level === "critical" ? "text-destructive" : "text-accent"}`} />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-foreground">
-                    {level === "critical" ? "Este cliente tiene información incompleta" : "Completa el perfil del cliente para activar el seguimiento completo"}
+                    {level === "critical" ? t("clientProfile.missingInfo") : t("clientProfile.completeForTracking")}
                   </p>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {missing.map((m) => (
@@ -215,7 +215,7 @@ export default function ClientProfilePage() {
                   </div>
                 </div>
                 <Button variant="accent" size="sm" onClick={() => setEditOpen(true)}>
-                  Completar perfil →
+                  {t("clientProfile.completeProfile")}
                 </Button>
               </div>
             </div>
