@@ -404,22 +404,24 @@ export default function TasksPage() {
           })}
         </div>
       ) : (
-        <TaskGanttView tasks={filtered} clientMap={clientMap} />
+        <TaskGanttView tasks={filtered} clientMap={clientMap} onSelectTask={(id) => setSelectedTaskId(id)} />
       )}
 
       <NewTaskModal
         open={newTaskOpen}
-        onClose={() => setNewTaskOpen(false)}
-        onCreated={fetchAll}
-        prefillStatus={newTaskPrefillStatus as Task["status"] | undefined}
+        onOpenChange={(open) => { if (!open) setNewTaskOpen(false); }}
+        onCreated={() => { fetchAll(); }}
+        prefillStatus={newTaskPrefillStatus}
       />
 
-      <TaskDetailPanel
-        taskId={selectedTaskId}
-        open={!!selectedTaskId}
-        onClose={() => setSelectedTaskId(null)}
-        onUpdated={fetchAll}
-      />
+      {selectedTaskId && (
+        <TaskDetailPanel
+          taskId={selectedTaskId}
+          onClose={() => setSelectedTaskId(null)}
+          onUpdated={fetchAll}
+          onStartTimer={(taskId, clientId) => openTimerForTask(taskId, clientId)}
+        />
+      )}
 
       <StartTimerModal
         open={timerModalOpen}

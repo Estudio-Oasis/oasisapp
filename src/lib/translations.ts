@@ -315,6 +315,12 @@ const en: Record<keyof typeof es, string> = {
   "common.or": "or",
   "common.noData": "No data",
   "common.noDate": "No date",
+  "common.add": "Add",
+
+  // Bitacora
+  "bitacora.dayStartsHere": "Your day starts here",
+  "bitacora.suggested": "Suggested",
+  "bitacora.continue": "Continue",
 
   // Clients
   "clients.title": "Clients",
