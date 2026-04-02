@@ -381,6 +381,8 @@ const en: Record<keyof typeof es, string> = {
   "tasks.priority.urgent": "Urgent",
   "tasks.noTasks": "No tasks",
   "tasks.addFirst": "Create your first task",
+  "tasks.pending": "Pending",
+  "tasks.noMatch": "No tasks match your filters.",
 
   // Task form
   "taskForm.title": "New task",
