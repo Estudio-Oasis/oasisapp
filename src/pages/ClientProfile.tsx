@@ -345,7 +345,7 @@ export default function ClientProfilePage() {
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{e.description || "No description"}</p>
+                          <p className="text-sm font-medium text-foreground truncate">{e.description || t("clientProfile.noDescription")}</p>
                           <p className="text-small text-foreground-muted">
                             {start.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                             {timeFilter === "all" && <span> · {loggerName}</span>}
