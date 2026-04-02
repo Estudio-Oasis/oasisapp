@@ -734,13 +734,13 @@ function NewTaskModalInline({ clientId, onClose, onCreated }: { clientId: string
   return (
     <div className="border border-border rounded-lg p-4 mt-4 flex gap-3 items-end">
       <div className="flex-1">
-        <label className="text-label mb-1 block">Task title</label>
-        <Input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs to be done?" onKeyDown={(e) => e.key === "Enter" && handleSave()} />
+        <label className="text-label mb-1 block">Título de la tarea</label>
+        <Input autoFocus value={title} onChange={(e) => setTitle(e.target.value)} placeholder="¿Qué necesita hacerse?" onKeyDown={(e) => e.key === "Enter" && handleSave()} />
       </div>
       <Button size="sm" onClick={handleSave} disabled={saving || !title.trim()}>
-        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add"}
+        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Agregar"}
       </Button>
-      <Button size="sm" variant="secondary" onClick={onClose}>Cancel</Button>
+      <Button size="sm" variant="secondary" onClick={onClose}>Cancelar</Button>
     </div>
   );
 }
