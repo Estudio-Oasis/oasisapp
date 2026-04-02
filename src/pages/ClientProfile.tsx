@@ -653,7 +653,7 @@ function ClientTasksTab({ clientId, clientName }: { clientId: string; clientName
                 filter === f ? "bg-primary text-primary-foreground" : "border border-border text-foreground-secondary hover:bg-background-secondary"
               }`}
             >
-              {f === "active" ? "Active" : f === "done" ? "Done" : "All"}
+              {f === "active" ? "Activas" : f === "done" ? "Completadas" : "Todas"}
             </button>
           ))}
         </div>
