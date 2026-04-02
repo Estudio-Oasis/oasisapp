@@ -543,7 +543,7 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
 
       {payments.length > 0 && (
         <div className="border border-border rounded-lg p-3 mb-3 text-sm text-foreground-secondary">
-          Total received: {totalReceivedUSD > 0 && <span className="font-medium text-foreground">${totalReceivedUSD.toLocaleString()} USD</span>}
+          Total recibido: {totalReceivedUSD > 0 && <span className="font-medium text-foreground">${totalReceivedUSD.toLocaleString()} USD</span>}
           {totalReceivedUSD > 0 && totalReceivedMXN > 0 && " · "}
           {totalReceivedMXN > 0 && <span className="font-medium text-foreground">${totalReceivedMXN.toLocaleString()} MXN</span>}
         </div>
