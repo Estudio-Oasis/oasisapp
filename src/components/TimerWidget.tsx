@@ -319,6 +319,26 @@ export function TimerWidget() {
       </div>
 
       <QuickSheet open={modalOpen} onOpenChange={setModalOpen} mode={modalMode} />
+
+      {/* Task completion dialog */}
+      <Dialog open={!!taskCompletionDialog} onOpenChange={(open) => { if (!open) setTaskCompletionDialog(null); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>¿Completaste esta tarea?</DialogTitle>
+            <DialogDescription>
+              "{taskCompletionDialog?.taskTitle}"
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => handleTaskComplete(false)}>
+              No, sigue en progreso
+            </Button>
+            <Button variant="default" onClick={() => handleTaskComplete(true)}>
+              Sí, completada ✅
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
