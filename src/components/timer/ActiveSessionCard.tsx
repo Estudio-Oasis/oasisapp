@@ -36,7 +36,7 @@ export function ActiveSessionCard({
 
   if (variant === "compact") {
     return (
-      <div className="rounded-lg border border-accent bg-accent-light px-3 py-2.5 space-y-2">
+      <div className="rounded-xl border border-accent/30 bg-accent/5 px-3 py-2.5 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
             <div
@@ -95,29 +95,38 @@ export function ActiveSessionCard({
     );
   }
 
-  // expanded — with scrollable details and sticky controls
+  // expanded — premium widget feel
   return (
-    <div className="rounded-xl border border-accent bg-accent-light overflow-hidden flex flex-col max-h-[60vh]">
-      {/* Fixed header: status + timer + activity name */}
-      <div className="px-4 pt-4 pb-2 space-y-2 shrink-0">
+    <div className="rounded-2xl border border-accent/30 overflow-hidden flex flex-col max-h-[60vh]"
+      style={{ boxShadow: "0 0 24px hsl(var(--accent) / 0.06)" }}
+    >
+      {/* Header */}
+      <div className="px-5 pt-5 pb-3 space-y-3 shrink-0 bg-gradient-to-b from-accent/5 to-transparent">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-2.5 w-2.5 rounded-full animate-pulse shrink-0" style={{ backgroundColor: config.color }} />
-            <span className="text-micro text-accent uppercase tracking-wider">{UI_COPY.sessionActive}</span>
+            <span className="relative flex h-2.5 w-2.5 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-success" />
+            </span>
+            <span className="text-[10px] font-semibold text-accent uppercase tracking-wider">{UI_COPY.sessionActive}</span>
           </div>
-          <p className="text-h2 text-accent tabular-nums">{formatElapsed(elapsedSeconds)}</p>
+          <p className="text-[28px] font-black text-accent tabular-nums tracking-tight leading-none">
+            {formatElapsed(elapsedSeconds)}
+          </p>
         </div>
+
         {onDescriptionChange ? (
           <InlineEditableText
             value={description || ""}
             onSave={onDescriptionChange}
             placeholder="Añadir descripción..."
-            className="text-h3 text-foreground"
-            inputClassName="text-h3"
+            className="text-[16px] font-semibold text-foreground"
+            inputClassName="text-[16px] font-semibold"
           />
         ) : (
-          <p className="text-h3 text-foreground truncate">{displayName}</p>
+          <p className="text-[16px] font-semibold text-foreground truncate">{displayName}</p>
         )}
+
         <div className="flex items-center gap-1.5 text-foreground-secondary flex-wrap">
           <Icon className="h-3.5 w-3.5 shrink-0" />
           <span className="text-sm">{config.label}</span>
@@ -130,9 +139,9 @@ export function ActiveSessionCard({
         </div>
       </div>
 
-      {/* Scrollable middle: context enrichment panel etc. */}
+      {/* Scrollable content */}
       {children && (
-        <div className="flex-1 overflow-y-auto px-4 pb-2 min-h-0">
+        <div className="flex-1 overflow-y-auto px-5 pb-3 min-h-0">
           {children}
         </div>
       )}

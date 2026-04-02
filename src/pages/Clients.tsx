@@ -5,7 +5,8 @@ import { useRole } from "@/hooks/useRole";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Users, ChevronRight } from "lucide-react";
+import { StatWidget } from "@/components/ui/widget-card";
+import { Plus, Search, Users, ChevronRight, Building2, TrendingUp, AlertTriangle } from "lucide-react";
 import { getClientColor } from "@/lib/timer-utils";
 import { getCompletenessLevel, type CompletenessLevel } from "@/lib/clientCompleteness";
 import { NewClientModal } from "@/components/NewClientModal";
@@ -31,18 +32,29 @@ const frequencyLabel: Record<string, string> = {
   project: "/proy",
 };
 
-function CompletenessPill({ score }: { score: number }) {
+function CompletenessPill({ score, hasActivity }: { score: number; hasActivity?: boolean }) {
   const { t } = useLanguage();
   const level = getCompletenessLevel(score);
+
+  // Only show CRITICAL if there's activity and low completeness
+  if (level === "critical" && !hasActivity) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-medium bg-background-secondary text-foreground-muted">
+        <span className="text-[7px]">●</span>
+        {t("clients.completeness.noActivity")}
+      </span>
+    );
+  }
+
   const config = {
-    complete: { bg: "bg-success-light", text: "text-success", label: t("clients.completeness.complete") },
-    incomplete: { bg: "bg-accent-light", text: "text-accent-foreground", label: t("clients.completeness.incomplete") },
-    critical: { bg: "bg-destructive-light", text: "text-destructive", label: t("clients.completeness.critical") },
+    complete: { bg: "bg-success/10", text: "text-success", label: t("clients.completeness.complete") },
+    incomplete: { bg: "bg-accent/10", text: "text-accent", label: t("clients.completeness.incomplete") },
+    critical: { bg: "bg-destructive/10", text: "text-destructive", label: t("clients.completeness.critical") },
   }[level];
 
   return (
-    <span className={`inline-flex items-center gap-1 rounded-pill px-2.5 py-0.5 text-micro ${config.bg} ${config.text}`}>
-      <span className="text-[8px]">●</span>
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${config.bg} ${config.text}`}>
+      <span className="text-[7px]">●</span>
       {config.label}
     </span>
   );
@@ -104,23 +116,31 @@ export default function ClientsPage() {
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className={`grid grid-cols-1 ${isAdmin ? "sm:grid-cols-3" : "sm:grid-cols-1"} gap-4 mb-6`}>
-        <div className="border border-border rounded-lg p-5">
-          <p className="text-h1 text-foreground">{activeClients.length}</p>
-          <p className="text-small text-foreground-secondary">{t("clients.activeClients")}</p>
-        </div>
+      {/* Stats as widgets */}
+      <div className={`grid grid-cols-1 ${isAdmin ? "sm:grid-cols-3" : "sm:grid-cols-1"} gap-3 mb-6`}>
+        <StatWidget
+          label={t("clients.activeClients")}
+          value={activeClients.length}
+          icon={Building2}
+          accent="default"
+        />
         {isAdmin && (
-          <div className="border border-border rounded-lg p-5">
-            <p className="text-h1 text-foreground">${totalMRR.toLocaleString()}</p>
-            <p className="text-small text-foreground-secondary">{t("clients.mrr")}</p>
-          </div>
+          <StatWidget
+            label={t("clients.mrr")}
+            value={`$${totalMRR.toLocaleString()}`}
+            icon={TrendingUp}
+            accent="green"
+          />
         )}
         {isAdmin && (
-          <div className="border border-border rounded-lg p-5">
-            <p className="text-h1 text-foreground">{incompleteCount}</p>
-            <p className="text-small text-foreground-secondary">{t("clients.incompleteProfiles")}</p>
-          </div>
+          <StatWidget
+            label={t("clients.incompleteProfiles")}
+            value={incompleteCount}
+            icon={AlertTriangle}
+            accent={incompleteCount > 0 ? "amber" : "default"}
+            onClick={() => setFilter(filter === "incomplete" ? "all" : "incomplete")}
+            active={filter === "incomplete"}
+          />
         )}
       </div>
 
@@ -135,12 +155,12 @@ export default function ClientsPage() {
             className="pl-9"
           />
         </div>
-        <div className="flex gap-1 bg-background-secondary rounded-md p-1">
+        <div className="flex gap-1 bg-background-secondary rounded-xl p-1">
           {filters.map((f) => (
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 filter === f.key
                   ? "bg-foreground text-background"
                   : "text-foreground-secondary hover:text-foreground"
@@ -166,7 +186,7 @@ export default function ClientsPage() {
           </Button>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">No hay clientes que coincidan con los filtros.</div>
+        <div className="flex items-center justify-center py-16 text-foreground-muted text-sm">{t("clients.noMatch")}</div>
       ) : (
         <div className="flex flex-col gap-2">
           {filtered.map((client) => {
@@ -179,11 +199,11 @@ export default function ClientsPage() {
               <div
                 key={client.id}
                 onClick={() => navigate(`/clients/${client.id}`)}
-                className="group flex items-center gap-3 border border-border rounded-lg p-4 cursor-pointer hover:bg-background-secondary transition-colors"
+                className="group flex items-center gap-3 rounded-2xl border border-border/60 dark:border-border/40 bg-card p-4 cursor-pointer hover:border-border dark:hover:border-border/60 transition-all"
               >
                 {/* Avatar */}
                 <div
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold text-background"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[13px] font-bold text-background"
                   style={{ backgroundColor: color }}
                 >
                   {initials}
@@ -194,26 +214,26 @@ export default function ClientsPage() {
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-[15px] font-semibold text-foreground truncate">{client.name}</span>
                     {client.billing_entity && client.billing_entity !== client.name && (
-                      <span className="text-small text-foreground-secondary truncate">vía {client.billing_entity}</span>
+                      <span className="text-[12px] text-foreground-muted truncate">{t("clients.via")} {client.billing_entity}</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 text-small text-foreground-secondary truncate">
+                  <div className="flex items-center gap-1.5 text-[12px] text-foreground-secondary truncate mt-0.5">
                     {client.contact_name && <span>{client.contact_name}</span>}
-                    {client.contact_name && (client.email || client.phone) && <span> · </span>}
+                    {client.contact_name && (client.email || client.phone) && <span>·</span>}
                     {client.email && <span className="text-foreground-muted">{client.email}</span>}
                     {!client.email && client.phone && <span className="text-foreground-muted">{client.phone}</span>}
                   </div>
                 </div>
 
-                {/* Rate + Completeness - admin only */}
+                {/* Rate + Completeness */}
                 {isAdmin && (
                   <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
                     {rate ? (
-                      <span className="text-sm font-semibold text-foreground">
+                      <span className="text-[13px] font-semibold text-foreground tabular-nums">
                         ${rate.toLocaleString()}{frequencyLabel[freq] || "/mes"}
                       </span>
                     ) : (
-                      <span className="text-sm text-foreground-muted">Sin tarifa</span>
+                      <span className="text-[12px] text-foreground-muted">{t("clients.noRate")}</span>
                     )}
                     <CompletenessPill score={client.completeness_score ?? 0} />
                   </div>

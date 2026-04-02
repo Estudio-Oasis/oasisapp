@@ -113,8 +113,8 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
       )}
 
       {/* ── CONTROL SURFACE ── */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <div className="p-3 pb-0">
+      <div className="rounded-2xl border border-border/60 dark:border-border/40 bg-card overflow-hidden">
+        <div className="p-4 pb-0">
           {bita.isRunning ? (
             <>
               <ActiveSessionCard
@@ -128,7 +128,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
               >
                 <ContextEnrichmentPanel />
               </ActiveSessionCard>
-              <div className="sticky bottom-0 bg-card pt-2 pb-1">
+              <div className="sticky bottom-0 bg-card pt-3 pb-2">
                 <TimerControls
                   onSwitch={() => {
                     setQuickSheetMode("switch");
@@ -142,7 +142,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
               </div>
             </>
           ) : hideQuickLog ? null : (
-            <div className="space-y-3">
+            <div className="space-y-3 pb-3">
               <QuickLogInput
                 onClick={() => {
                   setQuickSheetMode("start");
@@ -150,29 +150,31 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
                 }}
                 todaySummary={vm.todaySummaryText}
                 totalMinutes={vm.totalMinutes}
+                suggestedActivity={bita.recents.length > 0 ? {
+                  description: bita.recents[0].description || bita.recents[0].taskTitle || "",
+                  clientName: bita.recents[0].clientName,
+                } : null}
+                onResume={bita.recents.length > 0 ? () => {
+                  const r = bita.recents[0];
+                  bita.startActivity({
+                    description: r.description,
+                    clientId: r.clientId,
+                    taskId: r.taskId,
+                    projectId: r.projectId,
+                  });
+                } : undefined}
               />
-              <div className="flex gap-2">
+              {config.features.allowManualEntry && (
                 <button
                   onClick={() => {
-                    setQuickSheetMode("start");
-                    setQuickSheetOpen(true);
+                    setGapPrefill(null);
+                    setModalOpen(true);
                   }}
-                  className="flex-1 h-10 rounded-lg bg-accent text-accent-foreground text-[13px] font-semibold hover:bg-accent/90 transition-colors"
+                  className="w-full h-9 rounded-xl border border-border/60 dark:border-border/40 text-[12px] font-medium text-foreground-secondary hover:bg-background-secondary transition-colors"
                 >
-                  Iniciar actividad
+                  Agregar registro manual
                 </button>
-                {config.features.allowManualEntry && (
-                  <button
-                    onClick={() => {
-                      setGapPrefill(null);
-                      setModalOpen(true);
-                    }}
-                    className="flex-1 h-10 rounded-lg border border-border text-[13px] font-medium text-foreground-secondary hover:bg-background-secondary transition-colors"
-                  >
-                    Agregar registro manual
-                  </button>
-                )}
-              </div>
+              )}
             </div>
           )}
         </div>

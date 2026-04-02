@@ -31,6 +31,12 @@ const es = {
   "common.or": "o",
   "common.noData": "Sin datos",
   "common.noDate": "Sin fecha",
+  "common.add": "Agregar",
+
+  // Bitacora
+  "bitacora.dayStartsHere": "Tu día empieza aquí",
+  "bitacora.suggested": "Sugerido",
+  "bitacora.continue": "Continuar",
 
   // Clients
   "clients.title": "Clientes",
@@ -53,6 +59,10 @@ const es = {
   "clients.completeness.complete": "Completo",
   "clients.completeness.incomplete": "Incompleto",
   "clients.completeness.critical": "Crítico",
+  "clients.completeness.noActivity": "Sin actividad",
+  "clients.noMatch": "No hay clientes que coincidan.",
+  "clients.via": "vía",
+  "clients.noRate": "Sin tarifa",
 
   // Client form
   "clientForm.title": "Nuevo cliente",
@@ -99,6 +109,8 @@ const es = {
   "tasks.priority.urgent": "Urgente",
   "tasks.noTasks": "Sin tareas",
   "tasks.addFirst": "Crea tu primera tarea",
+  "tasks.pending": "Pendientes",
+  "tasks.noMatch": "No hay tareas que coincidan con tus filtros.",
 
   // Task form
   "taskForm.title": "Nueva tarea",
@@ -303,6 +315,12 @@ const en: Record<keyof typeof es, string> = {
   "common.or": "or",
   "common.noData": "No data",
   "common.noDate": "No date",
+  "common.add": "Add",
+
+  // Bitacora
+  "bitacora.dayStartsHere": "Your day starts here",
+  "bitacora.suggested": "Suggested",
+  "bitacora.continue": "Continue",
 
   // Clients
   "clients.title": "Clients",
@@ -325,6 +343,10 @@ const en: Record<keyof typeof es, string> = {
   "clients.completeness.complete": "Complete",
   "clients.completeness.incomplete": "Incomplete",
   "clients.completeness.critical": "Critical",
+  "clients.completeness.noActivity": "No activity",
+  "clients.noMatch": "No clients match your filters.",
+  "clients.via": "via",
+  "clients.noRate": "No rate",
 
   // Client form
   "clientForm.title": "New client",
@@ -371,6 +393,8 @@ const en: Record<keyof typeof es, string> = {
   "tasks.priority.urgent": "Urgent",
   "tasks.noTasks": "No tasks",
   "tasks.addFirst": "Create your first task",
+  "tasks.pending": "Pending",
+  "tasks.noMatch": "No tasks match your filters.",
 
   // Task form
   "taskForm.title": "New task",
