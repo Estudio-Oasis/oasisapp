@@ -773,7 +773,7 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
     }] as never);
     setSaving(false);
     if (error) {
-      toast.error("Failed to save credential");
+      toast.error("No se pudo guardar la credencial");
       return;
     }
     setAdding(false);
