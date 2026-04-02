@@ -816,9 +816,9 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
       {credentials.length === 0 && !adding ? (
         <div className="flex flex-col items-center py-16 text-center">
           <Key className="h-8 w-8 text-border mb-3" />
-          <p className="text-sm text-foreground-muted">No credentials saved yet</p>
+          <p className="text-sm text-foreground-muted">Aún no hay credenciales guardadas</p>
           <Button variant="secondary" size="sm" className="mt-3" onClick={() => setAdding(true)}>
-            + Add credential
+            + Agregar credencial
           </Button>
         </div>
       ) : (
