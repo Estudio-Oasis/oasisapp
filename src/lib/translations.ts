@@ -31,6 +31,12 @@ const es = {
   "common.or": "o",
   "common.noData": "Sin datos",
   "common.noDate": "Sin fecha",
+  "common.add": "Agregar",
+
+  // Bitacora
+  "bitacora.dayStartsHere": "Tu día empieza aquí",
+  "bitacora.suggested": "Sugerido",
+  "bitacora.continue": "Continuar",
 
   // Clients
   "clients.title": "Clientes",
