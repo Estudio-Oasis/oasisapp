@@ -900,10 +900,10 @@ function InteractionsTab({ clientId, interactions, onRefresh }: { clientId: stri
               value={form.type}
               onChange={(e) => setForm({ ...form, type: e.target.value })}
             >
-              <option value="note">Note</option>
-              <option value="meeting">Meeting</option>
-              <option value="call">Call</option>
-              <option value="payment">Payment</option>
+              <option value="note">Nota</option>
+              <option value="meeting">Reunión</option>
+              <option value="call">Llamada</option>
+              <option value="payment">Pago</option>
             </select>
             <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Title" className="flex-1" />
           </div>
