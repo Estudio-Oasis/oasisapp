@@ -51,35 +51,6 @@ function RevealSection({ children, className = "", delay = 0 }: { children: Reac
   );
 }
 
-// ─── Counter hook ───
-function useCountUp(end: number, duration = 2000) {
-  const [value, setValue] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const started = useRef(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !started.current) {
-        started.current = true;
-        const start = performance.now();
-        const tick = (now: number) => {
-          const progress = Math.min((now - start) / duration, 1);
-          setValue(Math.floor(progress * end));
-          if (progress < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-        obs.disconnect();
-      }
-    }, { threshold: 0.3 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [end, duration]);
-
-  return { ref, value };
-}
-
 const AGENCY_LOGOS = [
   { name: "Ogilvy", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/ogilvy_d7381671.png" },
   { name: "Leo Burnett", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/leo-burnett_c24e284a.png" },
@@ -87,15 +58,6 @@ const AGENCY_LOGOS = [
   { name: "FCB", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/fcb_968bc1ba.png" },
   { name: "Media.Monks", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/media-monks_10b229d3.png" },
   { name: "VML", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/vml_a9ed372a.png" },
-];
-
-const BRAND_LOGOS = [
-  { name: "San Francisco 49ers", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/49ers_cfd4aeac.png" },
-  { name: "Nivea", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/nivea_67a738d5.png" },
-  { name: "Baileys", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/baileys_a69f2d25.png" },
-  { name: "José Cuervo", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/jose-cuervo_c2b9b845.png" },
-  { name: "Platzi", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/platzi_7f0d6a77.png" },
-  { name: "Rocketfy", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/rocketfy_9c937db1.png" },
 ];
 
 // ─── Navbar ───
@@ -111,17 +73,17 @@ function Navbar() {
   }, []);
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-[var(--dm-cream)]/95 backdrop-blur-xl border-b border-[var(--dm-sand)]" : "bg-transparent"}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-[var(--dm-cream)]/95 backdrop-blur-xl shadow-sm" : "bg-[var(--dm-cream)]"} border-b border-[var(--dm-sand)]`}>
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <span className={`font-serif-display text-[20px] font-bold tracking-tight transition-colors ${scrolled ? "text-[var(--dm-charcoal)]" : "text-white"}`}>OASIS</span>
+          <span className="font-serif-display text-[20px] font-bold tracking-tight text-[var(--dm-charcoal)]">OASIS</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className={`text-[13px] font-medium transition-colors ${scrolled ? "text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)]" : "text-white/70 hover:text-white"}`}>Inicio</Link>
+          <Link to="/" className="text-[13px] font-medium text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)] transition-colors">Inicio</Link>
           
           <div className="relative group" onMouseEnter={() => setAboutOpen(true)} onMouseLeave={() => setAboutOpen(false)}>
-            <button className={`text-[13px] font-medium transition-colors flex items-center gap-1 ${scrolled ? "text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)]" : "text-white/70 hover:text-white"}`}>
+            <button className="text-[13px] font-medium text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)] transition-colors flex items-center gap-1">
               About <ChevronDown className="h-3 w-3" />
             </button>
             {aboutOpen && (
@@ -132,14 +94,14 @@ function Navbar() {
             )}
           </div>
 
-          <Link to="/portfolio" className={`text-[13px] font-medium transition-colors ${scrolled ? "text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)]" : "text-white/70 hover:text-white"}`}>Portafolio</Link>
-          <Link to="/login" className={`text-[13px] font-medium transition-colors ${scrolled ? "text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)]" : "text-white/70 hover:text-white"}`}>Oasis OS</Link>
+          <Link to="/portfolio" className="text-[13px] font-medium text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)] transition-colors">Portafolio</Link>
+          <Link to="/login" className="text-[13px] font-medium text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)] transition-colors">Oasis OS</Link>
           <Link to="/signup" className="h-9 px-5 rounded-sm bg-[var(--dm-charcoal)] text-[var(--dm-cream)] text-[13px] font-semibold flex items-center gap-1.5 hover:bg-[var(--dm-charcoal-light)] transition-colors">
             Probar gratis
           </Link>
         </div>
 
-        <button className={`md:hidden ${scrolled ? "text-[var(--dm-charcoal)]" : "text-white"}`} onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="md:hidden text-[var(--dm-charcoal)]" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
@@ -162,66 +124,53 @@ function Navbar() {
 // ─── Hero ───
 function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      <img
-        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/hero-desert-MU6ShxPGyRuDWbDmhHkDRz.webp"
-        alt="" className="absolute inset-0 w-full h-full object-cover" loading="eager"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-[var(--dm-charcoal)]/70 via-[var(--dm-charcoal)]/40 to-[var(--dm-charcoal)]/80" />
-
-      <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-20">
+    <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-[var(--dm-cream)]">
+      <div className="max-w-6xl mx-auto px-6">
         <RevealSection>
           <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-6">
             Estudio creativo — desde 2010
           </p>
         </RevealSection>
         <RevealSection delay={100}>
-          <h1 className="font-serif-display text-[clamp(40px,7vw,80px)] leading-[1.05] max-w-3xl">
-            <span className="text-white block">Creatividad</span>
-            <span className="text-[var(--dm-gold)] italic block">con sistema</span>
+          <h1 className="font-serif-display text-[clamp(36px,6vw,64px)] leading-[1.1] max-w-3xl text-[var(--dm-charcoal)]">
+            Le ponemos proceso y orden a tu creatividad
           </h1>
         </RevealSection>
         <RevealSection delay={200}>
-          <p className="mt-6 text-[17px] leading-relaxed text-white/70 max-w-xl font-body">
-            15+ años de experiencia en agencias globales, condensados en un estudio creativo y un sistema operativo para equipos de servicios.
+          <p className="mt-6 text-[17px] leading-relaxed text-[var(--dm-charcoal)]/60 max-w-xl font-body">
+            15+ años de experiencia en agencias globales, condensados en un sistema operativo para equipos creativos y de servicios.
           </p>
         </RevealSection>
         <RevealSection delay={300}>
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
-            <Link to="/about" className="h-12 px-7 rounded-sm bg-[var(--dm-gold)] text-[var(--dm-charcoal)] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[var(--dm-gold-light)] transition-all">
-              Conoce nuestra historia <ArrowRight className="h-4 w-4" />
+            <Link to="/signup" className="h-12 px-7 rounded-sm bg-[var(--dm-charcoal)] text-[var(--dm-cream)] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[var(--dm-charcoal-light)] transition-all">
+              Probar gratis <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/signup" className="h-12 px-7 rounded-sm border border-white/30 text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:border-white/50 transition-all">
-              Probar Oasis OS
-            </Link>
+            <a href="#como-funciona" className="h-12 px-7 rounded-sm border border-[var(--dm-sand)] text-[var(--dm-charcoal)] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[var(--dm-sand-light)] transition-all">
+              Ver cómo funciona
+            </a>
           </div>
         </RevealSection>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 opacity-0 animate-[fadeIn_1s_2s_forwards]">
-          <div className="w-px h-12 bg-gradient-to-b from-white/40 to-transparent" />
-        </div>
       </div>
     </section>
   );
 }
 
-// ─── Marquee ───
-function AgencyMarquee() {
-  const doubled = [...AGENCY_LOGOS, ...AGENCY_LOGOS];
+// ─── Agency logos (static row) ───
+function AgencyLogos() {
   return (
-    <section className="py-16 bg-[var(--dm-cream)] border-y border-[var(--dm-sand)]">
-      <p className="text-center font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-charcoal)]/40 mb-10">
-        Experiencia en agencias globales
-      </p>
-      <div className="relative overflow-hidden">
-        <div className="flex gap-16 animate-[marquee_30s_linear_infinite] w-max">
-          {doubled.map((l, i) => (
+    <section className="py-12 bg-[var(--dm-cream)] border-y border-[var(--dm-sand)]">
+      <div className="max-w-6xl mx-auto px-6">
+        <p className="text-center font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-charcoal)]/40 mb-8">
+          Experiencia forjada en:
+        </p>
+        <div className="flex flex-wrap justify-center items-center gap-10 md:gap-14">
+          {AGENCY_LOGOS.map((l) => (
             <img
-              key={`${l.name}-${i}`}
+              key={l.name}
               src={l.url}
               alt={l.name}
-              className="h-8 md:h-10 object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-80 transition-all duration-500"
+              className="h-7 md:h-9 object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-80 transition-all duration-500"
             />
           ))}
         </div>
@@ -230,86 +179,31 @@ function AgencyMarquee() {
   );
 }
 
-// ─── Origin ───
-function OriginSection() {
+// ─── The Problem ───
+function ProblemSection() {
   return (
-    <section className="py-24 md:py-36 bg-[var(--dm-cream)]">
-      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+    <section className="py-20 md:py-28 bg-[var(--dm-cream)]">
+      <div className="max-w-3xl mx-auto px-6">
         <RevealSection>
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4">01 — Nuestro origen</p>
-          <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] leading-tight text-[var(--dm-charcoal)]">
-            De las agencias<br /><span className="italic text-[var(--dm-terracotta)]">al sistema propio</span>
-          </h2>
-          <div className="mt-6 space-y-4 text-[15px] text-[var(--dm-charcoal)]/70 leading-relaxed font-body">
-            <p>Después de más de 15 años trabajando en agencias como Ogilvy, Leo Burnett, Havas, FCB, Media Monks y VML, entendimos algo fundamental: la creatividad necesita proceso para escalar.</p>
-            <p>En cada agencia vimos el mismo patrón — equipos talentosos perdidos en la operación, sin visibilidad de dónde se iba el tiempo, sin conexión entre trabajo y facturación, sin datos para tomar decisiones.</p>
-            <p>De esa experiencia nace Estudio Oasis y su sistema operativo: una plataforma que le pone proceso y orden a la creatividad.</p>
-          </div>
-          <Link to="/about" className="inline-block mt-6 text-[12px] font-semibold uppercase tracking-[0.15em] text-[var(--dm-gold)] hover:text-[var(--dm-gold-light)] transition-colors">
-            Leer más sobre nosotros →
-          </Link>
-        </RevealSection>
-
-        <RevealSection delay={200}>
-          <div className="relative">
-            <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/agency-experience-Jp9iBMZRco9cYjUAckGW2G.webp"
-              alt="Experiencia en agencias" className="rounded-sm w-full object-cover"
-            />
-            <div className="absolute bottom-4 left-4 bg-[var(--dm-charcoal)] rounded-sm p-4">
-              <span className="font-serif-display text-[28px] text-[var(--dm-gold)] block leading-none">15+</span>
-              <span className="font-mono-label text-[10px] tracking-[0.2em] uppercase text-[var(--dm-cream)]/60">Años de experiencia</span>
-            </div>
-          </div>
-        </RevealSection>
-      </div>
-    </section>
-  );
-}
-
-// ─── Stats ───
-function StatsSection() {
-  const stats = [
-    { end: 15, suffix: "+", label: "Años de experiencia" },
-    { end: 6, suffix: "", label: "Agencias globales" },
-    { end: 50, suffix: "+", label: "Marcas atendidas" },
-    { end: 100, suffix: "+", label: "Proyectos entregados" },
-  ];
-  return (
-    <section className="py-20 md:py-28 bg-[var(--dm-charcoal)]">
-      <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-10">
-        {stats.map((s) => {
-          const { ref, value } = useCountUp(s.end);
-          return (
-            <div key={s.label} ref={ref} className="text-center">
-              <span className="font-serif-display text-[clamp(40px,6vw,64px)] text-[var(--dm-gold)] leading-none">{value}{s.suffix}</span>
-              <p className="mt-2 text-[12px] tracking-[0.2em] uppercase text-[var(--dm-charcoal)]/60 text-white/40 font-mono-label">{s.label}</p>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-// ─── Brands ───
-function BrandsSection() {
-  return (
-    <section className="py-20 md:py-28 bg-[var(--dm-sand-light)]">
-      <div className="max-w-6xl mx-auto px-6">
-        <RevealSection>
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4 text-center">02 — Marcas</p>
-          <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[var(--dm-charcoal)] text-center">
-            Marcas con las que hemos trabajado
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4">El problema</p>
+          <h2 className="font-serif-display text-[clamp(24px,4vw,40px)] leading-tight text-[var(--dm-charcoal)]">
+            El problema no es la carga de trabajo.<br />
+            <span className="italic text-[var(--dm-terracotta)]">Es no tener control sobre ella.</span>
           </h2>
         </RevealSection>
-        <div className="mt-14 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-10 items-center justify-items-center">
-          {BRAND_LOGOS.map((l, i) => (
-            <RevealSection key={l.name} delay={i * 80}>
-              <img src={l.url} alt={l.name} className="h-10 md:h-12 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
-            </RevealSection>
-          ))}
-        </div>
+        <RevealSection delay={150}>
+          <div className="mt-8 space-y-5 text-[15px] text-[var(--dm-charcoal)]/70 leading-relaxed font-body">
+            <p>
+              Equipos creativos talentosos se pierden en la operación todos los días. No saben en qué se fue el día, no conectan trabajo con facturación, y toman decisiones basadas en intuición en lugar de datos.
+            </p>
+            <p>
+              Sin visibilidad real de dónde va el tiempo, es imposible saber qué clientes son rentables, quién tiene capacidad disponible, o por qué el equipo siempre se siente sobrecargado aunque los números no cuadren.
+            </p>
+            <p>
+              Oasis OS nace de ver este patrón repetirse en 6 agencias globales durante 15+ años. La solución no es otro tracker de horas. Es un sistema que conecta actividad, clientes y dinero en un solo lugar.
+            </p>
+          </div>
+        </RevealSection>
       </div>
     </section>
   );
@@ -327,15 +221,15 @@ function OasisOSSection() {
   ];
 
   return (
-    <section className="py-24 md:py-36 bg-[var(--dm-charcoal)]">
+    <section className="py-24 md:py-36 bg-[#1C1917]">
       <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
         <RevealSection>
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4">03 — Oasis OS</p>
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4">Oasis OS</p>
           <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] leading-tight text-[var(--dm-cream)]">
             El sistema operativo<br /><span className="italic text-[var(--dm-gold)]">para creativos</span>
           </h2>
           <p className="mt-4 text-[15px] text-[var(--dm-cream)]/60 leading-relaxed font-body">
-            Oasis OS nace de una realidad: el trabajo remoto e híbrido es permanente. El problema no es trabajar más, sino no poder ver con claridad qué está pasando. Nuestro OS conecta captura de actividad, gestión de clientes y visibilidad financiera en un solo sistema.
+            Nuestro OS conecta captura de actividad, gestión de clientes y visibilidad financiera en un solo sistema. Diseñado por gente que vivió el problema.
           </p>
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {features.map((f) => (
@@ -366,6 +260,35 @@ function OasisOSSection() {
               <span className="font-serif-display text-[28px] text-[var(--dm-charcoal)] block leading-none">Gratis</span>
               <span className="text-[11px] text-[var(--dm-charcoal)]/50">Planes desde $9/mes</span>
             </div>
+          </div>
+        </RevealSection>
+      </div>
+    </section>
+  );
+}
+
+// ─── This is not... ───
+function NotJustSection() {
+  return (
+    <section className="py-20 md:py-28 bg-[#1C1917]">
+      <div className="max-w-3xl mx-auto px-6 text-center">
+        <RevealSection>
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-6">Filosofía</p>
+          <h2 className="font-serif-display text-[clamp(24px,4vw,40px)] leading-tight text-[var(--dm-cream)]">
+            Esto <span className="italic text-[var(--dm-gold)]">no es</span> solo un tracker de horas.
+          </h2>
+        </RevealSection>
+        <RevealSection delay={150}>
+          <div className="mt-8 space-y-5 text-[15px] text-[var(--dm-cream)]/60 leading-relaxed font-body max-w-2xl mx-auto">
+            <p>
+              Un tracker te dice cuántas horas trabajaste. Oasis OS te dice en qué las invertiste, para quién, y si valió la pena. Es la diferencia entre medir actividad y entender operación.
+            </p>
+            <p>
+              Conectamos tres capas que normalmente viven separadas: la bitácora operativa (qué hace tu equipo), la gestión de clientes y proyectos (para quién), y la visibilidad financiera (cuánto genera).
+            </p>
+            <p>
+              El resultado: un registro operativo que te devuelve visibilidad. Sabes dónde va el tiempo, qué clientes son rentables, y puedes tomar decisiones con datos reales en lugar de intuición.
+            </p>
           </div>
         </RevealSection>
       </div>
@@ -475,7 +398,7 @@ function HowItWorks() {
   ];
 
   return (
-    <section className="py-20 md:py-28 bg-[var(--dm-cream)]">
+    <section id="como-funciona" className="py-20 md:py-28 bg-[var(--dm-cream)]">
       <div className="max-w-6xl mx-auto px-6">
         <RevealSection>
           <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4">Cómo funciona</p>
@@ -500,7 +423,7 @@ function HowItWorks() {
 // ─── CTA ───
 function CtaSection() {
   return (
-    <section className="py-20 md:py-28 bg-[var(--dm-charcoal)]">
+    <section className="py-20 md:py-28 bg-[#1C1917]">
       <div className="max-w-3xl mx-auto px-6 text-center">
         <RevealSection>
           <h2 className="font-serif-display text-[clamp(24px,4vw,44px)] leading-tight text-[var(--dm-cream)]">
@@ -578,11 +501,10 @@ export default function LandingPage() {
     <div className="min-h-screen font-body">
       <Navbar />
       <Hero />
-      <AgencyMarquee />
-      <OriginSection />
-      <StatsSection />
-      <BrandsSection />
+      <AgencyLogos />
+      <ProblemSection />
       <OasisOSSection />
+      <NotJustSection />
       <ForWho />
       <PricingSection />
       <HowItWorks />
