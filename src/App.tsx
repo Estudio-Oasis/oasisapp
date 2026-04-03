@@ -57,6 +57,9 @@ const App = () => (
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/setup" element={<SetupPage />} />
                 <Route path="/bitacora-demo" element={<BitacoraDemo />} />
+                <Route path="/about" element={<AboutStudio />} />
+                <Route path="/about/roger-teran" element={<AboutRoger />} />
+                <Route path="/portfolio" element={<Portfolio />} />
                 <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
 
                 {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
