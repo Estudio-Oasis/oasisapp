@@ -167,8 +167,28 @@ export default function AboutStudio() {
         </div>
       </section>
 
-      {/* CTA Roger */}
+      {/* Nuestras Áreas — Banner */}
+      <section className="py-20 bg-[var(--dm-sand-light)]">
+        <div className="max-w-6xl mx-auto px-6">
+          <Reveal>
+            <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4 text-center">Nuestras áreas</p>
+            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/nyCrluSxBiZsMmym.jpg" alt="Áreas de servicio — Logos, Marketing Digital, Desarrollo Web" className="w-full rounded-sm" loading="lazy" />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Proceso Creativo */}
       <section className="py-20 bg-[var(--dm-charcoal)]">
+        <div className="max-w-6xl mx-auto px-6">
+          <Reveal>
+            <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4 text-center">Nuestro proceso</p>
+            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/HqoUQNpSiDHWxgYD.jpg" alt="Proceso creativo — Entender, Brainstorming, Refinar, Realizar" className="w-full rounded-sm" loading="lazy" />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* CTA Roger */}
+      <section className="py-20 bg-[var(--dm-charcoal)] border-t border-[var(--dm-cream)]/10">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="font-serif-display text-[clamp(24px,4vw,44px)] text-[var(--dm-cream)]">
