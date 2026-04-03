@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   CheckCircle2,
@@ -13,22 +12,16 @@ import {
   Palette,
   Globe,
   Briefcase,
-  Layers,
   Shield,
   Menu,
   X,
-  Play,
-  PenLine,
-  Eye,
-  DollarSign,
   Zap,
-  UserCheck,
+  ChevronDown,
 } from "lucide-react";
 
-// ─── Track landing view once ───
 const landingTrackedRef = { current: false };
 
-// ─── Intersection Observer hook for reveal animations ───
+// ─── Reveal hook ───
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -58,162 +51,214 @@ function RevealSection({ children, className = "", delay = 0 }: { children: Reac
   );
 }
 
-// ─── 1. Navbar ───
+// ─── Counter hook ───
+function useCountUp(end: number, duration = 2000) {
+  const [value, setValue] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started.current) {
+        started.current = true;
+        const start = performance.now();
+        const tick = (now: number) => {
+          const progress = Math.min((now - start) / duration, 1);
+          setValue(Math.floor(progress * end));
+          if (progress < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        obs.disconnect();
+      }
+    }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [end, duration]);
+
+  return { ref, value };
+}
+
+const AGENCY_LOGOS = [
+  { name: "Ogilvy", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/ogilvy_d7381671.png" },
+  { name: "Leo Burnett", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/leo-burnett_c24e284a.png" },
+  { name: "Havas", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/havas_304fe49c.jpg" },
+  { name: "FCB", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/fcb_968bc1ba.png" },
+  { name: "Media.Monks", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/media-monks_10b229d3.png" },
+  { name: "VML", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/vml_a9ed372a.png" },
+];
+
+const BRAND_LOGOS = [
+  { name: "San Francisco 49ers", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/49ers_cfd4aeac.png" },
+  { name: "Nivea", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/nivea_67a738d5.png" },
+  { name: "Baileys", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/baileys_a69f2d25.png" },
+  { name: "José Cuervo", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/jose-cuervo_c2b9b845.png" },
+  { name: "Platzi", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/platzi_7f0d6a77.png" },
+  { name: "Rocketfy", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/rocketfy_9c937db1.png" },
+];
+
+// ─── Navbar ───
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const h = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", h);
+    return () => window.removeEventListener("scroll", h);
   }, []);
 
-  const navLinks = [
-    { label: "Funciones", href: "#funciones" },
-    { label: "Para quién", href: "#para-quien" },
-    { label: "Precios", href: "#precios" },
-    { label: "Cómo funciona", href: "#como-funciona" },
-  ];
-
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-[#FAFAF8]/90 backdrop-blur-xl border-b border-[#E8E8E4]" : "bg-transparent"}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-[var(--dm-cream)]/95 backdrop-blur-xl border-b border-[var(--dm-sand)]" : "bg-transparent"}`}>
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-1.5">
-          <span className="text-[#1A1A1A] font-bold text-[16px] tracking-tight">Bitácora</span>
-          <span className="text-[#999] text-[12px] font-medium">· by Estudio Oasis</span>
-        </a>
+        <Link to="/" className="flex items-center gap-2">
+          <span className={`font-serif-display text-[20px] font-bold tracking-tight transition-colors ${scrolled ? "text-[var(--dm-charcoal)]" : "text-white"}`}>OASIS</span>
+        </Link>
 
-        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((l) => (
-            <a key={l.href} href={l.href} className="text-[13px] font-medium text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors">
-              {l.label}
-            </a>
-          ))}
-          <Link to="/login" className="text-[13px] font-medium text-[#6B6B6B] hover:text-[#1A1A1A] transition-colors">
-            Iniciar sesión
-          </Link>
-          <Link
-            to="/bitacora-demo"
-            className="h-9 px-5 rounded-full bg-[#1A1A1A] text-[#FAFAF8] text-[13px] font-semibold flex items-center gap-1.5 hover:bg-[#333] transition-colors"
-          >
+          <Link to="/" className={`text-[13px] font-medium transition-colors ${scrolled ? "text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)]" : "text-white/70 hover:text-white"}`}>Inicio</Link>
+          
+          <div className="relative group" onMouseEnter={() => setAboutOpen(true)} onMouseLeave={() => setAboutOpen(false)}>
+            <button className={`text-[13px] font-medium transition-colors flex items-center gap-1 ${scrolled ? "text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)]" : "text-white/70 hover:text-white"}`}>
+              About <ChevronDown className="h-3 w-3" />
+            </button>
+            {aboutOpen && (
+              <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-[var(--dm-sand)] py-2 min-w-[180px]">
+                <Link to="/about" className="block px-4 py-2 text-[13px] text-[var(--dm-charcoal)] hover:bg-[var(--dm-sand-light)] transition-colors">Estudio Oasis</Link>
+                <Link to="/about/roger-teran" className="block px-4 py-2 text-[13px] text-[var(--dm-charcoal)] hover:bg-[var(--dm-sand-light)] transition-colors">Roger Terán</Link>
+              </div>
+            )}
+          </div>
+
+          <Link to="/portfolio" className={`text-[13px] font-medium transition-colors ${scrolled ? "text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)]" : "text-white/70 hover:text-white"}`}>Portafolio</Link>
+          <Link to="/login" className={`text-[13px] font-medium transition-colors ${scrolled ? "text-[var(--dm-charcoal)]/60 hover:text-[var(--dm-charcoal)]" : "text-white/70 hover:text-white"}`}>Oasis OS</Link>
+          <Link to="/signup" className="h-9 px-5 rounded-sm bg-[var(--dm-charcoal)] text-[var(--dm-cream)] text-[13px] font-semibold flex items-center gap-1.5 hover:bg-[var(--dm-charcoal-light)] transition-colors">
             Probar gratis
           </Link>
         </div>
 
-        {/* Mobile toggle */}
-        <button className="md:hidden text-[#1A1A1A]" onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className={`md:hidden ${scrolled ? "text-[var(--dm-charcoal)]" : "text-white"}`} onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-[#FAFAF8] border-b border-[#E8E8E4] px-6 pb-4 space-y-3">
-          {navLinks.map((l) => (
-            <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="block text-sm text-[#6B6B6B] hover:text-[#1A1A1A]">
-              {l.label}
-            </a>
-          ))}
-          <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-sm text-[#6B6B6B] hover:text-[#1A1A1A]">
-            Iniciar sesión
-          </Link>
-          <Link to="/bitacora-demo" onClick={() => setMobileOpen(false)} className="block text-sm font-semibold text-[#1A1A1A]">
-            Probar gratis →
-          </Link>
+        <div className="md:hidden bg-[var(--dm-cream)] border-b border-[var(--dm-sand)] px-6 pb-4 space-y-3">
+          <Link to="/" onClick={() => setMobileOpen(false)} className="block text-sm text-[var(--dm-charcoal)]">Inicio</Link>
+          <p className="text-[11px] font-mono-label uppercase tracking-[0.2em] text-[var(--dm-charcoal)]/40 pt-2">About</p>
+          <Link to="/about" onClick={() => setMobileOpen(false)} className="block text-sm text-[var(--dm-charcoal)]/70 pl-3">Estudio Oasis</Link>
+          <Link to="/about/roger-teran" onClick={() => setMobileOpen(false)} className="block text-sm text-[var(--dm-charcoal)]/70 pl-3">Roger Terán</Link>
+          <Link to="/portfolio" onClick={() => setMobileOpen(false)} className="block text-sm text-[var(--dm-charcoal)]">Portafolio</Link>
+          <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-sm text-[var(--dm-charcoal)]">Oasis OS</Link>
+          <Link to="/signup" onClick={() => setMobileOpen(false)} className="block text-sm font-semibold text-[var(--dm-gold)]">Probar gratis →</Link>
         </div>
       )}
     </nav>
   );
 }
 
-// ─── 2. Hero ───
+// ─── Hero ───
 function Hero() {
   return (
-    <section className="relative pt-28 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_#F0EDE6_0%,_#FAFAF8_60%)]" />
+    <section className="relative min-h-screen flex items-center overflow-hidden">
+      <img
+        src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/hero-desert-MU6ShxPGyRuDWbDmhHkDRz.webp"
+        alt="" className="absolute inset-0 w-full h-full object-cover" loading="eager"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--dm-charcoal)]/70 via-[var(--dm-charcoal)]/40 to-[var(--dm-charcoal)]/80" />
 
-      <div className="relative max-w-6xl mx-auto px-6">
+      <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-20">
         <RevealSection>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.15em] text-[#B8956A] mb-5">
-            Registro de actividad para creativos y equipos de servicio
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-6">
+            Estudio creativo — desde 2010
           </p>
         </RevealSection>
-
         <RevealSection delay={100}>
-          <h1 className="text-[clamp(28px,5vw,56px)] font-bold leading-[1.1] tracking-tight text-[#1A1A1A] max-w-3xl">
-            Le ponemos proceso y orden a la creatividad.
+          <h1 className="font-serif-display text-[clamp(40px,7vw,80px)] leading-[1.05] max-w-3xl">
+            <span className="text-white block">Creatividad</span>
+            <span className="text-[var(--dm-gold)] italic block">con sistema</span>
           </h1>
         </RevealSection>
-
         <RevealSection delay={200}>
-          <p className="mt-5 text-[16px] md:text-[17px] leading-relaxed text-[#6B6B6B] max-w-xl">
-            Registra tu trabajo, entiende cómo se va tu día y empieza a poner orden a tu operación. Bitácora es la puerta de entrada a un sistema para individuos, equipos y líderes.
+          <p className="mt-6 text-[17px] leading-relaxed text-white/70 max-w-xl font-body">
+            15+ años de experiencia en agencias globales, condensados en un estudio creativo y un sistema operativo para equipos de servicios.
           </p>
         </RevealSection>
-
         <RevealSection delay={300}>
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
-            <Link
-              to="/bitacora-demo"
-              className="h-12 px-7 rounded-full bg-[#B8956A] text-[#FAFAF8] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#A07D5A] transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Probar Bitácora gratis <ArrowRight className="h-4 w-4" />
+            <Link to="/about" className="h-12 px-7 rounded-sm bg-[var(--dm-gold)] text-[var(--dm-charcoal)] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[var(--dm-gold-light)] transition-all">
+              Conoce nuestra historia <ArrowRight className="h-4 w-4" />
             </Link>
-            <a
-              href="#funciones"
-              className="h-12 px-7 rounded-full border border-[#D4D4D0] text-[#1A1A1A] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#F0EDE6] transition-all"
-            >
-              Ver cómo funciona
-            </a>
+            <Link to="/signup" className="h-12 px-7 rounded-sm border border-white/30 text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:border-white/50 transition-all">
+              Probar Oasis OS
+            </Link>
           </div>
         </RevealSection>
 
-        {/* Bitácora mockup */}
-        <RevealSection delay={400}>
-          <div className="mt-14 md:mt-18 relative">
-            <div className="rounded-2xl border border-[#E8E8E4] bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden">
-              <div className="h-10 bg-[#F5F5F3] border-b border-[#E8E8E4] flex items-center px-4 gap-2">
-                <div className="h-3 w-3 rounded-full bg-[#FF5F57]" />
-                <div className="h-3 w-3 rounded-full bg-[#FEBC2E]" />
-                <div className="h-3 w-3 rounded-full bg-[#28C840]" />
-                <span className="ml-3 text-[11px] text-[#999] font-medium">Bitácora</span>
-              </div>
-              <div className="p-5 md:p-8 bg-gradient-to-br from-[#FAFAF8] to-[#F5F3EE]">
-                {/* Active session */}
-                <div className="rounded-xl border-2 border-[#B8956A]/30 bg-[#FFF8F0] p-4 mb-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2.5 w-2.5 rounded-full bg-[#28C840] animate-pulse" />
-                      <span className="text-[13px] font-semibold text-[#1A1A1A]">En actividad</span>
-                    </div>
-                    <span className="text-[20px] font-bold text-[#B8956A] tabular-nums">01:23:45</span>
-                  </div>
-                  <p className="text-[13px] text-[#6B6B6B]">Diseñando propuesta de identidad visual</p>
-                  <div className="flex gap-2 mt-2">
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#B8956A]/10 text-[#B8956A] font-medium">Cliente: Vertex</span>
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#5B8DEF]/10 text-[#5B8DEF] font-medium">Proyecto: Branding</span>
-                  </div>
-                </div>
-                {/* Timeline entries */}
-                <div className="space-y-3">
-                  {[
-                    { time: "09:00 – 10:30", desc: "Revisión de brief con equipo", client: "Helios", dur: "1h 30m" },
-                    { time: "10:45 – 12:15", desc: "Wireframes landing page", client: "Vertex", dur: "1h 30m" },
-                    { time: "14:00 – 15:30", desc: "Llamada con cliente + notas", client: "Cosmos", dur: "1h 30m" },
-                  ].map((e, i) => (
-                    <div key={i} className="flex items-center gap-4 rounded-lg border border-[#E8E8E4] bg-white p-3">
-                      <span className="text-[11px] text-[#999] font-medium shrink-0 w-[100px]">{e.time}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] text-[#1A1A1A] font-medium truncate">{e.desc}</p>
-                        <span className="text-[11px] text-[#B8956A]">{e.client}</span>
-                      </div>
-                      <span className="text-[12px] text-[#6B6B6B] font-medium shrink-0">{e.dur}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+        {/* Scroll indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 opacity-0 animate-[fadeIn_1s_2s_forwards]">
+          <div className="w-px h-12 bg-gradient-to-b from-white/40 to-transparent" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Marquee ───
+function AgencyMarquee() {
+  const doubled = [...AGENCY_LOGOS, ...AGENCY_LOGOS];
+  return (
+    <section className="py-16 bg-[var(--dm-cream)] border-y border-[var(--dm-sand)]">
+      <p className="text-center font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-charcoal)]/40 mb-10">
+        Experiencia en agencias globales
+      </p>
+      <div className="relative overflow-hidden">
+        <div className="flex gap-16 animate-[marquee_30s_linear_infinite] w-max">
+          {doubled.map((l, i) => (
+            <img
+              key={`${l.name}-${i}`}
+              src={l.url}
+              alt={l.name}
+              className="h-8 md:h-10 object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-80 transition-all duration-500"
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Origin ───
+function OriginSection() {
+  return (
+    <section className="py-24 md:py-36 bg-[var(--dm-cream)]">
+      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+        <RevealSection>
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4">01 — Nuestro origen</p>
+          <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] leading-tight text-[var(--dm-charcoal)]">
+            De las agencias<br /><span className="italic text-[var(--dm-terracotta)]">al sistema propio</span>
+          </h2>
+          <div className="mt-6 space-y-4 text-[15px] text-[var(--dm-charcoal)]/70 leading-relaxed font-body">
+            <p>Después de más de 15 años trabajando en agencias como Ogilvy, Leo Burnett, Havas, FCB, Media Monks y VML, entendimos algo fundamental: la creatividad necesita proceso para escalar.</p>
+            <p>En cada agencia vimos el mismo patrón — equipos talentosos perdidos en la operación, sin visibilidad de dónde se iba el tiempo, sin conexión entre trabajo y facturación, sin datos para tomar decisiones.</p>
+            <p>De esa experiencia nace Estudio Oasis y su sistema operativo: una plataforma que le pone proceso y orden a la creatividad.</p>
+          </div>
+          <Link to="/about" className="inline-block mt-6 text-[12px] font-semibold uppercase tracking-[0.15em] text-[var(--dm-gold)] hover:text-[var(--dm-gold-light)] transition-colors">
+            Leer más sobre nosotros →
+          </Link>
+        </RevealSection>
+
+        <RevealSection delay={200}>
+          <div className="relative">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/agency-experience-Jp9iBMZRco9cYjUAckGW2G.webp"
+              alt="Experiencia en agencias" className="rounded-sm w-full object-cover"
+            />
+            <div className="absolute bottom-4 left-4 bg-[var(--dm-charcoal)] rounded-sm p-4">
+              <span className="font-serif-display text-[28px] text-[var(--dm-gold)] block leading-none">15+</span>
+              <span className="font-mono-label text-[10px] tracking-[0.2em] uppercase text-[var(--dm-cream)]/60">Años de experiencia</span>
             </div>
           </div>
         </RevealSection>
@@ -222,37 +267,46 @@ function Hero() {
   );
 }
 
-// ─── 3. Problema ───
-function ProblemSection() {
-  const pains = [
-    "No sabes en qué se fue el tiempo",
-    "Las tareas viven separadas del contexto",
-    "La operación depende de mensajes sueltos",
-    "Los clientes consumen recursos sin visibilidad real",
-    "Cobrar bien sigue siendo demasiado manual",
+// ─── Stats ───
+function StatsSection() {
+  const stats = [
+    { end: 15, suffix: "+", label: "Años de experiencia" },
+    { end: 6, suffix: "", label: "Agencias globales" },
+    { end: 50, suffix: "+", label: "Marcas atendidas" },
+    { end: 100, suffix: "+", label: "Proyectos entregados" },
   ];
-
   return (
-    <section className="py-20 md:py-28 bg-[#F5F3EE]">
+    <section className="py-20 md:py-28 bg-[var(--dm-charcoal)]">
+      <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-10">
+        {stats.map((s) => {
+          const { ref, value } = useCountUp(s.end);
+          return (
+            <div key={s.label} ref={ref} className="text-center">
+              <span className="font-serif-display text-[clamp(40px,6vw,64px)] text-[var(--dm-gold)] leading-none">{value}{s.suffix}</span>
+              <p className="mt-2 text-[12px] tracking-[0.2em] uppercase text-[var(--dm-charcoal)]/60 text-white/40 font-mono-label">{s.label}</p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+// ─── Brands ───
+function BrandsSection() {
+  return (
+    <section className="py-20 md:py-28 bg-[var(--dm-sand-light)]">
       <div className="max-w-6xl mx-auto px-6">
         <RevealSection>
-          <div className="max-w-2xl">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.15em] text-[#B8956A] mb-4">El problema</p>
-            <h2 className="text-[clamp(24px,3.5vw,40px)] font-bold leading-tight text-[#1A1A1A]">
-              El problema no es la carga de trabajo. Es no poder verla con claridad.
-            </h2>
-          </div>
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4 text-center">02 — Marcas</p>
+          <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[var(--dm-charcoal)] text-center">
+            Marcas con las que hemos trabajado
+          </h2>
         </RevealSection>
-
-        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {pains.map((pain, i) => (
-            <RevealSection key={i} delay={i * 80}>
-              <div className="flex items-start gap-3 rounded-xl border border-[#E0DDD6] bg-white p-4 hover:shadow-sm transition-shadow">
-                <div className="mt-0.5 h-5 w-5 rounded-full bg-[#FFF3E0] flex items-center justify-center shrink-0">
-                  <span className="text-[#B8956A] text-[11px] font-bold">!</span>
-                </div>
-                <p className="text-[14px] text-[#1A1A1A] font-medium">{pain}</p>
-              </div>
+        <div className="mt-14 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-10 items-center justify-items-center">
+          {BRAND_LOGOS.map((l, i) => (
+            <RevealSection key={l.name} delay={i * 80}>
+              <img src={l.url} alt={l.name} className="h-10 md:h-12 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
             </RevealSection>
           ))}
         </div>
@@ -261,7 +315,65 @@ function ProblemSection() {
   );
 }
 
-// ─── 4. Para quién es ───
+// ─── Oasis OS Section ───
+function OasisOSSection() {
+  const features = [
+    { icon: Clock, title: "Bitácora", desc: "Registra tu trabajo en tiempo real con timer o manualmente" },
+    { icon: Users, title: "Hub de equipo", desc: "Ve quién está activo, en qué trabaja y su estado en tiempo real" },
+    { icon: BarChart3, title: "Visibilidad financiera", desc: "Conecta horas con clientes, proyectos y facturación" },
+    { icon: Zap, title: "IA integrada", desc: "Mejora descripciones, sugiere clientes y optimiza tu operación" },
+    { icon: Shield, title: "Perfiles de equipo", desc: "Cada empleado crea su perfil visible en el hub" },
+    { icon: Globe, title: "Proyectos y clientes", desc: "Organiza todo por cliente, proyecto y tarea" },
+  ];
+
+  return (
+    <section className="py-24 md:py-36 bg-[var(--dm-charcoal)]">
+      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+        <RevealSection>
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4">03 — Oasis OS</p>
+          <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] leading-tight text-[var(--dm-cream)]">
+            El sistema operativo<br /><span className="italic text-[var(--dm-gold)]">para creativos</span>
+          </h2>
+          <p className="mt-4 text-[15px] text-[var(--dm-cream)]/60 leading-relaxed font-body">
+            Oasis OS nace de una realidad: el trabajo remoto e híbrido es permanente. El problema no es trabajar más, sino no poder ver con claridad qué está pasando. Nuestro OS conecta captura de actividad, gestión de clientes y visibilidad financiera en un solo sistema.
+          </p>
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {features.map((f) => (
+              <div key={f.title} className="flex items-start gap-3">
+                <div className="h-8 w-8 rounded-sm bg-[var(--dm-gold)]/10 flex items-center justify-center shrink-0">
+                  <f.icon className="h-4 w-4 text-[var(--dm-gold)]" />
+                </div>
+                <div>
+                  <h4 className="text-[14px] font-semibold text-[var(--dm-cream)]">{f.title}</h4>
+                  <p className="text-[12px] text-[var(--dm-cream)]/50 leading-relaxed">{f.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <Link to="/signup" className="mt-8 inline-flex h-12 px-7 rounded-sm bg-[var(--dm-gold)] text-[var(--dm-charcoal)] text-[14px] font-semibold items-center gap-2 hover:bg-[var(--dm-gold-light)] transition-colors">
+            Probar Oasis OS gratis <ArrowRight className="h-4 w-4" />
+          </Link>
+        </RevealSection>
+
+        <RevealSection delay={200}>
+          <div className="relative">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/os-product-UpwfCF6FLaSYDwR3ZBW5Jz.webp"
+              alt="Oasis OS" className="rounded-sm w-full object-cover"
+            />
+            <div className="absolute bottom-4 right-4 bg-[var(--dm-cream)] rounded-sm p-4">
+              <span className="text-[11px] text-[var(--dm-charcoal)]/50 block">Desde</span>
+              <span className="font-serif-display text-[28px] text-[var(--dm-charcoal)] block leading-none">Gratis</span>
+              <span className="text-[11px] text-[var(--dm-charcoal)]/50">Planes desde $9/mes</span>
+            </div>
+          </div>
+        </RevealSection>
+      </div>
+    </section>
+  );
+}
+
+// ─── For Who ───
 function ForWho() {
   const profiles = [
     { icon: Palette, title: "Freelancers", desc: "Registra tu día y entiende a dónde se va tu tiempo." },
@@ -273,22 +385,21 @@ function ForWho() {
   ];
 
   return (
-    <section id="para-quien" className="py-20 md:py-28 bg-white">
+    <section className="py-20 md:py-28 bg-[var(--dm-cream)]">
       <div className="max-w-6xl mx-auto px-6">
         <RevealSection>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.15em] text-[#B8956A] mb-4">Para quién es</p>
-          <h2 className="text-[clamp(24px,3.5vw,40px)] font-bold leading-tight text-[#1A1A1A]">
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4">Para quién es</p>
+          <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[var(--dm-charcoal)]">
             Para cualquiera que necesite saber en qué se va su tiempo.
           </h2>
         </RevealSection>
-
         <div className="mt-12 grid grid-cols-2 lg:grid-cols-3 gap-4">
           {profiles.map((p, i) => (
             <RevealSection key={p.title} delay={i * 80}>
-              <div className="rounded-xl border border-[#E8E8E4] p-5 hover:bg-[#FAFAF8] transition-colors duration-300 group">
-                <p.icon className="h-5 w-5 text-[#B8956A] mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-[15px] font-semibold text-[#1A1A1A] mb-1">{p.title}</h3>
-                <p className="text-[13px] text-[#6B6B6B] leading-relaxed">{p.desc}</p>
+              <div className="rounded-sm border border-[var(--dm-sand)] p-5 hover:bg-[var(--dm-sand-light)] transition-colors duration-300 group">
+                <p.icon className="h-5 w-5 text-[var(--dm-gold)] mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="text-[15px] font-semibold text-[var(--dm-charcoal)] mb-1">{p.title}</h3>
+                <p className="text-[13px] text-[var(--dm-charcoal)]/60 leading-relaxed font-body">{p.desc}</p>
               </div>
             </RevealSection>
           ))}
@@ -298,428 +409,55 @@ function ForWho() {
   );
 }
 
-// ─── 5. Las 3 funciones ───
-function FunctionsSection() {
-  return (
-    <section id="funciones" className="py-20 md:py-28 bg-[#FAFAF8]">
-      <div className="max-w-6xl mx-auto px-6">
-        <RevealSection>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.15em] text-[#B8956A] mb-4">Funciones</p>
-          <h2 className="text-[clamp(24px,3.5vw,40px)] font-bold leading-tight text-[#1A1A1A] max-w-xl">
-            Un sistema que crece contigo.
-          </h2>
-          <p className="mt-3 text-[16px] text-[#6B6B6B] max-w-lg leading-relaxed">
-            Empieza con Bitácora. El resto se conecta cuando lo necesites.
-          </p>
-        </RevealSection>
-
-        {/* Bitácora — dominant card */}
-        <RevealSection delay={100}>
-          <div className="mt-12 rounded-2xl border-2 border-[#B8956A] bg-white p-6 md:p-8 shadow-[0_8px_30px_-10px_rgba(184,149,106,0.2)]">
-            <div className="flex flex-col md:flex-row md:items-start gap-6">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-[#E8F5E9] text-[#2E7D32]">
-                    Disponible hoy
-                  </span>
-                </div>
-                <h3 className="text-[24px] md:text-[28px] font-bold text-[#1A1A1A] mb-3">Bitácora</h3>
-                <p className="text-[15px] text-[#6B6B6B] leading-relaxed mb-6 max-w-lg">
-                  Registra en qué trabajas, cuánto tiempo le dedicas y con qué contexto. Para ti, para tu equipo, para tu operación. Con timer o con registro manual — tú decides cómo registrar.
-                </p>
-                <ul className="space-y-2.5 mb-6">
-                  {[
-                    "Registro con un clic o manual",
-                    "Cada entrada se conecta a cliente, proyecto y tarea",
-                    "Timeline visual de tu día",
-                    "Funciona para individuos y equipos",
-                  ].map((pt) => (
-                    <li key={pt} className="flex items-start gap-2.5">
-                      <CheckCircle2 className="h-4 w-4 text-[#B8956A] mt-0.5 shrink-0" />
-                      <span className="text-[13px] text-[#6B6B6B]">{pt}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to="/bitacora-demo"
-                  className="inline-flex h-11 px-6 rounded-full bg-[#B8956A] text-[#FAFAF8] text-[13px] font-semibold items-center gap-2 hover:bg-[#A07D5A] transition-colors"
-                >
-                  Probar Bitácora <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-
-              {/* Mini mockup */}
-              <div className="md:w-[320px] shrink-0 rounded-xl border border-[#E8E8E4] bg-[#FAFAF8] p-4 hidden md:block">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="h-2 w-2 rounded-full bg-[#28C840]" />
-                  <span className="text-[12px] font-semibold text-[#1A1A1A]">01:23:45</span>
-                  <span className="text-[11px] text-[#999] ml-auto">Hoy</span>
-                </div>
-                <div className="space-y-2">
-                  {[
-                    { t: "09:00–10:30", d: "Brief con equipo", c: "#B8956A" },
-                    { t: "10:45–12:15", d: "Wireframes LP", c: "#5B8DEF" },
-                    { t: "14:00–15:30", d: "Llamada cliente", c: "#28C840" },
-                  ].map((e, i) => (
-                    <div key={i} className="flex items-center gap-2 rounded-md bg-white border border-[#E8E8E4] p-2">
-                      <div className="h-1.5 w-1.5 rounded-full shrink-0" style={{ backgroundColor: e.c }} />
-                      <span className="text-[11px] text-[#999] shrink-0">{e.t}</span>
-                      <span className="text-[11px] text-[#1A1A1A] font-medium truncate">{e.d}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </RevealSection>
-
-        {/* Centro de Control + Finanzas — smaller cards */}
-        <div className="mt-5 grid md:grid-cols-2 gap-5">
-          <RevealSection delay={200}>
-            <div className="rounded-2xl border border-[#E8E8E4] bg-[#FAFAF8] p-6 h-full">
-              <span className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-[#FFF8E1] text-[#F57F17]">
-                Próximamente
-              </span>
-              <h3 className="mt-4 text-[18px] font-bold text-[#1A1A1A] mb-2">Centro de Control</h3>
-              <p className="text-[14px] text-[#6B6B6B] leading-relaxed mb-4">
-                Clientes, tareas, proyectos y la información que necesitas para operar con claridad. Todo conectado.
-              </p>
-              <ul className="space-y-2">
-                {["Gestión de clientes y proyectos", "Tareas conectadas al contexto", "Vista de equipo en tiempo real"].map((pt) => (
-                  <li key={pt} className="flex items-start gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-[#D4D4D0] mt-0.5 shrink-0" />
-                    <span className="text-[12px] text-[#999]">{pt}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </RevealSection>
-
-          <RevealSection delay={280}>
-            <div className="rounded-2xl border border-[#E8E8E4] bg-[#FAFAF8] p-6 h-full">
-              <span className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-[#FFF8E1] text-[#F57F17]">
-                Próximamente
-              </span>
-              <h3 className="mt-4 text-[18px] font-bold text-[#1A1A1A] mb-2">Finanzas</h3>
-              <p className="text-[14px] text-[#6B6B6B] leading-relaxed mb-4">
-                Facturas, pagos, gastos y visibilidad financiera. Conectado con el trabajo real de tu equipo.
-              </p>
-              <ul className="space-y-2">
-                {["Facturación y cobranza", "Registro de pagos y gastos", "Reportes financieros claros"].map((pt) => (
-                  <li key={pt} className="flex items-start gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-[#D4D4D0] mt-0.5 shrink-0" />
-                    <span className="text-[12px] text-[#999]">{pt}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </RevealSection>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 6. Para administradores ───
-function ForAdmins() {
-  const benefits = [
-    { icon: Eye, title: "Ve en qué invierte tiempo tu equipo", desc: "Sin preguntar, sin interrumpir." },
-    { icon: Target, title: "Detecta cuellos de botella", desc: "Identifica quién está saturado o dónde hay gaps." },
-    { icon: Users, title: "Entiende la carga por cliente", desc: "Cuánto tiempo real consume cada proyecto." },
-    { icon: Shield, title: "Opera con más control", desc: "Decisiones basadas en datos, no en suposiciones." },
-    { icon: DollarSign, title: "Cobra con más claridad", desc: "Horas reales conectadas a la facturación." },
-    { icon: Zap, title: "Conecta trabajo con dinero", desc: "Del registro de actividad al ingreso." },
-  ];
-
-  return (
-    <section className="py-20 md:py-28 bg-[#1A1A1A]">
-      <div className="max-w-6xl mx-auto px-6">
-        <RevealSection>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#B8956A] mb-4">Para administradores</p>
-          <h2 className="text-[clamp(24px,3.5vw,40px)] font-bold leading-tight text-[#FAFAF8] max-w-lg">
-            Si lideras un equipo, esto te da la visibilidad que necesitas.
-          </h2>
-        </RevealSection>
-
-        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {benefits.map((b, i) => (
-            <RevealSection key={b.title} delay={i * 80}>
-              <div className="rounded-xl border border-[#2A2A2A] bg-[#222] p-5 hover:border-[#444] transition-colors duration-300">
-                <b.icon className="h-5 w-5 text-[#B8956A] mb-3" />
-                <h4 className="text-[15px] font-semibold text-[#FAFAF8] mb-1">{b.title}</h4>
-                <p className="text-[13px] text-[#888] leading-relaxed">{b.desc}</p>
-              </div>
-            </RevealSection>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 7. Para individuos ───
-function ForIndividuals() {
-  return (
-    <section className="py-20 md:py-28 bg-white">
-      <div className="max-w-6xl mx-auto px-6">
-        <RevealSection>
-          <div className="max-w-xl mx-auto text-center">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.15em] text-[#B8956A] mb-4">Para individuos</p>
-            <h2 className="text-[clamp(24px,3.5vw,40px)] font-bold leading-tight text-[#1A1A1A]">
-              No necesitas un equipo para empezar.
-            </h2>
-            <p className="mt-4 text-[16px] text-[#6B6B6B] leading-relaxed">
-              Bitácora funciona igual de bien como herramienta personal. Registra tu día, entiende tus patrones y empieza a trabajar con más claridad — gratis.
-            </p>
-            <div className="mt-8">
-              <Link
-                to="/signup"
-                className="inline-flex h-11 px-6 rounded-full bg-[#1A1A1A] text-[#FAFAF8] text-[13px] font-semibold items-center gap-2 hover:bg-[#333] transition-colors"
-              >
-                Crear cuenta gratis <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-          </div>
-        </RevealSection>
-      </div>
-    </section>
-  );
-}
-
-// ─── 8. Cómo funciona ───
-function HowItWorks() {
-  const steps = [
-    { num: "01", title: "Crea tu cuenta gratis", desc: "En menos de un minuto. Sin tarjeta, sin fricciones." },
-    { num: "02", title: "Registra tu primera actividad", desc: "Con timer o manualmente. Tú decides cómo registrar tu trabajo." },
-    { num: "03", title: "Tu día toma forma", desc: "Ve el timeline de tu jornada y entiende en qué se va tu tiempo." },
-    { num: "04", title: "Escala cuando lo necesites", desc: "Invita a tu equipo, conecta clientes y proyectos. Bitácora crece contigo." },
-  ];
-
-  return (
-    <section id="como-funciona" className="py-20 md:py-28 bg-[#F5F3EE]">
-      <div className="max-w-6xl mx-auto px-6">
-        <RevealSection>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.15em] text-[#B8956A] mb-4">Cómo funciona</p>
-          <h2 className="text-[clamp(24px,3.5vw,40px)] font-bold leading-tight text-[#1A1A1A]">
-            Empieza en menos de un minuto.
-          </h2>
-        </RevealSection>
-
-        <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((s, i) => (
-            <RevealSection key={s.num} delay={i * 120}>
-              <div>
-                <span className="text-[48px] font-bold text-[#E0DDD6] leading-none">{s.num}</span>
-                <h3 className="mt-3 text-[16px] font-semibold text-[#1A1A1A] leading-snug">{s.title}</h3>
-                <p className="mt-2 text-[13px] text-[#6B6B6B] leading-relaxed">{s.desc}</p>
-              </div>
-            </RevealSection>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 9. Vista del sistema ───
-function SystemView() {
-  return (
-    <section className="py-20 md:py-28 bg-white">
-      <div className="max-w-6xl mx-auto px-6">
-        <RevealSection>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.15em] text-[#B8956A] mb-4">El sistema</p>
-          <h2 className="text-[clamp(24px,3.5vw,40px)] font-bold leading-tight text-[#1A1A1A] max-w-lg">
-            Bitácora es solo el inicio.
-          </h2>
-          <p className="mt-3 text-[16px] text-[#6B6B6B] max-w-lg leading-relaxed">
-            Estamos construyendo un sistema completo. Empieza con el registro de actividad y expande cuando lo necesites.
-          </p>
-          <p className="mt-2 text-[13px] text-[#999] italic">
-            La experiencia seguirá mejorando con resúmenes inteligentes y automatizaciones.
-          </p>
-        </RevealSection>
-
-        {/* Bitácora — large detailed mockup */}
-        <RevealSection delay={100}>
-          <div className="mt-12 rounded-2xl border-2 border-[#B8956A]/40 bg-[#FAFAF8] overflow-hidden">
-            <div className="bg-[#1A1A1A] px-5 py-3 flex items-center gap-2">
-              <div className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
-              <span className="text-[12px] text-[#FAFAF8] font-semibold">Bitácora</span>
-              <span className="text-[11px] text-[#888] ml-auto">Disponible hoy</span>
-            </div>
-            <div className="p-5 md:p-8">
-              <div className="grid md:grid-cols-3 gap-4 mb-5">
-                {[
-                  { label: "Horas hoy", value: "6h 15m", color: "#B8956A" },
-                  { label: "Actividades", value: "8", color: "#5B8DEF" },
-                  { label: "Clientes", value: "3", color: "#28C840" },
-                ].map((s) => (
-                  <div key={s.label} className="rounded-lg border border-[#E8E8E4] bg-white p-3">
-                    <p className="text-[11px] uppercase tracking-wider text-[#999] font-medium">{s.label}</p>
-                    <p className="text-[22px] font-bold text-[#1A1A1A] mt-0.5">{s.value}</p>
-                    <div className="mt-1.5 h-1 rounded-full bg-[#F0EDE6] overflow-hidden">
-                      <div className="h-full rounded-full" style={{ backgroundColor: s.color, width: "70%" }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-2">
-                {[
-                  { t: "09:00–10:30", d: "Revisión de brief", cl: "Helios" },
-                  { t: "10:45–12:15", d: "Diseño de wireframes", cl: "Vertex" },
-                  { t: "14:00–15:00", d: "Llamada de seguimiento", cl: "Cosmos" },
-                  { t: "15:15–16:30", d: "Ajustes de propuesta", cl: "Helios" },
-                ].map((e, i) => (
-                  <div key={i} className="flex items-center gap-3 rounded-lg border border-[#E8E8E4] bg-white p-3">
-                    <span className="text-[11px] text-[#999] font-medium shrink-0 w-[95px]">{e.t}</span>
-                    <p className="text-[13px] text-[#1A1A1A] font-medium flex-1 truncate">{e.d}</p>
-                    <span className="text-[11px] text-[#B8956A] font-medium shrink-0">{e.cl}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </RevealSection>
-
-        {/* Centro de Control + Finanzas — small schematic */}
-        <div className="mt-5 grid md:grid-cols-2 gap-4">
-          <RevealSection delay={200}>
-            <div className="rounded-xl border border-[#E8E8E4] bg-[#FAFAF8] p-5 opacity-70">
-              <div className="flex items-center gap-2 mb-3">
-                <Layers className="h-4 w-4 text-[#D4D4D0]" />
-                <span className="text-[13px] font-semibold text-[#999]">Centro de Control</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FFF8E1] text-[#F57F17] font-medium ml-auto">Próximamente</span>
-              </div>
-              <div className="space-y-2">
-                {[1,2,3].map((i) => (
-                  <div key={i} className="h-3 rounded bg-[#E8E8E4]" style={{ width: `${85 - i * 15}%` }} />
-                ))}
-              </div>
-            </div>
-          </RevealSection>
-
-          <RevealSection delay={280}>
-            <div className="rounded-xl border border-[#E8E8E4] bg-[#FAFAF8] p-5 opacity-70">
-              <div className="flex items-center gap-2 mb-3">
-                <BarChart3 className="h-4 w-4 text-[#D4D4D0]" />
-                <span className="text-[13px] font-semibold text-[#999]">Finanzas</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FFF8E1] text-[#F57F17] font-medium ml-auto">Próximamente</span>
-              </div>
-              <div className="space-y-2">
-                {[1,2,3].map((i) => (
-                  <div key={i} className="h-3 rounded bg-[#E8E8E4]" style={{ width: `${80 - i * 12}%` }} />
-                ))}
-              </div>
-            </div>
-          </RevealSection>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── 9b. Pricing Section ───
+// ─── Pricing ───
 function PricingSection() {
   const plans = [
-    {
-      name: "Bitácora Personal",
-      price: "Gratis",
-      period: "",
-      desc: "Para individuos que quieren orden",
-      features: ["Registro ilimitado", "Historial de 14 días", "5 refinamientos AI/día", "Timer + registro manual"],
-      cta: "Empezar gratis",
-      link: "/signup",
-      popular: false,
-      accent: false,
-    },
-    {
-      name: "Equipo 3",
-      price: "$9",
-      period: "/mes",
-      desc: "Para freelancers y equipos pequeños",
-      features: ["Hasta 3 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo"],
-      cta: "Elegir plan",
-      link: "/signup",
-      popular: false,
-      accent: false,
-    },
-    {
-      name: "Equipo 6",
-      price: "$16",
-      period: "/mes",
-      desc: "Para estudios y agencias medianas",
-      features: ["Hasta 6 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo", "Soporte prioritario"],
-      cta: "Elegir plan",
-      link: "/signup",
-      popular: true,
-      accent: true,
-    },
-    {
-      name: "Equipo 10",
-      price: "$20",
-      period: "/mes",
-      desc: "Para agencias y equipos grandes",
-      features: ["Hasta 10 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo", "Soporte prioritario", "Onboarding personalizado"],
-      cta: "Elegir plan",
-      link: "/signup",
-      popular: false,
-      accent: false,
-    },
+    { name: "Bitácora Personal", price: "Gratis", period: "", desc: "Para individuos que quieren orden", features: ["Registro ilimitado", "Historial de 14 días", "5 refinamientos AI/día", "Timer + registro manual"], cta: "Empezar gratis", link: "/signup", popular: false, accent: false },
+    { name: "Equipo 3", price: "$9", period: "/mes", desc: "Para freelancers y equipos pequeños", features: ["Hasta 3 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo"], cta: "Elegir plan", link: "/signup", popular: false, accent: false },
+    { name: "Equipo 6", price: "$16", period: "/mes", desc: "Para estudios y agencias medianas", features: ["Hasta 6 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo", "Soporte prioritario"], cta: "Elegir plan", link: "/signup", popular: true, accent: true },
+    { name: "Equipo 10", price: "$20", period: "/mes", desc: "Para agencias y equipos grandes", features: ["Hasta 10 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo", "Soporte prioritario", "Onboarding personalizado"], cta: "Elegir plan", link: "/signup", popular: false, accent: false },
   ];
 
   return (
-    <section id="precios" className="py-20 md:py-28 bg-[#FAFAF8]">
+    <section id="precios" className="py-20 md:py-28 bg-[var(--dm-sand-light)]">
       <div className="max-w-6xl mx-auto px-6">
         <RevealSection>
-          <p className="text-[12px] font-semibold uppercase tracking-[0.15em] text-[#B8956A] mb-4">Precios</p>
-          <h2 className="text-[clamp(24px,3.5vw,40px)] font-bold leading-tight text-[#1A1A1A] max-w-lg">
-            Simple y transparente.
-          </h2>
-          <p className="mt-3 text-[16px] text-[#6B6B6B] max-w-lg leading-relaxed">
-            Empieza gratis. Escala cuando tu equipo lo necesite.
-          </p>
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4">Precios</p>
+          <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[var(--dm-charcoal)]">Simple y transparente.</h2>
+          <p className="mt-3 text-[16px] text-[var(--dm-charcoal)]/60 font-body">Empieza gratis. Escala cuando tu equipo lo necesite.</p>
         </RevealSection>
-
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {plans.map((plan, i) => (
             <RevealSection key={plan.name} delay={i * 80}>
-              <div className={`rounded-2xl border-2 p-5 h-full flex flex-col ${plan.accent ? "border-[#B8956A] bg-white shadow-[0_8px_30px_-10px_rgba(184,149,106,0.2)]" : "border-[#E8E8E4] bg-white"}`}>
+              <div className={`rounded-sm border-2 p-5 h-full flex flex-col bg-white ${plan.accent ? "border-[var(--dm-gold)] shadow-[0_8px_30px_-10px_rgba(196,162,101,0.2)]" : "border-[var(--dm-sand)]"}`}>
                 {plan.popular && (
-                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#B8956A] text-white w-fit mb-3">
-                    Más popular
-                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-sm bg-[var(--dm-gold)] text-white w-fit mb-3">Más popular</span>
                 )}
-                <h3 className="text-[16px] font-bold text-[#1A1A1A]">{plan.name}</h3>
+                <h3 className="text-[16px] font-bold text-[var(--dm-charcoal)]">{plan.name}</h3>
                 <div className="mt-2 flex items-baseline gap-0.5">
-                  <span className="text-[32px] font-bold text-[#1A1A1A] leading-none">{plan.price}</span>
-                  {plan.period && <span className="text-[14px] text-[#999]">{plan.period}</span>}
+                  <span className="text-[32px] font-bold text-[var(--dm-charcoal)] leading-none">{plan.price}</span>
+                  {plan.period && <span className="text-[14px] text-[var(--dm-charcoal)]/50">{plan.period}</span>}
                 </div>
-                <p className="mt-2 text-[13px] text-[#6B6B6B] leading-relaxed">{plan.desc}</p>
+                <p className="mt-2 text-[13px] text-[var(--dm-charcoal)]/60 font-body">{plan.desc}</p>
                 <ul className="mt-4 space-y-2 flex-1">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-[#B8956A] mt-0.5 shrink-0" />
-                      <span className="text-[12px] text-[#6B6B6B]">{f}</span>
+                      <CheckCircle2 className="h-3.5 w-3.5 text-[var(--dm-gold)] mt-0.5 shrink-0" />
+                      <span className="text-[12px] text-[var(--dm-charcoal)]/60">{f}</span>
                     </li>
                   ))}
                 </ul>
-                <Link
-                  to={plan.link}
-                  className={`mt-5 h-10 rounded-full text-[13px] font-semibold flex items-center justify-center transition-colors ${plan.accent ? "bg-[#B8956A] text-white hover:bg-[#A07D5A]" : "border border-[#D4D4D0] text-[#1A1A1A] hover:bg-[#F0EDE6]"}`}
-                >
+                <Link to={plan.link} className={`mt-5 h-10 rounded-sm text-[13px] font-semibold flex items-center justify-center transition-colors ${plan.accent ? "bg-[var(--dm-gold)] text-white hover:bg-[var(--dm-gold-light)]" : "border border-[var(--dm-sand)] text-[var(--dm-charcoal)] hover:bg-[var(--dm-sand-light)]"}`}>
                   {plan.cta}
                 </Link>
               </div>
             </RevealSection>
           ))}
         </div>
-
         <RevealSection delay={400}>
-          <p className="mt-8 text-center text-[13px] text-[#999]">
+          <p className="mt-8 text-center text-[13px] text-[var(--dm-charcoal)]/40 font-body">
             ¿Necesitas más de 10 miembros?{" "}
-            <a href="https://tally.so/r/wMrqBp" target="_blank" rel="noopener noreferrer" className="text-[#B8956A] font-medium hover:underline">
-              Contáctanos →
-            </a>
+            <a href="https://tally.so/r/wMrqBp" target="_blank" rel="noopener noreferrer" className="text-[var(--dm-gold)] font-medium hover:underline">Contáctanos →</a>
           </p>
         </RevealSection>
       </div>
@@ -727,99 +465,129 @@ function PricingSection() {
   );
 }
 
-// ─── 10. CTA final ───
+// ─── How it works ───
+function HowItWorks() {
+  const steps = [
+    { num: "01", title: "Crea tu cuenta gratis", desc: "En menos de un minuto. Sin tarjeta, sin fricciones." },
+    { num: "02", title: "Registra tu primera actividad", desc: "Con timer o manualmente. Tú decides cómo registrar tu trabajo." },
+    { num: "03", title: "Tu día toma forma", desc: "Ve el timeline de tu jornada y entiende en qué se va tu tiempo." },
+    { num: "04", title: "Escala cuando lo necesites", desc: "Invita a tu equipo, conecta clientes y proyectos." },
+  ];
+
+  return (
+    <section className="py-20 md:py-28 bg-[var(--dm-cream)]">
+      <div className="max-w-6xl mx-auto px-6">
+        <RevealSection>
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4">Cómo funciona</p>
+          <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[var(--dm-charcoal)]">Empieza en menos de un minuto.</h2>
+        </RevealSection>
+        <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {steps.map((s, i) => (
+            <RevealSection key={s.num} delay={i * 120}>
+              <div>
+                <span className="font-serif-display text-[48px] font-bold text-[var(--dm-sand)] leading-none">{s.num}</span>
+                <h3 className="mt-3 text-[16px] font-semibold text-[var(--dm-charcoal)]">{s.title}</h3>
+                <p className="mt-2 text-[13px] text-[var(--dm-charcoal)]/60 leading-relaxed font-body">{s.desc}</p>
+              </div>
+            </RevealSection>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── CTA ───
 function CtaSection() {
   return (
-    <section className="py-20 md:py-28 bg-[#1A1A1A]">
+    <section className="py-20 md:py-28 bg-[var(--dm-charcoal)]">
       <div className="max-w-3xl mx-auto px-6 text-center">
         <RevealSection>
-          <h2 className="text-[clamp(24px,4vw,44px)] font-bold leading-tight text-[#FAFAF8]">
+          <h2 className="font-serif-display text-[clamp(24px,4vw,44px)] leading-tight text-[var(--dm-cream)]">
             Empieza a registrar tu día.
           </h2>
-          <p className="mt-4 text-[16px] text-[#888] leading-relaxed max-w-md mx-auto">
-            Prueba Bitácora gratis. Sin tarjeta, sin compromiso. Empieza a entender cómo se va tu tiempo.
+          <p className="mt-4 text-[16px] text-[var(--dm-cream)]/50 font-body max-w-md mx-auto">
+            Prueba Oasis OS gratis. Sin tarjeta, sin compromiso.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
-            <Link
-              to="/bitacora-demo"
-              className="h-12 px-8 rounded-full bg-[#B8956A] text-[#FAFAF8] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#A07D5A] transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Probar Bitácora gratis <ArrowRight className="h-4 w-4" />
+            <Link to="/bitacora-demo" className="h-12 px-8 rounded-sm bg-[var(--dm-gold)] text-[var(--dm-charcoal)] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[var(--dm-gold-light)] transition-all">
+              Probar gratis <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link
-              to="/signup"
-              className="h-12 px-8 rounded-full border border-[#444] text-[#FAFAF8] text-[14px] font-semibold flex items-center justify-center gap-2 hover:border-[#666] transition-colors"
-            >
-              Crear cuenta gratis
-            </Link>
-          </div>
-        </RevealSection>
-      </div>
-    </section>
-  );
-}
-
-// ─── 11. Footer ───
-function Footer() {
-  return (
-    <footer className="py-10 bg-[#111] border-t border-[#222]">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[#FAFAF8] font-bold text-[14px] tracking-tight">Bitácora</span>
-            <span className="text-[#666] text-[12px] font-medium">· by Estudio Oasis</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <a
-              href="https://tally.so/r/wMrqBp"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[13px] text-[#666] hover:text-[#FAFAF8] transition-colors"
-            >
-              ¿Ideas o feedback?
-            </a>
-            <Link to="/login" className="text-[13px] text-[#666] hover:text-[#FAFAF8] transition-colors">
-              Iniciar sesión
-            </Link>
-            <Link to="/signup" className="text-[13px] text-[#666] hover:text-[#FAFAF8] transition-colors">
+            <Link to="/signup" className="h-12 px-8 rounded-sm border border-white/20 text-[var(--dm-cream)] text-[14px] font-semibold flex items-center justify-center gap-2 hover:border-white/40 transition-colors">
               Crear cuenta
             </Link>
           </div>
+        </RevealSection>
+      </div>
+    </section>
+  );
+}
+
+// ─── Footer ───
+function SiteFooter() {
+  return (
+    <footer className="py-16 md:py-24 bg-[var(--dm-charcoal)]">
+      <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="md:col-span-2">
+          <span className="font-serif-display text-[28px] text-[var(--dm-cream)]">OASIS</span>
+          <p className="mt-4 text-[14px] text-[var(--dm-cream)]/50 leading-relaxed font-body max-w-sm">
+            Estudio creativo con 15+ años de experiencia en agencias globales. Creadores de Oasis OS — el sistema operativo para equipos creativos y de servicios.
+          </p>
         </div>
-        <div className="mt-6 pt-5 border-t border-[#222] flex items-center justify-between">
-          <p className="text-[12px] text-[#444]">© {new Date().getFullYear()} Estudio Oasis. Todos los derechos reservados.</p>
-          <Link to="/login" className="text-[11px] text-[#333] hover:text-[#666] transition-colors">
-            Acceso equipo Oasis
-          </Link>
+        <div>
+          <h4 className="font-mono-label text-[10px] tracking-[0.3em] uppercase text-[var(--dm-cream)]/40 mb-4">Navegación</h4>
+          <div className="space-y-2">
+            {[
+              { label: "Inicio", to: "/" },
+              { label: "About", to: "/about" },
+              { label: "Portafolio", to: "/portfolio" },
+              { label: "Oasis OS", to: "/login" },
+            ].map((l) => (
+              <Link key={l.to} to={l.to} className="block text-[13px] text-[var(--dm-cream)]/60 hover:text-[var(--dm-gold)] transition-colors">{l.label}</Link>
+            ))}
+          </div>
         </div>
+        <div>
+          <h4 className="font-mono-label text-[10px] tracking-[0.3em] uppercase text-[var(--dm-cream)]/40 mb-4">Contacto</h4>
+          <div className="space-y-2">
+            <a href="mailto:joserogelioteran@gmail.com" className="block text-[13px] text-[var(--dm-cream)]/60 hover:text-[var(--dm-gold)] transition-colors">joserogelioteran@gmail.com</a>
+            <a href="https://linkedin.com/in/rogerteran" target="_blank" rel="noopener noreferrer" className="block text-[13px] text-[var(--dm-cream)]/60 hover:text-[var(--dm-gold)] transition-colors">LinkedIn</a>
+            <a href="https://behance.net/rogertern" target="_blank" rel="noopener noreferrer" className="block text-[13px] text-[var(--dm-cream)]/60 hover:text-[var(--dm-gold)] transition-colors">Behance</a>
+            <a href="https://instagram.com/rayo_teran" target="_blank" rel="noopener noreferrer" className="block text-[13px] text-[var(--dm-cream)]/60 hover:text-[var(--dm-gold)] transition-colors">Instagram</a>
+          </div>
+        </div>
+      </div>
+      <div className="max-w-6xl mx-auto px-6 mt-12 pt-6 border-t border-[var(--dm-cream)]/10 flex flex-col md:flex-row justify-between gap-2">
+        <p className="text-[11px] text-[var(--dm-cream)]/30">© 2026 Estudio Oasis. Todos los derechos reservados.</p>
+        <p className="text-[11px] text-[var(--dm-cream)]/30">Ciudad de México, México</p>
       </div>
     </footer>
   );
 }
 
-// ─── Main Landing Page ───
+// ─── Main ───
 export default function LandingPage() {
   useEffect(() => {
     if (!landingTrackedRef.current) {
-      landingTrackedRef.current = true;
       trackEvent("landing_view");
+      landingTrackedRef.current = true;
     }
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] font-sans">
+    <div className="min-h-screen font-body">
       <Navbar />
       <Hero />
-      <ProblemSection />
+      <AgencyMarquee />
+      <OriginSection />
+      <StatsSection />
+      <BrandsSection />
+      <OasisOSSection />
       <ForWho />
-      <FunctionsSection />
-      <ForAdmins />
-      <ForIndividuals />
-      <HowItWorks />
       <PricingSection />
-      <SystemView />
+      <HowItWorks />
       <CtaSection />
-      <Footer />
+      <SiteFooter />
     </div>
   );
 }

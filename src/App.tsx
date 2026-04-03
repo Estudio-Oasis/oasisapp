@@ -30,6 +30,9 @@ import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import VaultPage from "./pages/Vault";
 import LandingPage from "./pages/Landing";
+import AboutStudio from "./pages/AboutStudio";
+import AboutRoger from "./pages/AboutRoger";
+import Portfolio from "./pages/Portfolio";
 import PlaygroundActivityEngine from "./pages/PlaygroundActivityEngine";
 
 const queryClient = new QueryClient();
@@ -54,6 +57,9 @@ const App = () => (
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/setup" element={<SetupPage />} />
                 <Route path="/bitacora-demo" element={<BitacoraDemo />} />
+                <Route path="/about" element={<AboutStudio />} />
+                <Route path="/about/roger-teran" element={<AboutRoger />} />
+                <Route path="/portfolio" element={<Portfolio />} />
                 <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
 
                 {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}

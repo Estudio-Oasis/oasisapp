@@ -1,5 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+/* Desert Modernism palette */
+:root {
+  --dm-sand: #E8DDD0;
+  --dm-sand-light: #F0E8DD;
+  --dm-charcoal: #1A1A1A;
+  --dm-charcoal-light: #2D2D2D;
+  --dm-gold: #C4A265;
+  --dm-gold-light: #D4B87A;
+  --dm-terracotta: #B85C38;
+  --dm-cream: #FAF7F2;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.font-serif-display {
+  font-family: 'Playfair Display', serif;
+}
+.font-body {
+  font-family: 'DM Sans', sans-serif;
+}
+.font-mono-label {
+  font-family: 'JetBrains Mono', monospace;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -194,4 +220,15 @@
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+}
+
+/* Marquee animation */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
