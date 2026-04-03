@@ -221,3 +221,14 @@ html {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }
+
+/* Marquee animation */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
