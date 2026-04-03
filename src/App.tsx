@@ -30,6 +30,9 @@ import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import VaultPage from "./pages/Vault";
 import LandingPage from "./pages/Landing";
+import AboutStudio from "./pages/AboutStudio";
+import AboutRoger from "./pages/AboutRoger";
+import Portfolio from "./pages/Portfolio";
 import PlaygroundActivityEngine from "./pages/PlaygroundActivityEngine";
 
 const queryClient = new QueryClient();
