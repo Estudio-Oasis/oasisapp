@@ -215,6 +215,38 @@ export default function AboutRoger() {
         </div>
       </section>
 
+      {/* Trabajo Destacado */}
+      <section className="py-24 md:py-32">
+        <div className="max-w-6xl mx-auto px-6">
+          <Reveal>
+            <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[var(--dm-gold)] mb-4 text-center">Trabajo destacado</p>
+            <h2 className="font-serif-display text-[clamp(24px,3vw,36px)] text-[var(--dm-charcoal)] text-center mb-4">Una muestra del trabajo creativo y estratégico</h2>
+            <p className="text-center text-[15px] text-[var(--dm-charcoal)]/60 mb-12">de más de 15 años.</p>
+          </Reveal>
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              { cat: "Brand Identity", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/EWExAWOaittuhJAz.jpg", desc: "Casa Nungaray mezcal, Ixtlahuaca, Intimo, Pure Pleasure — identidades visuales completas con aplicaciones", span: true },
+              { cat: "Advertising", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/UyPfhdmMyVFygNQx.jpg", desc: "Cubbo fulfillment, Mabe, All Bran, Platzi Day — campañas publicitarias multiplataforma" },
+              { cat: "Content Strategy", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/QMCVJuyUlmXGSQMq.jpg", desc: "Kit-Cat Clock social media, Rocketfy Galaxia Ventas — estrategia de contenido y social media" },
+              { cat: "Product Design", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/qtAYITXkazAKTMAv.jpg", desc: "Sedes, Mango app, Nouvet, alarm app — diseño web, apps móviles y plataformas digitales" },
+              { cat: "Logos & Branding", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/UiruLEtuDDHnWuwK.jpg", desc: "13+ identidades de marca creadas — desde mezcal artesanal hasta tech startups" },
+            ].map((item, i) => (
+              <Reveal key={item.cat} delay={i * 80} className={item.span ? "md:col-span-2" : ""}>
+                <Link to={`/portfolio`} className="block border border-[var(--dm-sand)] rounded-sm overflow-hidden bg-white group">
+                  <div className={`${item.span ? "aspect-[2/1]" : "aspect-[16/10]"} overflow-hidden`}>
+                    <img src={item.img} alt={item.cat} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
+                  </div>
+                  <div className="p-4">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-sm bg-[var(--dm-sand-light)] text-[var(--dm-charcoal)]/60">{item.cat}</span>
+                    <p className="mt-2 text-[13px] text-[var(--dm-charcoal)]/60 leading-relaxed">{item.desc}</p>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-20 bg-[var(--dm-charcoal)]">
         <div className="max-w-3xl mx-auto px-6 text-center">
