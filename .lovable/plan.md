@@ -1,87 +1,80 @@
 
 
-# Vault de Contraseñas (estilo NordPass)
+# Rediseno Estudio Oasis — Plan de Implementacion
 
 ## Resumen
 
-Crear una sección dedicada "/vault" como un gestor de contraseñas completo, separado de los clientes individuales. Reutiliza la tabla `client_credentials` existente pero con una vista centralizada tipo NordPass: lista de todas las credenciales, búsqueda, categorías, generador de contraseñas, y acceso rápido.
+Transformar el sitio actual (enfocado en Bitacora) en el sitio corporativo de Estudio Oasis con storytelling, portafolio, paginas About, y nueva identidad visual "Desert Modernism". Se mantienen las secciones existentes de funciones, precios y "para quien" integradas en el nuevo diseno.
 
-## Diseño de la experiencia
+## Cambios principales
+
+### 1. Estilos globales y tipografia
+- Agregar Google Fonts: Playfair Display (serif titulos), DM Sans (body), JetBrains Mono (etiquetas/datos) en `index.html`
+- Agregar CSS custom properties para la paleta Desert Modernism (sand, charcoal, gold, terracotta, cream) en `index.css`
+- Smooth scrolling global
+
+### 2. Nuevas rutas en App.tsx
+- `/about` — Pagina Estudio Oasis
+- `/about/roger-teran` — Pagina Roger Teran
+- `/portfolio` — Portafolio categorizado
+
+### 3. Landing.tsx — Rediseno completo
+Reescribir `Landing.tsx` manteniendo la estructura modular de componentes internos:
+
+- **Navbar**: Agregar dropdown "About" (Estudio Oasis / Roger Teran), link a Portfolio, transparente en home con transicion al scroll
+- **Hero**: Full-screen con imagen de desierto CDN, overlay gradiente, tipografia Playfair Display, "Creatividad con sistema"
+- **Marquee de agencias**: CSS animation infinite scroll con 6 logos CDN, grayscale con hover color
+- **Seccion Origen**: Grid 2 columnas, storytelling con card flotante "15+"
+- **Contadores animados**: 4 stats con IntersectionObserver count-up (15+, 6, 50+, 100+) sobre fondo charcoal
+- **Logos de marcas**: Grid de 6 logos (49ers, Nivea, Baileys, etc.) grayscale hover
+- **Seccion Oasis OS**: Fondo oscuro, 6 features con iconos, imagen producto CDN
+- **Secciones existentes mantenidas**: "Para quien", Precios, "Como funciona" — actualizadas visualmente con la nueva paleta
+- **Footer rediseñado**: 4 columnas con navegacion, contacto, links sociales
+
+### 4. Nueva pagina: About Estudio Oasis (`src/pages/AboutStudio.tsx`)
+- Hero con tabs (Estudio Oasis activo / Roger Teran link)
+- Seccion historia (grid 2 col)
+- Grid de logos de agencias
+- 3 cards "Lo que hacemos"
+- CTA a Roger Teran
+
+### 5. Nueva pagina: About Roger Teran (`src/pages/AboutRoger.tsx`)
+- Hero con tabs invertidos
+- Bio con sidebar sticky (foto, datos, links)
+- Grid de areas de expertise con chips
+- Timeline vertical de carrera (9 entries)
+- CTA a portafolio
+
+### 6. Nueva pagina: Portafolio (`src/pages/Portfolio.tsx`)
+- Hero oscuro
+- Filtros sticky (Todos, Brand Identity, Advertising, Content Strategy, Product Design, Growth)
+- Grid de 10 proyectos con imagenes, badges, descripciones
+- CTA final con links a Behance, Instagram, LinkedIn
+
+## Archivos a crear/modificar
 
 ```text
-┌─────────────────────────────────────────────┐
-│  🔐 Vault                        + Añadir   │
-│  ┌─────────────────────────────┐            │
-│  │ 🔍 Buscar credenciales...   │            │
-│  └─────────────────────────────┘            │
-│  Filtros: [Todos] [Social] [Dev] [Email]... │
-│                                             │
-│  ┌───────────────────────────────────────┐  │
-│  │ 🟢 Slack          Cliente: Voccalo    │  │
-│  │    usuario: admin@voccalo.com         │  │
-│  │    ••••••••  👁  📋                   │  │
-│  ├───────────────────────────────────────┤  │
-│  │ 🟣 GitHub         Cliente: OasisOS    │  │
-│  │    usuario: oasis-dev                 │  │
-│  │    ••••••••  👁  📋                   │  │
-│  ├───────────────────────────────────────┤  │
-│  │ 🔵 Hosting        Sin cliente         │  │
-│  │    usuario: root                      │  │
-│  │    ••••••••  👁  📋                   │  │
-│  └───────────────────────────────────────┘  │
-└─────────────────────────────────────────────┘
+MODIFICAR:
+  index.html          — agregar fonts
+  src/index.css       — paleta Desert Modernism
+  src/App.tsx          — 3 nuevas rutas publicas
+  src/pages/Landing.tsx — reescritura completa
+
+CREAR:
+  src/pages/AboutStudio.tsx
+  src/pages/AboutRoger.tsx
+  src/pages/Portfolio.tsx
 ```
 
-## Cambios planificados
+## Notas tecnicas
 
-### 1. Migración de base de datos
-- Hacer `client_id` nullable en `client_credentials` (para credenciales sin cliente asociado)
-- Añadir columna `agency_id` (uuid) para vincular credenciales directamente a la agencia
-- Añadir columna `category` (text, default 'other') para clasificar (Social, Dev, Email, Hosting, CMS, etc.)
-- Añadir columna `favicon_url` (text, nullable) para ícono del servicio
-- Actualizar RLS policies para permitir acceso por `agency_id` además de por `client_id`
-
-### 2. Nueva página `/vault` (src/pages/Vault.tsx)
-- Barra de búsqueda que filtra por servicio, usuario, URL, cliente y notas
-- Chips de categorías para filtrar (Todos, Social, Dev, Email, Hosting, CMS, Otro)
-- Lista de credenciales con: ícono/inicial del servicio, nombre del servicio, cliente asociado (chip con color), usuario, contraseña oculta con botones ver/copiar
-- Click en una credencial expande inline mostrando URL, notas, fecha de creación y botones editar/eliminar
-- Botón "+ Añadir" abre un formulario modal/inline con: servicio, categoría, URL, usuario, contraseña, notas, y selector de cliente (opcional)
-- Generador de contraseñas integrado: botón "Generar" junto al campo de contraseña que crea una contraseña segura (longitud configurable, con/sin símbolos)
-
-### 3. Integración en navegación
-- Añadir entrada "Vault" con ícono `Key` (o `Shield`) en el sidebar (`AppSidebar.tsx`) y bottom nav
-- Ruta protegida Pro en `App.tsx`
-
-### 4. Traducciones
-- Añadir todas las cadenas en español e inglés al sistema i18n existente
-
-### 5. Sincronización con perfil de cliente
-- La tab "Credenciales" en ClientProfile sigue funcionando igual, pero ahora filtra del mismo vault por `client_id`
-- Crear una credencial desde el perfil del cliente pre-selecciona ese cliente
-
-## Detalles técnicos
-
-**Migración SQL:**
-```sql
-ALTER TABLE client_credentials 
-  ALTER COLUMN client_id DROP NOT NULL,
-  ADD COLUMN agency_id uuid,
-  ADD COLUMN category text NOT NULL DEFAULT 'other';
-
--- Backfill agency_id from client
-UPDATE client_credentials cc
-SET agency_id = c.agency_id
-FROM clients c WHERE cc.client_id = c.id;
-
--- New RLS: view by agency
-CREATE POLICY "Users can view own agency vault"
-ON client_credentials FOR SELECT TO authenticated
-USING (agency_id = user_agency_id());
--- Similar for INSERT, UPDATE, DELETE
-```
-
-**Generador de contraseñas:** Función local pura (no necesita API), configurable con slider de longitud (8-32) y toggles para mayúsculas, números, símbolos.
-
-**Componente principal:** `src/pages/Vault.tsx` con sub-componentes inline (VaultCard, VaultForm, PasswordGenerator).
+- Todas las imagenes usan URLs CDN proporcionadas (permanentes)
+- Animaciones con IntersectionObserver nativo (ya existe `useReveal` en Landing.tsx, reutilizar)
+- Marquee con CSS `@keyframes` y `animation: scroll 30s linear infinite`
+- Contadores con `requestAnimationFrame` count-up
+- Sin framer-motion para mantener bundle ligero
+- Las nuevas paginas son publicas (sin auth)
+- El dropdown de About usa CSS hover en desktop, click en mobile
+- Todas las secciones responsive (mobile-first)
+- No se toca ninguna funcionalidad de la app (Bitacora, Hub, etc.)
 
