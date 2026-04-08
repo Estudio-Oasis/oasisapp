@@ -222,7 +222,7 @@ export function LogPaymentModal({ open, onOpenChange, onCreated, prefillClientId
       ? breakdownItems.filter(i => i.label || i.amount).map(i => ({ label: i.label, amount: parseFloat(i.amount) || 0 }))
       : [];
 
-    const payload: Record<string, unknown> = {
+    const payload = {
       client_id: clientId,
       amount_received: parseFloat(amountReceived),
       currency_received: currencyReceived,
@@ -235,12 +235,12 @@ export function LogPaymentModal({ open, onOpenChange, onCreated, prefillClientId
       bank_amount: showConversion && bankAmount ? parseFloat(bankAmount) : null,
       bank_currency: showConversion && bankAmount ? bankCurrency : null,
       exchange_rate: showConversion && exchangeRate ? exchangeRate : null,
-      breakdown: breakdownJson,
+      breakdown: breakdownJson as unknown as import("@/integrations/supabase/types").Json,
       notes: notes || null,
       created_by: user?.id || null,
     };
 
-    const { data: inserted, error } = await supabase.from("payments").insert(payload as never).select("id").single();
+    const { data: inserted, error } = await supabase.from("payments").insert(payload).select("id").single();
     if (error || !inserted) {
       toast.error("Error al registrar el pago");
       setSaving(false);
@@ -260,7 +260,7 @@ export function LogPaymentModal({ open, onOpenChange, onCreated, prefillClientId
         
         if (signedData?.signedUrl) {
           await supabase.from("payments")
-            .update({ receipt_url: signedData.signedUrl } as Record<string, unknown>)
+            .update({ receipt_url: signedData.signedUrl })
             .eq("id", inserted.id);
         }
       }
@@ -278,7 +278,7 @@ export function LogPaymentModal({ open, onOpenChange, onCreated, prefillClientId
           await supabase.from("invoices").update({
             status: "paid" as const,
             paid_at: new Date(dateReceived + "T12:00:00").toISOString(),
-          } as Record<string, unknown>).eq("id", invoiceId);
+          }).eq("id", invoiceId);
           toast.success(`Factura ${linkedInvoice.number} marcada como pagada automáticamente 🎉`);
         }
       }

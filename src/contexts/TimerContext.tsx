@@ -490,7 +490,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const updateActiveEntry = useCallback(async (updates: Partial<StartActivityInput>) => {
     if (!state.activeEntry) return;
 
-    const patch: Record<string, unknown> = {};
+    const patch: Partial<{ description: string | null; project_id: string | null; task_id: string | null; client_id: string | null }> = {};
     if (updates.description !== undefined) patch.description = updates.description || null;
     if (updates.projectId !== undefined) patch.project_id = updates.projectId || null;
     if (updates.taskId !== undefined) patch.task_id = updates.taskId || null;
