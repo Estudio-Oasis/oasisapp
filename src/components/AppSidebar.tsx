@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe, Shield } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe, Shield, FileText } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,6 +28,7 @@ const allNavItems = [
   { titleKey: "nav.hub" as TranslationKey, url: "/hub", icon: Radio },
   { titleKey: "nav.clients" as TranslationKey, url: "/clients", icon: Users },
   { titleKey: "nav.tasks" as TranslationKey, url: "/tasks", icon: CheckSquare, tourId: "tasks" },
+  { titleKey: "nav.quotes" as TranslationKey, url: "/quotes", icon: FileText },
   { titleKey: "nav.vault" as TranslationKey, url: "/vault", icon: Shield },
   { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true },
   { titleKey: "nav.admin" as TranslationKey, url: "/admin", icon: LayoutDashboard, adminOnly: true },
