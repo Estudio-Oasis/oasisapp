@@ -121,24 +121,48 @@ export type Database = {
       agency_settings: {
         Row: {
           agency_id: string
+          bank_info: string | null
+          company_address: string | null
+          company_email: string | null
+          company_name: string | null
+          company_phone: string | null
           created_at: string
+          default_currency: string | null
+          default_payment_terms: string | null
           id: string
+          logo_url: string | null
           slack_channel_id: string | null
           slack_channel_name: string | null
           updated_at: string
         }
         Insert: {
           agency_id: string
+          bank_info?: string | null
+          company_address?: string | null
+          company_email?: string | null
+          company_name?: string | null
+          company_phone?: string | null
           created_at?: string
+          default_currency?: string | null
+          default_payment_terms?: string | null
           id?: string
+          logo_url?: string | null
           slack_channel_id?: string | null
           slack_channel_name?: string | null
           updated_at?: string
         }
         Update: {
           agency_id?: string
+          bank_info?: string | null
+          company_address?: string | null
+          company_email?: string | null
+          company_name?: string | null
+          company_phone?: string | null
           created_at?: string
+          default_currency?: string | null
+          default_payment_terms?: string | null
           id?: string
+          logo_url?: string | null
           slack_channel_id?: string | null
           slack_channel_name?: string | null
           updated_at?: string
@@ -949,6 +973,8 @@ export type Database = {
           discount_type: string
           discount_value: number
           id: string
+          notes_to_client: string | null
+          payment_terms: string | null
           pdf_url: string | null
           project_id: string | null
           rejected_at: string | null
@@ -972,6 +998,8 @@ export type Database = {
           discount_type?: string
           discount_value?: number
           id?: string
+          notes_to_client?: string | null
+          payment_terms?: string | null
           pdf_url?: string | null
           project_id?: string | null
           rejected_at?: string | null
@@ -995,6 +1023,8 @@ export type Database = {
           discount_type?: string
           discount_value?: number
           id?: string
+          notes_to_client?: string | null
+          payment_terms?: string | null
           pdf_url?: string | null
           project_id?: string | null
           rejected_at?: string | null
