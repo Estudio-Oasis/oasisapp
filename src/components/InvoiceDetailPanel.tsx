@@ -50,7 +50,7 @@ export function InvoiceDetailPanel({ invoice, onClose, onUpdated }: InvoiceDetai
     setSaving(true);
     const { error } = await supabase
       .from("invoices")
-      .update({ status, ...extra } as Record<string, unknown>)
+      .update({ status, ...extra } as { status: string; paid_at?: string })
       .eq("id", invoice.id);
     setSaving(false);
     if (error) {
@@ -63,7 +63,7 @@ export function InvoiceDetailPanel({ invoice, onClose, onUpdated }: InvoiceDetai
 
   const saveNotes = async () => {
     setSaving(true);
-    await supabase.from("invoices").update({ notes: notes || null } as Record<string, unknown>).eq("id", invoice.id);
+    await supabase.from("invoices").update({ notes: notes || null }).eq("id", invoice.id);
     setSaving(false);
     toast.success("Notas guardadas");
     onUpdated();
