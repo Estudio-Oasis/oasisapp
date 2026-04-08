@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AgencyProfileTab } from "@/components/settings/AgencyProfileTab";
 import { MembersTab } from "@/components/settings/MembersTab";
 import { IntegrationsTab } from "@/components/settings/IntegrationsTab";
+import { BillingSettingsTab } from "@/components/settings/BillingSettingsTab";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { usePlan } from "@/hooks/usePlan";
