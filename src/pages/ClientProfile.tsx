@@ -261,6 +261,7 @@ export default function ClientProfilePage() {
               {[
                 { key: "overview", label: t("clientProfile.overview") },
                 { key: "time", label: t("clientProfile.time") },
+                { key: "projects", label: t("clientProfile.projects" as any) || "Proyectos" },
                 { key: "tasks", label: t("clientProfile.tasks") },
                 { key: "credentials", label: t("clientProfile.credentials") },
                 { key: "interactions", label: t("clientProfile.interactions") },
@@ -364,6 +365,10 @@ export default function ClientProfilePage() {
                   })}
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="projects" className="mt-6">
+              <ClientProjectsTab clientId={client.id} />
             </TabsContent>
 
             <TabsContent value="tasks" className="mt-6">
@@ -600,6 +605,110 @@ function ClientFinancesTab({ clientId, clientName, monthlyRate, currency, monthH
   );
 }
 
+
+/* ─── Client Projects Tab ─── */
+function ClientProjectsTab({ clientId }: { clientId: string }) {
+  const [projects, setProjects] = useState<{ id: string; name: string; status: string; created_at: string; taskCount: number; hoursLogged: number }[]>([]);
+  const [newName, setNewName] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  const fetchProjects = useCallback(async () => {
+    const { data: projs } = await supabase
+      .from("projects")
+      .select("id, name, status, created_at")
+      .eq("client_id", clientId)
+      .order("created_at", { ascending: false });
+
+    if (!projs || projs.length === 0) { setProjects([]); return; }
+
+    // Fetch counts
+    const projIds = projs.map((p) => p.id);
+    const [tasksRes, timeRes] = await Promise.all([
+      supabase.from("tasks").select("id, project_id").in("project_id", projIds),
+      supabase.from("time_entries").select("project_id, duration_min").in("project_id", projIds),
+    ]);
+
+    const taskCounts: Record<string, number> = {};
+    const hourSums: Record<string, number> = {};
+    (tasksRes.data || []).forEach((t: any) => {
+      if (t.project_id) taskCounts[t.project_id] = (taskCounts[t.project_id] || 0) + 1;
+    });
+    (timeRes.data || []).forEach((e: any) => {
+      if (e.project_id) hourSums[e.project_id] = (hourSums[e.project_id] || 0) + (e.duration_min || 0);
+    });
+
+    setProjects(projs.map((p) => ({
+      ...p,
+      taskCount: taskCounts[p.id] || 0,
+      hoursLogged: Math.round(((hourSums[p.id] || 0) / 60) * 10) / 10,
+    })));
+  }, [clientId]);
+
+  useEffect(() => { fetchProjects(); }, [fetchProjects]);
+
+  const handleCreate = async () => {
+    if (!newName.trim()) return;
+    setCreating(true);
+    const { error } = await supabase.from("projects").insert({ name: newName.trim(), client_id: clientId });
+    if (error) { toast.error("No se pudo crear el proyecto"); }
+    else { toast.success(`Proyecto "${newName.trim()}" creado`); setNewName(""); }
+    setCreating(false);
+    fetchProjects();
+  };
+
+  const STATUS_BADGE: Record<string, string> = {
+    active: "bg-success-light text-success",
+    paused: "bg-accent-light text-accent-foreground",
+    done: "bg-background-tertiary text-foreground-muted",
+  };
+
+  return (
+    <div>
+      <p className="text-sm text-foreground-secondary mb-4">
+        Los proyectos organizan el trabajo por cliente. Cada proyecto agrupa tareas y horas.
+      </p>
+
+      {/* Inline create */}
+      <div className="flex gap-2 mb-6">
+        <Input
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleCreate()}
+          placeholder="Nombre del proyecto..."
+          className="flex-1"
+        />
+        <Button onClick={handleCreate} disabled={!newName.trim() || creating} size="sm">
+          {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Crear"}
+        </Button>
+      </div>
+
+      {projects.length === 0 ? (
+        <div className="flex flex-col items-center py-12 text-center">
+          <p className="text-sm text-foreground-muted">Aún no hay proyectos. Crea uno arriba para empezar.</p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {projects.map((p) => (
+            <div key={p.id} className="flex items-center gap-4 border border-border rounded-lg p-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-foreground">{p.name}</p>
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase ${STATUS_BADGE[p.status] || STATUS_BADGE.active}`}>
+                    {p.status}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 text-sm text-foreground-secondary shrink-0">
+                <span>{p.taskCount} tareas</span>
+                <span>{p.hoursLogged}h</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /* ─── Client Tasks Tab ─── */
 function ClientTasksTab({ clientId, clientName }: { clientId: string; clientName: string }) {

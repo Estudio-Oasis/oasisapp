@@ -79,6 +79,9 @@ export function NewTaskModal({
   const [loading, setLoading] = useState(false);
   const [showInlineClient, setShowInlineClient] = useState(false);
   const [clientSearchText, setClientSearchText] = useState("");
+  const [showInlineProject, setShowInlineProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [creatingProject, setCreatingProject] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -92,8 +95,27 @@ export function NewTaskModal({
       setDescription("");
       setShowInlineClient(false);
       setClientSearchText("");
+      setShowInlineProject(false);
+      setNewProjectName("");
     }
   }, [open, prefillClientId, prefillStatus]);
+
+  const handleCreateProject = async () => {
+    if (!newProjectName.trim() || !selectedClientId) return;
+    setCreatingProject(true);
+    try {
+      const { data, error } = await supabase.from("projects").insert({ name: newProjectName.trim(), client_id: selectedClientId }).select("*").single();
+      if (error) throw error;
+      if (data) {
+        setProjects((prev) => [...prev, data]);
+        setSelectedProjectId(data.id);
+        setShowInlineProject(false);
+        setNewProjectName("");
+        toast.success(`Proyecto "${data.name}" creado`);
+      }
+    } catch { toast.error("No se pudo crear el proyecto"); }
+    finally { setCreatingProject(false); }
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -190,15 +212,33 @@ export function NewTaskModal({
             </div>
 
             {/* Project */}
-            {projects.length > 0 && (
+            {selectedClientId && (
               <div>
                 <label className="text-label mb-1 block">Proyecto (opcional)</label>
-                <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-                  <SelectTrigger><SelectValue placeholder="Sin proyecto" /></SelectTrigger>
-                  <SelectContent>
-                    {projects.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                {!showInlineProject ? (
+                  <Select value={selectedProjectId} onValueChange={(v) => { if (v === "__new__") { setShowInlineProject(true); } else { setSelectedProjectId(v); } }}>
+                    <SelectTrigger><SelectValue placeholder="Sin proyecto" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__new__">+ Nuevo proyecto</SelectItem>
+                      {projects.map((p) => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="flex gap-2">
+                    <Input
+                      autoFocus
+                      value={newProjectName}
+                      onChange={(e) => setNewProjectName(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleCreateProject()}
+                      placeholder="Nombre del proyecto"
+                      className="flex-1"
+                    />
+                    <Button size="sm" onClick={handleCreateProject} disabled={!newProjectName.trim() || creatingProject}>
+                      {creatingProject ? <Loader2 className="h-4 w-4 animate-spin" /> : "Crear"}
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => { setShowInlineProject(false); setNewProjectName(""); }}>×</Button>
+                  </div>
+                )}
               </div>
             )}
 
