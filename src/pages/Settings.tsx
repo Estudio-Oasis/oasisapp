@@ -107,6 +107,7 @@ export default function Settings() {
       <Tabs defaultValue="agency" className="mt-6">
         <TabsList className="bg-background-secondary">
           <TabsTrigger value="agency">{t("settings.agencyProfile")}</TabsTrigger>
+          <TabsTrigger value="billing">Facturación</TabsTrigger>
           <TabsTrigger value="members">{t("settings.members")}</TabsTrigger>
           <TabsTrigger value="integrations">{t("settings.integrations")}</TabsTrigger>
         </TabsList>
@@ -116,6 +117,13 @@ export default function Settings() {
             agency={agency}
             isAdmin={userRole === "admin"}
             onUpdate={(updated) => setAgency(updated)}
+          />
+        </TabsContent>
+
+        <TabsContent value="billing" className="mt-4">
+          <BillingSettingsTab
+            agencyId={agency.id}
+            isAdmin={userRole === "admin"}
           />
         </TabsContent>
 
