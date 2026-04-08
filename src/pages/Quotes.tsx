@@ -748,11 +748,16 @@ function QuoteDetail({
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const updateStatus = async (status: string) => {
-    const updates: Record<string, any> = { status };
-    if (status === "sent") updates.sent_at = new Date().toISOString();
-    if (status === "accepted") updates.accepted_at = new Date().toISOString();
-    if (status === "rejected") updates.rejected_at = new Date().toISOString();
+  const updateStatus = async (newStatus: string) => {
+    const updates: {
+      status: string;
+      sent_at?: string;
+      accepted_at?: string;
+      rejected_at?: string;
+    } = { status: newStatus };
+    if (newStatus === "sent") updates.sent_at = new Date().toISOString();
+    if (newStatus === "accepted") updates.accepted_at = new Date().toISOString();
+    if (newStatus === "rejected") updates.rejected_at = new Date().toISOString();
 
     await supabase.from("quotes").update(updates).eq("id", quoteId);
     toast.success(`Cotización marcada como ${STATUS_CONFIG[status]?.label || status}`);
