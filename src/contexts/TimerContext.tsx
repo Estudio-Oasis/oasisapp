@@ -408,7 +408,28 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         if (!stopped) return;
       }
 
-      const { description, projectId, taskId, clientId } = input;
+      let { description, projectId, taskId, clientId } = input;
+
+      // Auto-project: if client is set but no project, ensure a "General" project exists
+      if (clientId && !projectId) {
+        const { data: existingProjects } = await supabase
+          .from("projects")
+          .select("id")
+          .eq("client_id", clientId)
+          .limit(1);
+
+        if (!existingProjects || existingProjects.length === 0) {
+          const { data: newProj } = await supabase
+            .from("projects")
+            .insert({ name: "General", client_id: clientId })
+            .select("id")
+            .single();
+          if (newProj) projectId = newProj.id;
+        } else {
+          projectId = existingProjects[0].id;
+        }
+      }
+
       const startedAt = new Date().toISOString();
       const { data: entry, error } = await supabase
         .from("time_entries")
