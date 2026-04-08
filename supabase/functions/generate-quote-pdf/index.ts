@@ -398,39 +398,9 @@ ${bankInfo ? `
 </body>
 </html>`;
 
-    // Store as HTML — browser print-to-PDF gives a real PDF
-    const fileName = `quote-${quote_id}.html`;
-    const blob = new Blob([html], { type: "text/html" });
-
-    const { error: uploadErr } = await supabaseAdmin.storage
-      .from("quote-pdfs")
-      .upload(fileName, new Uint8Array(await blob.arrayBuffer()), {
-        contentType: "text/html",
-        upsert: true,
-      });
-
-    if (uploadErr) {
-      console.error("Upload error:", uploadErr);
-      return new Response(JSON.stringify({ error: "Failed to upload" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // 30-day signed URL
-    const { data: signedData } = await supabaseAdmin.storage
-      .from("quote-pdfs")
-      .createSignedUrl(fileName, 60 * 60 * 24 * 30);
-
-    const pdfUrl = signedData?.signedUrl || "";
-
-    await supabaseAdmin
-      .from("quotes")
-      .update({ pdf_url: pdfUrl })
-      .eq("id", quote_id);
-
+    // Return HTML directly — client opens as blob URL for print-to-PDF
     return new Response(
-      JSON.stringify({ success: true, url: pdfUrl }),
+      JSON.stringify({ success: true, html }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
