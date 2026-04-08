@@ -261,7 +261,7 @@ export default function ClientProfilePage() {
               {[
                 { key: "overview", label: t("clientProfile.overview") },
                 { key: "time", label: t("clientProfile.time") },
-                { key: "projects", label: t("clientProfile.projects" as any) || "Proyectos" },
+                { key: "projects", label: t("clientProfile.projects") },
                 { key: "tasks", label: t("clientProfile.tasks") },
                 { key: "credentials", label: t("clientProfile.credentials") },
                 { key: "interactions", label: t("clientProfile.interactions") },
