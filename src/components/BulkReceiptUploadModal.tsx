@@ -223,9 +223,9 @@ export function BulkReceiptUploadModal({
         prev.map((i) => (i.id === item.id ? { ...i, status: "saving" } : i))
       );
 
-      const payload: Record<string, unknown> = {
+      const payload = {
         client_id: item.clientId,
-        amount_received: sr.amount_received,
+        amount_received: sr.amount_received ?? 0,
         currency_received: sr.currency_received || "USD",
         date_received: sr.date_received || new Date().toISOString().split("T")[0],
         sender_name: sr.sender_name || null,
@@ -238,7 +238,7 @@ export function BulkReceiptUploadModal({
 
       const { data: inserted, error } = await supabase
         .from("payments")
-        .insert(payload as never)
+        .insert(payload)
         .select("id")
         .single();
 
@@ -269,7 +269,7 @@ export function BulkReceiptUploadModal({
           if (signedData?.signedUrl) {
             await supabase
               .from("payments")
-              .update({ receipt_url: signedData.signedUrl } as Record<string, unknown>)
+              .update({ receipt_url: signedData.signedUrl })
               .eq("id", inserted.id);
           }
         }

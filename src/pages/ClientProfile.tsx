@@ -989,7 +989,7 @@ function EditClientPanel({ client, onClose, onSaved }: { client: ClientFull; onC
         notes: form.notes || null,
         status: form.status as "active" | "inactive",
         completeness_score: score,
-      } as Record<string, unknown>)
+      })
       .eq("id", client.id);
 
     setSaving(false);

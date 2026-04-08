@@ -50,7 +50,7 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
 
   const saveNotes = async () => {
     setSaving(true);
-    await supabase.from("payments").update({ notes: notes || null } as Record<string, unknown>).eq("id", payment.id);
+    await supabase.from("payments").update({ notes: notes || null }).eq("id", payment.id);
     setSaving(false);
     toast.success("Notas guardadas");
     onUpdated();
@@ -94,7 +94,7 @@ export function PaymentDetailPanel({ payment, onClose, onUpdated }: PaymentDetai
 
     if (signedData?.signedUrl) {
       await supabase.from("payments")
-        .update({ receipt_url: signedData.signedUrl } as Record<string, unknown>)
+        .update({ receipt_url: signedData.signedUrl })
         .eq("id", payment.id);
       toast.success("Comprobante subido");
       onUpdated();

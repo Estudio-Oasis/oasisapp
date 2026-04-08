@@ -222,7 +222,7 @@ export default function FinancesPage() {
       date: expForm.date,
       client_id: expForm.client_id || null,
       recurring: expForm.recurring,
-    } as Record<string, unknown>);
+    });
     setExpSaving(false);
     if (error) { toast.error("Error al agregar el gasto"); return; }
     toast.success("Gasto agregado");
