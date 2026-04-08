@@ -36,6 +36,7 @@ type QuoteStatus = "draft" | "sent" | "accepted" | "rejected" | "expired";
 
 interface QuoteRow {
   id: string;
+  agency_id: string;
   title: string;
   client_id: string;
   project_id: string | null;
