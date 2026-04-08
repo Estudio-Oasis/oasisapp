@@ -500,8 +500,10 @@ function QuoteEditor({
 
       if (error) throw error;
 
-      if (data?.url) {
-        window.open(data.url, "_blank");
+      if (data?.html) {
+        const blob = new Blob([data.html], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
       }
       toast.success("PDF generado");
       onSaved(id);
@@ -886,7 +888,11 @@ function QuoteDetail({
         body: { quote_id: quoteId },
       });
       if (error) throw error;
-      if (data?.url) window.open(data.url, "_blank");
+      if (data?.html) {
+        const blob = new Blob([data.html], { type: "text/html" });
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
+      }
       toast.success("PDF generado");
       fetchData();
     } catch {
