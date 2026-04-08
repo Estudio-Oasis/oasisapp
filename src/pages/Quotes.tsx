@@ -501,9 +501,26 @@ function QuoteEditor({
       if (error) throw error;
 
       if (data?.html) {
-        const blob = new Blob([data.html], { type: "text/html" });
-        const url = URL.createObjectURL(blob);
-        window.open(url, "_blank");
+        const html2pdf = (await import("html2pdf.js")).default;
+        const container = document.createElement("div");
+        container.innerHTML = data.html;
+        // Remove the print toolbar from the HTML
+        const toolbar = container.querySelector(".print-toolbar");
+        if (toolbar) toolbar.remove();
+        const body = container.querySelector("body");
+        const content = body || container;
+        document.body.appendChild(content);
+        await html2pdf()
+          .set({
+            margin: 0,
+            filename: `cotizacion-${id.slice(0, 8)}.pdf`,
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+          })
+          .from(content)
+          .save();
+        document.body.removeChild(content);
       }
       toast.success("PDF generado");
       onSaved(id);
@@ -889,9 +906,25 @@ function QuoteDetail({
       });
       if (error) throw error;
       if (data?.html) {
-        const blob = new Blob([data.html], { type: "text/html" });
-        const url = URL.createObjectURL(blob);
-        window.open(url, "_blank");
+        const html2pdf = (await import("html2pdf.js")).default;
+        const container = document.createElement("div");
+        container.innerHTML = data.html;
+        const toolbar = container.querySelector(".print-toolbar");
+        if (toolbar) toolbar.remove();
+        const body = container.querySelector("body");
+        const content = body || container;
+        document.body.appendChild(content);
+        await html2pdf()
+          .set({
+            margin: 0,
+            filename: `cotizacion-${quoteId.slice(0, 8)}.pdf`,
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+          })
+          .from(content)
+          .save();
+        document.body.removeChild(content);
       }
       toast.success("PDF generado");
       fetchData();
