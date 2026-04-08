@@ -896,6 +896,148 @@ export type Database = {
           },
         ]
       }
+      quote_items: {
+        Row: {
+          description: string
+          id: string
+          quantity: number
+          quote_id: string
+          sort_order: number
+          subtotal: number | null
+          unit: string
+          unit_price: number
+        }
+        Insert: {
+          description: string
+          id?: string
+          quantity?: number
+          quote_id: string
+          sort_order?: number
+          subtotal?: number | null
+          unit?: string
+          unit_price: number
+        }
+        Update: {
+          description?: string
+          id?: string
+          quantity?: number
+          quote_id?: string
+          sort_order?: number
+          subtotal?: number | null
+          unit?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          accepted_at: string | null
+          agency_id: string
+          client_id: string
+          created_at: string
+          created_by: string
+          currency: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          id: string
+          pdf_url: string | null
+          project_id: string | null
+          rejected_at: string | null
+          sent_at: string | null
+          status: string
+          subtotal: number
+          tax_enabled: boolean
+          tax_rate: number
+          title: string
+          total_amount: number
+          valid_until: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          agency_id: string
+          client_id: string
+          created_at?: string
+          created_by: string
+          currency?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          pdf_url?: string | null
+          project_id?: string | null
+          rejected_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subtotal?: number
+          tax_enabled?: boolean
+          tax_rate?: number
+          title: string
+          total_amount?: number
+          valid_until?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          agency_id?: string
+          client_id?: string
+          created_at?: string
+          created_by?: string
+          currency?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          pdf_url?: string | null
+          project_id?: string | null
+          rejected_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subtotal?: number
+          tax_enabled?: boolean
+          tax_rate?: number
+          title?: string
+          total_amount?: number
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppressed_emails: {
         Row: {
           created_at: string
