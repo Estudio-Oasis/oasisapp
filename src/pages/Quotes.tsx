@@ -23,11 +23,11 @@ import {
   Check,
   X,
   Trash2,
-  GripVertical,
   Loader2,
   Download,
   Edit,
   ChevronRight,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getClientColor } from "@/lib/timer-utils";
@@ -54,6 +54,9 @@ interface QuoteRow {
   rejected_at: string | null;
   description: string | null;
   created_at: string;
+  pdf_url: string | null;
+  payment_terms: string | null;
+  notes_to_client: string | null;
 }
 
 interface QuoteItemRow {
@@ -73,6 +76,7 @@ interface ClientMin {
   contact_name: string | null;
   monthly_rate: number | null;
   currency: string;
+  email: string | null;
 }
 
 interface ProjectMin {
@@ -91,8 +95,10 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
 
 const UNITS = ["hora", "pieza", "mes", "proyecto", "servicio"] as const;
 
+const DEFAULT_PAYMENT_TERMS = "50% al aceptar la cotización, 50% a contra entrega del proyecto";
+const DEFAULT_NOTES = "Esta cotización incluye hasta 2 rondas de revisión. Cambios adicionales se cotizan por separado.";
+
 export default function QuotesPage() {
-  const { user } = useAuth();
   const [view, setView] = useState<"list" | "edit" | "detail">("list");
   const [editingQuoteId, setEditingQuoteId] = useState<string | null>(null);
   const [detailQuoteId, setDetailQuoteId] = useState<string | null>(null);
@@ -136,7 +142,7 @@ function QuoteList({ onNew, onView }: { onNew: () => void; onView: (id: string) 
   const fetchData = useCallback(async () => {
     const [quotesRes, clientsRes] = await Promise.all([
       supabase.from("quotes").select("*").order("created_at", { ascending: false }),
-      supabase.from("clients").select("id, name, contact_name, monthly_rate, currency").eq("status", "active").order("name"),
+      supabase.from("clients").select("id, name, contact_name, monthly_rate, currency, email").eq("status", "active").order("name"),
     ]);
 
     const clientMap: Record<string, string> = {};
@@ -184,7 +190,6 @@ function QuoteList({ onNew, onView }: { onNew: () => void; onView: (id: string) 
         </Button>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {(["draft", "sent", "accepted", "rejected"] as const).map((s) => (
           <div key={s} className="border border-border rounded-lg p-4">
@@ -195,7 +200,6 @@ function QuoteList({ onNew, onView }: { onNew: () => void; onView: (id: string) 
         ))}
       </div>
 
-      {/* Filters */}
       <div className="flex gap-3 mb-4 flex-wrap">
         <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
@@ -215,7 +219,6 @@ function QuoteList({ onNew, onView }: { onNew: () => void; onView: (id: string) 
         </Select>
       </div>
 
-      {/* List */}
       {loading ? (
         <div className="flex items-center justify-center py-16">
           <Loader2 className="h-5 w-5 animate-spin text-foreground-muted" />
@@ -304,16 +307,42 @@ function QuoteEditor({
   const [discountValue, setDiscountValue] = useState(0);
   const [taxEnabled, setTaxEnabled] = useState(true);
   const [taxRate, setTaxRate] = useState(16);
-  const [validUntil, setValidUntil] = useState("");
+  const [validUntil, setValidUntil] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    return d.toISOString().split("T")[0];
+  });
+  const [paymentTerms, setPaymentTerms] = useState(DEFAULT_PAYMENT_TERMS);
+  const [notesToClient, setNotesToClient] = useState(DEFAULT_NOTES);
   const [items, setItems] = useState<DraftItem[]>([
     { tempId: crypto.randomUUID(), description: "", quantity: 1, unit: "hora", unit_price: 0 },
   ]);
   const [saving, setSaving] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
   const [loading, setLoading] = useState(!!quoteId);
+
+  // Load agency defaults
+  useEffect(() => {
+    if (quoteId) return; // don't override when editing
+    (async () => {
+      if (!user) return;
+      const { data: profile } = await supabase.from("profiles").select("agency_id").eq("id", user.id).single();
+      if (!profile?.agency_id) return;
+      const { data: settings } = await supabase
+        .from("agency_settings")
+        .select("default_payment_terms, default_currency")
+        .eq("agency_id", profile.agency_id)
+        .single();
+      if (settings) {
+        if (settings.default_payment_terms) setPaymentTerms(settings.default_payment_terms);
+        if (settings.default_currency) setCurrency(settings.default_currency);
+      }
+    })();
+  }, [user, quoteId]);
 
   // Load data
   useEffect(() => {
-    supabase.from("clients").select("id, name, contact_name, monthly_rate, currency").eq("status", "active").order("name")
+    supabase.from("clients").select("id, name, contact_name, monthly_rate, currency, email").eq("status", "active").order("name")
       .then(({ data }) => setClients((data || []) as ClientMin[]));
     supabase.from("projects").select("id, name, client_id").eq("status", "active").order("name")
       .then(({ data }) => setProjects((data || []) as ProjectMin[]));
@@ -339,6 +368,8 @@ function QuoteEditor({
         setTaxEnabled(q.tax_enabled);
         setTaxRate(q.tax_rate);
         setValidUntil(q.valid_until || "");
+        setPaymentTerms(q.payment_terms || DEFAULT_PAYMENT_TERMS);
+        setNotesToClient(q.notes_to_client || DEFAULT_NOTES);
       }
       if (itemsRes.data && itemsRes.data.length > 0) {
         setItems(
@@ -384,68 +415,100 @@ function QuoteEditor({
     );
   };
 
-  const handleSave = async () => {
-    if (!title.trim() || !clientId || !user) return;
+  const saveQuote = async (): Promise<string | null> => {
+    if (!title.trim() || !clientId || !user) return null;
+
+    const { data: profile } = await supabase.from("profiles").select("agency_id").eq("id", user.id).single();
+    if (!profile?.agency_id) throw new Error("No agency");
+
+    const quoteData = {
+      agency_id: profile.agency_id,
+      client_id: clientId,
+      project_id: projectId || null,
+      title: title.trim(),
+      description: description || null,
+      subtotal: itemsSubtotal,
+      discount_type: discountType,
+      discount_value: discountValue,
+      tax_enabled: taxEnabled,
+      tax_rate: taxRate,
+      total_amount: Math.round(total * 100) / 100,
+      currency,
+      valid_until: validUntil || null,
+      created_by: user.id,
+      payment_terms: paymentTerms || null,
+      notes_to_client: notesToClient || null,
+    };
+
+    let savedQuoteId: string;
+
+    if (quoteId) {
+      const { error } = await supabase.from("quotes").update(quoteData).eq("id", quoteId);
+      if (error) throw error;
+      savedQuoteId = quoteId;
+      await supabase.from("quote_items").delete().eq("quote_id", quoteId);
+    } else {
+      const { data, error } = await supabase.from("quotes").insert(quoteData).select("id").single();
+      if (error) throw error;
+      savedQuoteId = data!.id;
+    }
+
+    const validItems = items.filter((it) => it.description.trim() && it.unit_price > 0);
+    if (validItems.length > 0) {
+      await supabase.from("quote_items").insert(
+        validItems.map((it, idx) => ({
+          quote_id: savedQuoteId,
+          description: it.description.trim(),
+          quantity: it.quantity,
+          unit: it.unit,
+          unit_price: it.unit_price,
+          sort_order: idx,
+        }))
+      );
+    }
+
+    return savedQuoteId;
+  };
+
+  const handleSaveDraft = async () => {
     setSaving(true);
-
     try {
-      const { data: profile } = await supabase.from("profiles").select("agency_id").eq("id", user.id).single();
-      if (!profile?.agency_id) throw new Error("No agency");
-
-      const quoteData = {
-        agency_id: profile.agency_id,
-        client_id: clientId,
-        project_id: projectId || null,
-        title: title.trim(),
-        description: description || null,
-        subtotal: itemsSubtotal,
-        discount_type: discountType,
-        discount_value: discountValue,
-        tax_enabled: taxEnabled,
-        tax_rate: taxRate,
-        total_amount: Math.round(total * 100) / 100,
-        currency,
-        valid_until: validUntil || null,
-        created_by: user.id,
-      };
-
-      let savedQuoteId: string;
-
-      if (quoteId) {
-        const { error } = await supabase.from("quotes").update(quoteData).eq("id", quoteId);
-        if (error) throw error;
-        savedQuoteId = quoteId;
-
-        // Delete old items, re-insert
-        await supabase.from("quote_items").delete().eq("quote_id", quoteId);
-      } else {
-        const { data, error } = await supabase.from("quotes").insert(quoteData).select("id").single();
-        if (error) throw error;
-        savedQuoteId = data!.id;
+      const id = await saveQuote();
+      if (id) {
+        toast.success(quoteId ? "Cotización actualizada" : "Borrador guardado");
+        onSaved(id);
       }
-
-      // Insert items
-      const validItems = items.filter((it) => it.description.trim() && it.unit_price > 0);
-      if (validItems.length > 0) {
-        await supabase.from("quote_items").insert(
-          validItems.map((it, idx) => ({
-            quote_id: savedQuoteId,
-            description: it.description.trim(),
-            quantity: it.quantity,
-            unit: it.unit,
-            unit_price: it.unit_price,
-            sort_order: idx,
-          }))
-        );
-      }
-
-      toast.success(quoteId ? "Cotización actualizada" : "Cotización guardada");
-      onSaved(savedQuoteId);
     } catch (err) {
       console.error(err);
-      toast.error("Error al guardar la cotización");
+      toast.error("Error al guardar");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveAndPdf = async () => {
+    setGeneratingPdf(true);
+    try {
+      const id = await saveQuote();
+      if (!id) return;
+      toast.success("Cotización guardada, generando PDF…");
+
+      const { data, error } = await supabase.functions.invoke("generate-quote-pdf", {
+        body: { quote_id: id },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+      toast.success("PDF generado");
+      onSaved(id);
+    } catch (err) {
+      console.error(err);
+      toast.error("Error al generar PDF");
+    } finally {
+      setGeneratingPdf(false);
     }
   };
 
@@ -525,7 +588,6 @@ function QuoteEditor({
           <div>
             <label className="text-label mb-2 block">Items</label>
             <div className="border border-border rounded-lg overflow-hidden">
-              {/* Header */}
               <div className="hidden sm:grid grid-cols-[1fr_80px_100px_100px_80px_40px] gap-2 px-3 py-2 bg-background-secondary text-[10px] font-semibold text-foreground-muted uppercase tracking-wider">
                 <span>Descripción</span>
                 <span>Cant.</span>
@@ -659,7 +721,32 @@ function QuoteEditor({
             <div>
               <label className="text-label mb-1 block">Válida hasta</label>
               <Input type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} />
+              <p className="text-[10px] text-foreground-muted mt-0.5">Pre-llenado · 30 días</p>
             </div>
+          </div>
+
+          {/* Payment terms */}
+          <div>
+            <label className="text-label mb-1 block">Condiciones de pago</label>
+            <Textarea
+              value={paymentTerms}
+              onChange={(e) => setPaymentTerms(e.target.value)}
+              rows={2}
+              className="resize-none text-sm"
+            />
+            <p className="text-[10px] text-foreground-muted mt-0.5">Pre-llenado · Puedes editar esto para cada cotización</p>
+          </div>
+
+          {/* Notes to client */}
+          <div>
+            <label className="text-label mb-1 block">Notas al cliente</label>
+            <Textarea
+              value={notesToClient}
+              onChange={(e) => setNotesToClient(e.target.value)}
+              rows={2}
+              className="resize-none text-sm"
+            />
+            <p className="text-[10px] text-foreground-muted mt-0.5">Pre-llenado · Puedes editar esto para cada cotización</p>
           </div>
         </div>
 
@@ -699,8 +786,25 @@ function QuoteEditor({
 
           {/* Actions */}
           <div className="border border-border rounded-lg p-4 space-y-3">
-            <Button onClick={handleSave} disabled={!title.trim() || !clientId || saving} className="w-full">
+            <Button
+              variant="secondary"
+              onClick={handleSaveDraft}
+              disabled={!title.trim() || !clientId || saving || generatingPdf}
+              className="w-full"
+            >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Guardar borrador"}
+            </Button>
+            <Button
+              onClick={handleSaveAndPdf}
+              disabled={!title.trim() || !clientId || saving || generatingPdf}
+              className="w-full"
+            >
+              {generatingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : (
+                <>
+                  <FileText className="h-4 w-4" />
+                  Guardar y generar PDF
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -724,8 +828,11 @@ function QuoteDetail({
   const [items, setItems] = useState<QuoteItemRow[]>([]);
   const [clientName, setClientName] = useState("");
   const [contactName, setContactName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
   const [userName, setUserName] = useState("");
+  const [agencyName, setAgencyName] = useState("");
   const [loading, setLoading] = useState(true);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
 
   const fetchData = useCallback(async () => {
     const [qRes, itemsRes] = await Promise.all([
@@ -736,11 +843,18 @@ function QuoteDetail({
       const q = qRes.data as QuoteRow;
       setQuote(q);
 
-      const { data: client } = await supabase.from("clients").select("name, contact_name").eq("id", q.client_id).single();
-      if (client) { setClientName(client.name); setContactName(client.contact_name || client.name); }
-
-      const { data: profile } = await supabase.from("profiles").select("name").eq("id", q.created_by).single();
-      if (profile) setUserName(profile.name || "");
+      const [clientRes, profileRes, agencyRes] = await Promise.all([
+        supabase.from("clients").select("name, contact_name, email").eq("id", q.client_id).single(),
+        supabase.from("profiles").select("name").eq("id", q.created_by).single(),
+        supabase.from("agencies").select("name").eq("id", q.agency_id).single(),
+      ]);
+      if (clientRes.data) {
+        setClientName(clientRes.data.name);
+        setContactName(clientRes.data.contact_name || clientRes.data.name);
+        setClientEmail(clientRes.data.email || "");
+      }
+      if (profileRes.data) setUserName(profileRes.data.name || "");
+      if (agencyRes.data) setAgencyName(agencyRes.data.name || "");
     }
     setItems((itemsRes.data || []) as QuoteItemRow[]);
     setLoading(false);
@@ -760,17 +874,39 @@ function QuoteDetail({
     if (newStatus === "rejected") updates.rejected_at = new Date().toISOString();
 
     await supabase.from("quotes").update(updates).eq("id", quoteId);
-    toast.success(`Cotización marcada como ${STATUS_CONFIG[status]?.label || status}`);
+    toast.success(`Cotización marcada como ${STATUS_CONFIG[newStatus]?.label || newStatus}`);
     fetchData();
+  };
+
+  const generatePdf = async () => {
+    setGeneratingPdf(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-quote-pdf", {
+        body: { quote_id: quoteId },
+      });
+      if (error) throw error;
+      if (data?.url) window.open(data.url, "_blank");
+      toast.success("PDF generado");
+      fetchData();
+    } catch {
+      toast.error("Error al generar PDF");
+    } finally {
+      setGeneratingPdf(false);
+    }
   };
 
   const copyEmailText = () => {
     if (!quote) return;
     const itemsList = items
-      .map((it) => `- ${it.description}: ${it.quantity} ${it.unit} × $${it.unit_price} = $${it.subtotal.toLocaleString()}`)
+      .map((it) => `- ${it.description}: ${it.quantity} ${it.unit} × $${it.unit_price.toLocaleString()} = $${(it.subtotal || it.quantity * it.unit_price).toLocaleString()}`)
       .join("\n");
 
-    const text = `Hola ${contactName},\n\nTe comparto la cotización para ${quote.title}.\n\nResumen:\n${itemsList}\n\nTotal: $${quote.total_amount.toLocaleString()} ${quote.currency}\n${quote.valid_until ? `Válida hasta: ${new Date(quote.valid_until).toLocaleDateString("es-MX")}\n` : ""}\nAdjunto encontrarás el PDF con el detalle completo.\nQuedo atento a tus comentarios.\n\nSaludos,\n${userName}`;
+    const taxNote = quote.tax_enabled ? "IVA incluido" : "sin IVA";
+    const termsShort = quote.payment_terms
+      ? quote.payment_terms.split(".")[0]
+      : "";
+
+    const text = `Hola ${contactName},\n\nTe comparto la cotización para ${quote.title}.\n\nResumen:\n${itemsList}\n\nTotal: $${quote.total_amount.toLocaleString()} ${quote.currency} (${taxNote})\n${termsShort ? `Condiciones: ${termsShort}\n` : ""}${quote.valid_until ? `Válida hasta: ${new Date(quote.valid_until).toLocaleDateString("es-MX")}\n` : ""}\nAdjunto el PDF con el detalle completo. Quedo atento a tus comentarios.\n\nSaludos,\n${userName}${agencyName ? `\n${agencyName}` : ""}`;
 
     navigator.clipboard.writeText(text);
     toast.success("Texto copiado al portapapeles");
@@ -796,6 +932,8 @@ function QuoteDetail({
       currency: quote.currency,
       valid_until: quote.valid_until,
       created_by: user.id,
+      payment_terms: quote.payment_terms,
+      notes_to_client: quote.notes_to_client,
     }).select("id").single();
 
     if (newQuote && items.length > 0) {
@@ -837,7 +975,7 @@ function QuoteDetail({
         Cotizaciones
       </button>
 
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
         <div>
           <div className="flex items-center gap-3 mb-1">
             <h1 className="text-h1 text-foreground">{quote.title}</h1>
@@ -849,7 +987,7 @@ function QuoteDetail({
             {clientName} · {new Date(quote.created_at).toLocaleDateString("es-MX", { year: "numeric", month: "long", day: "numeric" })}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button variant="secondary" size="sm" onClick={() => onEdit(quoteId)}>
             <Edit className="h-3.5 w-3.5" /> Editar
           </Button>
@@ -859,6 +997,22 @@ function QuoteDetail({
           <Button variant="secondary" size="sm" onClick={copyEmailText}>
             <Copy className="h-3.5 w-3.5" /> Copiar email
           </Button>
+          {quote.pdf_url ? (
+            <>
+              <Button variant="secondary" size="sm" onClick={() => window.open(quote.pdf_url!, "_blank")}>
+                <Download className="h-3.5 w-3.5" /> Descargar PDF
+              </Button>
+              <Button variant="secondary" size="sm" onClick={generatePdf} disabled={generatingPdf}>
+                {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                Regenerar
+              </Button>
+            </>
+          ) : (
+            <Button size="sm" onClick={generatePdf} disabled={generatingPdf}>
+              {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+              Generar PDF
+            </Button>
+          )}
         </div>
       </div>
 
@@ -884,7 +1038,7 @@ function QuoteDetail({
             <span className="text-foreground-secondary">{it.quantity}</span>
             <span className="text-foreground-secondary">{it.unit}</span>
             <span className="text-foreground-secondary">${it.unit_price.toLocaleString()}</span>
-            <span className="text-right font-medium text-foreground">${it.subtotal.toLocaleString()}</span>
+            <span className="text-right font-medium text-foreground">${(it.subtotal || it.quantity * it.unit_price).toLocaleString()}</span>
           </div>
         ))}
       </div>
@@ -914,6 +1068,20 @@ function QuoteDetail({
           <span className="text-xl font-bold text-foreground">${quote.total_amount.toLocaleString()} {quote.currency}</span>
         </div>
       </div>
+
+      {/* Payment terms & notes */}
+      {quote.payment_terms && (
+        <div className="border border-border rounded-lg p-4 mb-4">
+          <p className="text-micro text-foreground-muted mb-1">Condiciones de pago</p>
+          <p className="text-sm text-foreground whitespace-pre-wrap">{quote.payment_terms}</p>
+        </div>
+      )}
+      {quote.notes_to_client && (
+        <div className="border border-border rounded-lg p-4 mb-6">
+          <p className="text-micro text-foreground-muted mb-1">Notas al cliente</p>
+          <p className="text-sm text-foreground whitespace-pre-wrap">{quote.notes_to_client}</p>
+        </div>
+      )}
 
       {/* Status actions */}
       <div className="flex gap-2 flex-wrap">
