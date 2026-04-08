@@ -27,7 +27,6 @@ import {
   Download,
   Edit,
   ChevronRight,
-  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getClientColor } from "@/lib/timer-utils";
@@ -98,6 +97,77 @@ const UNITS = ["hora", "pieza", "mes", "proyecto", "servicio"] as const;
 
 const DEFAULT_PAYMENT_TERMS = "50% al aceptar la cotización, 50% a contra entrega del proyecto";
 const DEFAULT_NOTES = "Esta cotización incluye hasta 2 rondas de revisión. Cambios adicionales se cotizan por separado.";
+
+async function downloadQuotePdf(html: string, filename: string) {
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.style.position = "fixed";
+  iframe.style.right = "100vw";
+  iframe.style.bottom = "100vh";
+  iframe.style.width = "8.5in";
+  iframe.style.height = "11in";
+  iframe.style.opacity = "0";
+  iframe.style.pointerEvents = "none";
+  iframe.style.border = "0";
+
+  document.body.appendChild(iframe);
+
+  try {
+    const doc = iframe.contentDocument;
+    if (!doc) throw new Error("No se pudo preparar el documento PDF");
+
+    doc.open();
+    doc.write(html);
+    doc.close();
+
+    await new Promise<void>((resolve) => {
+      const waitUntilReady = () => {
+        if (doc.readyState === "complete") {
+          resolve();
+          return;
+        }
+
+        window.requestAnimationFrame(waitUntilReady);
+      };
+
+      waitUntilReady();
+    });
+
+    doc.querySelector(".print-toolbar")?.remove();
+
+    await Promise.all(
+      Array.from(doc.images).map(
+        (image) =>
+          image.complete
+            ? Promise.resolve()
+            : new Promise<void>((resolve) => {
+                image.onload = () => resolve();
+                image.onerror = () => resolve();
+              })
+      )
+    );
+
+    const html2pdf = (await import("html2pdf.js")).default;
+
+    await html2pdf()
+      .set({
+        margin: 0,
+        filename,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          letterRendering: true,
+          backgroundColor: "#ffffff",
+        },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      })
+      .from(doc.body)
+      .save();
+  } finally {
+    iframe.remove();
+  }
+}
 
 export default function QuotesPage() {
   const [view, setView] = useState<"list" | "edit" | "detail">("list");
@@ -500,28 +570,9 @@ function QuoteEditor({
 
       if (error) throw error;
 
-      if (data?.html) {
-        const html2pdf = (await import("html2pdf.js")).default;
-        const container = document.createElement("div");
-        container.innerHTML = data.html;
-        // Remove the print toolbar from the HTML
-        const toolbar = container.querySelector(".print-toolbar");
-        if (toolbar) toolbar.remove();
-        const body = container.querySelector("body");
-        const content = body || container;
-        document.body.appendChild(content);
-        await html2pdf()
-          .set({
-            margin: 0,
-            filename: `cotizacion-${id.slice(0, 8)}.pdf`,
-            image: { type: "jpeg", quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-            jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-          })
-          .from(content)
-          .save();
-        document.body.removeChild(content);
-      }
+      if (!data?.html) throw new Error("La función no devolvió contenido para el PDF");
+
+      await downloadQuotePdf(data.html, `cotizacion-${id.slice(0, 8)}.pdf`);
       toast.success("PDF generado");
       onSaved(id);
     } catch (err) {
@@ -905,30 +956,13 @@ function QuoteDetail({
         body: { quote_id: quoteId },
       });
       if (error) throw error;
-      if (data?.html) {
-        const html2pdf = (await import("html2pdf.js")).default;
-        const container = document.createElement("div");
-        container.innerHTML = data.html;
-        const toolbar = container.querySelector(".print-toolbar");
-        if (toolbar) toolbar.remove();
-        const body = container.querySelector("body");
-        const content = body || container;
-        document.body.appendChild(content);
-        await html2pdf()
-          .set({
-            margin: 0,
-            filename: `cotizacion-${quoteId.slice(0, 8)}.pdf`,
-            image: { type: "jpeg", quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-            jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-          })
-          .from(content)
-          .save();
-        document.body.removeChild(content);
-      }
+      if (!data?.html) throw new Error("La función no devolvió contenido para el PDF");
+
+      await downloadQuotePdf(data.html, `cotizacion-${quoteId.slice(0, 8)}.pdf`);
       toast.success("PDF generado");
       fetchData();
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Error al generar PDF");
     } finally {
       setGeneratingPdf(false);
@@ -1037,22 +1071,10 @@ function QuoteDetail({
           <Button variant="secondary" size="sm" onClick={copyEmailText}>
             <Copy className="h-3.5 w-3.5" /> Copiar email
           </Button>
-          {quote.pdf_url ? (
-            <>
-              <Button variant="secondary" size="sm" onClick={() => window.open(quote.pdf_url!, "_blank")}>
-                <Download className="h-3.5 w-3.5" /> Descargar PDF
-              </Button>
-              <Button variant="secondary" size="sm" onClick={generatePdf} disabled={generatingPdf}>
-                {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
-                Regenerar
-              </Button>
-            </>
-          ) : (
-            <Button size="sm" onClick={generatePdf} disabled={generatingPdf}>
-              {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
-              Generar PDF
-            </Button>
-          )}
+          <Button size="sm" onClick={generatePdf} disabled={generatingPdf}>
+            {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+            Descargar PDF
+          </Button>
         </div>
       </div>
 
