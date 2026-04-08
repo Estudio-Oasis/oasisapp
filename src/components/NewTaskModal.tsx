@@ -104,7 +104,7 @@ export function NewTaskModal({
     if (!newProjectName.trim() || !selectedClientId) return;
     setCreatingProject(true);
     try {
-      const { data, error } = await supabase.from("projects").insert({ name: newProjectName.trim(), client_id: selectedClientId }).select("id, name, client_id, status").single();
+      const { data, error } = await supabase.from("projects").insert({ name: newProjectName.trim(), client_id: selectedClientId }).select("*").single();
       if (error) throw error;
       if (data) {
         setProjects((prev) => [...prev, data]);
