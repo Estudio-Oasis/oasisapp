@@ -32,6 +32,7 @@ export function TimerLauncherWidget({ onIdea }: { onIdea?: (text: string) => voi
   const { isRunning, isStopping, activeEntry, activeClient, activeTask, elapsedSeconds, startTimer, stopTimer, switchTask, startBreakTimer } = useTimer();
 
   const [mode, setMode] = useState<LauncherMode>(null);
+  const [switchSheetOpen, setSwitchSheetOpen] = useState(false);
   const [recents, setRecents] = useState<RecentTask[]>([]);
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [clients, setClients] = useState<Record<string, string>>({});
