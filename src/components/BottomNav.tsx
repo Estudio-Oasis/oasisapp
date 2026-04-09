@@ -1,10 +1,11 @@
-import { Timer, Users, DollarSign, Shield } from "lucide-react";
+import { Timer, Users, DollarSign, Shield, Home } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useRole } from "@/hooks/useRole";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { TranslationKey } from "@/lib/translations";
 
 const coreNavItems = [
+  { titleKey: "nav.home" as TranslationKey, url: "/home", icon: Home },
   { titleKey: "nav.bitacora" as TranslationKey, url: "/bitacora", icon: Timer },
   { titleKey: "nav.clients" as TranslationKey, url: "/clients", icon: Users },
   { titleKey: "nav.vault" as TranslationKey, url: "/vault", icon: Shield },

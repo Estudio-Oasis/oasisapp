@@ -97,7 +97,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
   };
 
   return (
-    <div className="space-y-2.5 max-w-2xl mx-auto">
+    <div className="space-y-2.5 w-full">
       {/* ── MORNING BRIEFING ── */}
       {showBriefing && !vm.hasData && (
         <MorningBriefing
@@ -281,8 +281,8 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
 
       {vm.view === "today" ? (
         !vm.hasData && !bita.isRunning ? null : vm.entries.length === 0 && bita.isRunning ? null : (
-          <div className="rounded-xl border border-border bg-card overflow-hidden">
-            <div className="divide-y divide-border">
+          <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
+            <div className="divide-y divide-border/50">
               {vm.gaps.map((g, i) => (
                 <div key={`gap-${i}`} className="px-3 py-1">
                   <GapAlert
