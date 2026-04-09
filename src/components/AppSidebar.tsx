@@ -1,20 +1,23 @@
 import { useState, useEffect, useRef } from "react";
-import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe, Shield, FileText } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe, Shield, FileText, Rocket } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
 import { useUnreadChats } from "@/hooks/useUnreadChats";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePlan } from "@/hooks/usePlan";
 import { TimerWidget } from "@/components/TimerWidget";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProfileSheet } from "@/components/ProfileSheet";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { OnboardingWizard } from "@/components/OnboardingWizard";
 import { StartTimerModal } from "@/components/StartTimerModal";
 import { NewTaskModal } from "@/components/NewTaskModal";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   Sidebar,
