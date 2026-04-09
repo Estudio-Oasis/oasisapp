@@ -97,7 +97,7 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
   };
 
   return (
-    <div className="space-y-2.5 max-w-2xl mx-auto">
+    <div className="space-y-2.5 w-full">
       {/* ── MORNING BRIEFING ── */}
       {showBriefing && !vm.hasData && (
         <MorningBriefing
