@@ -390,12 +390,12 @@ export default function HubPage() {
           </div>
 
           {/* Activity feed */}
-          {recentActivity.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted flex items-center gap-1.5">
-                <Activity className="h-3 w-3" />
-                Actividad reciente
-              </h2>
+          <div className="space-y-3">
+            <h2 className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted flex items-center gap-1.5">
+              <Activity className="h-3 w-3" />
+              Actividad reciente
+            </h2>
+            {recentActivity.length > 0 ? (
               <div className="rounded-xl border border-border/50 bg-card shadow-sm divide-y divide-border/50">
                 {recentActivity.map((act) => (
                   <div key={act.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors">
@@ -419,8 +419,14 @@ export default function HubPage() {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="rounded-xl border border-border/50 bg-card shadow-sm p-6 text-center">
+                <Activity className="h-5 w-5 text-foreground-muted mx-auto mb-2" />
+                <p className="text-sm text-foreground-muted">Sin actividad reciente del equipo</p>
+                <p className="text-[11px] text-foreground-muted/70 mt-1">El feed se actualiza en tiempo real cuando alguien registra tiempo.</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right — Stats + Chats */}
