@@ -968,6 +968,7 @@ export type Database = {
         Row: {
           accepted_at: string | null
           agency_id: string
+          approval_token: string | null
           client_id: string
           created_at: string
           created_by: string
@@ -981,6 +982,7 @@ export type Database = {
           pdf_url: string | null
           project_id: string | null
           rejected_at: string | null
+          rejection_reason: string | null
           sent_at: string | null
           status: string
           subtotal: number
@@ -993,6 +995,7 @@ export type Database = {
         Insert: {
           accepted_at?: string | null
           agency_id: string
+          approval_token?: string | null
           client_id: string
           created_at?: string
           created_by: string
@@ -1006,6 +1009,7 @@ export type Database = {
           pdf_url?: string | null
           project_id?: string | null
           rejected_at?: string | null
+          rejection_reason?: string | null
           sent_at?: string | null
           status?: string
           subtotal?: number
@@ -1018,6 +1022,7 @@ export type Database = {
         Update: {
           accepted_at?: string | null
           agency_id?: string
+          approval_token?: string | null
           client_id?: string
           created_at?: string
           created_by?: string
@@ -1031,6 +1036,7 @@ export type Database = {
           pdf_url?: string | null
           project_id?: string | null
           rejected_at?: string | null
+          rejection_reason?: string | null
           sent_at?: string | null
           status?: string
           subtotal?: number
