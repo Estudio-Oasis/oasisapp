@@ -53,9 +53,9 @@ export function TimeEntryRow({
   return (
     <div
       onClick={onClick}
-      className={`flex items-center gap-3 border-b border-border py-3.5 rounded-lg transition-colors ${
+      className={`flex items-center gap-3 border-b border-border/50 py-3.5 rounded-lg transition-colors group ${
         isNonProductive ? "opacity-60" : ""
-      } ${onClick ? "cursor-pointer hover:bg-background-secondary/50" : ""}`}
+      } ${onClick ? "cursor-pointer hover:bg-muted/40" : ""}`}
     >
       {/* Color bar or icon */}
       {isNonProductive ? (
@@ -66,7 +66,7 @@ export function TimeEntryRow({
         </div>
       ) : (
         <div
-          className="w-[3px] h-8 rounded-sm shrink-0"
+          className="w-1 h-10 rounded-sm shrink-0"
           style={{ backgroundColor: barColor }}
         />
       )}
@@ -96,11 +96,11 @@ export function TimeEntryRow({
           </>
         ) : (
           <>
-            <p className="text-sm font-medium text-foreground truncate">
+            <p className="text-sm font-semibold text-foreground truncate">
               {taskTitle ? (
                 truncate(taskTitle, TRUNCATION.taskName)
               ) : (
-                <span className="text-foreground-muted font-normal">Sin tarea</span>
+                <span className="text-foreground-muted font-normal italic">Sin tarea</span>
               )}
             </p>
             <p className="text-xs text-foreground-secondary truncate">
@@ -118,11 +118,11 @@ export function TimeEntryRow({
 
       {/* Time & duration */}
       <div className="text-right shrink-0">
-        <p className="text-small text-foreground-secondary">
+        <p className="text-[11px] text-foreground-muted tabular-nums">
           {formatTime(start)}
           {end && ` – ${formatTime(end)}`}
         </p>
-        <p className="text-small font-semibold text-foreground">
+        <p className="text-sm font-bold text-foreground tabular-nums">
           {formatDuration(dur)}
         </p>
       </div>
