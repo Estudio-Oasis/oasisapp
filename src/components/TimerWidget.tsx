@@ -141,7 +141,7 @@ export function TimerWidget() {
     }
   };
 
-  if (isBitacora && !isRunning) return null;
+  if (isBitacora) return null;
 
   const actType = isRunning ? getNormalizedActivityType({ description: activeEntry?.description, client_id: activeEntry?.client_id }) : null;
   const actConfig = actType ? getActivityConfig(actType) : null;

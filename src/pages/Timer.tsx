@@ -292,7 +292,7 @@ export default function TimerPage() {
         <div className="rounded-xl border border-accent bg-accent-light px-5 py-5 mb-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-micro text-accent">Sesión activa</p>
+              <p className="text-micro text-accent">Registro activo</p>
               <p className="text-h3 text-foreground mt-1">{activeClient?.name || "Cliente"}</p>
               <p className="text-sm text-foreground-secondary">{activeTask?.title || "Sin tarea específica"}</p>
             </div>

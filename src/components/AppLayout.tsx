@@ -2,6 +2,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { BottomNav } from "@/components/BottomNav";
 import { TimerFAB } from "@/components/TimerFAB";
+import { HelpFAB } from "@/components/HelpFAB";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { Radio, Settings } from "lucide-react";
 import { useUnreadChats } from "@/hooks/useUnreadChats";
@@ -61,6 +62,7 @@ export function AppLayout() {
         {/* Mobile bottom nav */}
         <BottomNav />
         {!isBitacora && <TimerFAB />}
+        <HelpFAB />
       </div>
     </SidebarProvider>
   );

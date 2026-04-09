@@ -276,8 +276,29 @@ export default function HubPage() {
     <div className="max-w-6xl mx-auto">
       {/* Status bar — compact */}
       <div className="mb-6">
+        {/* Mobile: dropdown */}
+        <div className="md:hidden flex items-center gap-2">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">Tu estado</span>
+          <select
+            value={myStatus}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="h-8 rounded-lg border border-border bg-card px-3 text-xs font-medium text-foreground"
+          >
+            {[
+              { status: "online", label: "En línea" },
+              { status: "break", label: "Break" },
+              { status: "eating", label: "Comiendo" },
+              { status: "bathroom", label: "AFK" },
+              { status: "meeting", label: "Reunión" },
+              { status: "offline", label: "Offline" },
+            ].map(({ status, label }) => (
+              <option key={status} value={status}>{label}</option>
+            ))}
+          </select>
+        </div>
+        {/* Desktop: pills */}
         <TooltipProvider delayDuration={300}>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="hidden md:flex flex-wrap items-center gap-2">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted mr-2">Tu estado</span>
             {[
               { status: "online", icon: Monitor, label: "En línea" },
@@ -355,7 +376,7 @@ export default function HubPage() {
                         <span className="text-sm font-semibold text-foreground truncate">
                           {m.user_id === user?.id ? "Tú" : m.profile.name?.split(" ")[0] || "?"}
                         </span>
-                        <span className="text-[10px] text-foreground-muted">{statusInfo.label}</span>
+                        <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${dotColor}`} />
                       </div>
                       {m.status !== "offline" && m.current_task ? (
                         <p className="text-[11px] text-foreground-secondary truncate">
@@ -390,12 +411,12 @@ export default function HubPage() {
           </div>
 
           {/* Activity feed */}
-          {recentActivity.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted flex items-center gap-1.5">
-                <Activity className="h-3 w-3" />
-                Actividad reciente
-              </h2>
+          <div className="space-y-3">
+            <h2 className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted flex items-center gap-1.5">
+              <Activity className="h-3 w-3" />
+              Actividad reciente
+            </h2>
+            {recentActivity.length > 0 ? (
               <div className="rounded-xl border border-border/50 bg-card shadow-sm divide-y divide-border/50">
                 {recentActivity.map((act) => (
                   <div key={act.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors">
@@ -419,8 +440,14 @@ export default function HubPage() {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="rounded-xl border border-border/50 bg-card shadow-sm p-6 text-center">
+                <Activity className="h-5 w-5 text-foreground-muted mx-auto mb-2" />
+                <p className="text-sm text-foreground-muted">Sin actividad reciente del equipo</p>
+                <p className="text-[11px] text-foreground-muted/70 mt-1">El feed se actualiza en tiempo real cuando alguien registra tiempo.</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right — Stats + Chats */}
