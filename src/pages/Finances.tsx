@@ -35,6 +35,7 @@ import { PaymentDetailPanel } from "@/components/PaymentDetailPanel";
 import type { PaymentRow } from "@/components/PaymentDetailPanel";
 import type { Tables } from "@/integrations/supabase/types";
 import { getClientColor } from "@/lib/timer-utils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type Client = Tables<"clients">;
 
@@ -88,11 +89,7 @@ export default function FinancesPage() {
   const { isAdmin, loading: roleLoading } = useRole();
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const [clients, setClients] = useState<Client[]>([]);
-  const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
-  const [expenses, setExpenses] = useState<ExpenseRow[]>([]);
-  const [payments, setPayments] = useState<PaymentRow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [invFilter, setInvFilter] = useState<"all" | "draft" | "sent" | "paid" | "overdue">("all");
   const [newInvOpen, setNewInvOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceRow | null>(null);
@@ -106,35 +103,42 @@ export default function FinancesPage() {
   const [expForm, setExpForm] = useState({ category: "Otro", description: "", amount: "", currency: "USD", date: new Date().toISOString().split("T")[0], client_id: "", recurring: false });
   const [expSaving, setExpSaving] = useState(false);
 
-  const fetchAll = useCallback(async () => {
-    const [clientsRes, invoicesRes, expensesRes, paymentsRes] = await Promise.all([
-      supabase.from("clients").select("*").order("name"),
-      supabase.from("invoices").select("*").order("created_at", { ascending: false }),
-      supabase.from("expenses").select("*").order("date", { ascending: false }),
-      supabase.from("payments").select("*").order("date_received", { ascending: false }),
-    ]);
-    const clientList = clientsRes.data || [];
-    setClients(clientList);
-    const clientMap = new Map(clientList.map((c) => [c.id, c.name]));
+  // Unified data fetching with React Query
+  const { data: finData, isLoading: loading } = useQuery({
+    queryKey: ["finances-data"],
+    queryFn: async () => {
+      const [clientsRes, invoicesRes, expensesRes, paymentsRes] = await Promise.all([
+        supabase.from("clients").select("*").order("name"),
+        supabase.from("invoices").select("*").order("created_at", { ascending: false }),
+        supabase.from("expenses").select("*").order("date", { ascending: false }),
+        supabase.from("payments").select("*").order("date_received", { ascending: false }),
+      ]);
+      const clientList = clientsRes.data || [];
+      const clientMap = new Map(clientList.map((c) => [c.id, c.name]));
+      const invoiceList = (invoicesRes.data || []) as InvoiceRow[];
+      const invoiceMap = new Map(invoiceList.map((i) => [i.id, i.number]));
 
-    const invoiceList = (invoicesRes.data || []) as InvoiceRow[];
-    const invoiceMap = new Map(invoiceList.map((i) => [i.id, i.number]));
+      return {
+        clients: clientList as Client[],
+        invoices: invoiceList.map((inv) => ({ ...inv, client_name: clientMap.get(inv.client_id) || "Desconocido" })),
+        expenses: (expensesRes.data || []) as ExpenseRow[],
+        payments: ((paymentsRes.data || []) as unknown as PaymentRow[]).map((p) => ({
+          ...p,
+          client_name: clientMap.get(p.client_id) || "Desconocido",
+          invoice_number: p.invoice_id ? invoiceMap.get(p.invoice_id) || undefined : undefined,
+        })),
+      };
+    },
+  });
 
-    setInvoices(
-      invoiceList.map((inv) => ({ ...inv, client_name: clientMap.get(inv.client_id) || "Desconocido" }))
-    );
-    setExpenses((expensesRes.data || []) as ExpenseRow[]);
-    setPayments(
-      ((paymentsRes.data || []) as unknown as PaymentRow[]).map((p) => ({
-        ...p,
-        client_name: clientMap.get(p.client_id) || "Desconocido",
-        invoice_number: p.invoice_id ? invoiceMap.get(p.invoice_id) || undefined : undefined,
-      }))
-    );
-    setLoading(false);
-  }, []);
+  const clients = finData?.clients || [];
+  const invoices = finData?.invoices || [];
+  const expenses = finData?.expenses || [];
+  const payments = finData?.payments || [];
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  const invalidateAll = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["finances-data"] });
+  }, [queryClient]);
 
   useEffect(() => {
     fetch("https://open.er-api.com/v6/latest/USD")
@@ -145,27 +149,13 @@ export default function FinancesPage() {
       .catch(() => {});
   }, []);
 
-  const stats = useMemo(() => {
-    const activeClients = clients.filter((c) => c.status === "active");
-    const mrr = activeClients.reduce((sum, c) => sum + (c.monthly_rate || 0), 0);
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    let collected = 0, pending = 0, overdue = 0;
-    invoices.forEach((inv) => {
-      if (inv.status === "paid" && inv.paid_at && new Date(inv.paid_at) >= monthStart) collected += inv.amount;
-      if (inv.status === "draft" || inv.status === "sent") {
-        if (isOverdue(inv)) overdue += inv.amount;
-        else pending += inv.amount;
-      }
-      if (inv.status === "overdue") overdue += inv.amount;
-    });
-    return { mrr, collected, pending, overdue };
-  }, [clients, invoices]);
-
+  // Bug 1 & 2 FIX: KPI "Cobrado este mes" now uses payments table (same source as payment widgets)
   const paymentStats = useMemo(() => {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthPayments = payments.filter((p) => new Date(p.date_received + "T00:00:00") >= monthStart);
+
+    const totalThisMonth = monthPayments.reduce((s, p) => s + p.amount_received, 0);
 
     const usdThisMonth = monthPayments
       .filter((p) => p.currency_received === "USD")
@@ -184,9 +174,24 @@ export default function FinancesPage() {
       ? ratesThisMonth.reduce((s, r) => s + r, 0) / ratesThisMonth.length
       : null;
 
-    return { usdThisMonth, mxnThisMonth, avgRate };
+    return { totalThisMonth, usdThisMonth, mxnThisMonth, avgRate };
   }, [payments]);
 
+  const stats = useMemo(() => {
+    const activeClients = clients.filter((c) => c.status === "active");
+    const mrr = activeClients.reduce((sum, c) => sum + (c.monthly_rate || 0), 0);
+    let pending = 0, overdue = 0;
+    invoices.forEach((inv) => {
+      if (inv.status === "draft" || inv.status === "sent") {
+        if (isOverdue(inv)) overdue += inv.amount;
+        else pending += inv.amount;
+      }
+      if (inv.status === "overdue") overdue += inv.amount;
+    });
+    return { mrr, collected: paymentStats.totalThisMonth, pending, overdue };
+  }, [clients, invoices, paymentStats]);
+
+  // Bug 1 FIX: Chart uses payments table grouped by date_received
   const chartData = useMemo(() => {
     const months: { label: string; revenue: number; expenses: number; net: number }[] = [];
     const now = new Date();
@@ -194,16 +199,19 @@ export default function FinancesPage() {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
       const label = d.toLocaleDateString("es-MX", { month: "short" });
-      const rev = invoices
-        .filter((inv) => inv.status === "paid" && inv.paid_at && new Date(inv.paid_at) >= d && new Date(inv.paid_at) <= monthEnd)
-        .reduce((s, inv) => s + inv.amount, 0);
+      const rev = payments
+        .filter((p) => {
+          const pd = new Date(p.date_received + "T00:00:00");
+          return pd >= d && pd <= monthEnd;
+        })
+        .reduce((s, p) => s + p.amount_received, 0);
       const exp = expenses
         .filter((e) => { const ed = new Date(e.date + "T00:00:00"); return ed >= d && ed <= monthEnd; })
         .reduce((s, e) => s + e.amount, 0);
-      months.push({ label, revenue: rev, expenses: exp, net: rev - exp });
+      months.push({ label, revenue: Math.round(rev * 100) / 100, expenses: Math.round(exp * 100) / 100, net: Math.round((rev - exp) * 100) / 100 });
     }
     return months;
-  }, [invoices, expenses]);
+  }, [payments, expenses]);
 
   const filteredInvoices = useMemo(() => {
     if (invFilter === "all") return invoices;
@@ -228,7 +236,7 @@ export default function FinancesPage() {
     toast.success("Gasto agregado");
     setExpFormOpen(false);
     setExpForm({ category: "Otro", description: "", amount: "", currency: "USD", date: new Date().toISOString().split("T")[0], client_id: "", recurring: false });
-    fetchAll();
+    invalidateAll();
   };
 
   const monthExpenses = useMemo(() => {
@@ -283,7 +291,7 @@ export default function FinancesPage() {
             </button>
           </div>
         </div>
-        <StatCard label="Cobrado este mes" value={`$${stats.collected.toLocaleString()}`} icon={<CheckCircle className="h-4 w-4" />} />
+        <StatCard label="Cobrado este mes" value={`$${stats.collected.toLocaleString(undefined, { minimumFractionDigits: 2 })}`} icon={<CheckCircle className="h-4 w-4" />} />
         <StatCard label="Pendiente" value={`$${stats.pending.toLocaleString()}`} icon={<DollarSign className="h-4 w-4" />} />
         <StatCard label="Vencido" value={`$${stats.overdue.toLocaleString()}`} icon={<AlertTriangle className="h-4 w-4" />} danger={stats.overdue > 0} />
       </div>
@@ -547,14 +555,14 @@ export default function FinancesPage() {
       <InsightsSection payments={payments} clients={clients} />
 
       {/* Modales y paneles */}
-      <NewInvoiceModal open={newInvOpen} onOpenChange={setNewInvOpen} onCreated={fetchAll} />
-      <LogPaymentModal open={newPayOpen} onOpenChange={setNewPayOpen} onCreated={fetchAll} />
-      <BulkReceiptUploadModal open={bulkPayOpen} onOpenChange={setBulkPayOpen} onCreated={fetchAll} />
+      <NewInvoiceModal open={newInvOpen} onOpenChange={setNewInvOpen} onCreated={invalidateAll} />
+      <LogPaymentModal open={newPayOpen} onOpenChange={setNewPayOpen} onCreated={invalidateAll} />
+      <BulkReceiptUploadModal open={bulkPayOpen} onOpenChange={setBulkPayOpen} onCreated={invalidateAll} />
       {selectedInvoice && (
-        <InvoiceDetailPanel invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} onUpdated={() => { setSelectedInvoice(null); fetchAll(); }} />
+        <InvoiceDetailPanel invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} onUpdated={() => { setSelectedInvoice(null); invalidateAll(); }} />
       )}
       {selectedPayment && (
-        <PaymentDetailPanel payment={selectedPayment} onClose={() => setSelectedPayment(null)} onUpdated={() => { setSelectedPayment(null); fetchAll(); }} />
+        <PaymentDetailPanel payment={selectedPayment} onClose={() => setSelectedPayment(null)} onUpdated={() => { setSelectedPayment(null); invalidateAll(); }} />
       )}
     </div>
   );
