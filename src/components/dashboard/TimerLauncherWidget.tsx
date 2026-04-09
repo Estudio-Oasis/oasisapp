@@ -12,6 +12,7 @@ import {
   Timer, Play, Search, Plus, Clock, ChevronDown, ChevronUp,
   Coffee, ArrowRightLeft, StickyNote, Lightbulb, X, Loader2,
 } from "lucide-react";
+import { BitacoraQuickSheet } from "@/modules/bitacora/BitacoraQuickSheet";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Task = Tables<"tasks">;
