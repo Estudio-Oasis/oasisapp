@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { formatElapsed } from "@/lib/timer-utils";
 import {
   getNormalizedActivityType,
@@ -33,6 +34,9 @@ export function ActiveSessionCard({
 
   const displayName = clientName || description || UI_COPY.sessionNoClient;
   const displayTask = taskTitle;
+
+  const GENERIC_NAMES = ['Actividad libre', 'Pendientes del día', 'Reunión', 'Descanso', 'Comida', 'Break', 'Tarea libre'];
+  const hasCustomDescription = description && description.trim() !== '' && !GENERIC_NAMES.includes(description);
 
   if (variant === "compact") {
     return (
@@ -137,6 +141,11 @@ export function ActiveSessionCard({
             </>
           )}
         </div>
+
+        {/* Prompt for naming unnamed activities */}
+        {onDescriptionChange && !hasCustomDescription && (
+          <NamePromptInline onSave={onDescriptionChange} />
+        )}
       </div>
 
       {/* Scrollable content */}
