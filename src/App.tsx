@@ -38,6 +38,7 @@ import PlaygroundActivityEngine from "./pages/PlaygroundActivityEngine";
 import PricingPage from "./pages/Pricing";
 import HomePage from "./pages/Home";
 import QuoteApprovalPage from "./pages/QuoteApproval";
+import UnsubscribePage from "./pages/Unsubscribe";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => (
                 <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/q/:token" element={<QuoteApprovalPage />} />
+                <Route path="/unsubscribe" element={<UnsubscribePage />} />
 
                 {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
                 <Route
