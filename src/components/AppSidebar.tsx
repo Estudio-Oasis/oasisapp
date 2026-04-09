@@ -43,6 +43,7 @@ interface Profile {
   avatar_url: string | null;
   role: string;
   onboarded: boolean;
+  onboarding_skipped: boolean;
   job_title: string | null;
 }
 
