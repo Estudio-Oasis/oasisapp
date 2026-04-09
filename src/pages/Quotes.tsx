@@ -1075,6 +1075,19 @@ function QuoteDetail({
           <Button variant="secondary" size="sm" onClick={copyEmailText}>
             <Copy className="h-3.5 w-3.5" /> Copiar email
           </Button>
+          <Button variant="secondary" size="sm" onClick={async () => {
+            if (!quote) return;
+            const token = (quote as any).approval_token || crypto.randomUUID();
+            if (!(quote as any).approval_token) {
+              await supabase.from("quotes").update({ approval_token: token } as any).eq("id", quoteId);
+            }
+            const url = `${window.location.origin}/q/${token}`;
+            navigator.clipboard.writeText(url);
+            toast.success("Link de aprobación copiado");
+            fetchData();
+          }}>
+            <Send className="h-3.5 w-3.5" /> Link aprobación
+          </Button>
           <Button size="sm" onClick={generatePdf} disabled={generatingPdf}>
             {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
             Descargar PDF
