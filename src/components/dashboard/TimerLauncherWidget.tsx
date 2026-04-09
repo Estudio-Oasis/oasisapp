@@ -215,7 +215,7 @@ export function TimerLauncherWidget({ onIdea }: { onIdea?: (text: string) => voi
         <div className="flex items-center justify-center gap-4 mb-3">
           {[
             { icon: Coffee, label: "Break", color: "text-foreground-secondary hover:text-accent hover:bg-accent/10", onClick: () => startBreakTimer("break") },
-            { icon: ArrowRightLeft, label: "Cambiar", color: "text-foreground-secondary hover:text-accent hover:bg-accent/10", onClick: () => setMode("continue") },
+            { icon: ArrowRightLeft, label: "Cambiar", color: "text-foreground-secondary hover:text-accent hover:bg-accent/10", onClick: () => setSwitchSheetOpen(true) },
             { icon: StickyNote, label: "Nota", color: "text-foreground-secondary hover:text-accent hover:bg-accent/10", onClick: () => { setShowNote(!showNote); setShowIdea(false); } },
             { icon: Lightbulb, label: "Idea", color: "text-foreground-secondary hover:text-accent hover:bg-accent/10", onClick: () => { setShowIdea(!showIdea); setShowNote(false); } },
           ].map(btn => (
