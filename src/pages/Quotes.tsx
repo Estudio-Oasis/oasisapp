@@ -1089,6 +1089,11 @@ function QuoteDetail({
           }}>
             <Send className="h-3.5 w-3.5" /> Link aprobación
           </Button>
+          {(quote.status === "draft" || quote.status === "sent") && (
+            <Button variant="accent" size="sm" onClick={() => setEmailModalOpen(true)}>
+              <Send className="h-3.5 w-3.5" /> Enviar por email
+            </Button>
+          )}
           <Button size="sm" onClick={generatePdf} disabled={generatingPdf}>
             {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
             Descargar PDF
