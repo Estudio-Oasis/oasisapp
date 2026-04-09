@@ -196,7 +196,7 @@ export const UI_COPY = {
   btnManualEntry: "Agregar registro manual",
 
   // Active session
-  sessionActive: "Sesión activa",
+  sessionActive: "Registro activo",
   sessionNoTask: "Sin tarea específica",
   sessionNoClient: "Sin cliente asociado",
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useBitacora, useBitacoraVM } from "@/modules/bitacora/BitacoraContext";
+import { useTimer } from "@/contexts/TimerContext";
 import { formatDuration, getClientColor } from "@/lib/timer-utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +15,7 @@ export function BitacoraSidebar() {
   const bita = useBitacora();
   const vm = useBitacoraVM();
   const { user } = useAuth();
+  const { isRunning, elapsedSeconds } = useTimer();
   const [pendingTasks, setPendingTasks] = useState<{ id: string; title: string; client_name: string | null }[]>([]);
   const [quickSheetOpen, setQuickSheetOpen] = useState(false);
   const [preselectedTaskId, setPreselectedTaskId] = useState<string | null>(null);
@@ -53,11 +55,20 @@ export function BitacoraSidebar() {
       if (cName) clientMinutes[cName] = (clientMinutes[cName] || 0) + dur;
     });
 
+    // Include active timer elapsed time
+    if (isRunning) {
+      const activeMins = Math.round(elapsedSeconds / 60);
+      totalMin += activeMins;
+      // Check if active entry has a client
+      const activeEntry = vm.entries.find((e: any) => !e.ended_at);
+      if (activeEntry?.client_id) productiveMin += activeMins;
+    }
+
     const topClient = Object.entries(clientMinutes).sort((a, b) => b[1] - a[1])[0];
     const productivePct = totalMin > 0 ? Math.round((productiveMin / totalMin) * 100) : 0;
 
     return { totalMin, productiveMin, productivePct, topClient };
-  }, [vm.entries]);
+  }, [vm.entries, isRunning, elapsedSeconds]);
 
   // Weekly streak — compute which days of the week have logged hours
   const [weekStreak, setWeekStreak] = useState<number[]>([]);
@@ -177,7 +188,7 @@ export function BitacoraSidebar() {
       {pendingTasks.length > 0 && (
         <div className="rounded-2xl border border-border/60 bg-card p-4 shadow-sm space-y-3">
           <h3 className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">
-            Tareas en progreso
+            Próximas tareas
           </h3>
           <div className="space-y-2">
             {pendingTasks.slice(0, 3).map((task) => (

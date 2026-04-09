@@ -282,7 +282,7 @@ export function TimerLauncherWidget({ onIdea }: { onIdea?: (text: string) => voi
             onClick={stopTimer}
             disabled={isStopping}
           >
-            {isStopping ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Guardando...</> : "⏹ Finalizar sesión"}
+            {isStopping ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Guardando...</> : "⏹ Detener registro"}
           </Button>
         </div>
       </WidgetCard>
