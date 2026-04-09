@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { getClientColor } from "@/lib/timer-utils";
+import { SendQuoteEmailModal } from "@/components/quotes/SendQuoteEmailModal";
 
 type QuoteStatus = "draft" | "sent" | "accepted" | "rejected" | "expired";
 
@@ -908,7 +909,7 @@ function QuoteDetail({
   const [agencyName, setAgencyName] = useState("");
   const [loading, setLoading] = useState(true);
   const [generatingPdf, setGeneratingPdf] = useState(false);
-
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
   const fetchData = useCallback(async () => {
     const [qRes, itemsRes] = await Promise.all([
       supabase.from("quotes").select("*").eq("id", quoteId).single(),
