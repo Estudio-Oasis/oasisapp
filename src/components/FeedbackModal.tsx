@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function FeedbackModal({ open, onOpenChange, moduleName }: Props) {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [message, setMessage] = useState("");
   const [type, setType] = useState<"bug" | "mejora" | "idea">("mejora");
   const [sending, setSending] = useState(false);
