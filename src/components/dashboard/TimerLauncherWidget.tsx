@@ -271,27 +271,8 @@ export function TimerLauncherWidget({ onIdea }: { onIdea?: (text: string) => voi
           </div>
         )}
 
-        {/* Switch task list */}
-        {mode === "continue" && (
-          <div className="mt-3 border-t border-border pt-3 animate-in fade-in-0 duration-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-semibold uppercase text-foreground-muted">Cambiar a...</span>
-              <button onClick={() => setMode(null)} className="text-foreground-muted hover:text-foreground"><X className="h-3.5 w-3.5" /></button>
-            </div>
-            <div className="max-h-[200px] overflow-y-auto space-y-1">
-              {recents.map(r => (
-                <button
-                  key={r.id}
-                  onClick={() => handleStartWithTask(r)}
-                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-background-secondary transition-colors"
-                >
-                  <span className="text-sm text-foreground truncate block">{r.title}</span>
-                  {r.client_name && <span className="text-[10px] text-foreground-muted">{r.client_name}</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Switch task — opens full QuickSheet for consistency */}
+        <QuickSheet open={switchSheetOpen} onOpenChange={setSwitchSheetOpen} mode="switch" />
 
         {/* Stop button */}
         <div className="mt-3 pt-3 border-t border-border">
