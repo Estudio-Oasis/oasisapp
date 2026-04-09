@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Plus, Search, Users, ChevronRight, Building2, TrendingUp, AlertTriangle, MoreHorizontal, Trash2, Archive } from "lucide-react";
 import { getClientColor } from "@/lib/timer-utils";
+import { formatDuration } from "@/lib/timer-utils";
 import { getCompletenessLevel, type CompletenessLevel } from "@/lib/clientCompleteness";
 import { NewClientModal } from "@/components/NewClientModal";
 import { toast } from "sonner";
@@ -64,6 +66,7 @@ function CompletenessPill({ score, hasActivity }: { score: number; hasActivity?:
 }
 
 export default function ClientsPage() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { isAdmin } = useRole();
   const { t } = useLanguage();
@@ -73,6 +76,7 @@ export default function ClientsPage() {
   const [filter, setFilter] = useState<"all" | "active" | "inactive" | "incomplete">("all");
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ClientRow | null>(null);
+  const [clientStats, setClientStats] = useState<Record<string, { totalMins: number; lastActivity: string | null }>>({});
 
   const handleArchiveClient = async (client: ClientRow) => {
     const { error } = await supabase
@@ -110,6 +114,32 @@ export default function ClientsPage() {
   useEffect(() => {
     fetchClients();
   }, []);
+
+  // Fetch time entry stats per client
+  useEffect(() => {
+    if (!user) return;
+    const fetchStats = async () => {
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+      const { data } = await supabase
+        .from("time_entries")
+        .select("client_id, started_at, duration_min")
+        .gte("started_at", startOfMonth)
+        .not("client_id", "is", null)
+        .not("ended_at", "is", null);
+      const map: Record<string, { totalMins: number; lastActivity: string | null }> = {};
+      (data || []).forEach((e: any) => {
+        const cid = e.client_id;
+        if (!cid) return;
+        if (!map[cid]) map[cid] = { totalMins: 0, lastActivity: null };
+        map[cid].totalMins += Number(e.duration_min) || 0;
+        if (!map[cid].lastActivity || e.started_at > map[cid].lastActivity!) {
+          map[cid].lastActivity = e.started_at;
+        }
+      });
+      setClientStats(map);
+    };
+    fetchStats();
+  }, [user?.id]);
 
   const filtered = clients.filter((c) => {
     if (search) {
