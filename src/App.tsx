@@ -36,6 +36,8 @@ import AboutRoger from "./pages/AboutRoger";
 import Portfolio from "./pages/Portfolio";
 import PlaygroundActivityEngine from "./pages/PlaygroundActivityEngine";
 import PricingPage from "./pages/Pricing";
+import HomePage from "./pages/Home";
+import QuoteApprovalPage from "./pages/QuoteApproval";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +66,7 @@ const App = () => (
                 <Route path="/portfolio" element={<Portfolio />} />
                 <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
                 <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/q/:token" element={<QuoteApprovalPage />} />
 
                 {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
                 <Route
@@ -74,6 +77,7 @@ const App = () => (
                   }
                 >
                   {/* Available to all plans */}
+                  <Route path="/home" element={<HomePage />} />
                   <Route path="/bitacora" element={<BitacoraPage />} />
                   <Route path="/timer" element={<Navigate to="/bitacora" replace />} />
                   <Route path="/settings" element={<SettingsPage />} />
