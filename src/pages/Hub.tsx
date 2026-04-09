@@ -276,8 +276,29 @@ export default function HubPage() {
     <div className="max-w-6xl mx-auto">
       {/* Status bar — compact */}
       <div className="mb-6">
+        {/* Mobile: dropdown */}
+        <div className="md:hidden flex items-center gap-2">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">Tu estado</span>
+          <select
+            value={myStatus}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="h-8 rounded-lg border border-border bg-card px-3 text-xs font-medium text-foreground"
+          >
+            {[
+              { status: "online", label: "En línea" },
+              { status: "break", label: "Break" },
+              { status: "eating", label: "Comiendo" },
+              { status: "bathroom", label: "AFK" },
+              { status: "meeting", label: "Reunión" },
+              { status: "offline", label: "Offline" },
+            ].map(({ status, label }) => (
+              <option key={status} value={status}>{label}</option>
+            ))}
+          </select>
+        </div>
+        {/* Desktop: pills */}
         <TooltipProvider delayDuration={300}>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="hidden md:flex flex-wrap items-center gap-2">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted mr-2">Tu estado</span>
             {[
               { status: "online", icon: Monitor, label: "En línea" },
