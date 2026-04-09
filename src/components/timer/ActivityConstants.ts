@@ -191,7 +191,7 @@ export const UI_COPY = {
   btnStart: "Registrar actividad",
   btnSwitch: "Cambiar actividad",
   btnPause: "Registrar pausa",
-  btnFinish: "Finalizar",
+  btnFinish: "Detener registro",
   btnSaving: "Guardando…",
   btnManualEntry: "Agregar registro manual",
 

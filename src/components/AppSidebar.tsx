@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe, Shield, FileText, Rocket, Home } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe, Shield, FileText, Rocket, Home, type LucideIcon } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
@@ -134,9 +134,22 @@ export function AppSidebar() {
         <div className="flex items-center justify-between px-4 py-5">
           <div className="flex items-center gap-2.5">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground">
-              <span className="text-micro text-background leading-none tracking-widest">B</span>
+              <span className="text-micro text-background leading-none tracking-widest">O</span>
             </div>
-            <span className="text-sm font-semibold text-foreground">Bitácora</span>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold tracking-tight text-foreground leading-tight">OasisOS</span>
+              <span className="text-[10px] text-foreground-muted leading-tight">
+                {(() => {
+                  const MODULE_NAMES: Record<string, string> = {
+                    '/home': 'Inicio', '/bitacora': 'Bitácora', '/hub': 'Hub', '/clients': 'Clientes',
+                    '/tasks': 'Tareas', '/quotes': 'Cotizaciones', '/vault': 'Vault',
+                    '/finances': 'Finanzas', '/admin': 'Admin', '/settings': 'Ajustes',
+                  };
+                  const base = '/' + location.pathname.split('/')[1];
+                  return MODULE_NAMES[base] ?? '';
+                })()}
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-1">
             <button
