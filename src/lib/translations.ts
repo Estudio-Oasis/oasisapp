@@ -1,5 +1,6 @@
 const es = {
   // Nav
+  "nav.home": "Inicio",
   "nav.bitacora": "Bitácora",
   "nav.hub": "Hub",
   "nav.clients": "Clientes",
@@ -369,6 +370,7 @@ const es = {
 
 const en: Record<keyof typeof es, string> = {
   // Nav
+  "nav.home": "Home",
   "nav.bitacora": "Logbook",
   "nav.hub": "Hub",
   "nav.clients": "Clients",
