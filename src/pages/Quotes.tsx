@@ -745,9 +745,13 @@ function QuoteEditor({
                 </div>
                 <Input
                   type="number"
-                  value={discountValue}
-                  onChange={(e) => setDiscountValue(parseFloat(e.target.value) || 0)}
+                  value={discountValue || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setDiscountValue(val === "" ? 0 : parseFloat(val) || 0);
+                  }}
                   className="h-7 w-20 text-sm"
+                  placeholder="0"
                   min={0}
                 />
               </div>

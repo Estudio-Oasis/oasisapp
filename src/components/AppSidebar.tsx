@@ -1,20 +1,23 @@
 import { useState, useEffect, useRef } from "react";
-import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe, Shield, FileText } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe, Shield, FileText, Rocket } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
 import { useUnreadChats } from "@/hooks/useUnreadChats";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePlan } from "@/hooks/usePlan";
 import { TimerWidget } from "@/components/TimerWidget";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProfileSheet } from "@/components/ProfileSheet";
 import { WelcomeModal } from "@/components/WelcomeModal";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { OnboardingWizard } from "@/components/OnboardingWizard";
 import { StartTimerModal } from "@/components/StartTimerModal";
 import { NewTaskModal } from "@/components/NewTaskModal";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   Sidebar,
@@ -40,19 +43,23 @@ interface Profile {
   avatar_url: string | null;
   role: string;
   onboarded: boolean;
+  onboarding_skipped: boolean;
   job_title: string | null;
 }
 
 export function AppSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { isAdmin, loading: roleLoading } = useRole();
   const { theme, setTheme } = useTheme();
   const { unreadCount } = useUnreadChats();
   const { language, setLanguage, t } = useLanguage();
+  const { isFree } = usePlan();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [tourTimerOpen, setTourTimerOpen] = useState(false);
   const [tourTaskOpen, setTourTaskOpen] = useState(false);
@@ -62,16 +69,21 @@ export function AppSidebar() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("name, avatar_url, role, onboarded, job_title")
+      .select("name, avatar_url, role, onboarded, job_title, onboarding_skipped, agency_id")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
         if (data) {
-          const p = data as Profile;
+          const p = data as Profile & { agency_id: string | null };
           setProfile(p);
-          if (!p.onboarded && !welcomeShownRef.current) {
+          if (!p.onboarded && !p.onboarding_skipped && !welcomeShownRef.current) {
             welcomeShownRef.current = true;
-            setShowWelcome(true);
+            // If no agency yet, show the wizard; otherwise show the old welcome
+            if (!p.agency_id) {
+              setShowWizard(true);
+            } else {
+              setShowWelcome(true);
+            }
           }
         }
       });
@@ -186,12 +198,28 @@ export function AppSidebar() {
         </div>
 
         {/* Onboarding checklist */}
-        {profile && !profile.onboarded && (
+        {profile && !profile.onboarded && !showWizard && (
           <OnboardingChecklist
             onboarded={profile.onboarded}
             onOpenProfile={() => setProfileOpen(true)}
             onOpenTimer={() => setTourTimerOpen(true)}
           />
+        )}
+
+        {/* Upgrade banner for free users */}
+        {isFree && (
+          <div className="mx-3 mb-2">
+            <button
+              onClick={() => navigate("/pricing")}
+              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-colors text-left"
+            >
+              <Rocket className="h-4 w-4 text-accent shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-foreground">Upgrade</p>
+                <p className="text-[10px] text-foreground-muted truncate">Desbloquea el equipo completo</p>
+              </div>
+            </button>
+          </div>
         )}
 
         {/* User section */}
@@ -244,6 +272,21 @@ export function AppSidebar() {
       {/* Tour-triggered modals */}
       <StartTimerModal open={tourTimerOpen} onOpenChange={setTourTimerOpen} mode="start" />
       <NewTaskModal open={tourTaskOpen} onOpenChange={setTourTaskOpen} />
+
+      {/* Onboarding Wizard (new users without agency) */}
+      <OnboardingWizard
+        open={showWizard}
+        userName={displayName}
+        onComplete={() => {
+          setShowWizard(false);
+          setProfile((prev) => prev ? { ...prev, onboarded: true } : prev);
+          navigate("/bitacora");
+        }}
+        onSkip={() => {
+          setShowWizard(false);
+          setProfile((prev) => prev ? { ...prev, onboarding_skipped: true } : prev);
+        }}
+      />
     </>
   );
 }
