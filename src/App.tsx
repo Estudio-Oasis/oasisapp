@@ -35,6 +35,7 @@ import AboutStudio from "./pages/AboutStudio";
 import AboutRoger from "./pages/AboutRoger";
 import Portfolio from "./pages/Portfolio";
 import PlaygroundActivityEngine from "./pages/PlaygroundActivityEngine";
+import PricingPage from "./pages/Pricing";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const App = () => (
                 <Route path="/about/roger-teran" element={<AboutRoger />} />
                 <Route path="/portfolio" element={<Portfolio />} />
                 <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
+                <Route path="/pricing" element={<PricingPage />} />
 
                 {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
                 <Route
