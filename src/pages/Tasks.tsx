@@ -47,6 +47,7 @@ export default function TasksPage() {
   const [timerModalOpen, setTimerModalOpen] = useState(false);
   const [timerPrefill, setTimerPrefill] = useState<{ clientId: string; taskId: string } | null>(null);
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+  const [overdueBannerDismissed, setOverdueBannerDismissed] = useState(false);
 
   const fetchAll = useCallback(async () => {
     const [{ data: taskData }, { data: clientData }, { data: profileData }] = await Promise.all([
@@ -117,6 +118,26 @@ export default function TasksPage() {
   };
 
   const isOverdue = (t: Task) => t.due_date && new Date(t.due_date) < today && t.status !== "done";
+  const overdueCount = tasks.filter((t2) => t2.due_date && new Date(t2.due_date) < today && t2.status !== "done").length;
+
+  function renderDescriptionWithLinks(text: string) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) =>
+      urlRegex.test(part) ? (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent underline hover:text-accent/80 truncate max-w-[200px] inline-block align-bottom"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part.length > 40 ? part.slice(0, 37) + '...' : part}
+        </a>
+      ) : <span key={i}>{part}</span>
+    );
+  }
 
   // Group tasks for list view
   const inProgressTasks = filtered.filter((t) => t.status === "in_progress");
@@ -169,7 +190,7 @@ export default function TasksPage() {
                   <span className="text-[12px] text-foreground-secondary">{cl.name}</span>
                 </>
               )}
-              {task.description && <span className="text-[12px] text-foreground-muted truncate">· {task.description}</span>}
+              {task.description && <span className="text-[12px] text-foreground-muted truncate">· {renderDescriptionWithLinks(task.description)}</span>}
             </div>
           </div>
 
