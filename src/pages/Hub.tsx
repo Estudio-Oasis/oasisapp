@@ -355,7 +355,7 @@ export default function HubPage() {
                         <span className="text-sm font-semibold text-foreground truncate">
                           {m.user_id === user?.id ? "Tú" : m.profile.name?.split(" ")[0] || "?"}
                         </span>
-                        <span className="text-[10px] text-foreground-muted">{statusInfo.label}</span>
+                        <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${dotColor}`} />
                       </div>
                       {m.status !== "offline" && m.current_task ? (
                         <p className="text-[11px] text-foreground-secondary truncate">
