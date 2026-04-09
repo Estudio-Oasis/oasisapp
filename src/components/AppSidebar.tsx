@@ -55,9 +55,11 @@ export function AppSidebar() {
   const { theme, setTheme } = useTheme();
   const { unreadCount } = useUnreadChats();
   const { language, setLanguage, t } = useLanguage();
+  const { isFree } = usePlan();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [tourTimerOpen, setTourTimerOpen] = useState(false);
   const [tourTaskOpen, setTourTaskOpen] = useState(false);
