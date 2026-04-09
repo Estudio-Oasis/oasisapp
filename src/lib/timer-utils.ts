@@ -11,9 +11,10 @@ export function formatElapsed(seconds: number): string {
 /**
  * Format seconds as "Xh Ym" (e.g. "1h 45m")
  */
-export function formatDuration(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = Math.round(minutes % 60);
+export function formatDuration(totalMinutes: number): string {
+  const roundedMinutes = Math.round(totalMinutes);
+  const h = Math.floor(roundedMinutes / 60);
+  const m = roundedMinutes % 60;
   if (h === 0) return `${m} min`;
   if (m === 0) return `${h} h`;
   return `${h} h ${m} min`;

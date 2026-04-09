@@ -201,7 +201,7 @@ export function TimerLauncherWidget({ onIdea }: { onIdea?: (text: string) => voi
         <div className="text-center mb-4">
           <p className="text-3xl font-bold tabular-nums text-accent">{formatElapsed(elapsedSeconds)}</p>
           <p className="text-sm text-foreground mt-1 truncate">
-            {activeEntry.description || activeTask?.title || "Registrando tiempo..."}
+            {activeEntry.description || activeTask?.title || (activeClient ? `Sin nombre · ${activeClient.name}` : "Registro activo")}
           </p>
           {activeClient && (
             <div className="flex items-center justify-center gap-1.5 mt-1">
@@ -277,7 +277,7 @@ export function TimerLauncherWidget({ onIdea }: { onIdea?: (text: string) => voi
         {/* Stop button */}
         <div className="mt-3 pt-3 border-t border-border">
           <Button
-            variant="destructive"
+            variant="default"
             className="w-full"
             onClick={stopTimer}
             disabled={isStopping}

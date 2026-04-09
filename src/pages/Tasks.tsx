@@ -47,6 +47,7 @@ export default function TasksPage() {
   const [timerModalOpen, setTimerModalOpen] = useState(false);
   const [timerPrefill, setTimerPrefill] = useState<{ clientId: string; taskId: string } | null>(null);
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
+  const [overdueBannerDismissed, setOverdueBannerDismissed] = useState(false);
 
   const fetchAll = useCallback(async () => {
     const [{ data: taskData }, { data: clientData }, { data: profileData }] = await Promise.all([
@@ -117,6 +118,26 @@ export default function TasksPage() {
   };
 
   const isOverdue = (t: Task) => t.due_date && new Date(t.due_date) < today && t.status !== "done";
+  const overdueCount = tasks.filter((t2) => t2.due_date && new Date(t2.due_date) < today && t2.status !== "done").length;
+
+  function renderDescriptionWithLinks(text: string) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) =>
+      urlRegex.test(part) ? (
+        <a
+          key={i}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent underline hover:text-accent/80 truncate max-w-[200px] inline-block align-bottom"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part.length > 40 ? part.slice(0, 37) + '...' : part}
+        </a>
+      ) : <span key={i}>{part}</span>
+    );
+  }
 
   // Group tasks for list view
   const inProgressTasks = filtered.filter((t) => t.status === "in_progress");
@@ -169,7 +190,7 @@ export default function TasksPage() {
                   <span className="text-[12px] text-foreground-secondary">{cl.name}</span>
                 </>
               )}
-              {task.description && <span className="text-[12px] text-foreground-muted truncate">· {task.description}</span>}
+              {task.description && <span className="text-[12px] text-foreground-muted truncate">· {renderDescriptionWithLinks(task.description)}</span>}
             </div>
           </div>
 
@@ -278,6 +299,32 @@ export default function TasksPage() {
         </div>
       ) : view === "list" ? (
         <div className="space-y-6">
+          {/* Overdue banner */}
+          {overdueCount > 0 && !overdueBannerDismissed && (
+            <div className="flex items-center justify-between rounded-xl bg-destructive/5 border border-destructive/20 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <span className="text-destructive font-medium text-sm">
+                  🔴 {overdueCount} {overdueCount === 1 ? 'tarea vencida' : 'tareas vencidas'}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-destructive/30 text-destructive hover:bg-destructive/10 text-xs"
+                  onClick={() => setStatusFilter(statusFilter === 'overdue' ? 'all' : 'overdue')}
+                >
+                  Revisar ahora →
+                </Button>
+                <button
+                  className="text-foreground-muted hover:text-foreground text-xs"
+                  onClick={() => setOverdueBannerDismissed(true)}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
           {/* In progress group */}
           {inProgressTasks.length > 0 && (
             <div className="space-y-2">

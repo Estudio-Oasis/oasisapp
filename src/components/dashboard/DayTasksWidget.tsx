@@ -164,7 +164,7 @@ export function DayTasksWidget() {
                 key={task.id}
                 className={`rounded-xl border bg-card p-3 flex items-center gap-3 group hover:border-border transition-all ${isOverdue ? "border-l-4 border-l-destructive" : "border-border/40"}`}
               >
-                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate("/tasks")}>
+                <div className="flex-1 min-w-0 cursor-pointer hover:bg-muted/50 rounded-lg px-1 -mx-1 transition-colors" onClick={() => navigate("/tasks")}>
                   <div className="flex items-center gap-2">
                     <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-full ${PRIORITY_BADGE[task.priority] || ""}`}>
                       {task.priority}

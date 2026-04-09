@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { formatElapsed } from "@/lib/timer-utils";
 import {
   getNormalizedActivityType,
@@ -33,6 +34,9 @@ export function ActiveSessionCard({
 
   const displayName = clientName || description || UI_COPY.sessionNoClient;
   const displayTask = taskTitle;
+
+  const GENERIC_NAMES = ['Actividad libre', 'Pendientes del día', 'Reunión', 'Descanso', 'Comida', 'Break', 'Tarea libre'];
+  const hasCustomDescription = description && description.trim() !== '' && !GENERIC_NAMES.includes(description);
 
   if (variant === "compact") {
     return (
@@ -137,6 +141,11 @@ export function ActiveSessionCard({
             </>
           )}
         </div>
+
+        {/* Prompt for naming unnamed activities */}
+        {onDescriptionChange && !hasCustomDescription && (
+          <NamePromptInline onSave={onDescriptionChange} />
+        )}
       </div>
 
       {/* Scrollable content */}
@@ -145,6 +154,23 @@ export function ActiveSessionCard({
           {children}
         </div>
       )}
+    </div>
+  );
+}
+
+function NamePromptInline({ onSave }: { onSave: (val: string) => void }) {
+  const [value, setValue] = useState("");
+  return (
+    <div className="flex items-center gap-2 rounded-lg bg-accent/5 border border-accent/20 px-3 py-2">
+      <span className="text-xs text-foreground-secondary shrink-0">¿Cómo llamas a esto?</span>
+      <input
+        className="flex-1 text-xs bg-transparent border-none outline-none text-foreground placeholder-foreground-muted"
+        placeholder="ej: Diseño campaña Q2..."
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter" && value.trim()) { onSave(value.trim()); setValue(""); } }}
+        onBlur={() => { if (value.trim()) { onSave(value.trim()); setValue(""); } }}
+      />
     </div>
   );
 }

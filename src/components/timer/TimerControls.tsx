@@ -52,7 +52,7 @@ export function TimerControls({
         {UI_COPY.btnPause}
       </Button>
       <Button
-        variant="destructive"
+        variant="default"
         className="h-9 text-[12px]"
         disabled={isStopping}
         onClick={onFinish}
