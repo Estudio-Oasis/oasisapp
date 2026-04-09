@@ -69,16 +69,21 @@ export function AppSidebar() {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("name, avatar_url, role, onboarded, job_title")
+      .select("name, avatar_url, role, onboarded, job_title, onboarding_skipped, agency_id")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
         if (data) {
-          const p = data as Profile;
+          const p = data as Profile & { agency_id: string | null };
           setProfile(p);
-          if (!p.onboarded && !welcomeShownRef.current) {
+          if (!p.onboarded && !p.onboarding_skipped && !welcomeShownRef.current) {
             welcomeShownRef.current = true;
-            setShowWelcome(true);
+            // If no agency yet, show the wizard; otherwise show the old welcome
+            if (!p.agency_id) {
+              setShowWizard(true);
+            } else {
+              setShowWelcome(true);
+            }
           }
         }
       });
