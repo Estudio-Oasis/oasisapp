@@ -1,128 +1,92 @@
 
+# Dashboard Principal — Rediseño Completo
 
-# Sprint 2 — Plan de Implementación
-
-## Resumen
-
-6 bloques en orden de prioridad. El objetivo es transformar OasisOS de "prototipo funcional" a "producto con momento wow".
+## Filosofía
+El Dashboard y la Bitácora comparten el mismo backend (`time_entries`, `tasks`, `clients`, `projects`). El Dashboard es la **vista de comando** — widgets rápidos para actuar. La Bitácora es la **vista de registro detallado** — timeline completo del día.
 
 ---
 
-## 1. Dashboard / Home Page (`/home`) — PRIORIDAD 1
+## Sprint A — Dashboard Core (este bloque)
 
-**Qué se construye:**
-- Nueva página `src/pages/Home.tsx` con 4 secciones en grid responsive
-- Sección superior (ancho completo): card de timer activo (amber) o morning briefing con CTA
-- Sección izquierda (2/3): hasta 5 tareas del día (todo/in_progress, asignadas al usuario, por prioridad) con botón "Iniciar" inline
-- Sección derecha (1/3): mini-Hub con avatares + estado (solo admins)
-- Sección inferior: últimos 3 pagos + KPIs MRR/cobrado (solo admins)
+### 1. Widget "Mi Día de Hoy"
+- Card principal con tareas asignadas al usuario con status `todo` o `in_progress`
+- Header con 2 botones: **"+ Tarea hoy"** (crea con `due_date = today`) y **"+ Para después"** (crea sin fecha, va al backlog)
+- Cada tarea muestra: título, prioridad (badge color), cliente, botón "Iniciar" que activa el timer
+- Conectado a la misma tabla `tasks` — todo lo que se agregue aquí aparece en `/tasks`
 
-**Cambios en routing:**
-- Agregar ruta `/home` dentro del bloque protegido en `App.tsx`
-- Redirigir `/` (post-login) a `/home` para usuarios autenticados; mantener Landing para no-auth
-- Actualizar sidebar logo link a `/home`
-- Leer `TimerContext` para detectar timer activo
+### 2. Widget "Bitácora" (Timer con 4 modos)
+- Card estilo widget iPhone con título "Bitácora" y botón "Iniciar timer"
+- Al hacer click se expande un prompt con **4 opciones**:
+  1. **"Tarea libre"** — inicia timer sin contexto, subtexto "Llénala después"
+  2. **"Continuar con..."** — muestra últimas 20 tareas en scroll para elegir
+  3. **"Escoger tarea"** — búsqueda por cliente/proyecto/status con filtros
+  4. **"Crear tarea"** — formulario rápido inline
+- **Estado activo**: la card cambia de color (amber/accent glow) y muestra 4 botones circulares estilo Apple:
+  - ☕ **Break** — pausa con tipo de actividad
+  - 🔄 **Cambiar** — switch a otra tarea
+  - 📝 **Nota** — agrega nota a la entrada activa (con @menciones de usuarios)
+  - 💡 **Idea** — captura idea que se guarda en sección "Ideas" del dashboard
+- Todo escribe en `time_entries` — aparece automáticamente en `/bitacora`
 
-**Datos necesarios:** `profiles`, `tasks`, `member_presence`, `payments`, `clients` — todos ya tienen RLS correcto.
+### 3. Widget "Ideas"
+- Sección que muestra ideas capturadas (tareas con tag especial o campo)
+- Las ideas se guardan como tareas con status `backlog` y un marcador
+- Botón para convertir idea en tarea formal
 
----
+### 4. Widget "Equipo" (admin + members)
+- Muestra avatares con estado online/offline/working
+- Click → ir a chat o ver resumen de trabajo
+- Datos de `member_presence` + `profiles`
 
-## 2. Kanban de Tareas — PRIORIDAD 2
+### 5. Widget "Accesos Directos"
+- Grid de shortcuts: Calendario, Clientes, Cotizaciones, Vault
+- El de **Calendario** lleva a una nueva vista de calendario
 
-**Qué se construye:**
-- Toggle "Lista | Kanban" en header de `Tasks.tsx`, estado en localStorage
-- Nuevo componente `src/components/tasks/TaskKanbanView.tsx`
-- 5 columnas: backlog, todo, in_progress, review, done
-- Cards con: título, badge prioridad (colores), avatar asignado, fecha límite, cliente
-- Drag & drop con `@dnd-kit/core` + `@dnd-kit/sortable`
+### 6. Widget "Finanzas" (solo admin)
+- KPIs: MRR, cobrado este mes
+- Últimos pagos recibidos
+- Recordatorio de cuentas por cobrar (facturas vencidas/próximas)
 
-**Técnico:**
-- Instalar `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`
-- Optimistic update: mover card en UI, luego `supabase.update()` en background
-- Botón "+" por columna abre `NewTaskModal` con status pre-seleccionado
-- Cards vencidas con `border-destructive`
-
----
-
-## 3. Enviar Cotización por Email — PRIORIDAD 3
-
-**Qué se construye:**
-- Botón "Enviar por email" en vista detalle de cotización
-- Modal `SendQuoteEmailModal` con campos: Para, Asunto, Mensaje (todos pre-llenados), indicador de PDF adjunto
-- Edge function `send-quote-email` que genera el HTML del email con resumen de la cotización y envía vía el sistema de email existente
-
-**Prerequisitos de email:**
-- Verificar estado del dominio de email con `check_email_domain_status`
-- Si no hay dominio configurado, mostrar flujo de setup
-- Si hay dominio, usar `send-transactional-email` con template nuevo `quote-sent`
-
-**Flujo:**
-1. Usuario llena modal → click "Enviar"
-2. Frontend genera PDF si no existe (edge function `generate-quote-pdf`)
-3. Invoca `send-transactional-email` con template `quote-sent` que incluye resumen inline + link de descarga del PDF
-4. Actualiza `quotes.status = 'sent'`, `sent_at = now()`
-
-**Nota sobre adjuntos:** El sistema de email no soporta adjuntos. Workaround: incluir link de descarga del PDF en el cuerpo del email (subir HTML a storage, generar signed URL).
+### 7. Widget "Gaps" (recordatorio)
+- Muestra huecos de tiempo sin llenar del día
+- Botón rápido para rellenar desde el dashboard
 
 ---
 
-## 4. Link Público de Aprobación — PRIORIDAD 4
+## Sprint B — Calendario (siguiente bloque)
 
-**Cambios en DB:**
-- Migración: agregar columna `approval_token text` y `rejection_reason text` a `quotes`
-- RLS: política SELECT para `anon` role WHERE `approval_token = token` (solo lectura pública por token)
-- RLS: política UPDATE para `anon` role WHERE `approval_token = token` (solo campos status, accepted_at, rejected_at, rejection_reason)
-
-**Qué se construye:**
-- Nueva página pública `src/pages/QuoteApproval.tsx` en ruta `/q/:token`
-- Ruta sin auth en `App.tsx`
-- Vista profesional mobile-first: logo agencia, tabla de items, totales, notas
-- Botones "Aprobar" (verde) y "Rechazar" (gris con textarea)
-- Al aprobar: update status + show confirmación
-- Al rechazar: guardar razón + update status
-- Si ya respondida o expirada: mensaje informativo
-
-**En vista detalle de cotización:**
-- Botón "Link de aprobación" genera token (`crypto.randomUUID()`), guarda en `quotes.approval_token`, copia URL al clipboard
+### Nueva tabla `calendar_events`
+- Campos: `title`, `date`, `type` (birthday, payment_date, deadline, custom), `related_entity_id`, `related_entity_type`, `recurrence`, `agency_id`, `created_by`
+- RLS por agency_id
+- Vista de calendario mensual con eventos + tareas con due_date
+- Permite agregar: cumpleaños de empleados/clientes, fechas de cobro, deadlines
 
 ---
 
-## 5. Conectar Vault con Tab Credenciales del Cliente — PRIORIDAD 5
+## Sprint C — Hub mejorado (siguiente bloque)
 
-**Qué se construye:**
-- En `ClientProfile.tsx`, tab "Credenciales": query `client_credentials` filtrado por `client_id`
-- Reutilizar la misma UI de cards del Vault global (extraer componente compartido si es necesario)
-- Botón "+ Agregar" abre modal de creación con `client_id` pre-fijado
-- Acciones: revelar password, copiar, editar, eliminar
-
-**Técnico:** Los datos ya están en `client_credentials` con `client_id` nullable. Solo falta wiring en el UI del perfil del cliente.
+### Canales tipo Slack
+- Nueva tabla `channels` con miembros
+- Nueva tabla `channel_messages` con archivos
+- UI tipo Slack: sidebar de canales, thread view, file sharing
+- Esto es un cambio grande que requiere su propio sprint
 
 ---
 
-## 6. Empty States Útiles — PRIORIDAD 6
+## Archivos a crear/modificar (Sprint A)
+- `src/pages/Home.tsx` — reescribir completo con nuevo layout de widgets
+- `src/components/dashboard/DayTasksWidget.tsx` — "Mi día de hoy"
+- `src/components/dashboard/TimerLauncherWidget.tsx` — Widget Bitácora con 4 modos
+- `src/components/dashboard/TimerActiveControls.tsx` — Controles circulares cuando timer está activo
+- `src/components/dashboard/IdeasWidget.tsx` — Sección de ideas
+- `src/components/dashboard/TeamWidget.tsx` — Equipo
+- `src/components/dashboard/ShortcutsWidget.tsx` — Accesos directos
+- `src/components/dashboard/FinanceSummaryWidget.tsx` — Finanzas (admin)
+- `src/components/dashboard/GapsWidget.tsx` — Recordatorio de huecos
 
-**Archivos a modificar:**
-- `Clients.tsx` — empty state con ilustración + "Agregar cliente"
-- `Tasks.tsx` — "Nueva tarea"
-- `Quotes.tsx` — "Nueva cotización"
-- `Vault.tsx` — "Agregar credencial"
-- `Finances.tsx` — "Registrar pago"
+## Sin cambios en DB para Sprint A
+- Usa tablas existentes: `tasks`, `time_entries`, `clients`, `projects`, `member_presence`, `payments`, `invoices`
+- Las "ideas" se guardan como tareas con `status = 'backlog'` y `description` que contiene tag `[idea]`
 
-Cada empty state: icono/ilustración SVG minimal, título, subtítulo explicativo, botón CTA que ejecuta la misma acción que el "+" del header.
-
----
-
-## Archivos Nuevos
-- `src/pages/Home.tsx`
-- `src/components/tasks/TaskKanbanView.tsx`
-- `src/components/quotes/SendQuoteEmailModal.tsx`
-- `src/pages/QuoteApproval.tsx`
-- Template de email para cotización (si se configura email domain)
-- 1-2 migraciones SQL (approval_token, RLS anon)
-
-## Dependencias Nuevas
-- `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`
-
-## Sin Cambios
-- Admin panel, Hub, Bitácora, Settings — no se tocan
-
+## Dependencias
+- Ninguna nueva — usa `@dnd-kit` ya instalado, shadcn/ui, TimerContext existente
