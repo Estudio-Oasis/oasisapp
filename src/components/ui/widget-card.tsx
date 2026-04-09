@@ -56,8 +56,8 @@ export function WidgetCard({
     <Wrapper
       onClick={onClick}
       className={cn(
-        "rounded-2xl border bg-card overflow-hidden transition-all duration-200",
-        "hover:border-border dark:hover:border-border/60",
+        "rounded-2xl border bg-card overflow-hidden transition-all duration-200 shadow-sm",
+        "hover:shadow-md hover:border-border dark:hover:border-border/60",
         accentBorder[accent],
         glow && accentGlow[accent],
         onClick && "cursor-pointer text-left w-full",
