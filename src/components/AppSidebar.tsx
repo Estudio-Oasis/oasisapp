@@ -272,6 +272,21 @@ export function AppSidebar() {
       {/* Tour-triggered modals */}
       <StartTimerModal open={tourTimerOpen} onOpenChange={setTourTimerOpen} mode="start" />
       <NewTaskModal open={tourTaskOpen} onOpenChange={setTourTaskOpen} />
+
+      {/* Onboarding Wizard (new users without agency) */}
+      <OnboardingWizard
+        open={showWizard}
+        userName={displayName}
+        onComplete={() => {
+          setShowWizard(false);
+          setProfile((prev) => prev ? { ...prev, onboarded: true } : prev);
+          navigate("/bitacora");
+        }}
+        onSkip={() => {
+          setShowWizard(false);
+          setProfile((prev) => prev ? { ...prev, onboarding_skipped: true } : prev);
+        }}
+      />
     </>
   );
 }
