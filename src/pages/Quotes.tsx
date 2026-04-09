@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { getClientColor } from "@/lib/timer-utils";
+import { SendQuoteEmailModal } from "@/components/quotes/SendQuoteEmailModal";
 
 type QuoteStatus = "draft" | "sent" | "accepted" | "rejected" | "expired";
 
@@ -908,7 +909,7 @@ function QuoteDetail({
   const [agencyName, setAgencyName] = useState("");
   const [loading, setLoading] = useState(true);
   const [generatingPdf, setGeneratingPdf] = useState(false);
-
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
   const fetchData = useCallback(async () => {
     const [qRes, itemsRes] = await Promise.all([
       supabase.from("quotes").select("*").eq("id", quoteId).single(),
@@ -1088,6 +1089,11 @@ function QuoteDetail({
           }}>
             <Send className="h-3.5 w-3.5" /> Link aprobación
           </Button>
+          {(quote.status === "draft" || quote.status === "sent") && (
+            <Button variant="accent" size="sm" onClick={() => setEmailModalOpen(true)}>
+              <Send className="h-3.5 w-3.5" /> Enviar por email
+            </Button>
+          )}
           <Button size="sm" onClick={generatePdf} disabled={generatingPdf}>
             {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
             Descargar PDF
@@ -1180,6 +1186,23 @@ function QuoteDetail({
           </>
         )}
       </div>
+
+      <SendQuoteEmailModal
+        open={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        quoteId={quoteId}
+        clientEmail={clientEmail}
+        contactName={contactName}
+        quoteTitle={quote.title}
+        quoteNumber={`COT-${new Date(quote.created_at).getFullYear()}-${quoteId.slice(0, 3).toUpperCase()}`}
+        totalAmount={quote.total_amount}
+        currency={quote.currency}
+        validUntil={quote.valid_until}
+        userName={userName}
+        agencyName={agencyName}
+        approvalToken={(quote as any).approval_token || null}
+        onSent={fetchData}
+      />
     </div>
   );
 }
