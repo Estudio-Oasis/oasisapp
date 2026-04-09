@@ -11,6 +11,7 @@ import { StartTimerModal } from "@/components/StartTimerModal";
 import { getClientColor, formatDuration } from "@/lib/timer-utils";
 import { CheckSquare, List, LayoutGrid, GanttChart, Zap, Plus, AlertTriangle, Clock, CheckCircle2, Inbox, Eye } from "lucide-react";
 import { TaskGanttView } from "@/components/tasks/TaskGanttView";
+import { TaskKanbanView } from "@/components/tasks/TaskKanbanView";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Task = Tables<"tasks">;
@@ -324,6 +325,18 @@ export default function TasksPage() {
           )}
         </div>
       ) : view === "kanban" ? (
+        <TaskKanbanView
+          tasks={filtered}
+          clientMap={clientMap}
+          assignees={assignees}
+          onTaskClick={(id) => setSelectedTaskId(id)}
+          onAddTask={(status) => { setNewTaskPrefillStatus(status); setNewTaskOpen(true); }}
+          onTimerStart={(taskId, clientId) => openTimerForTask(taskId, clientId)}
+          onTasksChange={(updated) => setTasks(prev => {
+            const updatedMap = new Map(updated.map(t => [t.id, t]));
+            return prev.map(t => updatedMap.get(t.id) || t);
+          })}
+        />
         <div className="flex gap-4 overflow-x-auto pb-4 -mx-1">
           {STATUSES.map((status) => {
             const colTasks = filtered.filter((t) => t.status === status);
