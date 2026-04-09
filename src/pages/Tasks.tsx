@@ -299,6 +299,32 @@ export default function TasksPage() {
         </div>
       ) : view === "list" ? (
         <div className="space-y-6">
+          {/* Overdue banner */}
+          {overdueCount > 0 && !overdueBannerDismissed && (
+            <div className="flex items-center justify-between rounded-xl bg-destructive/5 border border-destructive/20 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <span className="text-destructive font-medium text-sm">
+                  🔴 {overdueCount} {overdueCount === 1 ? 'tarea vencida' : 'tareas vencidas'}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-destructive/30 text-destructive hover:bg-destructive/10 text-xs"
+                  onClick={() => setStatusFilter(statusFilter === 'overdue' ? 'all' : 'overdue')}
+                >
+                  Revisar ahora →
+                </Button>
+                <button
+                  className="text-foreground-muted hover:text-foreground text-xs"
+                  onClick={() => setOverdueBannerDismissed(true)}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
           {/* In progress group */}
           {inProgressTasks.length > 0 && (
             <div className="space-y-2">
