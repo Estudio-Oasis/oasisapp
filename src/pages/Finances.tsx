@@ -298,7 +298,7 @@ export default function FinancesPage() {
 
       {/* Chart */}
       <div className="border border-border rounded-lg p-4 mb-6">
-        <p className="text-micro text-foreground-muted mb-3">Ingresos vs Gastos (6 meses)</p>
+        <p className="text-micro text-foreground-muted mb-3">Ingresos vs Gastos (6 meses) · USD</p>
         <div className="h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={chartData}>
