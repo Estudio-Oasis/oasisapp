@@ -22,9 +22,11 @@ export function FeedbackModal({ open, onOpenChange, moduleName }: Props) {
   const handleSubmit = async () => {
     if (!message.trim() || !user) return;
     setSending(true);
+    // Get agency_id from profile
+    const { data: profileData } = await supabase.from("profiles").select("agency_id").eq("id", user.id).single();
     const { error } = await supabase.from("feedback").insert({
       user_id: user.id,
-      agency_id: (profile as any)?.agency_id || null,
+      agency_id: profileData?.agency_id || null,
       module: moduleName,
       type,
       message: message.trim(),
