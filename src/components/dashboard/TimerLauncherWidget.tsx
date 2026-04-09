@@ -12,6 +12,7 @@ import {
   Timer, Play, Search, Plus, Clock, ChevronDown, ChevronUp,
   Coffee, ArrowRightLeft, StickyNote, Lightbulb, X, Loader2,
 } from "lucide-react";
+import { QuickSheet } from "@/components/timer/QuickSheet";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Task = Tables<"tasks">;
@@ -31,6 +32,7 @@ export function TimerLauncherWidget({ onIdea }: { onIdea?: (text: string) => voi
   const { isRunning, isStopping, activeEntry, activeClient, activeTask, elapsedSeconds, startTimer, stopTimer, switchTask, startBreakTimer } = useTimer();
 
   const [mode, setMode] = useState<LauncherMode>(null);
+  const [switchSheetOpen, setSwitchSheetOpen] = useState(false);
   const [recents, setRecents] = useState<RecentTask[]>([]);
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [clients, setClients] = useState<Record<string, string>>({});
@@ -213,7 +215,7 @@ export function TimerLauncherWidget({ onIdea }: { onIdea?: (text: string) => voi
         <div className="flex items-center justify-center gap-4 mb-3">
           {[
             { icon: Coffee, label: "Break", color: "text-foreground-secondary hover:text-accent hover:bg-accent/10", onClick: () => startBreakTimer("break") },
-            { icon: ArrowRightLeft, label: "Cambiar", color: "text-foreground-secondary hover:text-accent hover:bg-accent/10", onClick: () => setMode("continue") },
+            { icon: ArrowRightLeft, label: "Cambiar", color: "text-foreground-secondary hover:text-accent hover:bg-accent/10", onClick: () => setSwitchSheetOpen(true) },
             { icon: StickyNote, label: "Nota", color: "text-foreground-secondary hover:text-accent hover:bg-accent/10", onClick: () => { setShowNote(!showNote); setShowIdea(false); } },
             { icon: Lightbulb, label: "Idea", color: "text-foreground-secondary hover:text-accent hover:bg-accent/10", onClick: () => { setShowIdea(!showIdea); setShowNote(false); } },
           ].map(btn => (
@@ -269,27 +271,8 @@ export function TimerLauncherWidget({ onIdea }: { onIdea?: (text: string) => voi
           </div>
         )}
 
-        {/* Switch task list */}
-        {mode === "continue" && (
-          <div className="mt-3 border-t border-border pt-3 animate-in fade-in-0 duration-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-semibold uppercase text-foreground-muted">Cambiar a...</span>
-              <button onClick={() => setMode(null)} className="text-foreground-muted hover:text-foreground"><X className="h-3.5 w-3.5" /></button>
-            </div>
-            <div className="max-h-[200px] overflow-y-auto space-y-1">
-              {recents.map(r => (
-                <button
-                  key={r.id}
-                  onClick={() => handleStartWithTask(r)}
-                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-background-secondary transition-colors"
-                >
-                  <span className="text-sm text-foreground truncate block">{r.title}</span>
-                  {r.client_name && <span className="text-[10px] text-foreground-muted">{r.client_name}</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Switch task — opens full QuickSheet for consistency */}
+        <QuickSheet open={switchSheetOpen} onOpenChange={setSwitchSheetOpen} mode="switch" />
 
         {/* Stop button */}
         <div className="mt-3 pt-3 border-t border-border">
