@@ -49,6 +49,7 @@ interface Profile {
 
 export function AppSidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { isAdmin, loading: roleLoading } = useRole();
   const { theme, setTheme } = useTheme();
