@@ -27,7 +27,7 @@ export function BitacoraSidebar() {
       .from("tasks")
       .select("id, title, clients(name)")
       .eq("assignee_id", user.id)
-      .eq("status", "in_progress")
+      .in("status", ["in_progress", "todo"])
       .limit(5)
       .order("updated_at", { ascending: false })
       .then(({ data }) => {
