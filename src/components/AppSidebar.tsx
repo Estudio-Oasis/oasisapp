@@ -198,12 +198,28 @@ export function AppSidebar() {
         </div>
 
         {/* Onboarding checklist */}
-        {profile && !profile.onboarded && (
+        {profile && !profile.onboarded && !showWizard && (
           <OnboardingChecklist
             onboarded={profile.onboarded}
             onOpenProfile={() => setProfileOpen(true)}
             onOpenTimer={() => setTourTimerOpen(true)}
           />
+        )}
+
+        {/* Upgrade banner for free users */}
+        {isFree && (
+          <div className="mx-3 mb-2">
+            <button
+              onClick={() => navigate("/pricing")}
+              className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-colors text-left"
+            >
+              <Rocket className="h-4 w-4 text-accent shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-foreground">Upgrade</p>
+                <p className="text-[10px] text-foreground-muted truncate">Desbloquea el equipo completo</p>
+              </div>
+            </button>
+          </div>
         )}
 
         {/* User section */}
