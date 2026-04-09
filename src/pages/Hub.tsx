@@ -380,8 +380,15 @@ export default function HubPage() {
                       </div>
                       {m.status !== "offline" && m.current_task ? (
                         <p className="text-[11px] text-foreground-secondary truncate">
-                          {m.current_task}
-                          {m.current_client && <span className="text-foreground-muted"> · {m.current_client}</span>}
+                          {m.user_id === user?.id && isRunning && activeEntry
+                            ? `${(activeEntry.description || activeTask?.title || 'Actividad sin nombre').slice(0, 25)}${(activeEntry.description || activeTask?.title || '').length > 25 ? '...' : ''}${activeClient ? ` · ${activeClient.name}` : ''}`
+                            : m.current_task}
+                          {m.user_id !== user?.id && m.current_client && <span className="text-foreground-muted"> · {m.current_client}</span>}
+                        </p>
+                      ) : m.user_id === user?.id && isRunning && activeEntry ? (
+                        <p className="text-[11px] text-foreground-secondary truncate">
+                          {(activeEntry.description || activeTask?.title || 'Actividad sin nombre').slice(0, 25)}
+                          {activeClient && <span className="text-foreground-muted"> · {activeClient.name}</span>}
                         </p>
                       ) : m.status === "offline" ? (
                         <p className="text-[10px] text-foreground-muted">
