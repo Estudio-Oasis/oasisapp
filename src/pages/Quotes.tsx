@@ -1186,6 +1186,23 @@ function QuoteDetail({
           </>
         )}
       </div>
+
+      <SendQuoteEmailModal
+        open={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        quoteId={quoteId}
+        clientEmail={clientEmail}
+        contactName={contactName}
+        quoteTitle={quote.title}
+        quoteNumber={`COT-${new Date(quote.created_at).getFullYear()}-${quoteId.slice(0, 3).toUpperCase()}`}
+        totalAmount={quote.total_amount}
+        currency={quote.currency}
+        validUntil={quote.valid_until}
+        userName={userName}
+        agencyName={agencyName}
+        approvalToken={(quote as any).approval_token || null}
+        onSent={fetchData}
+      />
     </div>
   );
 }

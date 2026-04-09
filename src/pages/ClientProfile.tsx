@@ -872,8 +872,11 @@ function CredentialsTab({ clientId, credentials, onRefresh }: { clientId: string
   const handleSave = async () => {
     if (!form.service.trim()) return;
     setSaving(true);
+    // Get agency_id for RLS
+    const { data: profile } = await supabase.from("profiles").select("agency_id").eq("id", (await supabase.auth.getUser()).data.user?.id || "").single();
     const { error } = await supabase.from("client_credentials").insert([{
       client_id: clientId,
+      agency_id: profile?.agency_id || null,
       service: form.service.trim(),
       url: form.url || null,
       username: form.username || null,
