@@ -283,6 +283,31 @@ export default function ClientsPage() {
                   </div>
                 </div>
 
+                {/* Hours this month */}
+                <div className="hidden sm:flex flex-col items-end gap-0.5 shrink-0 min-w-[80px]">
+                  {(() => {
+                    const stats = clientStats[client.id];
+                    if (stats && stats.totalMins > 0) {
+                      const timeAgoStr = stats.lastActivity
+                        ? (() => {
+                            const diff = Date.now() - new Date(stats.lastActivity).getTime();
+                            const days = Math.floor(diff / 86400000);
+                            if (days === 0) return "hoy";
+                            if (days === 1) return "ayer";
+                            return `hace ${days}d`;
+                          })()
+                        : null;
+                      return (
+                        <>
+                          <span className="text-[12px] font-semibold text-foreground tabular-nums">{formatDuration(stats.totalMins)}</span>
+                          {timeAgoStr && <span className="text-[10px] text-foreground-muted">{timeAgoStr}</span>}
+                        </>
+                      );
+                    }
+                    return <span className="text-[10px] text-foreground-muted">Sin actividad</span>;
+                  })()}
+                </div>
+
                 {/* Rate + Completeness */}
                 {isAdmin && (
                   <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
@@ -293,7 +318,7 @@ export default function ClientsPage() {
                     ) : (
                       <span className="text-[12px] text-foreground-muted">{t("clients.noRate")}</span>
                     )}
-                    <CompletenessPill score={client.completeness_score ?? 0} />
+                    <CompletenessPill score={client.completeness_score ?? 0} hasActivity={(clientStats[client.id]?.totalMins ?? 0) > 0} />
                   </div>
                 )}
 

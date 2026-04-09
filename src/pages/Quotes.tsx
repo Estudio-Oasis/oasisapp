@@ -304,45 +304,79 @@ function QuoteList({ onNew, onView }: { onNew: () => void; onView: (id: string) 
           </Button>
         </div>
       ) : (
-        <div className="flex flex-col">
-          {filtered.map((q) => {
-            const cfg = STATUS_CONFIG[q.status] || STATUS_CONFIG.draft;
-            return (
-              <button
-                key={q.id}
-                onClick={() => onView(q.id)}
-                className="flex items-center gap-3 py-3.5 px-2 border-b border-border hover:bg-background-secondary transition-colors text-left w-full"
+        <>
+          {/* Draft nudge */}
+          {statCounts.draft > 0 && filterStatus !== "draft" && (
+            <div className="mb-4 flex items-center justify-between rounded-xl border border-amber-200 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-950/20 px-4 py-3">
+              <div>
+                <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                  💡 Tienes {statCounts.draft} {statCounts.draft === 1 ? 'cotización en borrador' : 'cotizaciones en borrador'}
+                </p>
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">¿Las enviamos esta semana?</p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-xs"
+                onClick={() => setFilterStatus('draft')}
               >
-                <div
-                  className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-background shrink-0"
-                  style={{ backgroundColor: getClientColor(q.clientName) }}
+                Ver borradores →
+              </Button>
+            </div>
+          )}
+          <div className="flex flex-col">
+            {filtered.map((q) => {
+              const cfg = STATUS_CONFIG[q.status] || STATUS_CONFIG.draft;
+              const isExpiringSoon = q.valid_until && q.status !== 'accepted' && q.status !== 'rejected' && (() => {
+                const validDate = new Date(q.valid_until!);
+                const now = new Date();
+                const daysLeft = Math.ceil((validDate.getTime() - now.getTime()) / 86400000);
+                return daysLeft;
+              })();
+              const daysLeft = typeof isExpiringSoon === 'number' ? isExpiringSoon : null;
+              return (
+                <button
+                  key={q.id}
+                  onClick={() => onView(q.id)}
+                  className="flex items-center gap-3 py-3.5 px-2 border-b border-border hover:bg-background-secondary transition-colors text-left w-full"
                 >
-                  {q.clientName.slice(0, 2).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{q.title}</p>
-                  <p className="text-small text-foreground-muted">{q.clientName}</p>
-                </div>
-                <div className="text-right shrink-0 flex items-center gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      ${q.total_amount.toLocaleString()} {q.currency}
-                    </p>
-                    {q.valid_until && (
-                      <p className="text-[10px] text-foreground-muted">
-                        Válida hasta {new Date(q.valid_until).toLocaleDateString("es-MX", { month: "short", day: "numeric" })}
-                      </p>
-                    )}
+                  <div
+                    className="h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold text-background shrink-0"
+                    style={{ backgroundColor: getClientColor(q.clientName) }}
+                  >
+                    {q.clientName.slice(0, 2).toUpperCase()}
                   </div>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${cfg.color}`}>
-                    {cfg.label}
-                  </span>
-                  <ChevronRight className="h-4 w-4 text-foreground-muted" />
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{q.title}</p>
+                    <p className="text-small text-foreground-muted">{q.clientName}</p>
+                  </div>
+                  <div className="text-right shrink-0 flex items-center gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">
+                        ${q.total_amount.toLocaleString()} {q.currency}
+                      </p>
+                      {q.valid_until && (
+                        <p className="text-[10px] text-foreground-muted">
+                          Válida hasta {new Date(q.valid_until).toLocaleDateString("es-MX", { month: "short", day: "numeric" })}
+                        </p>
+                      )}
+                    </div>
+                    {daysLeft !== null && daysLeft <= 0 && q.status !== 'accepted' && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">Vencida</span>
+                    )}
+                    {daysLeft !== null && daysLeft > 0 && daysLeft <= 7 && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">⏰ Vence pronto</span>
+                    )}
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${cfg.color}`}>
+                      {cfg.label}
+                    </span>
+                    <ChevronRight className="h-4 w-4 text-foreground-muted" />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );
