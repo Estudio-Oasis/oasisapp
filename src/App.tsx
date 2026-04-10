@@ -39,7 +39,7 @@ import PricingPage from "./pages/Pricing";
 import HomePage from "./pages/Home";
 import QuoteApprovalPage from "./pages/QuoteApproval";
 import UnsubscribePage from "./pages/Unsubscribe";
-
+import OnboardingPage from "./pages/Onboarding";
 const queryClient = new QueryClient();
 
 const App = () => (
