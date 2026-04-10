@@ -86,6 +86,17 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
     if (!agencyName.trim() || !user) return;
     setSaving(true);
     try {
+      // Guard: prevent double-creation
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("agency_id")
+        .eq("id", user.id)
+        .single();
+      if (existingProfile?.agency_id) {
+        onComplete();
+        return;
+      }
+
       // Create agency
       const { data: agency, error: agencyErr } = await supabase
         .from("agencies")
