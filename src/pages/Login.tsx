@@ -32,14 +32,15 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-background-secondary px-6">
       <div className="w-full max-w-[400px] rounded-lg border border-border bg-card p-10">
         {/* Wordmark */}
-        <div className="text-center">
-          <span className="text-[18px] font-bold tracking-tight text-foreground">Bitácora</span>
+        <div className="flex items-center gap-2 justify-center">
+          <div className="h-8 w-8 rounded-lg bg-foreground text-background flex items-center justify-center font-bold text-sm">O</div>
+          <span className="text-lg font-bold tracking-tight text-foreground">OasisOS</span>
         </div>
 
         {/* Heading */}
         <h1 className="text-h1 text-foreground text-center mt-4">Bienvenido de vuelta</h1>
         <p className="text-sm text-foreground-secondary text-center mt-1">
-          Inicia sesión en Bitácora
+          Inicia sesión en tu espacio de trabajo
         </p>
 
         {/* Form */}
