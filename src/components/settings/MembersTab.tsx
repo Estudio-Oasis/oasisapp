@@ -325,12 +325,23 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge
-                variant={member.role === "admin" ? "default" : "secondary"}
-                className="text-xs"
-              >
-                {member.role}
-              </Badge>
+              {isAdmin && member.id !== user?.id ? (
+                <select
+                  value={member.role}
+                  onChange={(e) => handleChangeRole(member.id, e.target.value)}
+                  className="text-xs border border-border rounded-md px-2 py-1 bg-transparent text-foreground"
+                >
+                  <option value="admin">Admin</option>
+                  <option value="member">Miembro</option>
+                </select>
+              ) : (
+                <Badge
+                  variant={member.role === "admin" ? "default" : "secondary"}
+                  className="text-xs"
+                >
+                  {member.role === "admin" ? "Admin" : "Miembro"}
+                </Badge>
+              )}
               {isAdmin && member.id !== user?.id && (
                 <button
                   onClick={() => handleRemoveMember(member.id)}
