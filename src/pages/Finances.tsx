@@ -262,11 +262,33 @@ export default function FinancesPage() {
     );
   }
 
+  const isEmpty = payments.length === 0 && invoices.length === 0 && expenses.length === 0;
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-h1 text-foreground">{t("finances.title")}</h1>
       </div>
+
+      {isEmpty && (
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 mb-8">
+          <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center">
+            <DollarSign className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-foreground mb-1">Sin movimientos financieros</h2>
+            <p className="text-sm text-muted-foreground max-w-md">Registra tu primer pago, crea una factura o agrega un gasto para empezar a rastrear las finanzas de tu agencia.</p>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={() => setNewPayOpen(true)}>
+              <Plus className="h-3.5 w-3.5 mr-1" /> Registrar pago
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setNewInvOpen(true)}>
+              <Plus className="h-3.5 w-3.5 mr-1" /> Nueva factura
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
