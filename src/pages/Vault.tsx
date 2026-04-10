@@ -292,10 +292,18 @@ export default function VaultPage() {
 
       {/* Credentials list */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center space-y-2">
-          <Shield className="h-10 w-10 text-muted-foreground/40" />
-          <p className="text-sm text-muted-foreground">{labels.noCredentials}</p>
-          <p className="text-xs text-muted-foreground/60">{labels.addFirst}</p>
+        <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
+          <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center">
+            <Key className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="text-base font-semibold text-foreground mb-1">{labels.noCredentials}</p>
+            <p className="text-sm text-muted-foreground max-w-sm">{credentials.length === 0 ? (language === "es" ? "Guarda las contraseñas de tus clientes de forma segura. Accesibles para todo tu equipo." : "Store your client passwords securely. Accessible to your whole team.") : labels.addFirst}</p>
+          </div>
+          <Button size="sm" onClick={openAdd} className="gap-1.5">
+            <Plus className="h-4 w-4" />
+            {labels.add}
+          </Button>
         </div>
       ) : (
         <div className="space-y-2">

@@ -485,12 +485,20 @@ export default function HubPage() {
 
           {/* Chats */}
           <div className="rounded-2xl border border-border/50 bg-card p-4 shadow-sm">
-            <ChatList
-              conversations={conversations}
-              profiles={allProfiles}
-              currentUserId={user?.id || ""}
-              onOpenChat={handleOpenChat}
-            />
+            {conversations.length > 0 ? (
+              <ChatList
+                conversations={conversations}
+                profiles={allProfiles}
+                currentUserId={user?.id || ""}
+                onOpenChat={handleOpenChat}
+              />
+            ) : (
+              <div className="flex flex-col items-center text-center py-6 space-y-2">
+                <MessageSquare className="h-8 w-8 text-muted-foreground/40" />
+                <p className="text-sm font-medium text-foreground">Sin conversaciones</p>
+                <p className="text-[11px] text-muted-foreground">Haz clic en un miembro del equipo para iniciar un chat.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
