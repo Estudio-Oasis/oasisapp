@@ -242,6 +242,24 @@ export function AppSidebar() {
           </div>
         )}
 
+        {/* Free plan upgrade nudge */}
+        {isFree && (
+          <div className="px-3 mb-2">
+            <div className="bg-muted rounded-lg p-3 text-xs">
+              <p className="font-medium text-foreground">Plan Gratis</p>
+              <p className="text-muted-foreground mt-0.5 mb-2">
+                1 usuario · 14 días de historial
+              </p>
+              <Link
+                to="/pricing"
+                className="block w-full text-center py-1.5 px-2 bg-foreground text-background rounded text-xs font-medium hover:opacity-90 transition-opacity"
+              >
+                Mejorar plan →
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* User section */}
         <SidebarFooter className="px-3 pb-4">
           <button
