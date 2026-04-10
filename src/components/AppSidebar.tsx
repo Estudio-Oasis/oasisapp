@@ -58,6 +58,7 @@ export function AppSidebar() {
   const { language, setLanguage, t } = useLanguage();
   const { isFree } = usePlan();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [agencyName, setAgencyName] = useState<string | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
