@@ -185,7 +185,7 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
   const handleChangeRole = async (memberId: string, newRole: string) => {
     const { error } = await supabase
       .from("profiles")
-      .update({ role: newRole })
+      .update({ role: newRole as "admin" | "member" | "user" })
       .eq("id", memberId)
       .eq("agency_id", agencyId);
     if (error) {
