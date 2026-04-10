@@ -1318,6 +1318,7 @@ export type Database = {
         }
         Returns: number
       }
+      quote_token_matches: { Args: { qt: string }; Returns: boolean }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
