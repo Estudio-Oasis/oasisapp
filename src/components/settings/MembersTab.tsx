@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePlan } from "@/hooks/usePlan";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, Mail, RefreshCw, Trash2, UserPlus } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Member {
   id: string;
@@ -33,6 +35,7 @@ const COOLDOWN_MS = 15_000;
 
 export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
   const { user } = useAuth();
+  const { maxMembers, isFree } = usePlan();
   const [members, setMembers] = useState<Member[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -176,10 +179,40 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
     );
   }
 
+  const memberCount = members.length + invitations.length;
+  const canInvite = memberCount < maxMembers;
+
+  const handleChangeRole = async (memberId: string, newRole: string) => {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ role: newRole as "admin" | "member" | "user" })
+      .eq("id", memberId)
+      .eq("agency_id", agencyId);
+    if (error) {
+      toast.error("Error al cambiar rol");
+    } else {
+      toast.success("Rol actualizado");
+      fetchData();
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Invite */}
-      {isAdmin && (
+      {isAdmin && !canInvite && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-4 text-sm">
+          <p className="font-medium text-amber-800 dark:text-amber-200">
+            Límite de {maxMembers} {maxMembers === 1 ? "usuario" : "usuarios"} alcanzado
+          </p>
+          <p className="text-amber-700 dark:text-amber-300 mt-1">
+            Tu plan {isFree ? "Gratis" : "actual"} permite hasta {maxMembers} {maxMembers === 1 ? "usuario" : "usuarios"}.
+          </p>
+          <Link to="/pricing" className="mt-2 inline-flex items-center gap-1 text-amber-800 dark:text-amber-200 font-medium hover:underline text-xs">
+            Mejorar plan para agregar más colaboradores →
+          </Link>
+        </div>
+      )}
+      {isAdmin && canInvite && (
         <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-h3 text-foreground flex items-center gap-2">
             <UserPlus className="h-4 w-4" />
@@ -292,12 +325,23 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge
-                variant={member.role === "admin" ? "default" : "secondary"}
-                className="text-xs"
-              >
-                {member.role}
-              </Badge>
+              {isAdmin && member.id !== user?.id ? (
+                <select
+                  value={member.role}
+                  onChange={(e) => handleChangeRole(member.id, e.target.value)}
+                  className="text-xs border border-border rounded-md px-2 py-1 bg-transparent text-foreground"
+                >
+                  <option value="admin">Admin</option>
+                  <option value="member">Miembro</option>
+                </select>
+              ) : (
+                <Badge
+                  variant={member.role === "admin" ? "default" : "secondary"}
+                  className="text-xs"
+                >
+                  {member.role === "admin" ? "Admin" : "Miembro"}
+                </Badge>
+              )}
               {isAdmin && member.id !== user?.id && (
                 <button
                   onClick={() => handleRemoveMember(member.id)}
