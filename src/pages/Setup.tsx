@@ -96,7 +96,7 @@ export default function Setup() {
         .eq("id", user.id);
     }
 
-    navigate("/bitacora");
+    navigate("/home");
   };
 
   if (verifying) {
