@@ -69,6 +69,7 @@ const App = () => (
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/q/:token" element={<QuoteApprovalPage />} />
                 <Route path="/unsubscribe" element={<UnsubscribePage />} />
+                <Route path="/onboarding" element={<OnboardingPage />} />
 
                 {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
                 <Route
