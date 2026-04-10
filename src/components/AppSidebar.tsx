@@ -78,9 +78,14 @@ export function AppSidebar() {
         if (data) {
           const p = data as Profile & { agency_id: string | null };
           setProfile(p);
+          // Fetch agency name
+          if (p.agency_id) {
+            supabase.from("agencies").select("name").eq("id", p.agency_id).single().then(({ data: ag }) => {
+              if (ag) setAgencyName(ag.name);
+            });
+          }
           if (!p.onboarded && !p.onboarding_skipped && !welcomeShownRef.current) {
             welcomeShownRef.current = true;
-            // If no agency yet, show the wizard; otherwise show the old welcome
             if (!p.agency_id) {
               setShowWizard(true);
             } else {
