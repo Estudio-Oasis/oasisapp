@@ -35,6 +35,7 @@ const COOLDOWN_MS = 15_000;
 
 export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
   const { user } = useAuth();
+  const { maxMembers, isFree } = usePlan();
   const [members, setMembers] = useState<Member[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [inviteEmail, setInviteEmail] = useState("");
