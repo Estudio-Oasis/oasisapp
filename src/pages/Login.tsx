@@ -24,7 +24,7 @@ export default function Login() {
       setLoading(false);
     } else {
       trackEvent("login_complete");
-      navigate("/bitacora");
+      navigate("/home");
     }
   };
 

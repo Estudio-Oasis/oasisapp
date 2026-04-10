@@ -68,7 +68,7 @@ export default function Signup() {
       toast.success("¡Listo! Tu cuenta está creada. ¿En qué estás trabajando?");
     }
 
-    navigate("/bitacora");
+    navigate("/onboarding");
   };
 
   return (
