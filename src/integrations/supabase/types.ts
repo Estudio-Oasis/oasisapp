@@ -30,6 +30,7 @@ export type Database = {
           legal_name: string | null
           logo_url: string | null
           name: string
+          plan: string
           tax_id: string | null
           updated_at: string
         }
@@ -48,6 +49,7 @@ export type Database = {
           legal_name?: string | null
           logo_url?: string | null
           name: string
+          plan?: string
           tax_id?: string | null
           updated_at?: string
         }
@@ -66,6 +68,7 @@ export type Database = {
           legal_name?: string | null
           logo_url?: string | null
           name?: string
+          plan?: string
           tax_id?: string | null
           updated_at?: string
         }

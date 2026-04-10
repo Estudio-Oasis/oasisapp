@@ -39,7 +39,7 @@ import PricingPage from "./pages/Pricing";
 import HomePage from "./pages/Home";
 import QuoteApprovalPage from "./pages/QuoteApproval";
 import UnsubscribePage from "./pages/Unsubscribe";
-
+import OnboardingPage from "./pages/Onboarding";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -69,6 +69,7 @@ const App = () => (
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/q/:token" element={<QuoteApprovalPage />} />
                 <Route path="/unsubscribe" element={<UnsubscribePage />} />
+                <Route path="/onboarding" element={<OnboardingPage />} />
 
                 {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
                 <Route

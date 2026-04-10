@@ -10,6 +10,7 @@ import { TeamWidget } from "@/components/dashboard/TeamWidget";
 import { GapsWidget } from "@/components/dashboard/GapsWidget";
 import { FinanceSummaryWidget } from "@/components/dashboard/FinanceSummaryWidget";
 import { WidgetCard } from "@/components/ui/widget-card";
+import { WelcomeChecklist } from "@/components/dashboard/WelcomeChecklist";
 import { formatDuration } from "@/lib/timer-utils";
 import { Clock, Users, FileText, Receipt, TrendingUp } from "lucide-react";
 
@@ -71,6 +72,9 @@ export default function HomePage() {
         <h1 className="text-2xl font-bold text-foreground">{greeting} 👋</h1>
         <p className="text-[12px] text-foreground-muted mt-0.5">Tu centro de comando para hoy</p>
       </div>
+
+      {/* Welcome checklist for new agencies */}
+      <WelcomeChecklist />
 
       {/* Admin KPIs */}
       {isAdmin && <AdminKPIs />}

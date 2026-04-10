@@ -58,6 +58,7 @@ export function AppSidebar() {
   const { language, setLanguage, t } = useLanguage();
   const { isFree } = usePlan();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [agencyName, setAgencyName] = useState<string | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
@@ -77,9 +78,14 @@ export function AppSidebar() {
         if (data) {
           const p = data as Profile & { agency_id: string | null };
           setProfile(p);
+          // Fetch agency name
+          if (p.agency_id) {
+            supabase.from("agencies").select("name").eq("id", p.agency_id).single().then(({ data: ag }) => {
+              if (ag) setAgencyName(ag.name);
+            });
+          }
           if (!p.onboarded && !p.onboarding_skipped && !welcomeShownRef.current) {
             welcomeShownRef.current = true;
-            // If no agency yet, show the wizard; otherwise show the old welcome
             if (!p.agency_id) {
               setShowWizard(true);
             } else {
@@ -252,8 +258,8 @@ export function AppSidebar() {
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-medium text-foreground truncate">{displayName}</span>
-              <span className={`text-[10px] font-semibold uppercase tracking-wider ${role === "admin" ? "text-accent" : "text-foreground-muted"}`}>
-                {role}
+              <span className="text-[10px] text-foreground-muted truncate">
+                {agencyName ? `${agencyName} · ` : ""}{role}
               </span>
             </div>
           </button>
