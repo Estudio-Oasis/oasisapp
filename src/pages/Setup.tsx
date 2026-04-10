@@ -96,7 +96,7 @@ export default function Setup() {
         .eq("id", user.id);
     }
 
-    navigate("/bitacora");
+    navigate("/home");
   };
 
   if (verifying) {
@@ -115,8 +115,9 @@ export default function Setup() {
       <div className="flex min-h-screen items-center justify-center bg-background-secondary px-6">
         <div className="w-full max-w-[400px] rounded-lg border border-border bg-card p-10 text-center">
           <div className="flex justify-center">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-foreground">
-              <span className="text-[11px] font-bold tracking-widest text-background">B</span>
+            <div className="flex items-center gap-2 justify-center">
+              <div className="h-8 w-8 rounded-lg bg-foreground text-background flex items-center justify-center font-bold text-sm">O</div>
+              <span className="text-lg font-bold tracking-tight text-foreground">OasisOS</span>
             </div>
           </div>
           <h1 className="text-h2 text-foreground mt-4">Invitación inválida</h1>
@@ -135,10 +136,9 @@ export default function Setup() {
     <div className="flex min-h-screen items-center justify-center bg-background-secondary px-6">
       <div className="w-full max-w-[400px] rounded-lg border border-border bg-card p-10">
         {/* Logo */}
-        <div className="flex justify-center">
-          <div className="flex h-9 w-9 items-center justify-center rounded-md bg-foreground">
-            <span className="text-[11px] font-bold tracking-widest text-background">B</span>
-          </div>
+        <div className="flex items-center gap-2 justify-center">
+          <div className="h-8 w-8 rounded-lg bg-foreground text-background flex items-center justify-center font-bold text-sm">O</div>
+          <span className="text-lg font-bold tracking-tight text-foreground">OasisOS</span>
         </div>
 
         <h1 className="text-h1 text-foreground text-center mt-4">Configura tu cuenta</h1>

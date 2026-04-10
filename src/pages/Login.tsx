@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AuthLayout } from "@/components/AuthLayout";
 import { trackEvent } from "@/lib/analytics";
 
 export default function Login() {
@@ -29,71 +30,61 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background-secondary px-6">
-      <div className="w-full max-w-[400px] rounded-lg border border-border bg-card p-10">
-        {/* Wordmark */}
-        <div className="flex items-center gap-2 justify-center">
-          <div className="h-8 w-8 rounded-lg bg-foreground text-background flex items-center justify-center font-bold text-sm">O</div>
-          <span className="text-lg font-bold tracking-tight text-foreground">OasisOS</span>
-        </div>
-
-        {/* Heading */}
-        <h1 className="text-h1 text-foreground text-center mt-4">Bienvenido de vuelta</h1>
-        <p className="text-sm text-foreground-secondary text-center mt-1">
+    <AuthLayout>
+      <div>
+        <h1 className="text-2xl font-bold text-foreground text-center">Bienvenido de vuelta</h1>
+        <p className="text-sm text-muted-foreground text-center mt-1">
           Inicia sesión en tu espacio de trabajo
         </p>
+      </div>
 
-        {/* Form */}
-        <form onSubmit={handleLogin} className="mt-8 space-y-5">
-          {error && (
-            <div className="rounded-md bg-destructive-light px-3 py-2 text-small text-destructive">
-              {error}
-            </div>
-          )}
-
-          <div className="space-y-1.5">
-            <label htmlFor="email" className="text-label">Correo</label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="tu@empresa.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+      <form onSubmit={handleLogin} className="mt-8 space-y-5">
+        {error && (
+          <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            {error}
           </div>
+        )}
 
-          <div className="space-y-1.5">
-            <label htmlFor="password" className="text-label">Contraseña</label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+        <div className="space-y-1.5">
+          <label htmlFor="email" className="text-sm font-medium">Correo</label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="tu@empresa.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
 
-          <Button type="submit" className="w-full h-11" disabled={loading}>
-            {loading ? "Iniciando sesión…" : "Iniciar sesión"}
-          </Button>
-
-          <div className="text-center">
-            <Link to="/forgot-password" className="text-small text-foreground-secondary hover:text-foreground transition-colors">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label htmlFor="password" className="text-sm font-medium">Contraseña</label>
+            <Link to="/forgot-password" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
-        </form>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
 
-        {/* Footer */}
-        <p className="text-small text-foreground-secondary text-center mt-6">
-          ¿No tienes cuenta?{" "}
-          <Link to="/signup" className="font-semibold text-foreground hover:text-accent transition-colors">
-            Regístrate
-          </Link>
-        </p>
-      </div>
-    </div>
+        <Button type="submit" className="w-full h-11" disabled={loading}>
+          {loading ? "Iniciando sesión…" : "Iniciar sesión"}
+        </Button>
+      </form>
+
+      <p className="text-sm text-muted-foreground text-center mt-6">
+        ¿No tienes cuenta?{" "}
+        <Link to="/signup" className="font-medium text-foreground hover:underline">
+          Crea tu agencia gratis
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }
