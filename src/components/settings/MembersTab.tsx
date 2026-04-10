@@ -179,10 +179,40 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
     );
   }
 
+  const memberCount = members.length + invitations.length;
+  const canInvite = memberCount < maxMembers;
+
+  const handleChangeRole = async (memberId: string, newRole: string) => {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ role: newRole })
+      .eq("id", memberId)
+      .eq("agency_id", agencyId);
+    if (error) {
+      toast.error("Error al cambiar rol");
+    } else {
+      toast.success("Rol actualizado");
+      fetchData();
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Invite */}
-      {isAdmin && (
+      {isAdmin && !canInvite && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-4 text-sm">
+          <p className="font-medium text-amber-800 dark:text-amber-200">
+            Límite de {maxMembers} {maxMembers === 1 ? "usuario" : "usuarios"} alcanzado
+          </p>
+          <p className="text-amber-700 dark:text-amber-300 mt-1">
+            Tu plan {isFree ? "Gratis" : "actual"} permite hasta {maxMembers} {maxMembers === 1 ? "usuario" : "usuarios"}.
+          </p>
+          <Link to="/pricing" className="mt-2 inline-flex items-center gap-1 text-amber-800 dark:text-amber-200 font-medium hover:underline text-xs">
+            Mejorar plan para agregar más colaboradores →
+          </Link>
+        </div>
+      )}
+      {isAdmin && canInvite && (
         <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="text-h3 text-foreground flex items-center gap-2">
             <UserPlus className="h-4 w-4" />
