@@ -18,38 +18,13 @@ import {
   Zap,
   ChevronDown,
 } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import productDashboard from "@/assets/product-dashboard.jpg";
+import productTimer from "@/assets/product-timer.jpg";
+import productHub from "@/assets/product-hub.jpg";
+import productQuotes from "@/assets/product-quotes.jpg";
 
 const landingTrackedRef = { current: false };
-
-// ─── Reveal hook ───
-function useReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.15 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-  return { ref, visible };
-}
-
-function RevealSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const { ref, visible } = useReveal();
-  return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ease-out ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"} ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-}
 
 // ─── Counter hook ───
 function useCountUp(target: number, duration = 2000) {
@@ -91,6 +66,20 @@ const AGENCY_LOGOS = [
   { name: "Media.Monks", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/media-monks_10b229d3.png" },
   { name: "VML", url: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/vml_a9ed372a.png" },
 ];
+
+// ─── Browser Frame ───
+function BrowserFrame({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-xl border border-[#E7E0D8] bg-white shadow-2xl overflow-hidden ${className}`}>
+      <div className="h-8 bg-[#F5F0EB] border-b border-[#E7E0D8] flex items-center px-3 gap-1.5">
+        <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
+        <span className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
+      </div>
+      {children}
+    </div>
+  );
+}
 
 // ─── Navbar ───
 function Navbar() {
@@ -153,37 +142,45 @@ function Navbar() {
   );
 }
 
-// ─── Hero ───
+// ─── Hero (2-column with product shot) ───
 function Hero() {
   return (
-    <section className="pt-32 pb-20 md:pt-40 md:pb-28 bg-[#FAF7F2]">
-      <div className="max-w-6xl mx-auto px-6">
-        <RevealSection>
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#A8A29E] mb-6">
-            Estudio creativo — desde 2010
+    <section className="pt-28 pb-16 md:pt-36 md:pb-24 bg-[#FAF7F2]">
+      <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        {/* Left — copy */}
+        <div>
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-6">
+            Sistema operativo para agencias
           </p>
-        </RevealSection>
-        <RevealSection delay={100}>
-          <h1 className="font-serif-display text-[clamp(36px,6vw,64px)] leading-[1.1] max-w-3xl text-[#1C1917]">
+          <h1 className="font-serif-display text-[clamp(32px,5vw,56px)] leading-[1.1] text-[#1C1917]">
             Le ponemos proceso y orden a tu{" "}
             <span className="italic text-[#C8A96E]">creatividad</span>
           </h1>
-        </RevealSection>
-        <RevealSection delay={200}>
           <p className="mt-6 text-[17px] leading-relaxed text-[#57534E] max-w-xl font-body">
-            15+ años de experiencia en agencias globales, condensados en un sistema operativo para equipos creativos y de servicios.
+            Timer, clientes, cotizaciones y finanzas en un solo lugar. Diseñado para agencias creativas de LatAm.
           </p>
-        </RevealSection>
-        <RevealSection delay={300}>
           <div className="mt-8 flex flex-col sm:flex-row gap-3">
             <Link to="/signup" className="h-12 px-7 rounded-sm bg-[#1C1917] text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#2D2D2D] transition-all">
               Probar gratis <ArrowRight className="h-4 w-4" />
             </Link>
-            <a href="#como-funciona" className="h-12 px-7 rounded-sm border border-[#1C1917] text-[#1C1917] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#1C1917] hover:text-white transition-all">
+            <a href="#producto" className="h-12 px-7 rounded-sm border border-[#1C1917] text-[#1C1917] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#1C1917] hover:text-white transition-all">
               Ver cómo funciona
             </a>
           </div>
-        </RevealSection>
+        </div>
+
+        {/* Right — product shot */}
+        <div>
+          <BrowserFrame>
+            <img
+              src={productDashboard}
+              alt="Dashboard de OasisOS — centro de comando para agencias creativas"
+              className="w-full"
+              width={1280}
+              height={800}
+            />
+          </BrowserFrame>
+        </div>
       </div>
     </section>
   );
@@ -208,6 +205,79 @@ function AgencyLogos() {
             />
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Product Tabs — "Ve el producto en acción" ───
+function ProductTabs() {
+  const tabs = [
+    {
+      value: "timer",
+      label: "Timer",
+      desc: "Registra tu trabajo en tiempo real con un clic. Ve el timeline de tu día y entiende exactamente en qué se fue cada hora.",
+      img: productTimer,
+      alt: "Timer inteligente de OasisOS",
+    },
+    {
+      value: "hub",
+      label: "Hub de equipo",
+      desc: "Ve quién está activo, en qué trabaja y su estado en tiempo real. Comunícate sin salir de la plataforma.",
+      img: productHub,
+      alt: "Hub de equipo de OasisOS",
+    },
+    {
+      value: "quotes",
+      label: "Cotizaciones",
+      desc: "Crea propuestas profesionales, envíalas por email y rastrea aprobaciones. Todo conectado a tus clientes y proyectos.",
+      img: productQuotes,
+      alt: "Cotizaciones de OasisOS",
+    },
+  ];
+
+  return (
+    <section id="producto" className="py-20 md:py-28 bg-[#F0E8DD]">
+      <div className="max-w-6xl mx-auto px-6">
+        <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">El producto</p>
+        <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[#1C1917]">
+          Ve el producto en acción
+        </h2>
+        <p className="mt-2 text-[15px] text-[#57534E] font-body">
+          Tres módulos que transforman cómo opera tu agencia.
+        </p>
+
+        <Tabs defaultValue="timer" className="mt-10">
+          <TabsList className="bg-white/80 border border-[#E7E0D8] h-11 p-1 rounded-lg">
+            {tabs.map((t) => (
+              <TabsTrigger
+                key={t.value}
+                value={t.value}
+                className="rounded-md text-[13px] font-semibold data-[state=active]:bg-[#1C1917] data-[state=active]:text-white px-5"
+              >
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {tabs.map((t) => (
+            <TabsContent key={t.value} value={t.value} className="mt-8">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+                <div className="lg:col-span-2 pt-4">
+                  <p className="text-[15px] text-[#57534E] leading-relaxed font-body">{t.desc}</p>
+                  <Link to="/signup" className="mt-6 inline-flex items-center gap-2 text-[13px] font-semibold text-[#C8A96E] hover:text-[#1C1917] transition-colors">
+                    Probar gratis <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+                <div className="lg:col-span-3">
+                  <BrowserFrame>
+                    <img src={t.img} alt={t.alt} className="w-full" loading="lazy" width={1280} height={800} />
+                  </BrowserFrame>
+                </div>
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
     </section>
   );
@@ -246,26 +316,22 @@ function ProblemSection() {
   return (
     <section className="py-20 md:py-28 bg-[#FAF7F2]">
       <div className="max-w-3xl mx-auto px-6">
-        <RevealSection>
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">El problema</p>
-          <h2 className="font-serif-display text-[clamp(24px,4vw,40px)] leading-tight text-[#1C1917]">
-            El problema no es la carga de trabajo.<br />
-            <span className="italic text-[#B85C38]">Es no tener control sobre ella.</span>
-          </h2>
-        </RevealSection>
-        <RevealSection delay={150}>
-          <div className="mt-8 space-y-5 text-[15px] text-[#57534E] leading-relaxed font-body">
-            <p>
-              Equipos creativos talentosos se pierden en la operación todos los días. No saben en qué se fue el día, no conectan trabajo con facturación, y toman decisiones basadas en intuición en lugar de datos.
-            </p>
-            <p>
-              Sin visibilidad real de dónde va el tiempo, es imposible saber qué clientes son rentables, quién tiene capacidad disponible, o por qué el equipo siempre se siente sobrecargado aunque los números no cuadren.
-            </p>
-            <p>
-              Oasis OS nace de ver este patrón repetirse en 6 agencias globales durante 15+ años. La solución no es otro tracker de horas. Es un sistema que conecta actividad, clientes y dinero en un solo lugar.
-            </p>
-          </div>
-        </RevealSection>
+        <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">El problema</p>
+        <h2 className="font-serif-display text-[clamp(24px,4vw,40px)] leading-tight text-[#1C1917]">
+          El problema no es la carga de trabajo.<br />
+          <span className="italic text-[#B85C38]">Es no tener control sobre ella.</span>
+        </h2>
+        <div className="mt-8 space-y-5 text-[15px] text-[#57534E] leading-relaxed font-body">
+          <p>
+            Equipos creativos talentosos se pierden en la operación todos los días. No saben en qué se fue el día, no conectan trabajo con facturación, y toman decisiones basadas en intuición en lugar de datos.
+          </p>
+          <p>
+            Sin visibilidad real de dónde va el tiempo, es imposible saber qué clientes son rentables, quién tiene capacidad disponible, o por qué el equipo siempre se siente sobrecargado aunque los números no cuadren.
+          </p>
+          <p>
+            Oasis OS nace de ver este patrón repetirse en 6 agencias globales durante 15+ años. La solución no es otro tracker de horas. Es un sistema que conecta actividad, clientes y dinero en un solo lugar.
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -284,35 +350,29 @@ function FeaturedWork() {
   return (
     <section className="py-20 md:py-28 bg-[#F0E8DD]">
       <div className="max-w-6xl mx-auto px-6">
-        <RevealSection>
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Trabajo seleccionado</p>
-          <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[#1C1917]">
-            Una muestra de 15+ años de trabajo
-          </h2>
-          <p className="mt-2 text-[15px] text-[#57534E] font-body">en branding, advertising, producto y growth.</p>
-        </RevealSection>
+        <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Trabajo seleccionado</p>
+        <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[#1C1917]">
+          Una muestra de 15+ años de trabajo
+        </h2>
+        <p className="mt-2 text-[15px] text-[#57534E] font-body">en branding, advertising, producto y growth.</p>
         <div className="mt-12 grid md:grid-cols-2 gap-6">
-          {cards.map((c, i) => (
-            <RevealSection key={c.cat} delay={i * 80} className={c.span ? "md:col-span-2" : ""}>
-              <Link to="/portfolio" className="block border border-[#E7E0D8] rounded-sm overflow-hidden bg-white group">
-                <div className={`${c.span ? "aspect-[2/1]" : "aspect-[16/10]"} overflow-hidden`}>
-                  <img src={c.img} alt={c.cat} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" loading="lazy" />
-                </div>
-                <div className="p-4">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-sm bg-[#F0E8DD] text-[#57534E]">{c.cat}</span>
-                  <p className="mt-2 text-[13px] text-[#57534E] leading-relaxed">{c.desc}</p>
-                </div>
-              </Link>
-            </RevealSection>
+          {cards.map((c) => (
+            <Link key={c.cat} to="/portfolio" className={`block border border-[#E7E0D8] rounded-sm overflow-hidden bg-white group ${c.span ? "md:col-span-2" : ""}`}>
+              <div className={`${c.span ? "aspect-[2/1]" : "aspect-[16/10]"} overflow-hidden`}>
+                <img src={c.img} alt={c.cat} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" loading="lazy" />
+              </div>
+              <div className="p-4">
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-sm bg-[#F0E8DD] text-[#57534E]">{c.cat}</span>
+                <p className="mt-2 text-[13px] text-[#57534E] leading-relaxed">{c.desc}</p>
+              </div>
+            </Link>
           ))}
         </div>
-        <RevealSection delay={400}>
-          <div className="mt-8 text-center">
-            <Link to="/portfolio" className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#C8A96E] hover:text-[#1C1917] transition-colors">
-              Ver portafolio completo <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </RevealSection>
+        <div className="mt-8 text-center">
+          <Link to="/portfolio" className="inline-flex items-center gap-2 text-[13px] font-semibold text-[#C8A96E] hover:text-[#1C1917] transition-colors">
+            Ver portafolio completo <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
     </section>
   );
@@ -332,7 +392,7 @@ function OasisOSSection() {
   return (
     <section className="py-24 md:py-36 bg-[#1C1917]">
       <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
-        <RevealSection>
+        <div>
           <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Oasis OS</p>
           <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] leading-tight text-white">
             El sistema operativo<br /><span className="italic text-[#C8A96E]">para creativos</span>
@@ -356,22 +416,20 @@ function OasisOSSection() {
           <Link to="/signup" className="mt-8 inline-flex h-12 px-7 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[14px] font-semibold items-center gap-2 hover:bg-[#D4B87A] transition-colors">
             Probar Oasis OS gratis <ArrowRight className="h-4 w-4" />
           </Link>
-        </RevealSection>
+        </div>
 
-        <RevealSection delay={200}>
-          <div className="relative">
+        <div className="relative">
+          <BrowserFrame>
             <img
-              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/os-product-UpwfCF6FLaSYDwR3ZBW5Jz.webp"
-              alt="Oasis OS — sistema operativo para equipos creativos" className="rounded-sm w-full object-cover"
+              src={productDashboard}
+              alt="Oasis OS — sistema operativo para equipos creativos"
+              className="w-full"
               loading="lazy"
+              width={1280}
+              height={800}
             />
-            <div className="absolute bottom-4 right-4 bg-white rounded-sm p-4">
-              <span className="text-[11px] text-[#57534E] block">Desde</span>
-              <span className="font-serif-display text-[28px] text-[#1C1917] block leading-none">Gratis</span>
-              <span className="text-[11px] text-[#57534E]">Planes desde $9/mes</span>
-            </div>
-          </div>
-        </RevealSection>
+          </BrowserFrame>
+        </div>
       </div>
     </section>
   );
@@ -382,25 +440,21 @@ function NotJustSection() {
   return (
     <section className="py-20 md:py-28 bg-[#1C1917]">
       <div className="max-w-3xl mx-auto px-6 text-center">
-        <RevealSection>
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-6">Filosofía</p>
-          <h2 className="font-serif-display text-[clamp(24px,4vw,40px)] leading-tight text-white">
-            Esto <span className="italic text-[#C8A96E]">no es</span> solo un tracker de horas.
-          </h2>
-        </RevealSection>
-        <RevealSection delay={150}>
-          <div className="mt-8 space-y-5 text-[15px] text-[#A8A29E] leading-relaxed font-body max-w-2xl mx-auto">
-            <p>
-              Un tracker te dice cuántas horas trabajaste. Oasis OS te dice en qué las invertiste, para quién, y si valió la pena. Es la diferencia entre medir actividad y entender operación.
-            </p>
-            <p>
-              Conectamos tres capas que normalmente viven separadas: la bitácora operativa (qué hace tu equipo), la gestión de clientes y proyectos (para quién), y la visibilidad financiera (cuánto genera).
-            </p>
-            <p>
-              El resultado: un registro operativo que te devuelve visibilidad. Sabes dónde va el tiempo, qué clientes son rentables, y puedes tomar decisiones con datos reales en lugar de intuición.
-            </p>
-          </div>
-        </RevealSection>
+        <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-6">Filosofía</p>
+        <h2 className="font-serif-display text-[clamp(24px,4vw,40px)] leading-tight text-white">
+          Esto <span className="italic text-[#C8A96E]">no es</span> solo un tracker de horas.
+        </h2>
+        <div className="mt-8 space-y-5 text-[15px] text-[#A8A29E] leading-relaxed font-body max-w-2xl mx-auto">
+          <p>
+            Un tracker te dice cuántas horas trabajaste. Oasis OS te dice en qué las invertiste, para quién, y si valió la pena. Es la diferencia entre medir actividad y entender operación.
+          </p>
+          <p>
+            Conectamos tres capas que normalmente viven separadas: la bitácora operativa (qué hace tu equipo), la gestión de clientes y proyectos (para quién), y la visibilidad financiera (cuánto genera).
+          </p>
+          <p>
+            El resultado: un registro operativo que te devuelve visibilidad. Sabes dónde va el tiempo, qué clientes son rentables, y puedes tomar decisiones con datos reales en lugar de intuición.
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -420,21 +474,17 @@ function ForWho() {
   return (
     <section className="py-20 md:py-28 bg-[#FAF7F2]">
       <div className="max-w-6xl mx-auto px-6">
-        <RevealSection>
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Para quién es</p>
-          <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[#1C1917]">
-            Para cualquiera que necesite saber en qué se va su tiempo.
-          </h2>
-        </RevealSection>
+        <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Para quién es</p>
+        <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[#1C1917]">
+          Para cualquiera que necesite saber en qué se va su tiempo.
+        </h2>
         <div className="mt-12 grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {profiles.map((p, i) => (
-            <RevealSection key={p.title} delay={i * 80}>
-              <div className="rounded-sm border border-[#E7E0D8] p-5 bg-white hover:bg-[#F0E8DD] transition-colors duration-300 group">
-                <p.icon className="h-5 w-5 text-[#C8A96E] mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-[15px] font-semibold text-[#1C1917] mb-1">{p.title}</h3>
-                <p className="text-[13px] text-[#57534E] leading-relaxed font-body">{p.desc}</p>
-              </div>
-            </RevealSection>
+          {profiles.map((p) => (
+            <div key={p.title} className="rounded-sm border border-[#E7E0D8] p-5 bg-white hover:bg-[#F0E8DD] transition-colors duration-300 group">
+              <p.icon className="h-5 w-5 text-[#C8A96E] mb-3 group-hover:scale-110 transition-transform" />
+              <h3 className="text-[15px] font-semibold text-[#1C1917] mb-1">{p.title}</h3>
+              <p className="text-[13px] text-[#57534E] leading-relaxed font-body">{p.desc}</p>
+            </div>
           ))}
         </div>
       </div>
@@ -454,45 +504,39 @@ function PricingSection() {
   return (
     <section id="precios" className="py-20 md:py-28 bg-[#F0E8DD]">
       <div className="max-w-6xl mx-auto px-6">
-        <RevealSection>
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Precios</p>
-          <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[#1C1917]">Simple y transparente.</h2>
-          <p className="mt-3 text-[16px] text-[#57534E] font-body">Empieza gratis. Escala cuando tu equipo lo necesite.</p>
-        </RevealSection>
+        <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Precios</p>
+        <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[#1C1917]">Simple y transparente.</h2>
+        <p className="mt-3 text-[16px] text-[#57534E] font-body">Empieza gratis. Escala cuando tu equipo lo necesite.</p>
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {plans.map((plan, i) => (
-            <RevealSection key={plan.name} delay={i * 80}>
-              <div className={`rounded-sm border-2 p-5 h-full flex flex-col bg-white ${plan.accent ? "border-[#C8A96E] shadow-[0_8px_30px_-10px_rgba(200,169,110,0.2)]" : "border-[#E7E0D8]"}`}>
-                {plan.popular && (
-                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-sm bg-[#C8A96E] text-white w-fit mb-3">Más popular</span>
-                )}
-                <h3 className="text-[16px] font-bold text-[#1C1917]">{plan.name}</h3>
-                <div className="mt-2 flex items-baseline gap-0.5">
-                  <span className="text-[32px] font-bold text-[#1C1917] leading-none">{plan.price}</span>
-                  {plan.period && <span className="text-[14px] text-[#57534E]">{plan.period}</span>}
-                </div>
-                <p className="mt-2 text-[13px] text-[#57534E] font-body">{plan.desc}</p>
-                <ul className="mt-4 space-y-2 flex-1">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-[#C8A96E] mt-0.5 shrink-0" />
-                      <span className="text-[12px] text-[#57534E]">{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link to={plan.link} className={`mt-5 h-10 rounded-sm text-[13px] font-semibold flex items-center justify-center transition-colors ${plan.accent ? "bg-[#C8A96E] text-white hover:bg-[#D4B87A]" : "border border-[#E7E0D8] text-[#1C1917] hover:bg-[#F0E8DD]"}`}>
-                  {plan.cta}
-                </Link>
+          {plans.map((plan) => (
+            <div key={plan.name} className={`rounded-sm border-2 p-5 h-full flex flex-col bg-white ${plan.accent ? "border-[#C8A96E] shadow-[0_8px_30px_-10px_rgba(200,169,110,0.2)]" : "border-[#E7E0D8]"}`}>
+              {plan.popular && (
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-sm bg-[#C8A96E] text-white w-fit mb-3">Más popular</span>
+              )}
+              <h3 className="text-[16px] font-bold text-[#1C1917]">{plan.name}</h3>
+              <div className="mt-2 flex items-baseline gap-0.5">
+                <span className="text-[32px] font-bold text-[#1C1917] leading-none">{plan.price}</span>
+                {plan.period && <span className="text-[14px] text-[#57534E]">{plan.period}</span>}
               </div>
-            </RevealSection>
+              <p className="mt-2 text-[13px] text-[#57534E] font-body">{plan.desc}</p>
+              <ul className="mt-4 space-y-2 flex-1">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-[#C8A96E] mt-0.5 shrink-0" />
+                    <span className="text-[12px] text-[#57534E]">{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link to={plan.link} className={`mt-5 h-10 rounded-sm text-[13px] font-semibold flex items-center justify-center transition-colors ${plan.accent ? "bg-[#C8A96E] text-white hover:bg-[#D4B87A]" : "border border-[#E7E0D8] text-[#1C1917] hover:bg-[#F0E8DD]"}`}>
+                {plan.cta}
+              </Link>
+            </div>
           ))}
         </div>
-        <RevealSection delay={400}>
-          <p className="mt-8 text-center text-[13px] text-[#A8A29E] font-body">
-            ¿Necesitas más de 10 miembros?{" "}
-            <a href="https://tally.so/r/wMrqBp" target="_blank" rel="noopener noreferrer" className="text-[#C8A96E] font-medium hover:underline">Contáctanos →</a>
-          </p>
-        </RevealSection>
+        <p className="mt-8 text-center text-[13px] text-[#A8A29E] font-body">
+          ¿Necesitas más de 10 miembros?{" "}
+          <a href="https://tally.so/r/wMrqBp" target="_blank" rel="noopener noreferrer" className="text-[#C8A96E] font-medium hover:underline">Contáctanos →</a>
+        </p>
       </div>
     </section>
   );
@@ -510,19 +554,15 @@ function HowItWorks() {
   return (
     <section id="como-funciona" className="py-20 md:py-28 bg-[#FAF7F2]">
       <div className="max-w-6xl mx-auto px-6">
-        <RevealSection>
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Cómo funciona</p>
-          <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[#1C1917]">Empieza en menos de un minuto.</h2>
-        </RevealSection>
+        <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Cómo funciona</p>
+        <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[#1C1917]">Empieza en menos de un minuto.</h2>
         <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((s, i) => (
-            <RevealSection key={s.num} delay={i * 120}>
-              <div>
-                <span className="font-serif-display text-[48px] font-bold text-[#E7E0D8] leading-none">{s.num}</span>
-                <h3 className="mt-3 text-[16px] font-semibold text-[#1C1917]">{s.title}</h3>
-                <p className="mt-2 text-[13px] text-[#57534E] leading-relaxed font-body">{s.desc}</p>
-              </div>
-            </RevealSection>
+          {steps.map((s) => (
+            <div key={s.num}>
+              <span className="font-serif-display text-[48px] font-bold text-[#E7E0D8] leading-none">{s.num}</span>
+              <h3 className="mt-3 text-[16px] font-semibold text-[#1C1917]">{s.title}</h3>
+              <p className="mt-2 text-[13px] text-[#57534E] leading-relaxed font-body">{s.desc}</p>
+            </div>
           ))}
         </div>
       </div>
@@ -535,22 +575,20 @@ function CtaSection() {
   return (
     <section className="py-20 md:py-28 bg-[#1C1917]">
       <div className="max-w-3xl mx-auto px-6 text-center">
-        <RevealSection>
-          <h2 className="font-serif-display text-[clamp(24px,4vw,44px)] leading-tight text-white">
-            Empieza a registrar tu día.
-          </h2>
-          <p className="mt-4 text-[16px] text-[#A8A29E] font-body max-w-md mx-auto">
-            Prueba Oasis OS gratis. Sin tarjeta, sin compromiso.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
-            <Link to="/bitacora-demo" className="h-12 px-8 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#D4B87A] transition-all">
-              Probar gratis <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link to="/signup" className="h-12 px-8 rounded-sm border border-white/20 text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:border-white/40 transition-colors">
-              Crear cuenta
-            </Link>
-          </div>
-        </RevealSection>
+        <h2 className="font-serif-display text-[clamp(24px,4vw,44px)] leading-tight text-white">
+          Empieza a registrar tu día.
+        </h2>
+        <p className="mt-4 text-[16px] text-[#A8A29E] font-body max-w-md mx-auto">
+          Prueba Oasis OS gratis. Sin tarjeta, sin compromiso.
+        </p>
+        <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
+          <Link to="/bitacora-demo" className="h-12 px-8 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#D4B87A] transition-all">
+            Probar gratis <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link to="/signup" className="h-12 px-8 rounded-sm border border-white/20 text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:border-white/40 transition-colors">
+            Crear cuenta
+          </Link>
+        </div>
       </div>
     </section>
   );
@@ -612,6 +650,7 @@ export default function LandingPage() {
       <Navbar />
       <Hero />
       <AgencyLogos />
+      <ProductTabs />
       <StatsSection />
       <ProblemSection />
       <FeaturedWork />
