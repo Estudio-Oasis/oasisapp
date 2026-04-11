@@ -1,92 +1,101 @@
 
-# Dashboard Principal — Rediseño Completo
 
-## Filosofía
-El Dashboard y la Bitácora comparten el mismo backend (`time_entries`, `tasks`, `clients`, `projects`). El Dashboard es la **vista de comando** — widgets rápidos para actuar. La Bitácora es la **vista de registro detallado** — timeline completo del día.
+# Sprint 10-11: Landing Page Overhaul + Super Admin Module
 
----
+## What we're solving
 
-## Sprint A — Dashboard Core (este bloque)
+The landing page has two critical problems visible right now:
+1. **Hero screenshot is AI-generated garbage** — shows "Racimpe", "Kesk", gibberish text instead of real product UI
+2. **Narrative structure is backwards** — portfolio showcase appears before explaining what OasisOS does, confusing visitors about whether this is a design agency or a SaaS product
+3. **Pricing plan names are unclear** — "Equipo 3/6/10" don't communicate value tiers
+4. **No mobile screenshots** — visitors don't know the app works on phones
+5. **No origin story** — no emotional connection or credibility context
 
-### 1. Widget "Mi Día de Hoy"
-- Card principal con tareas asignadas al usuario con status `todo` o `in_progress`
-- Header con 2 botones: **"+ Tarea hoy"** (crea con `due_date = today`) y **"+ Para después"** (crea sin fecha, va al backlog)
-- Cada tarea muestra: título, prioridad (badge color), cliente, botón "Iniciar" que activa el timer
-- Conectado a la misma tabla `tasks` — todo lo que se agregue aquí aparece en `/tasks`
-
-### 2. Widget "Bitácora" (Timer con 4 modos)
-- Card estilo widget iPhone con título "Bitácora" y botón "Iniciar timer"
-- Al hacer click se expande un prompt con **4 opciones**:
-  1. **"Tarea libre"** — inicia timer sin contexto, subtexto "Llénala después"
-  2. **"Continuar con..."** — muestra últimas 20 tareas en scroll para elegir
-  3. **"Escoger tarea"** — búsqueda por cliente/proyecto/status con filtros
-  4. **"Crear tarea"** — formulario rápido inline
-- **Estado activo**: la card cambia de color (amber/accent glow) y muestra 4 botones circulares estilo Apple:
-  - ☕ **Break** — pausa con tipo de actividad
-  - 🔄 **Cambiar** — switch a otra tarea
-  - 📝 **Nota** — agrega nota a la entrada activa (con @menciones de usuarios)
-  - 💡 **Idea** — captura idea que se guarda en sección "Ideas" del dashboard
-- Todo escribe en `time_entries` — aparece automáticamente en `/bitacora`
-
-### 3. Widget "Ideas"
-- Sección que muestra ideas capturadas (tareas con tag especial o campo)
-- Las ideas se guardan como tareas con status `backlog` y un marcador
-- Botón para convertir idea en tarea formal
-
-### 4. Widget "Equipo" (admin + members)
-- Muestra avatares con estado online/offline/working
-- Click → ir a chat o ver resumen de trabajo
-- Datos de `member_presence` + `profiles`
-
-### 5. Widget "Accesos Directos"
-- Grid de shortcuts: Calendario, Clientes, Cotizaciones, Vault
-- El de **Calendario** lleva a una nueva vista de calendario
-
-### 6. Widget "Finanzas" (solo admin)
-- KPIs: MRR, cobrado este mes
-- Últimos pagos recibidos
-- Recordatorio de cuentas por cobrar (facturas vencidas/próximas)
-
-### 7. Widget "Gaps" (recordatorio)
-- Muestra huecos de tiempo sin llenar del día
-- Botón rápido para rellenar desde el dashboard
+The Super Admin module is needed for Roger to manage beta agencies across the multi-tenant system.
 
 ---
 
-## Sprint B — Calendario (siguiente bloque)
+## Sprint 10: Landing Page Overhaul
 
-### Nueva tabla `calendar_events`
-- Campos: `title`, `date`, `type` (birthday, payment_date, deadline, custom), `related_entity_id`, `related_entity_type`, `recurrence`, `agency_id`, `created_by`
-- RLS por agency_id
-- Vista de calendario mensual con eventos + tareas con due_date
-- Permite agregar: cumpleaños de empleados/clientes, fechas de cobro, deadlines
+### L1 — Take real screenshots of the app
+Use browser tools to capture actual screenshots from `/home`, `/bitacora`, `/hub`, `/quotes` at desktop and mobile sizes. Generate polished product shots using the product-shot skill with appropriate gradient presets. Save to `src/assets/` as proper images.
+
+### L2 — Restructure Landing page narrative
+Rewrite `src/pages/Landing.tsx` with sections in correct order:
+1. Hero (existing, with real screenshot)
+2. Agency Logos (existing)
+3. **Origin Story** (NEW) — dark section: "No lo construimos en un hackathon. Lo construimos después de 15 años viviendo el mismo caos que tú." with portfolio category chips linking to `/portfolio`
+4. Problem section (existing, moved up)
+5. Product Tabs (existing, keep)
+6. **Desktop & Mobile section** (NEW) — browser frame + iPhone frame with real screenshots
+7. Philosophy/NotJust section (existing)
+8. For Who section (existing)
+9. Pricing (updated names)
+10. How It Works (existing)
+11. CTA (existing)
+12. Footer (existing)
+
+**Removed from landing:** `FeaturedWork` (full portfolio showcase) — it stays at `/portfolio`
+**Removed from landing:** `OasisOSSection` (redundant with ProductTabs)
+**Removed from landing:** `StatsSection` (counter section)
+
+### L3 — Update pricing plan names
+In both `Landing.tsx` PricingSection and `src/lib/stripe-plans.ts`:
+- "Bitácora Personal" → **"Solo"** ($0)
+- "Equipo 3" → **"Starter"** ($9)
+- "Equipo 6" → **"Estudio"** ($16, marked "Más popular")
+- "Equipo 10" → **"Agencia"** ($20)
+
+Also update `Pricing.tsx` plan names to match.
+
+### L4 — Update hero copy
+Change subheading to: "Todo lo que tu agencia necesita para facturar más, operar mejor y crecer sin caos."
 
 ---
 
-## Sprint C — Hub mejorado (siguiente bloque)
+## Sprint 11: Super Admin Module
 
-### Canales tipo Slack
-- Nueva tabla `channels` con miembros
-- Nueva tabla `channel_messages` con archivos
-- UI tipo Slack: sidebar de canales, thread view, file sharing
-- Esto es un cambio grande que requiere su propio sprint
+### S1 — Database migration
+Create tables and columns:
+- `super_admin_users` table (id references auth.users, RLS: only super admins can read)
+- `super_admin_audit_log` table for action tracking
+- Add `plan_override` and `is_active` columns to `agencies` table
+- Create `agency_stats` view for dashboard queries
+- RLS policies allowing super admins to read across all agencies
+
+### S2 — SuperAdminRoute guard
+Create `src/components/SuperAdminRoute.tsx` — checks if user exists in `super_admin_users` table, redirects to `/home` if not.
+
+### S3 — SuperAdmin dashboard page
+Create `src/pages/SuperAdmin.tsx` with:
+- Header: "OasisOS Super Admin"
+- 4 KPI cards: Total Agencies, Total Users, Active This Week, MRR
+- Two tabs: Agencies (searchable table with plan badges, member count, last activity, status) and Feedback (cards from all agencies)
+- Agency detail dialog with plan override dropdown
+
+### S4 — Route + beta invite flow
+- Add `/superadmin` route in `App.tsx` wrapped in `SuperAdminRoute`
+- Update `Signup.tsx` to detect `?ref=beta` and show beta messaging
+- Update `OnboardingWizard.tsx` to set `plan_override = 'agencia'` for beta signups
 
 ---
 
-## Archivos a crear/modificar (Sprint A)
-- `src/pages/Home.tsx` — reescribir completo con nuevo layout de widgets
-- `src/components/dashboard/DayTasksWidget.tsx` — "Mi día de hoy"
-- `src/components/dashboard/TimerLauncherWidget.tsx` — Widget Bitácora con 4 modos
-- `src/components/dashboard/TimerActiveControls.tsx` — Controles circulares cuando timer está activo
-- `src/components/dashboard/IdeasWidget.tsx` — Sección de ideas
-- `src/components/dashboard/TeamWidget.tsx` — Equipo
-- `src/components/dashboard/ShortcutsWidget.tsx` — Accesos directos
-- `src/components/dashboard/FinanceSummaryWidget.tsx` — Finanzas (admin)
-- `src/components/dashboard/GapsWidget.tsx` — Recordatorio de huecos
+## Files to create
+- `src/types/superadmin.ts`
+- `src/components/SuperAdminRoute.tsx`
+- `src/pages/SuperAdmin.tsx`
 
-## Sin cambios en DB para Sprint A
-- Usa tablas existentes: `tasks`, `time_entries`, `clients`, `projects`, `member_presence`, `payments`, `invoices`
-- Las "ideas" se guardan como tareas con `status = 'backlog'` y `description` que contiene tag `[idea]`
+## Files to edit
+- `src/pages/Landing.tsx` (major rewrite)
+- `src/lib/stripe-plans.ts` (plan names)
+- `src/pages/Pricing.tsx` (plan names)
+- `src/App.tsx` (add superadmin route)
+- `src/pages/Signup.tsx` (beta params)
+- `src/components/OnboardingWizard.tsx` (beta plan override)
 
-## Dependencias
-- Ninguna nueva — usa `@dnd-kit` ya instalado, shadcn/ui, TimerContext existente
+## Database migration
+- Add `plan_override`, `is_active` to agencies
+- Create `super_admin_users`, `super_admin_audit_log` tables
+- Create `agency_stats` view
+- RLS policies for super admin access
+
