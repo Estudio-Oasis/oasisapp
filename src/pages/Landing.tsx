@@ -153,9 +153,7 @@ function Hero() {
           </div>
         </div>
         <div>
-          <BrowserFrame>
-            <img src={productDashboard} alt="Dashboard de OasisOS" className="w-full" width={1280} height={800} />
-          </BrowserFrame>
+          <img src={productDashboard} alt="Dashboard de OasisOS" className="w-full rounded-xl shadow-2xl" width={1280} height={800} />
         </div>
       </div>
     </section>
@@ -263,9 +261,7 @@ function ProductTabs() {
                   </Link>
                 </div>
                 <div className="lg:col-span-3">
-                  <BrowserFrame>
-                    <img src={t.img} alt={t.alt} className="w-full" loading="lazy" width={1280} height={800} />
-                  </BrowserFrame>
+                  <img src={t.img} alt={t.alt} className="w-full rounded-xl shadow-2xl" loading="lazy" width={1280} height={800} />
                 </div>
               </div>
             </TabsContent>
@@ -289,9 +285,7 @@ function DesktopMobileSection() {
           Funciona igual de bien en desktop y en tu celular. Registra tiempo desde donde sea.
         </p>
         <div className="mt-14 flex flex-col lg:flex-row items-center justify-center gap-10">
-          <BrowserFrame className="max-w-2xl flex-1">
-            <img src={productDashboard} alt="OasisOS en desktop" className="w-full" loading="lazy" width={1280} height={800} />
-          </BrowserFrame>
+          <img src={productDashboard} alt="OasisOS en desktop" className="max-w-2xl flex-1 w-full rounded-xl shadow-2xl" loading="lazy" width={1280} height={800} />
           <IPhoneFrame>
             <img src={productTimer} alt="OasisOS en móvil" className="w-full" loading="lazy" />
           </IPhoneFrame>
