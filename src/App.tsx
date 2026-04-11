@@ -75,6 +75,7 @@ const App = () => (
                   <Route path="/q/:token" element={<QuoteApprovalPage />} />
                   <Route path="/unsubscribe" element={<UnsubscribePage />} />
                   <Route path="/onboarding" element={<OnboardingPage />} />
+                  <Route path="/superadmin" element={<SuperAdminRoute><SuperAdminPage /></SuperAdminRoute>} />
 
                   {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
                   <Route
