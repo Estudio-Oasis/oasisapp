@@ -18,10 +18,10 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import productDashboard from "@/assets/product-dashboard.jpg";
-import productTimer from "@/assets/product-timer.jpg";
-import productHub from "@/assets/product-hub.jpg";
-import productQuotes from "@/assets/product-quotes.jpg";
+import productDashboard from "@/assets/product-dashboard.png";
+import productTimer from "@/assets/product-timer.png";
+import productTasks from "@/assets/product-tasks.png";
+import productQuotes from "@/assets/product-quotes.png";
 
 const landingTrackedRef = { current: false };
 
