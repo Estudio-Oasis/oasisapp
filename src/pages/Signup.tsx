@@ -12,9 +12,10 @@ export default function Signup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fromDemo = searchParams.get("from") === "demo";
+  const fromBeta = searchParams.get("ref") === "beta";
 
   useEffect(() => {
-    trackEvent("signup_start", { from_demo: fromDemo });
+    trackEvent("signup_start", { from_demo: fromDemo, from_beta: fromBeta });
   }, []);
 
   const [name, setName] = useState("");
@@ -68,17 +69,19 @@ export default function Signup() {
       toast.success("¡Listo! Tu cuenta está creada. ¿En qué estás trabajando?");
     }
 
-    navigate("/onboarding");
+    navigate(fromBeta ? "/onboarding?ref=beta" : "/onboarding");
   };
 
   return (
     <AuthLayout>
       <div>
         <h1 className="text-2xl font-bold text-foreground text-center">
-          {fromDemo ? "Guarda tu día" : "Crea tu agencia"}
+          {fromBeta ? "Únete al beta" : fromDemo ? "Guarda tu día" : "Crea tu agencia"}
         </h1>
         <p className="text-sm text-muted-foreground text-center mt-1">
-          {fromDemo && demoCount > 0
+          {fromBeta
+            ? "Acceso anticipado a OasisOS para tu agencia"
+            : fromDemo && demoCount > 0
             ? `Tienes ${demoCount} registro${demoCount > 1 ? "s" : ""} del demo que se guardarán automáticamente`
             : "El sistema operativo para tu agencia creativa"}
         </p>
