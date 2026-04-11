@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { TimerProvider } from "@/contexts/TimerContext";
 import { ProtectedRoute, ProRoute } from "@/components/ProtectedRoute";
 import { AdminRoute } from "@/components/AdminRoute";
+import { SuperAdminRoute } from "@/components/SuperAdminRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppLayout } from "@/components/AppLayout";
 import { BitacoraLayout } from "@/components/BitacoraLayout";
@@ -42,6 +43,7 @@ import HomePage from "./pages/Home";
 import QuoteApprovalPage from "./pages/QuoteApproval";
 import UnsubscribePage from "./pages/Unsubscribe";
 import OnboardingPage from "./pages/Onboarding";
+import SuperAdminPage from "./pages/SuperAdmin";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -73,6 +75,7 @@ const App = () => (
                   <Route path="/q/:token" element={<QuoteApprovalPage />} />
                   <Route path="/unsubscribe" element={<UnsubscribePage />} />
                   <Route path="/onboarding" element={<OnboardingPage />} />
+                  <Route path="/superadmin" element={<SuperAdminRoute><SuperAdminPage /></SuperAdminRoute>} />
 
                   {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
                   <Route

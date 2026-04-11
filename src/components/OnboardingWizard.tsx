@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,8 @@ const BILLING_TYPES = [
 
 export function OnboardingWizard({ open, userName, onComplete, onSkip }: OnboardingWizardProps) {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const isBeta = searchParams.get("ref") === "beta";
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
 
@@ -100,7 +103,12 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
       // Create agency
       const { data: agency, error: agencyErr } = await supabase
         .from("agencies")
-        .insert({ name: agencyName.trim(), country: "MX", base_currency: "USD" })
+        .insert({
+          name: agencyName.trim(),
+          country: "MX",
+          base_currency: "USD",
+          ...(isBeta ? { plan_override: "agencia" } : {}),
+        } as any)
         .select("id")
         .single();
       if (agencyErr) throw agencyErr;

@@ -27,10 +27,12 @@ export type Database = {
           created_at: string
           fiscal_address: string | null
           id: string
+          is_active: boolean
           legal_name: string | null
           logo_url: string | null
           name: string
           plan: string
+          plan_override: string | null
           tax_id: string | null
           updated_at: string
         }
@@ -46,10 +48,12 @@ export type Database = {
           created_at?: string
           fiscal_address?: string | null
           id?: string
+          is_active?: boolean
           legal_name?: string | null
           logo_url?: string | null
           name: string
           plan?: string
+          plan_override?: string | null
           tax_id?: string | null
           updated_at?: string
         }
@@ -65,10 +69,12 @@ export type Database = {
           created_at?: string
           fiscal_address?: string | null
           id?: string
+          is_active?: boolean
           legal_name?: string | null
           logo_url?: string | null
           name?: string
           plan?: string
+          plan_override?: string | null
           tax_id?: string | null
           updated_at?: string
         }
@@ -1118,6 +1124,56 @@ export type Database = {
           },
         ]
       }
+      super_admin_audit_log: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          target_agency_id: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          target_agency_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          target_agency_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "super_admin_audit_log_target_agency_id_fkey"
+            columns: ["target_agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      super_admin_users: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -1309,6 +1365,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_super_admin: { Args: never; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string
