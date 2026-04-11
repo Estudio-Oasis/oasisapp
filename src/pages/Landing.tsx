@@ -232,8 +232,8 @@ function ProblemSection() {
 // ─── Product Tabs ───
 function ProductTabs() {
   const tabs = [
-    { value: "timer", label: "Timer", desc: "Registra tu trabajo en tiempo real con un clic. Ve el timeline de tu día y entiende exactamente en qué se fue cada hora.", img: productTimer, alt: "Timer inteligente de OasisOS" },
-    { value: "hub", label: "Hub de equipo", desc: "Ve quién está activo, en qué trabaja y su estado en tiempo real. Comunícate sin salir de la plataforma.", img: productHub, alt: "Hub de equipo de OasisOS" },
+    { value: "timer", label: "Bitácora", desc: "Registra tu trabajo en tiempo real con un clic. Ve el timeline de tu día y entiende exactamente en qué se fue cada hora.", img: productTimer, alt: "Timer inteligente de OasisOS" },
+    { value: "tasks", label: "Tareas", desc: "Organiza el trabajo de tu equipo con tableros, prioridades y fechas. Conectado a clientes y proyectos.", img: productTasks, alt: "Gestión de tareas de OasisOS" },
     { value: "quotes", label: "Cotizaciones", desc: "Crea propuestas profesionales, envíalas por email y rastrea aprobaciones. Todo conectado a tus clientes.", img: productQuotes, alt: "Cotizaciones de OasisOS" },
   ];
 
