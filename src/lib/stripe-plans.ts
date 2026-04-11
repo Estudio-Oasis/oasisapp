@@ -5,7 +5,7 @@ export const STRIPE_PLANS = {
   team_3: {
     product_id: "prod_UAovGO1I05JCDs",
     price_id: "price_1TCTHWAtoACfSgBOGlgV68Zj",
-    name: "Equipo 3",
+    name: "Starter",
     seats: 3,
     price: 9,
     currency: "usd",
@@ -23,7 +23,7 @@ export const STRIPE_PLANS = {
   team_6: {
     product_id: "prod_UAoxhZWDzZ9c4D",
     price_id: "price_1TCTJEAtoACfSgBOB6wsdgu5",
-    name: "Equipo 6",
+    name: "Estudio",
     seats: 6,
     price: 16,
     currency: "usd",
@@ -42,7 +42,7 @@ export const STRIPE_PLANS = {
   team_10: {
     product_id: "prod_UAoxkBAGdpEPKi",
     price_id: "price_1TCTJbAtoACfSgBOpwnduNgK",
-    name: "Equipo 10",
+    name: "Agencia",
     seats: 10,
     price: 20,
     currency: "usd",
