@@ -18,10 +18,10 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import productDashboard from "@/assets/product-dashboard.jpg";
-import productTimer from "@/assets/product-timer.jpg";
-import productHub from "@/assets/product-hub.jpg";
-import productQuotes from "@/assets/product-quotes.jpg";
+import productDashboard from "@/assets/product-dashboard.png";
+import productTimer from "@/assets/product-timer.png";
+import productTasks from "@/assets/product-tasks.png";
+import productQuotes from "@/assets/product-quotes.png";
 
 const landingTrackedRef = { current: false };
 
@@ -153,9 +153,7 @@ function Hero() {
           </div>
         </div>
         <div>
-          <BrowserFrame>
-            <img src={productDashboard} alt="Dashboard de OasisOS" className="w-full" width={1280} height={800} />
-          </BrowserFrame>
+          <img src={productDashboard} alt="Dashboard de OasisOS" className="w-full rounded-xl shadow-2xl" width={1280} height={800} />
         </div>
       </div>
     </section>
@@ -232,8 +230,8 @@ function ProblemSection() {
 // ─── Product Tabs ───
 function ProductTabs() {
   const tabs = [
-    { value: "timer", label: "Timer", desc: "Registra tu trabajo en tiempo real con un clic. Ve el timeline de tu día y entiende exactamente en qué se fue cada hora.", img: productTimer, alt: "Timer inteligente de OasisOS" },
-    { value: "hub", label: "Hub de equipo", desc: "Ve quién está activo, en qué trabaja y su estado en tiempo real. Comunícate sin salir de la plataforma.", img: productHub, alt: "Hub de equipo de OasisOS" },
+    { value: "timer", label: "Bitácora", desc: "Registra tu trabajo en tiempo real con un clic. Ve el timeline de tu día y entiende exactamente en qué se fue cada hora.", img: productTimer, alt: "Timer inteligente de OasisOS" },
+    { value: "tasks", label: "Tareas", desc: "Organiza el trabajo de tu equipo con tableros, prioridades y fechas. Conectado a clientes y proyectos.", img: productTasks, alt: "Gestión de tareas de OasisOS" },
     { value: "quotes", label: "Cotizaciones", desc: "Crea propuestas profesionales, envíalas por email y rastrea aprobaciones. Todo conectado a tus clientes.", img: productQuotes, alt: "Cotizaciones de OasisOS" },
   ];
 
@@ -263,9 +261,7 @@ function ProductTabs() {
                   </Link>
                 </div>
                 <div className="lg:col-span-3">
-                  <BrowserFrame>
-                    <img src={t.img} alt={t.alt} className="w-full" loading="lazy" width={1280} height={800} />
-                  </BrowserFrame>
+                  <img src={t.img} alt={t.alt} className="w-full rounded-xl shadow-2xl" loading="lazy" width={1280} height={800} />
                 </div>
               </div>
             </TabsContent>
@@ -289,9 +285,7 @@ function DesktopMobileSection() {
           Funciona igual de bien en desktop y en tu celular. Registra tiempo desde donde sea.
         </p>
         <div className="mt-14 flex flex-col lg:flex-row items-center justify-center gap-10">
-          <BrowserFrame className="max-w-2xl flex-1">
-            <img src={productDashboard} alt="OasisOS en desktop" className="w-full" loading="lazy" width={1280} height={800} />
-          </BrowserFrame>
+          <img src={productDashboard} alt="OasisOS en desktop" className="max-w-2xl flex-1 w-full rounded-xl shadow-2xl" loading="lazy" width={1280} height={800} />
           <IPhoneFrame>
             <img src={productTimer} alt="OasisOS en móvil" className="w-full" loading="lazy" />
           </IPhoneFrame>
