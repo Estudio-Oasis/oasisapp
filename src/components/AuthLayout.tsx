@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
 
 const FEATURES = [
-  { icon: "⏱", title: "Timer inteligente", desc: "Registra horas por cliente y proyecto con un clic" },
-  { icon: "👥", title: "Hub del equipo", desc: "Ve quién trabaja en qué, en tiempo real" },
-  { icon: "📄", title: "Cotizaciones pro", desc: "Crea, envía y rastrea propuestas en minutos" },
-  { icon: "💰", title: "Finanzas claras", desc: "Ingresos, gastos y rentabilidad por cliente" },
+  { icon: "⏱", title: "Timer inteligente", desc: "Registra qué haces y cuánto tiempo te toma" },
+  { icon: "💰", title: "Valor hora en vivo", desc: "Sabe cuánto estás ganando mientras trabajas" },
+  { icon: "📄", title: "Cotizaciones", desc: "Crea propuestas profesionales en minutos" },
+  { icon: "📊", title: "Insights de productividad", desc: "Entiende tus patrones y cobra mejor" },
 ];
 
 export function AuthLayout({ children }: { children: ReactNode }) {
@@ -21,12 +21,14 @@ export function AuthLayout({ children }: { children: ReactNode }) {
           </div>
 
           <h1 className="text-[2rem] font-bold leading-tight mb-4">
-            El sistema operativo
+            Organiza tu trabajo.
             <br />
-            para tu agencia creativa
+            Entiende tu tiempo.
+            <br />
+            Cobra lo que vales.
           </h1>
           <p className="text-zinc-400 text-base leading-relaxed max-w-md">
-            Todo lo que tu equipo necesita en un solo lugar: tiempo, clientes, cotizaciones y finanzas.
+            El sistema que convierte tu tiempo en decisiones: cuánto cobrar, a quién priorizar y cómo producir más valor.
           </p>
         </div>
 
@@ -44,9 +46,9 @@ export function AuthLayout({ children }: { children: ReactNode }) {
 
         <div className="border-t border-zinc-700/60 pt-6">
           <p className="text-zinc-400 text-sm italic leading-relaxed">
-            "OasisOS nos ahorró 5 horas semanales de admin. Ahora cerramos más proyectos y facturamos más."
+            "Antes cobraba por instinto. Ahora sé exactamente cuánto vale cada hora de mi trabajo."
           </p>
-          <p className="text-zinc-500 text-xs mt-2">— Agencia creativa, Ciudad de México</p>
+          <p className="text-zinc-500 text-xs mt-2">— Diseñador freelance, Ciudad de México</p>
         </div>
       </div>
 

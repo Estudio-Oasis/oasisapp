@@ -34,7 +34,7 @@ export default function Login() {
       <div>
         <h1 className="text-2xl font-bold text-foreground text-center">Bienvenido de vuelta</h1>
         <p className="text-sm text-muted-foreground text-center mt-1">
-          Inicia sesión en tu espacio de trabajo
+          Entra a tu sistema
         </p>
       </div>
 

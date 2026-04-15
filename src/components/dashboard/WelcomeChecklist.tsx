@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePlan } from "@/hooks/usePlan";
 import { supabase } from "@/integrations/supabase/client";
 import { Check, ChevronRight } from "lucide-react";
 
@@ -13,10 +14,11 @@ interface CheckItem {
 
 export function WelcomeChecklist() {
   const { user } = useAuth();
+  const { isFree } = usePlan();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [dismissed, setDismissed] = useState(false);
-  const [agencyName, setAgencyName] = useState("");
+  const [userName, setUserName] = useState("");
   const [items, setItems] = useState<CheckItem[]>([]);
   const [isNew, setIsNew] = useState(false);
 
@@ -26,7 +28,7 @@ export function WelcomeChecklist() {
     (async () => {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("agency_id")
+        .select("agency_id, name")
         .eq("id", user.id)
         .single();
 
@@ -46,7 +48,7 @@ export function WelcomeChecklist() {
       const isWelcome = searchParams.get("welcome") === "true";
       if (ageDays > 14 && !isWelcome) return;
 
-      setAgencyName(agency.name);
+      setUserName(profile.name || agency.name);
       setIsNew(true);
 
       // Check completion items in parallel
@@ -57,15 +59,26 @@ export function WelcomeChecklist() {
         supabase.from("quotes").select("id", { count: "exact", head: true }).eq("agency_id", agencyId),
       ]);
 
-      setItems([
-        { id: "timer", label: "Registra tu primera hora en Bitácora", done: (timeEntries.count ?? 0) > 0, link: "/bitacora" },
+      const baseItems: CheckItem[] = [
+        { id: "timer", label: "Registra tu primera hora", done: (timeEntries.count ?? 0) > 0, link: "/bitacora" },
         { id: "client", label: "Agrega tu primer cliente", done: (clients.count ?? 0) > 0, link: "/clients" },
-        { id: "invite", label: "Invita a alguien de tu equipo", done: (members.count ?? 0) > 1, link: "/settings?tab=members" },
-        { id: "quote", label: "Crea tu primera cotización", done: (quotes.count ?? 0) > 0, link: "/quotes" },
-        { id: "profile", label: "Completa el perfil de tu agencia", done: false, link: "/settings" },
-      ]);
+      ];
+
+      // Only show team/quote items for paid plans
+      if (!isFree) {
+        baseItems.push(
+          { id: "invite", label: "Invita a alguien de tu equipo", done: (members.count ?? 0) > 1, link: "/settings?tab=members" },
+          { id: "quote", label: "Crea tu primera propuesta", done: (quotes.count ?? 0) > 0, link: "/quotes" },
+        );
+      }
+
+      baseItems.push(
+        { id: "profile", label: "Configura tu perfil", done: false, link: "/settings" },
+      );
+
+      setItems(baseItems);
     })();
-  }, [user]);
+  }, [user, isFree]);
 
   if (!isNew || dismissed || items.length === 0) return null;
 
@@ -75,7 +88,7 @@ export function WelcomeChecklist() {
     <div className="mb-6 rounded-2xl border border-border bg-gradient-to-r from-background to-muted/20 p-5">
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="font-semibold text-foreground">¡Bienvenido a OasisOS, {agencyName}! 🎉</h3>
+          <h3 className="font-semibold text-foreground">¡Bienvenido, {userName}! 🎉</h3>
           <p className="text-sm text-muted-foreground">Completa estos pasos para arrancar</p>
         </div>
         <button onClick={() => setDismissed(true)} className="text-muted-foreground hover:text-foreground transition-colors">

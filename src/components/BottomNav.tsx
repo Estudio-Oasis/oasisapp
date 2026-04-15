@@ -1,23 +1,31 @@
-import { Timer, Users, DollarSign, Shield, Home } from "lucide-react";
+import { Timer, Users, DollarSign, Shield, Home, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useRole } from "@/hooks/useRole";
+import { usePlan } from "@/hooks/usePlan";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { TranslationKey } from "@/lib/translations";
 
-const coreNavItems = [
+const allNavItems = [
   { titleKey: "nav.home" as TranslationKey, url: "/home", icon: Home },
   { titleKey: "nav.bitacora" as TranslationKey, url: "/bitacora", icon: Timer },
-  { titleKey: "nav.clients" as TranslationKey, url: "/clients", icon: Users },
-  { titleKey: "nav.vault" as TranslationKey, url: "/vault", icon: Shield },
-  { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true },
+  { titleKey: "nav.clients" as TranslationKey, url: "/clients", icon: Users, paidOnly: true },
+  { titleKey: "nav.vault" as TranslationKey, url: "/vault", icon: Shield, paidOnly: true },
+  { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true, paidOnly: true },
+  { titleKey: "nav.settings" as TranslationKey, url: "/settings", icon: Settings, freeOnly: true },
 ];
 
 export function BottomNav() {
   const location = useLocation();
   const { isAdmin } = useRole();
+  const { isFree } = usePlan();
   const { t } = useLanguage();
 
-  const navItems = coreNavItems.filter((item) => !item.adminOnly || isAdmin);
+  const navItems = allNavItems.filter((item) => {
+    if (item.adminOnly && !isAdmin) return false;
+    if (item.paidOnly && isFree) return false;
+    if (item.freeOnly && !isFree) return false;
+    return true;
+  });
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-sm md:hidden safe-area-bottom">
