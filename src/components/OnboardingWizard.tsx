@@ -126,8 +126,8 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
       const agencyId = agency!.id;
       setCreatedAgencyId(agencyId);
 
-      // Update profile
-      await supabase.from("profiles").update({
+      // Update profile (must happen before agency_settings due to RLS check)
+      const { error: profileErr } = await supabase.from("profiles").update({
         agency_id: agencyId,
         name: displayName.trim() || null,
         job_title: profileType || null,
@@ -139,17 +139,19 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
           available_hours_per_week: availableHours ? Number(availableHours) : null,
         } : {}),
       } as any).eq("id", user.id);
+      if (profileErr) throw profileErr;
 
-      // Create agency_settings
-      await supabase.from("agency_settings").insert({
+      // Create agency_settings (RLS requires profile.role = admin)
+      const { error: settingsErr } = await supabase.from("agency_settings").insert({
         agency_id: agencyId,
         default_currency: currency,
       });
+      if (settingsErr) console.warn("agency_settings insert failed:", settingsErr);
 
       setStep(2);
-    } catch (err) {
-      console.error(err);
-      toast.error("Error al configurar tu espacio");
+    } catch (err: any) {
+      console.error("Onboarding step 1 error:", err);
+      toast.error(err?.message || "Error al configurar tu espacio");
     } finally {
       setSaving(false);
     }
@@ -186,7 +188,7 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
   const TOTAL_STEPS = 3;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center">
+    <div id="onboarding-overlay" className="fixed inset-0 z-[100] bg-background flex items-center justify-center">
       {/* Close button */}
       <button
         onClick={handleClose}
