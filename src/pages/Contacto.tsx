@@ -4,8 +4,6 @@ import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { SiteFooter } from "@/components/SiteFooter";
-import { toast } from "sonner";
 import { ArrowRight, Mail, Phone, Globe, MapPin } from "lucide-react";
 
 const NEED_OPTIONS = [
