@@ -79,7 +79,7 @@ export default function ContactoPage() {
   };
 
   const inputCls =
-    "w-full h-11 px-4 rounded-sm border border-[#E7E0D8] bg-white text-[14px] text-[#1C1917] font-body focus:outline-none focus:border-[#C8A96E] transition-colors";
+    "w-full h-11 px-4 rounded-sm border border-gray-300 bg-white text-[14px] text-gray-900 font-body focus:outline-none focus:border-[#C8A96E] transition-colors";
   const selectCls = `${inputCls} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2378716c%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_12px_center] bg-[length:16px]`;
 
   return (
@@ -88,29 +88,26 @@ export default function ContactoPage() {
 
       <div className="pt-16 min-h-screen flex flex-col lg:flex-row">
         {/* Left — Info */}
-        <div className="lg:w-[40%] bg-[#1C1917] text-white px-8 md:px-12 py-16 lg:py-24 lg:sticky lg:top-0 lg:h-screen flex flex-col justify-center">
-          <span className="font-serif-display text-[20px] font-bold tracking-tight text-white mb-10">
-            OASIS
-          </span>
-          <h1 className="font-serif-display text-[clamp(36px,5vw,56px)] leading-[1.05]">
+        <div className="lg:w-[40%] bg-[#1C1917] text-white px-6 md:px-12 py-10 lg:py-24 lg:sticky lg:top-0 lg:h-screen flex flex-col justify-center">
+          <h1 className="font-serif-display text-[clamp(32px,5vw,56px)] leading-[1.05]">
             Hablemos<span className="text-[#C8A96E]">.</span>
           </h1>
-          <p className="mt-5 text-[16px] text-[#A8A29E] font-body leading-relaxed max-w-sm">
+          <p className="mt-4 text-[15px] text-[#A8A29E] font-body leading-relaxed max-w-sm">
             Cuéntanos tu proyecto. Respondemos en menos de 24 horas hábiles.
           </p>
 
-          <div className="mt-10 space-y-4 text-[14px] text-[#A8A29E]">
+          <div className="mt-8 space-y-3 text-[14px] text-[#A8A29E]">
             <a
               href="mailto:r@oasistud.io"
               className="flex items-center gap-3 hover:text-white transition-colors"
             >
-              <Mail className="h-4 w-4 text-[#C8A96E]" /> r@oasistud.io
+              <Mail className="h-4 w-4 text-[#C8A96E] shrink-0" /> r@oasistud.io
             </a>
             <a
               href="tel:+524531090660"
               className="flex items-center gap-3 hover:text-white transition-colors"
             >
-              <Phone className="h-4 w-4 text-[#C8A96E]" /> +52 453 109 0660
+              <Phone className="h-4 w-4 text-[#C8A96E] shrink-0" /> +52 453 109 0660
             </a>
             <a
               href="https://www.oasistud.io"
@@ -118,14 +115,14 @@ export default function ContactoPage() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 hover:text-white transition-colors"
             >
-              <Globe className="h-4 w-4 text-[#C8A96E]" /> www.oasistud.io
+              <Globe className="h-4 w-4 text-[#C8A96E] shrink-0" /> www.oasistud.io
             </a>
             <div className="flex items-center gap-3">
-              <MapPin className="h-4 w-4 text-[#C8A96E]" /> Ciudad de México
+              <MapPin className="h-4 w-4 text-[#C8A96E] shrink-0" /> Ciudad de México
             </div>
           </div>
 
-          <div className="mt-10 flex gap-5 text-[13px] text-[#A8A29E]">
+          <div className="mt-8 flex gap-5 text-[13px] text-[#A8A29E]">
             <a
               href="https://instagram.com/oasistud.io"
               target="_blank"
@@ -154,11 +151,11 @@ export default function ContactoPage() {
         </div>
 
         {/* Right — Form */}
-        <div className="lg:w-[60%] bg-[#FAF7F2] px-8 md:px-16 py-16 lg:py-24 flex items-start justify-center">
+        <div className="lg:w-[60%] bg-[#FAF7F2] px-6 md:px-16 py-10 lg:py-24 flex items-start justify-center">
           <div className="w-full max-w-lg">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
                   Nombre completo *
                 </label>
                 <input
@@ -172,7 +169,7 @@ export default function ContactoPage() {
               </div>
 
               <div>
-                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
                   Email *
                 </label>
                 <input
@@ -186,7 +183,7 @@ export default function ContactoPage() {
               </div>
 
               <div>
-                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
                   Empresa o marca
                 </label>
                 <input
@@ -199,7 +196,7 @@ export default function ContactoPage() {
               </div>
 
               <div>
-                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
                   ¿Qué necesitas?
                 </label>
                 <select value={form.need} onChange={set("need")} className={selectCls}>
@@ -213,7 +210,7 @@ export default function ContactoPage() {
               </div>
 
               <div>
-                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
                   Presupuesto aproximado
                 </label>
                 <select value={form.budget} onChange={set("budget")} className={selectCls}>
@@ -227,14 +224,14 @@ export default function ContactoPage() {
               </div>
 
               <div>
-                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
                   Cuéntanos de tu proyecto *
                 </label>
                 <textarea
                   value={form.message}
                   onChange={set("message")}
                   rows={5}
-                  className="w-full px-4 py-3 rounded-sm border border-[#E7E0D8] bg-white text-[14px] text-[#1C1917] font-body focus:outline-none focus:border-[#C8A96E] transition-colors resize-none min-h-[120px]"
+                  className="w-full px-4 py-3 rounded-sm border border-gray-300 bg-white text-[14px] text-gray-900 font-body focus:outline-none focus:border-[#C8A96E] transition-colors resize-none min-h-[120px]"
                   placeholder="Describe tu proyecto, tus objetivos y tiempos..."
                   required
                 />

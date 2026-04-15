@@ -32,8 +32,8 @@ export default function LandingPage() {
       <SiteNavbar />
 
       {/* SECTION 1 — HERO */}
-      <section className="min-h-screen flex items-center bg-[#FAF7F2] pt-16">
-        <div className="max-w-6xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-20">
+      <section className="min-h-[calc(100vh-4rem)] md:min-h-screen flex items-center bg-[#FAF7F2] pt-16">
+        <div className="max-w-6xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-12 md:py-20">
           <div>
             <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#A8A29E] mb-6">
               ESTUDIO CREATIVO · CIUDAD DE MÉXICO · 10 AÑOS
@@ -62,7 +62,7 @@ export default function LandingPage() {
             </div>
           </div>
           {/* Editorial image collage */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="hidden md:grid grid-cols-2 gap-3">
             <div className="space-y-3">
               <div className="aspect-[4/3] rounded-sm bg-[#E7E0D8] overflow-hidden">
                 <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/oasis_liverpool_46662b18.jpg" alt="Liverpool Gourmet" className="w-full h-full object-cover" loading="eager" />
@@ -156,10 +156,10 @@ export default function LandingPage() {
                 className="block rounded-sm overflow-hidden group relative"
                 style={{ backgroundColor: item.bg }}
               >
-                <div className="h-[200px] flex items-end justify-between p-8">
+                <div className="h-[140px] md:h-[200px] flex items-end justify-between p-5 md:p-8">
                   <div>
-                    <h3 className="text-[24px] font-serif-display font-bold text-white">{item.name}</h3>
-                    <p className="text-[12px] font-mono-label tracking-wider text-white/60 mt-1">{item.tags}</p>
+                    <h3 className="text-lg md:text-[24px] font-serif-display font-bold text-white">{item.name}</h3>
+                    <p className="text-[11px] md:text-[12px] font-mono-label tracking-wider text-white/60 mt-1">{item.tags}</p>
                   </div>
                   <ArrowRight className="h-6 w-6 text-white/30 group-hover:text-white group-hover:translate-x-1 transition-all" />
                 </div>
