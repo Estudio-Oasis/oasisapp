@@ -26,7 +26,12 @@ export default function OasisOSPage() {
       <SiteNavbar />
 
       {/* Hero */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-[#1C1917]">
+      <section className="pt-28 pb-16 md:pt-36 md:pb-24 bg-[#1C1917]">
+        <div className="max-w-6xl mx-auto px-6">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-[13px] text-[#A8A29E] hover:text-white transition-colors mb-8">
+            ← Estudio Oasis
+          </Link>
+        </div>
         <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-6">
@@ -75,7 +80,7 @@ export default function OasisOSPage() {
       </section>
 
       {/* Pricing */}
-      <section className="py-20 md:py-28 bg-[#F0E8DD]">
+      <section id="precios" className="py-20 md:py-28 bg-[#F0E8DD] scroll-mt-20">
         <div className="max-w-5xl mx-auto px-6">
           <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] text-[#1C1917] mb-4">Precios.</h2>
           <p className="text-[16px] text-[#57534E] font-body mb-12">Empieza gratis. Escala cuando tu equipo crezca.</p>
