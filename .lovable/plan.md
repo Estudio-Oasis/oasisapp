@@ -1,101 +1,101 @@
 
 
-# Sprint 10-11: Landing Page Overhaul + Super Admin Module
+# Sprint 12: Individual-First Experience Overhaul
 
-## What we're solving
+## The problem
 
-The landing page has two critical problems visible right now:
-1. **Hero screenshot is AI-generated garbage** — shows "Racimpe", "Kesk", gibberish text instead of real product UI
-2. **Narrative structure is backwards** — portfolio showcase appears before explaining what OasisOS does, confusing visitors about whether this is a design agency or a SaaS product
-3. **Pricing plan names are unclear** — "Equipo 3/6/10" don't communicate value tiers
-4. **No mobile screenshots** — visitors don't know the app works on phones
-5. **No origin story** — no emotional connection or credibility context
+The entire app is framed as "crea tu agencia" — the copy, onboarding, auth layout, home dashboard, and sidebar all assume a team/agency context. But the free tier is for **individuals**: freelancers, solos, creatives tracking their own work and money. A solo user hitting "Crea tu agencia" or seeing "Invita a tu equipo" feels like the product isn't for them.
 
-The Super Admin module is needed for Roger to manage beta agencies across the multi-tenant system.
+The core flows (signup → onboarding → home → daily use) need to feel personal and immediate, not corporate.
 
 ---
 
-## Sprint 10: Landing Page Overhaul
+## What changes
 
-### L1 — Take real screenshots of the app
-Use browser tools to capture actual screenshots from `/home`, `/bitacora`, `/hub`, `/quotes` at desktop and mobile sizes. Generate polished product shots using the product-shot skill with appropriate gradient presets. Save to `src/assets/` as proper images.
+### 1. Auth copy & layout — Make it personal
 
-### L2 — Restructure Landing page narrative
-Rewrite `src/pages/Landing.tsx` with sections in correct order:
-1. Hero (existing, with real screenshot)
-2. Agency Logos (existing)
-3. **Origin Story** (NEW) — dark section: "No lo construimos en un hackathon. Lo construimos después de 15 años viviendo el mismo caos que tú." with portfolio category chips linking to `/portfolio`
-4. Problem section (existing, moved up)
-5. Product Tabs (existing, keep)
-6. **Desktop & Mobile section** (NEW) — browser frame + iPhone frame with real screenshots
-7. Philosophy/NotJust section (existing)
-8. For Who section (existing)
-9. Pricing (updated names)
-10. How It Works (existing)
-11. CTA (existing)
-12. Footer (existing)
+**AuthLayout.tsx**: Update left panel messaging from "El sistema operativo para tu agencia creativa" to something individual-first:
+- Headline: "Organiza tu trabajo. Entiende tu tiempo. Cobra lo que vales."
+- Features list: replace team-centric features (Hub, Cotizaciones pro) with individual benefits (Timer inteligente, Valor hora en vivo, Cotizaciones, Insights de productividad)
+- Testimonial: change from agency to freelancer/solo perspective
 
-**Removed from landing:** `FeaturedWork` (full portfolio showcase) — it stays at `/portfolio`
-**Removed from landing:** `OasisOSSection` (redundant with ProductTabs)
-**Removed from landing:** `StatsSection` (counter section)
+**Login.tsx**: Change "Inicia sesión en tu espacio de trabajo" → "Entra a tu sistema"
 
-### L3 — Update pricing plan names
-In both `Landing.tsx` PricingSection and `src/lib/stripe-plans.ts`:
-- "Bitácora Personal" → **"Solo"** ($0)
-- "Equipo 3" → **"Starter"** ($9)
-- "Equipo 6" → **"Estudio"** ($16, marked "Más popular")
-- "Equipo 10" → **"Agencia"** ($20)
+**Signup.tsx**: 
+- Default headline: "Crea tu cuenta gratis" instead of "Crea tu agencia"
+- Subtitle: "Empieza a trackear tu tiempo y cobrar mejor" instead of "El sistema operativo para tu agencia creativa"
+- Remove "Confirmar contraseña" field (adds friction, not necessary for signup — validate password length only)
 
-Also update `Pricing.tsx` plan names to match.
+### 2. Onboarding — Simplify for individuals
 
-### L4 — Update hero copy
-Change subheading to: "Todo lo que tu agencia necesita para facturar más, operar mejor y crecer sin caos."
+**OnboardingWizard.tsx**: Restructure from 5 steps to 3 for solo users:
+
+**Step 1 — "¿Cómo trabajas?"** (replaces agency name + country/currency)
+- Name field (pre-filled from signup)
+- "¿Cómo te describes?" chips: Freelancer / Fundador / Empleado / Otro
+- Country + Currency (combined, single row)
+- This creates a "personal workspace" instead of an "agency" — but technically still creates the agency record behind the scenes
+
+**Step 2 — "Tu primer cliente"** (keep, it's critical for first value)
+- Same as current step 4 but simplified: just client name + billing type
+- Skip button prominent
+
+**Step 3 — "Listo"** (summary)
+- Remove team invite step entirely from solo flow
+- Show "Iniciar mi primera sesión" as primary CTA
+
+The "Invita a tu equipo" step only appears if user later upgrades to Pro.
+
+### 3. Home dashboard — Individual-first layout
+
+**Home.tsx**: Redesign for a solo user's daily command center:
+
+- **Greeting + today's date** (keep, it's warm)
+- **Daily progress bar**: "X horas registradas hoy de Y disponibles" — uses work_start/end_hour from profile
+- **WelcomeChecklist**: Update items to be individual-relevant:
+  - "Registra tu primera hora" (keep)
+  - "Agrega tu primer cliente" (keep)
+  - ~~"Invita a alguien de tu equipo"~~ (remove for free)
+  - ~~"Crea tu primera cotización"~~ (keep but reword: "Crea tu primera propuesta")
+  - ~~"Completa el perfil de tu agencia"~~ → "Configura tu perfil"
+- **Main grid**: Keep TimerLauncherWidget + DayTasksWidget
+- **Secondary**: Keep IdeasWidget + GapsWidget. Remove TeamWidget for free users.
+- Hide AdminKPIs entirely for non-admin
+
+### 4. Sidebar — Clean up for free tier
+
+**AppSidebar.tsx**: 
+- Fix duplicate upgrade banners (there are TWO "Mejorar plan" blocks — lines 229-243 and 246-261). Remove one.
+- For free users, show only: Inicio, Bitácora, Settings
+- The upgrade CTA stays but with better copy: "Desbloquea clientes, equipo y cotizaciones"
+
+**BottomNav.tsx**: For free users, show only: Inicio, Bitácora, Ajustes (currently shows Clients, Vault, Finances which are Pro-only and would just redirect)
+
+### 5. BitacoraLayout — Small polish
+
+**BitacoraLayout.tsx**: 
+- Change logo from "B" to "O" (OasisOS branding, not a separate product)
+- Add user avatar/name in header for context
+- Add link to /home if using BitacoraLayout
 
 ---
 
-## Sprint 11: Super Admin Module
+## Technical details
 
-### S1 — Database migration
-Create tables and columns:
-- `super_admin_users` table (id references auth.users, RLS: only super admins can read)
-- `super_admin_audit_log` table for action tracking
-- Add `plan_override` and `is_active` columns to `agencies` table
-- Create `agency_stats` view for dashboard queries
-- RLS policies allowing super admins to read across all agencies
+### Files to edit
+- `src/components/AuthLayout.tsx` — update copy and features
+- `src/pages/Login.tsx` — update subtitle
+- `src/pages/Signup.tsx` — update copy, remove confirm password
+- `src/components/OnboardingWizard.tsx` — restructure to 3 steps for solo
+- `src/pages/Home.tsx` — add daily progress, conditional widgets
+- `src/components/dashboard/WelcomeChecklist.tsx` — update items for individual
+- `src/components/AppSidebar.tsx` — remove duplicate upgrade banner, filter nav for free
+- `src/components/BottomNav.tsx` — filter nav items by plan
+- `src/components/BitacoraLayout.tsx` — branding fix + user context
 
-### S2 — SuperAdminRoute guard
-Create `src/components/SuperAdminRoute.tsx` — checks if user exists in `super_admin_users` table, redirects to `/home` if not.
+### No database changes needed
+All profile fields already exist. The "workspace type" (solo vs team) is implicit from the plan.
 
-### S3 — SuperAdmin dashboard page
-Create `src/pages/SuperAdmin.tsx` with:
-- Header: "OasisOS Super Admin"
-- 4 KPI cards: Total Agencies, Total Users, Active This Week, MRR
-- Two tabs: Agencies (searchable table with plan badges, member count, last activity, status) and Feedback (cards from all agencies)
-- Agency detail dialog with plan override dropdown
-
-### S4 — Route + beta invite flow
-- Add `/superadmin` route in `App.tsx` wrapped in `SuperAdminRoute`
-- Update `Signup.tsx` to detect `?ref=beta` and show beta messaging
-- Update `OnboardingWizard.tsx` to set `plan_override = 'agencia'` for beta signups
-
----
-
-## Files to create
-- `src/types/superadmin.ts`
-- `src/components/SuperAdminRoute.tsx`
-- `src/pages/SuperAdmin.tsx`
-
-## Files to edit
-- `src/pages/Landing.tsx` (major rewrite)
-- `src/lib/stripe-plans.ts` (plan names)
-- `src/pages/Pricing.tsx` (plan names)
-- `src/App.tsx` (add superadmin route)
-- `src/pages/Signup.tsx` (beta params)
-- `src/components/OnboardingWizard.tsx` (beta plan override)
-
-## Database migration
-- Add `plan_override`, `is_active` to agencies
-- Create `super_admin_users`, `super_admin_audit_log` tables
-- Create `agency_stats` view
-- RLS policies for super admin access
+### No new files needed
+This is pure UX/copy/flow refinement of existing components.
 
