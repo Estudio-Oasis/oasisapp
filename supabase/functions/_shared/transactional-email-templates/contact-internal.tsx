@@ -65,7 +65,7 @@ export const template = {
   component: ContactInternalEmail,
   subject: (data: Record<string, any>) => `Nuevo contacto: ${data.name || 'Sin nombre'} — ${data.company || 'Web'}`,
   displayName: 'Contact form internal notification',
-  to: 'r@oasistud.io',
+  
   previewData: { name: 'María López', email: 'maria@acme.com', company: 'Acme Corp', need: 'Branding / Identidad de marca', budget: '$50,000 – $150,000 MXN', message: 'Hola, necesitamos un rediseño de marca completo para nuestra empresa.' },
 } satisfies TemplateEntry
 
