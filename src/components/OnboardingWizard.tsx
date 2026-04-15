@@ -60,13 +60,18 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
 
+  // Derive profile type from signup metadata
+  const signupProfileType = user?.user_metadata?.profile_type || "";
+  const isIndividual = !signupProfileType || signupProfileType === "freelancer" || signupProfileType === "other";
+
   // Step 1 — Profile
   const [displayName, setDisplayName] = useState(userName || "");
-  const [profileType, setProfileType] = useState("");
+  const [profileType, setProfileType] = useState(signupProfileType || "");
   const [country, setCountry] = useState("MX");
   const [currency, setCurrency] = useState("MXN");
   const [incomeTarget, setIncomeTarget] = useState("");
   const [availableHours, setAvailableHours] = useState("40");
+  const [workspaceName, setWorkspaceName] = useState("");
 
   // Step 2 — First client
   const [clientName, setClientName] = useState("");
@@ -102,12 +107,14 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
         return;
       }
 
-      // Create a personal workspace (agency record behind the scenes)
-      const workspaceName = displayName.trim() || userName || "Mi espacio";
+      // Create workspace
+      const wsName = isIndividual
+        ? (displayName.trim() || userName || "Mi espacio")
+        : (workspaceName.trim() || displayName.trim() || "Mi equipo");
       const { data: agency, error: agencyErr } = await supabase
         .from("agencies")
         .insert({
-          name: workspaceName,
+          name: wsName,
           country,
           base_currency: currency,
           ...(isBeta ? { plan_override: "agencia" } : {}),
@@ -126,9 +133,11 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
         job_title: profileType || null,
         role: "admin",
         profile_type: profileType || null,
-        income_target: incomeTarget ? Number(incomeTarget) : null,
-        income_currency: currency,
-        available_hours_per_week: availableHours ? Number(availableHours) : null,
+        ...(isIndividual ? {
+          income_target: incomeTarget ? Number(incomeTarget) : null,
+          income_currency: currency,
+          available_hours_per_week: availableHours ? Number(availableHours) : null,
+        } : {}),
       } as any).eq("id", user.id);
 
       // Create agency_settings
@@ -204,8 +213,12 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
         {step === 1 && (
           <div className="space-y-6">
             <div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">¿Cómo trabajas? 👋</h1>
-              <p className="text-foreground-secondary">Configura tu espacio en un minuto</p>
+              <h1 className="text-2xl font-bold text-foreground mb-2">
+                {isIndividual ? "¿Cómo trabajas? 👋" : "Configura tu equipo 🚀"}
+              </h1>
+              <p className="text-foreground-secondary">
+                {isIndividual ? "Configura tu espacio en un minuto" : "Define tu espacio de trabajo"}
+              </p>
             </div>
             <div className="space-y-4">
               <div>
@@ -217,26 +230,45 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
                   autoFocus
                 />
               </div>
-              <div>
-                <label className="text-label mb-1.5 block">¿Cómo te describes?</label>
-                <div className="flex flex-wrap gap-2">
-                  {PROFILE_TYPES.map((pt) => (
-                    <button
-                      key={pt.value}
-                      type="button"
-                      onClick={() => setProfileType(pt.value === profileType ? "" : pt.value)}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                        profileType === pt.value
-                          ? "border-foreground bg-foreground text-background"
-                          : "border-border bg-background hover:bg-muted text-foreground"
-                      }`}
-                    >
-                      {pt.emoji} {pt.label}
-                    </button>
-                  ))}
+
+              {/* Workspace name for teams/agencies */}
+              {!isIndividual && (
+                <div>
+                  <label className="text-label mb-1.5 block">
+                    {profileType === "agency" ? "Nombre de tu agencia" : "Nombre de tu equipo"}
+                  </label>
+                  <Input
+                    value={workspaceName}
+                    onChange={(e) => setWorkspaceName(e.target.value)}
+                    placeholder={profileType === "agency" ? "Ej: Studio Creativo" : "Ej: Mi equipo"}
+                  />
                 </div>
-              </div>
-            <div className="grid grid-cols-2 gap-3">
+              )}
+
+              {/* Profile type chips — only if not pre-selected from signup */}
+              {!signupProfileType && (
+                <div>
+                  <label className="text-label mb-1.5 block">¿Cómo te describes?</label>
+                  <div className="flex flex-wrap gap-2">
+                    {PROFILE_TYPES.map((pt) => (
+                      <button
+                        key={pt.value}
+                        type="button"
+                        onClick={() => setProfileType(pt.value === profileType ? "" : pt.value)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                          profileType === pt.value
+                            ? "border-foreground bg-foreground text-background"
+                            : "border-border bg-background hover:bg-muted text-foreground"
+                        }`}
+                      >
+                        {pt.emoji} {pt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-label mb-1.5 block">País</label>
                   <Select value={country} onValueChange={setCountry}>
@@ -261,28 +293,32 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
                 </div>
               </div>
 
-              {/* Economic basics */}
-              <div>
-                <label className="text-label mb-1.5 block">¿Cuánto quieres ganar al mes?</label>
-                <Input
-                  type="number"
-                  min={0}
-                  value={incomeTarget}
-                  onChange={(e) => setIncomeTarget(e.target.value)}
-                  placeholder={`ej: 50,000 ${currency}`}
-                />
-              </div>
-              <div>
-                <label className="text-label mb-1.5 block">Horas disponibles por semana</label>
-                <Input
-                  type="number"
-                  min={1}
-                  max={80}
-                  value={availableHours}
-                  onChange={(e) => setAvailableHours(e.target.value)}
-                  placeholder="40"
-                />
-              </div>
+              {/* Economic fields — only for individuals */}
+              {isIndividual && (
+                <>
+                  <div>
+                    <label className="text-label mb-1.5 block">¿Cuánto quieres ganar al mes?</label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={incomeTarget}
+                      onChange={(e) => setIncomeTarget(e.target.value)}
+                      placeholder={`ej: 50,000 ${currency}`}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-label mb-1.5 block">Horas disponibles por semana</label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={80}
+                      value={availableHours}
+                      onChange={(e) => setAvailableHours(e.target.value)}
+                      placeholder="40"
+                    />
+                  </div>
+                </>
+              )}
             </div>
             <Button onClick={handleStep1} disabled={saving} className="w-full">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : (

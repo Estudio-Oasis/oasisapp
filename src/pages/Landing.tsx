@@ -316,11 +316,32 @@ function NotJustSection() {
 
 // ─── For Who ───
 function ForWho() {
-  const profiles = [
-    { icon: Palette, title: "Freelancers", desc: "Registra tu día y entiende a dónde se va tu tiempo." },
-    { icon: Users, title: "Equipos creativos", desc: "Visibilidad del equipo sin interrumpir el flujo." },
+  const segments = [
+    {
+      icon: Palette,
+      title: "Freelancers",
+      desc: "Trackea tu tiempo, calcula tu valor hora real y cobra lo que vales. Tu bitácora personal con inteligencia económica.",
+      cta: "Empieza gratis",
+      link: "/signup",
+    },
+    {
+      icon: Users,
+      title: "Equipos",
+      desc: "Visibilidad en tiempo real de quién trabaja en qué. Coordina sin interrumpir el flujo creativo.",
+      cta: "Ver planes de equipo",
+      link: "/pricing",
+    },
+    {
+      icon: Briefcase,
+      title: "Agencias",
+      desc: "Gestiona clientes, cotizaciones y finanzas en un lugar. De la propuesta al cobro, todo conectado.",
+      cta: "Ver planes de agencia",
+      link: "/pricing",
+    },
+  ];
+
+  const additionalProfiles = [
     { icon: Target, title: "Líderes y admins", desc: "Toma decisiones con datos reales de operación." },
-    { icon: Briefcase, title: "Agencias y despachos", desc: "Conecta trabajo, clientes y cobranza." },
     { icon: TrendingUp, title: "Consultores", desc: "Registra horas por proyecto para cobrar mejor." },
     { icon: Globe, title: "Founders", desc: "Pon orden a la operación desde el día uno." },
   ];
@@ -332,12 +353,28 @@ function ForWho() {
         <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[#1C1917]">
           Para cualquiera que necesite saber en qué se va su tiempo.
         </h2>
-        <div className="mt-12 grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {profiles.map((p) => (
-            <div key={p.title} className="rounded-sm border border-[#E7E0D8] p-5 bg-white hover:bg-[#F0E8DD] transition-colors duration-300 group">
-              <p.icon className="h-5 w-5 text-[#C8A96E] mb-3 group-hover:scale-110 transition-transform" />
-              <h3 className="text-[15px] font-semibold text-[#1C1917] mb-1">{p.title}</h3>
-              <p className="text-[13px] text-[#57534E] leading-relaxed font-body">{p.desc}</p>
+
+        {/* Primary segments — 3 columns with CTAs */}
+        <div className="mt-12 grid md:grid-cols-3 gap-6">
+          {segments.map((s) => (
+            <div key={s.title} className="rounded-sm border border-[#E7E0D8] p-6 bg-white hover:bg-[#F0E8DD] transition-colors duration-300 group flex flex-col">
+              <s.icon className="h-6 w-6 text-[#C8A96E] mb-4 group-hover:scale-110 transition-transform" />
+              <h3 className="text-[17px] font-semibold text-[#1C1917] mb-2">{s.title}</h3>
+              <p className="text-[14px] text-[#57534E] leading-relaxed font-body flex-1">{s.desc}</p>
+              <Link to={s.link} className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#C8A96E] hover:text-[#1C1917] transition-colors">
+                {s.cta} <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        {/* Additional profiles */}
+        <div className="mt-6 grid grid-cols-3 gap-4">
+          {additionalProfiles.map((p) => (
+            <div key={p.title} className="rounded-sm border border-[#E7E0D8] p-4 bg-white hover:bg-[#F0E8DD] transition-colors duration-300 group">
+              <p.icon className="h-4 w-4 text-[#C8A96E] mb-2 group-hover:scale-110 transition-transform" />
+              <h3 className="text-[14px] font-semibold text-[#1C1917] mb-1">{p.title}</h3>
+              <p className="text-[12px] text-[#57534E] leading-relaxed font-body">{p.desc}</p>
             </div>
           ))}
         </div>
@@ -349,7 +386,7 @@ function ForWho() {
 // ─── Pricing ───
 function PricingSection() {
   const plans = [
-    { name: "Solo", price: "Gratis", period: "", desc: "Para individuos que quieren orden", features: ["Registro ilimitado", "Historial de 14 días", "5 refinamientos AI/día", "Timer + registro manual"], cta: "Empezar gratis", link: "/signup", popular: false, accent: false },
+    { name: "Individual", price: "Gratis", period: "", desc: "Para freelancers y creativos", features: ["Registro ilimitado", "Historial de 14 días", "5 refinamientos AI/día", "Timer + registro manual", "Valor hora calculado"], cta: "Empezar gratis", link: "/signup", popular: false, accent: false },
     { name: "Starter", price: "$9", period: "/mes", desc: "Para freelancers y equipos pequeños", features: ["Hasta 3 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo"], cta: "Elegir plan", link: "/signup", popular: false, accent: false },
     { name: "Estudio", price: "$16", period: "/mes", desc: "Para estudios y agencias medianas", features: ["Hasta 6 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo", "Soporte prioritario"], cta: "Elegir plan", link: "/signup", popular: true, accent: true },
     { name: "Agencia", price: "$20", period: "/mes", desc: "Para agencias y equipos grandes", features: ["Hasta 10 miembros", "Historial completo", "AI ilimitado", "Exportación de datos", "Visibilidad de equipo", "Soporte prioritario", "Onboarding personalizado"], cta: "Elegir plan", link: "/signup", popular: false, accent: false },

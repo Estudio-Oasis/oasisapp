@@ -40,12 +40,16 @@ export default function OnboardingPage() {
     );
   }
 
+  const profileType = user?.user_metadata?.profile_type || "";
+  const isIndividual = !profileType || profileType === "freelancer" || profileType === "other";
+  const defaultRoute = isIndividual ? "/bitacora" : "/home?welcome=true";
+
   return (
     <OnboardingWizard
       open={true}
       userName={displayName}
-      onComplete={() => navigate("/home?welcome=true", { replace: true })}
-      onSkip={() => navigate("/home", { replace: true })}
+      onComplete={() => navigate(defaultRoute, { replace: true })}
+      onSkip={() => navigate(isIndividual ? "/bitacora" : "/home", { replace: true })}
     />
   );
 }
