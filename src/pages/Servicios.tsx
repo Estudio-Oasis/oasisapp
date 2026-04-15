@@ -7,90 +7,171 @@ const SERVICES = [
   {
     num: "01",
     title: "Branding",
-    subtitle: "Identidades que la gente recuerda.",
-    items: [
-      "Logotipos y sistemas de identidad",
-      "Naming y arquitectura de marca",
-      "Packaging y etiquetado",
-      "Señalética y ambientación",
-      "Brandbooks y guías de estilo",
-      "Estrategia de marca",
-    ],
+    description:
+      "Creamos identidades memorables desde la narrativa hasta el diseño. Cada proyecto comienza con entender a fondo el negocio, el mercado y la audiencia para construir una marca que conecte y se distinga.",
+    deliverables:
+      "Logotipos · Sistemas de identidad visual · Naming · Paletas de color · Tipografía · Packaging · Señalética · Papelería · Brandbooks · Rediseños · Mockups · Merchandise",
+    dark: false,
+    imageRight: true,
   },
   {
     num: "02",
     title: "Marketing & Publicidad",
-    subtitle: "Contenido que convierte. Publicidad que escala.",
-    items: [
-      "Campañas en Meta, Google y TikTok",
-      "Estrategia de contenido y social media",
-      "Out-of-home (OOH) y espectaculares",
-      "Medios tradicionales",
-      "Email marketing y CRM",
-      "Estrategia de crecimiento (Growth)",
-    ],
+    description:
+      "Desarrollamos campañas que generan resultados medibles. Desde la estrategia hasta la producción y distribución, trabajamos en medios digitales y tradicionales con un enfoque en ROI real.",
+    deliverables:
+      "Estrategia de contenido · Campañas Meta Ads · Google Ads · TikTok Ads · Community management · Producción foto y video · Email marketing · Influencer marketing · OOH y medios tradicionales · SEO",
+    dark: true,
+    imageRight: false,
   },
   {
     num: "03",
     title: "Tecnología",
-    subtitle: "Plataformas digitales que trabajan para tu negocio.",
-    items: [
-      "Websites y landing pages",
-      "Aplicaciones web y móviles",
-      "E-commerce y marketplaces",
-      "Sistemas internos a medida",
-      "Integraciones y APIs",
-      "OasisOS — sistema operativo para agencias",
-    ],
+    description:
+      "Construimos plataformas digitales a medida: desde un sitio de portafolio hasta un e-commerce completo o un sistema interno para tu equipo. Todo responsive, rápido y fácil de administrar.",
+    deliverables:
+      "Websites · Landing pages · E-commerce · Apps web y móvil · Webflow · Shopify · Sistemas internos · Intranets · Tiendas en MercadoLibre y Amazon · SEO técnico",
+    dark: false,
+    imageRight: true,
+  },
+];
+
+const PROCESS = [
+  {
+    step: "01",
+    title: "Entender",
+    text: "Investigamos el problema, el mercado y la audiencia antes de diseñar nada.",
+  },
+  {
+    step: "02",
+    title: "Estrategia",
+    text: "Definimos el posicionamiento, el mensaje y el plan de trabajo.",
+  },
+  {
+    step: "03",
+    title: "Producción",
+    text: "Diseñamos, desarrollamos y producimos con atención al detalle.",
+  },
+  {
+    step: "04",
+    title: "Lanzamiento",
+    text: "Entregamos, medimos y optimizamos para maximizar resultados.",
   },
 ];
 
 export default function ServiciosPage() {
   return (
-    <div className="min-h-screen font-body bg-[#FAF7F2]">
+    <div className="min-h-screen font-body">
       <SiteNavbar />
 
       {/* Hero */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-20 bg-[#1C1917]">
-        <div className="max-w-6xl mx-auto px-6">
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Servicios</p>
-          <h1 className="font-serif-display text-[clamp(36px,6vw,64px)] leading-[1.05] text-white">
-            Lo que <span className="italic text-[#C8A96E]">hacemos.</span>
+      <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-[#FAF7F2]">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#A8A29E] mb-4">
+            SERVICIOS
+          </p>
+          <h1 className="font-serif-display text-[clamp(36px,6vw,64px)] leading-[1.05] text-[#1C1917]">
+            Tres áreas.{" "}
+            <span className="italic text-[#C8A96E]">Un estudio.</span>
           </h1>
-          <p className="mt-4 text-[16px] text-[#A8A29E] max-w-lg font-body">
-            Branding, marketing y tecnología para negocios que quieren crecer. 10 años de experiencia, +200 clientes.
+          <p className="mt-5 text-[17px] text-[#57534E] max-w-xl mx-auto font-body leading-relaxed">
+            Branding, marketing y tecnología trabajando juntos para hacer crecer
+            tu marca.
           </p>
         </div>
       </section>
 
       {/* Services */}
-      <section className="py-20 md:py-28">
-        <div className="max-w-6xl mx-auto px-6 space-y-20">
-          {SERVICES.map((service) => (
-            <div key={service.num} className="grid md:grid-cols-2 gap-12 items-start">
-              <div>
-                <span className="font-serif-display text-[72px] font-bold text-[#E7E0D8] leading-none">{service.num}</span>
-                <h2 className="mt-2 font-serif-display text-[clamp(28px,3.5vw,40px)] text-[#1C1917]">{service.title}</h2>
-                <p className="mt-3 text-[16px] text-[#57534E] font-body">{service.subtitle}</p>
-              </div>
-              <ul className="space-y-3 pt-4">
-                {service.items.map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-[15px] text-[#57534E] font-body">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#C8A96E] mt-2 shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+      {SERVICES.map((s) => {
+        const bgClass = s.dark ? "bg-[#1a1a1a]" : "bg-[#FAF7F2]";
+        const textColor = s.dark ? "text-white" : "text-[#1C1917]";
+        const subColor = s.dark ? "text-[#A8A29E]" : "text-[#57534E]";
+        const placeholderBg = s.dark ? "bg-[#2a2a2a]" : "bg-[#E7E0D8]";
+
+        const image = (
+          <div
+            className={`aspect-square rounded-sm ${placeholderBg} flex items-center justify-center`}
+          >
+            <span className={`text-[13px] ${subColor} font-mono-label`}>
+              Imagen
+            </span>
+          </div>
+        );
+
+        const content = (
+          <div className="flex flex-col justify-center">
+            <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-2">
+              {s.num}
+            </p>
+            <h2
+              className={`font-serif-display text-[clamp(28px,3.5vw,44px)] leading-[1.1] ${textColor}`}
+            >
+              {s.title}
+            </h2>
+            <p className={`mt-4 text-[16px] leading-relaxed ${subColor} font-body`}>
+              {s.description}
+            </p>
+            <p
+              className={`mt-6 text-[13px] leading-loose ${subColor} opacity-70 font-body`}
+            >
+              {s.deliverables}
+            </p>
+          </div>
+        );
+
+        return (
+          <section key={s.num} className={`${bgClass} py-20 md:py-28`}>
+            <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              {s.imageRight ? (
+                <>
+                  {content}
+                  {image}
+                </>
+              ) : (
+                <>
+                  {image}
+                  {content}
+                </>
+              )}
             </div>
-          ))}
+          </section>
+        );
+      })}
+
+      {/* Process */}
+      <section className="py-20 md:py-28 bg-[#1C1917]">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] text-white text-center mb-16">
+            Nuestro <span className="italic text-[#C8A96E]">proceso.</span>
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 md:gap-14">
+            {PROCESS.map((p) => (
+              <div key={p.step}>
+                <span className="font-serif-display text-[48px] font-bold text-[#C8A96E]/20 leading-none">
+                  {p.step}
+                </span>
+                <h3 className="mt-1 font-serif-display text-[22px] text-white">
+                  {p.title}
+                </h3>
+                <p className="mt-2 text-[15px] text-[#A8A29E] font-body leading-relaxed">
+                  {p.text}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-20 bg-[#F0E8DD]">
+      <section className="py-20 md:py-28 bg-[#FAF7F2]">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="font-serif-display text-[clamp(24px,4vw,44px)] text-[#1C1917]">¿Listo para empezar?</h2>
-          <p className="mt-4 text-[16px] text-[#57534E] font-body">Cuéntanos tu proyecto. Respondemos en menos de 24 horas.</p>
+          <h2 className="font-serif-display text-[clamp(28px,4.5vw,48px)] text-[#1C1917]">
+            ¿Tienes un proyecto{" "}
+            <span className="italic text-[#C8A96E]">en mente?</span>
+          </h2>
+          <p className="mt-4 text-[16px] text-[#57534E] font-body">
+            Cuéntanoslo. Respondemos en menos de 24 horas.
+          </p>
           <Link
             to="/contacto"
             className="mt-8 inline-flex items-center gap-2 h-12 px-8 rounded-sm bg-[#1C1917] text-white text-[14px] font-semibold hover:bg-[#2D2D2D] transition-all"

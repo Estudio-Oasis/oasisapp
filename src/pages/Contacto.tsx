@@ -1,12 +1,51 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { toast } from "sonner";
-import { Send } from "lucide-react";
+import { ArrowRight, Mail, Phone, Globe, MapPin } from "lucide-react";
+
+const NEED_OPTIONS = [
+  "Branding / Identidad de marca",
+  "Marketing y publicidad",
+  "Sitio web o app",
+  "Todo lo anterior",
+  "No sé, necesito orientación",
+];
+
+const BUDGET_OPTIONS = [
+  "Menos de $20,000 MXN",
+  "$20,000 – $50,000 MXN",
+  "$50,000 – $150,000 MXN",
+  "Más de $150,000 MXN",
+  "Prefiero no decirlo",
+];
+
+interface FormState {
+  name: string;
+  email: string;
+  company: string;
+  need: string;
+  budget: string;
+  message: string;
+}
+
+const INITIAL: FormState = {
+  name: "",
+  email: "",
+  company: "",
+  need: "",
+  budget: "",
+  message: "",
+};
 
 export default function ContactoPage() {
-  const [form, setForm] = useState({ name: "", email: "", company: "", message: "" });
+  const [form, setForm] = useState<FormState>(INITIAL);
   const [sending, setSending] = useState(false);
+
+  const set = (field: keyof FormState) => (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => setForm((p) => ({ ...p, [field]: e.target.value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,82 +54,228 @@ export default function ContactoPage() {
       return;
     }
     setSending(true);
-    // For now, mailto fallback
-    const subject = encodeURIComponent(`Contacto desde web: ${form.company || form.name}`);
-    const body = encodeURIComponent(`Nombre: ${form.name}\nEmpresa: ${form.company}\nEmail: ${form.email}\n\n${form.message}`);
-    window.open(`mailto:joserogelioteran@gmail.com?subject=${subject}&body=${body}`, "_blank");
+    const subject = encodeURIComponent(
+      `Proyecto: ${form.company || form.name}`
+    );
+    const body = encodeURIComponent(
+      `Nombre: ${form.name}\nEmail: ${form.email}\nEmpresa: ${form.company}\nNecesita: ${form.need}\nPresupuesto: ${form.budget}\n\n${form.message}`
+    );
+    window.open(
+      `mailto:r@oasistud.io?subject=${subject}&body=${body}`,
+      "_blank"
+    );
     toast.success("¡Gracias! Te contactaremos pronto.");
     setSending(false);
   };
 
+  const prefillIntern = () => {
+    setForm((p) => ({
+      ...p,
+      need: "No sé, necesito orientación",
+      message:
+        "Hola, me interesa hacer prácticas profesionales en Estudio Oasis.",
+    }));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const inputCls =
+    "w-full h-11 px-4 rounded-sm border border-[#E7E0D8] bg-white text-[14px] text-[#1C1917] font-body focus:outline-none focus:border-[#C8A96E] transition-colors";
+  const selectCls = `${inputCls} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2378716c%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_12px_center] bg-[length:16px]`;
+
   return (
-    <div className="min-h-screen font-body bg-[#FAF7F2]">
+    <div className="min-h-screen font-body">
       <SiteNavbar />
 
-      <section className="pt-32 pb-20 md:pt-40 md:pb-28">
-        <div className="max-w-3xl mx-auto px-6">
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Contacto</p>
-          <h1 className="font-serif-display text-[clamp(32px,5vw,52px)] leading-[1.1] text-[#1C1917]">
-            Hablemos de tu <span className="italic text-[#C8A96E]">proyecto.</span>
+      <div className="pt-16 min-h-screen flex flex-col lg:flex-row">
+        {/* Left — Info */}
+        <div className="lg:w-[40%] bg-[#1C1917] text-white px-8 md:px-12 py-16 lg:py-24 lg:sticky lg:top-0 lg:h-screen flex flex-col justify-center">
+          <span className="font-serif-display text-[20px] font-bold tracking-tight text-white mb-10">
+            OASIS
+          </span>
+          <h1 className="font-serif-display text-[clamp(36px,5vw,56px)] leading-[1.05]">
+            Hablemos<span className="text-[#C8A96E]">.</span>
           </h1>
-          <p className="mt-4 text-[16px] text-[#57534E] font-body max-w-lg">
-            Cuéntanos qué necesitas. Respondemos en menos de 24 horas.
+          <p className="mt-5 text-[16px] text-[#A8A29E] font-body leading-relaxed max-w-sm">
+            Cuéntanos tu proyecto. Respondemos en menos de 24 horas hábiles.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-12 space-y-5">
-            <div className="grid md:grid-cols-2 gap-5">
+          <div className="mt-10 space-y-4 text-[14px] text-[#A8A29E]">
+            <a
+              href="mailto:r@oasistud.io"
+              className="flex items-center gap-3 hover:text-white transition-colors"
+            >
+              <Mail className="h-4 w-4 text-[#C8A96E]" /> r@oasistud.io
+            </a>
+            <a
+              href="tel:+524531090660"
+              className="flex items-center gap-3 hover:text-white transition-colors"
+            >
+              <Phone className="h-4 w-4 text-[#C8A96E]" /> +52 453 109 0660
+            </a>
+            <a
+              href="https://www.oasistud.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 hover:text-white transition-colors"
+            >
+              <Globe className="h-4 w-4 text-[#C8A96E]" /> www.oasistud.io
+            </a>
+            <div className="flex items-center gap-3">
+              <MapPin className="h-4 w-4 text-[#C8A96E]" /> Ciudad de México
+            </div>
+          </div>
+
+          <div className="mt-10 flex gap-5 text-[13px] text-[#A8A29E]">
+            <a
+              href="https://instagram.com/oasistud.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              Instagram
+            </a>
+            <a
+              href="https://linkedin.com/company/oasistud"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              LinkedIn
+            </a>
+            <a
+              href="https://behance.net/rogertern"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors"
+            >
+              Behance
+            </a>
+          </div>
+        </div>
+
+        {/* Right — Form */}
+        <div className="lg:w-[60%] bg-[#FAF7F2] px-8 md:px-16 py-16 lg:py-24 flex items-start justify-center">
+          <div className="w-full max-w-lg">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">Nombre *</label>
+                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                  Nombre completo *
+                </label>
                 <input
                   type="text"
                   value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full h-11 px-4 rounded-sm border border-[#E7E0D8] bg-white text-[14px] text-[#1C1917] focus:outline-none focus:border-[#C8A96E] transition-colors"
+                  onChange={set("name")}
+                  className={inputCls}
                   placeholder="Tu nombre"
+                  required
                 />
               </div>
+
               <div>
-                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">Email *</label>
+                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                  Email *
+                </label>
                 <input
                   type="email"
                   value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full h-11 px-4 rounded-sm border border-[#E7E0D8] bg-white text-[14px] text-[#1C1917] focus:outline-none focus:border-[#C8A96E] transition-colors"
+                  onChange={set("email")}
+                  className={inputCls}
                   placeholder="tu@email.com"
+                  required
                 />
               </div>
+
+              <div>
+                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                  Empresa o marca
+                </label>
+                <input
+                  type="text"
+                  value={form.company}
+                  onChange={set("company")}
+                  className={inputCls}
+                  placeholder="Nombre de tu empresa (opcional)"
+                />
+              </div>
+
+              <div>
+                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                  ¿Qué necesitas?
+                </label>
+                <select value={form.need} onChange={set("need")} className={selectCls}>
+                  <option value="">Selecciona una opción</option>
+                  {NEED_OPTIONS.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                  Presupuesto aproximado
+                </label>
+                <select value={form.budget} onChange={set("budget")} className={selectCls}>
+                  <option value="">Selecciona un rango</option>
+                  {BUDGET_OPTIONS.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">
+                  Cuéntanos de tu proyecto *
+                </label>
+                <textarea
+                  value={form.message}
+                  onChange={set("message")}
+                  rows={5}
+                  className="w-full px-4 py-3 rounded-sm border border-[#E7E0D8] bg-white text-[14px] text-[#1C1917] font-body focus:outline-none focus:border-[#C8A96E] transition-colors resize-none min-h-[120px]"
+                  placeholder="Describe tu proyecto, tus objetivos y tiempos..."
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={sending}
+                className="w-full h-12 rounded-sm bg-[#1C1917] text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#2D2D2D] transition-colors disabled:opacity-50"
+              >
+                Enviar mensaje <ArrowRight className="h-4 w-4" />
+              </button>
+            </form>
+
+            <p className="mt-4 text-[12px] text-[#A8A29E]">
+              Al enviar este formulario aceptas nuestro{" "}
+              <Link
+                to="/aviso-de-privacidad"
+                className="underline hover:text-[#1C1917] transition-colors"
+              >
+                aviso de privacidad
+              </Link>
+              .
+            </p>
+
+            {/* Intern CTA */}
+            <div className="mt-12 pt-8 border-t border-[#E7E0D8]">
+              <p className="text-[14px] text-[#57534E] font-body">
+                ¿Eres estudiante y quieres hacer prácticas?
+              </p>
+              <button
+                type="button"
+                onClick={prefillIntern}
+                className="mt-3 text-[13px] font-semibold text-[#C8A96E] hover:text-[#1C1917] transition-colors flex items-center gap-1"
+              >
+                Postúlate aquí <ArrowRight className="h-3.5 w-3.5" />
+              </button>
             </div>
-            <div>
-              <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">Empresa</label>
-              <input
-                type="text"
-                value={form.company}
-                onChange={(e) => setForm({ ...form, company: e.target.value })}
-                className="w-full h-11 px-4 rounded-sm border border-[#E7E0D8] bg-white text-[14px] text-[#1C1917] focus:outline-none focus:border-[#C8A96E] transition-colors"
-                placeholder="Nombre de tu empresa (opcional)"
-              />
-            </div>
-            <div>
-              <label className="text-[12px] font-semibold text-[#1C1917] mb-1.5 block">Mensaje *</label>
-              <textarea
-                value={form.message}
-                onChange={(e) => setForm({ ...form, message: e.target.value })}
-                rows={5}
-                className="w-full px-4 py-3 rounded-sm border border-[#E7E0D8] bg-white text-[14px] text-[#1C1917] focus:outline-none focus:border-[#C8A96E] transition-colors resize-none"
-                placeholder="Cuéntanos sobre tu proyecto..."
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={sending}
-              className="h-12 px-8 rounded-sm bg-[#1C1917] text-white text-[14px] font-semibold flex items-center gap-2 hover:bg-[#2D2D2D] transition-colors disabled:opacity-50"
-            >
-              <Send className="h-4 w-4" />
-              Enviar mensaje
-            </button>
-          </form>
+          </div>
         </div>
-      </section>
+      </div>
 
       <SiteFooter />
     </div>
