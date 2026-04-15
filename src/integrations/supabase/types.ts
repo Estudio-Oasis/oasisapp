@@ -870,17 +870,23 @@ export type Database = {
       profiles: {
         Row: {
           agency_id: string | null
+          available_hours_per_week: number | null
           avatar_url: string | null
           created_at: string
           email: string | null
           id: string
+          income_currency: string
+          income_minimum: number | null
+          income_target: number | null
           job_title: string | null
           name: string | null
           onboarded: boolean
           onboarding_skipped: boolean
           plan: string
+          profile_type: string | null
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string
+          work_days: string[]
           work_end_hour: number
           work_end_minute: number
           work_start_hour: number
@@ -888,17 +894,23 @@ export type Database = {
         }
         Insert: {
           agency_id?: string | null
+          available_hours_per_week?: number | null
           avatar_url?: string | null
           created_at?: string
           email?: string | null
           id: string
+          income_currency?: string
+          income_minimum?: number | null
+          income_target?: number | null
           job_title?: string | null
           name?: string | null
           onboarded?: boolean
           onboarding_skipped?: boolean
           plan?: string
+          profile_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
+          work_days?: string[]
           work_end_hour?: number
           work_end_minute?: number
           work_start_hour?: number
@@ -906,17 +918,23 @@ export type Database = {
         }
         Update: {
           agency_id?: string | null
+          available_hours_per_week?: number | null
           avatar_url?: string | null
           created_at?: string
           email?: string | null
           id?: string
+          income_currency?: string
+          income_minimum?: number | null
+          income_target?: number | null
           job_title?: string | null
           name?: string | null
           onboarded?: boolean
           onboarding_skipped?: boolean
           plan?: string
+          profile_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
+          work_days?: string[]
           work_end_hour?: number
           work_end_minute?: number
           work_start_hour?: number
@@ -1349,6 +1367,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_hourly_rates: {
+        Args: { _user_id: string }
+        Returns: {
+          rate_minimum: number
+          rate_premium: number
+          rate_target: number
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean

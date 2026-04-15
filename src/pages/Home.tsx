@@ -11,7 +11,8 @@ import { GapsWidget } from "@/components/dashboard/GapsWidget";
 import { FinanceSummaryWidget } from "@/components/dashboard/FinanceSummaryWidget";
 import { WelcomeChecklist } from "@/components/dashboard/WelcomeChecklist";
 import { formatDuration } from "@/lib/timer-utils";
-import { Clock, Users, FileText, Receipt, TrendingUp } from "lucide-react";
+import { useHourlyRate } from "@/hooks/useHourlyRate";
+import { Clock, Users, FileText, Receipt, TrendingUp, Target } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 function DailyProgressBar() {
@@ -101,6 +102,62 @@ function AdminKPIs() {
   );
 }
 
+function MonthProgressWidget() {
+  const { user } = useAuth();
+  const { rates, economic, hasEconomicProfile } = useHourlyRate();
+  const [monthIncome, setMonthIncome] = useState(0);
+  const [monthHours, setMonthHours] = useState(0);
+
+  useEffect(() => {
+    if (!user || !hasEconomicProfile) return;
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+    Promise.all([
+      supabase.from("payments").select("amount_received").gte("date_received", monthStart),
+      supabase.from("time_entries").select("duration_min").eq("user_id", user.id).gte("started_at", monthStart).not("ended_at", "is", null),
+    ]).then(([payments, entries]) => {
+      setMonthIncome((payments.data || []).reduce((s: number, p: any) => s + Number(p.amount_received), 0));
+      const mins = (entries.data || []).reduce((s: number, e: any) => s + (Number(e.duration_min) || 0), 0);
+      setMonthHours(mins / 60);
+    });
+  }, [user, hasEconomicProfile]);
+
+  if (!hasEconomicProfile || !economic) return null;
+
+  const target = economic.income_target || 0;
+  const pct = target > 0 ? Math.min((monthIncome / target) * 100, 100) : 0;
+  const realRate = monthHours > 0 ? Math.round(monthIncome / monthHours) : null;
+  const currency = economic.income_currency;
+
+  return (
+    <div className="rounded-2xl border border-border/50 bg-card p-5 shadow-sm space-y-3">
+      <div className="flex items-center gap-2">
+        <Target className="h-4 w-4 text-accent" />
+        <h3 className="text-sm font-semibold text-foreground">Progreso del mes</h3>
+      </div>
+      <div className="space-y-1.5">
+        <div className="flex justify-between text-xs">
+          <span className="text-foreground-secondary">
+            ${monthIncome.toLocaleString()} de ${target.toLocaleString()} {currency}
+          </span>
+          <span className="font-medium text-foreground">{Math.round(pct)}%</span>
+        </div>
+        <Progress value={pct} className="h-2" />
+      </div>
+      {realRate !== null && rates.rate_target && (
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-foreground-secondary">Valor hora real:</span>
+          <span className={`font-bold ${realRate >= rates.rate_target ? "text-success" : "text-destructive"}`}>
+            ${realRate.toLocaleString()}/hr
+          </span>
+          <span className="text-foreground-muted">vs ${rates.rate_target.toLocaleString()}/hr objetivo</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function HomePage() {
   const { user } = useAuth();
   const { isAdmin } = useRole();
@@ -117,6 +174,9 @@ export default function HomePage() {
         <h1 className="text-2xl font-bold text-foreground">{greeting} 👋</h1>
         <DailyProgressBar />
       </div>
+
+      {/* Month economic progress */}
+      <MonthProgressWidget />
 
       {/* Welcome checklist for new users */}
       <WelcomeChecklist />

@@ -8,6 +8,7 @@ import { MorningBriefing } from "@/components/bitacora/MorningBriefing";
 import { DailyDigest } from "@/components/bitacora/DailyDigest";
 import { DayInsights } from "@/components/timer/DayInsights";
 import { TimeEntryRow } from "@/components/timer/TimeEntryRow";
+import { useHourlyRate } from "@/hooks/useHourlyRate";
 import { GapAlert } from "@/components/timer/GapAlert";
 import { EmptyState } from "@/components/timer/EmptyState";
 import { ACTIVITY_TYPES, UI_COPY } from "@/components/timer/ActivityConstants";
@@ -28,6 +29,7 @@ import type { EntryInfo, GapInfo } from "./types";
 export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { autoOpenSheet?: boolean; hideQuickLog?: boolean } = {}) {
   const bita = useBitacora();
   const vm = useBitacoraVM();
+  const { rates: hourlyRates, economic: economicProfile } = useHourlyRate();
 
   const [quickSheetOpen, setQuickSheetOpen] = useState(false);
   const autoOpenedRef = useRef(false);
@@ -124,6 +126,8 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
                 description={bita.activeEntry?.description}
                 clientId={bita.activeEntry?.clientId}
                 elapsedSeconds={bita.elapsedSeconds}
+                rateTarget={hourlyRates.rate_target}
+                incomeCurrency={economicProfile?.income_currency}
                 onDescriptionChange={(newDesc) => bita.updateActiveEntry({ description: newDesc })}
               >
                 <ContextEnrichmentPanel />
