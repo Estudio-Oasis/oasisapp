@@ -1,101 +1,100 @@
 
 
-# Sprint 12: Individual-First Experience Overhaul
+# Sprint 13: Perfil Económico + Inteligencia de Valor Hora
 
-## The problem
+## Gap Analysis — Lo que YA existe vs lo que FALTA
 
-The entire app is framed as "crea tu agencia" — the copy, onboarding, auth layout, home dashboard, and sidebar all assume a team/agency context. But the free tier is for **individuals**: freelancers, solos, creatives tracking their own work and money. A solo user hitting "Crea tu agencia" or seeing "Invita a tu equipo" feels like the product isn't for them.
+| Concepto PRD | Estado |
+|---|---|
+| Timer + registro de actividad | ✅ Completo |
+| Clientes con monthly_rate | ✅ Completo |
+| Cotizaciones con PDF + pricing assistant | ✅ Completo |
+| Finanzas (pagos, facturas, gastos) | ✅ Completo |
+| Horario trabajo (start/end hour) | ✅ Parcial (solo inicio/fin, no días) |
+| Perfil tipo (freelancer/founder) | ✅ Se captura en onboarding pero NO se guarda en DB |
+| **Ingreso mensual objetivo** | ❌ No existe |
+| **Ingreso mínimo aceptable** | ❌ No existe |
+| **Horas disponibles por semana** | ❌ No existe (se infiere de work hours pero no es explícito) |
+| **Días laborales** | ❌ No existe |
+| **Valor hora calculado** | ❌ No existe |
+| **Costos operativos personales** | ❌ No existe |
+| **Dashboard de progreso vs objetivo** | ❌ Solo hay barra de horas/día, no de dinero |
+| **Valor económico en vivo en timer** | ❌ No existe |
+| **Insights de rentabilidad por cliente** | ⚠️ Parcial (RateBreakdown existe pero no compara vs objetivo) |
+| **Behavioral insights** | ❌ No existe |
 
-The core flows (signup → onboarding → home → daily use) need to feel personal and immediate, not corporate.
+## Plan de implementación — Sprint 13
+
+### 1. Migración de DB — Campos económicos en `profiles`
+
+Agregar a la tabla `profiles`:
+- `income_target` (numeric, nullable) — ingreso mensual objetivo
+- `income_minimum` (numeric, nullable) — ingreso mínimo aceptable
+- `income_currency` (text, default 'MXN') — moneda del objetivo
+- `available_hours_per_week` (numeric, nullable) — horas disponibles reales
+- `work_days` (text[], default '{mon,tue,wed,thu,fri}') — días laborales
+- `profile_type` (text, nullable) — freelancer/founder/employee/other
+
+Crear función SQL `calculate_hourly_rates(user_id uuid)` que retorne:
+- `rate_minimum` = income_minimum / (available_hours_per_week * 4.33)
+- `rate_target` = income_target / (available_hours_per_week * 4.33)
+- `rate_premium` = rate_target * 1.3
+
+### 2. Settings — Sección "Mi Economía"
+
+Expandir `FreeProfileView` en Settings con una nueva sección colapsable:
+
+**"Tu modelo económico"**
+- Ingreso mensual objetivo (input numérico + selector moneda)
+- Ingreso mínimo aceptable
+- Horas disponibles por semana
+- Días laborales (chips seleccionables: L M Mi J V S D)
+- Tipo de perfil (chips: Freelancer / Fundador / Empleado / Otro)
+
+Debajo, mostrar automáticamente un card con los 3 valores hora calculados:
+```
+Valor hora mínimo: $187/hr
+Valor hora objetivo: $312/hr  
+Valor hora premium: $406/hr
+```
+
+### 3. Onboarding — Capturar objetivo económico
+
+Agregar al Step 1 del OnboardingWizard (después de perfil tipo):
+- "¿Cuánto quieres ganar al mes?" — input numérico simple
+- "¿Cuántas horas quieres trabajar por semana?" — slider o input (default 40)
+
+Esto se guarda en profiles al crear la agencia. Mínimo viable, sin intimidar.
+
+### 4. Home Dashboard — Widget de Progreso Económico
+
+Nuevo widget `MonthProgressWidget`:
+- Barra de progreso: "Llevas $X de $Y este mes" (basado en pagos recibidos vs income_target)
+- Valor hora real este mes = pagos del mes / horas trabajadas del mes
+- Comparación visual: valor hora real vs objetivo (verde si arriba, rojo si abajo)
+- Solo aparece si el usuario tiene `income_target` configurado
+
+### 5. Timer — Equivalente económico en vivo
+
+En `ActiveSessionCard`, agregar línea:
+- "💰 ~$X" calculado como: elapsed_seconds / 3600 * rate_target
+- Solo visible si el usuario tiene income_target configurado
+- Sutil, no intrusivo — texto pequeño debajo del tiempo
+
+### 6. Guardar `profile_type` del onboarding
+
+El onboarding ya captura `profileType` pero no lo persiste. Guardarlo en el nuevo campo `profile_type` de profiles.
 
 ---
 
-## What changes
+## Archivos a editar
+- **Migración SQL**: nuevos campos en profiles + función calculate_hourly_rates
+- `src/pages/Settings.tsx` — expandir FreeProfileView con sección económica
+- `src/components/OnboardingWizard.tsx` — agregar income_target y available_hours al step 1
+- `src/pages/Home.tsx` — nuevo MonthProgressWidget
+- `src/components/timer/ActiveSessionCard.tsx` — mostrar equivalente económico
+- `src/hooks/useHourlyRate.ts` — nuevo hook que calcula y expone los rates
 
-### 1. Auth copy & layout — Make it personal
-
-**AuthLayout.tsx**: Update left panel messaging from "El sistema operativo para tu agencia creativa" to something individual-first:
-- Headline: "Organiza tu trabajo. Entiende tu tiempo. Cobra lo que vales."
-- Features list: replace team-centric features (Hub, Cotizaciones pro) with individual benefits (Timer inteligente, Valor hora en vivo, Cotizaciones, Insights de productividad)
-- Testimonial: change from agency to freelancer/solo perspective
-
-**Login.tsx**: Change "Inicia sesión en tu espacio de trabajo" → "Entra a tu sistema"
-
-**Signup.tsx**: 
-- Default headline: "Crea tu cuenta gratis" instead of "Crea tu agencia"
-- Subtitle: "Empieza a trackear tu tiempo y cobrar mejor" instead of "El sistema operativo para tu agencia creativa"
-- Remove "Confirmar contraseña" field (adds friction, not necessary for signup — validate password length only)
-
-### 2. Onboarding — Simplify for individuals
-
-**OnboardingWizard.tsx**: Restructure from 5 steps to 3 for solo users:
-
-**Step 1 — "¿Cómo trabajas?"** (replaces agency name + country/currency)
-- Name field (pre-filled from signup)
-- "¿Cómo te describes?" chips: Freelancer / Fundador / Empleado / Otro
-- Country + Currency (combined, single row)
-- This creates a "personal workspace" instead of an "agency" — but technically still creates the agency record behind the scenes
-
-**Step 2 — "Tu primer cliente"** (keep, it's critical for first value)
-- Same as current step 4 but simplified: just client name + billing type
-- Skip button prominent
-
-**Step 3 — "Listo"** (summary)
-- Remove team invite step entirely from solo flow
-- Show "Iniciar mi primera sesión" as primary CTA
-
-The "Invita a tu equipo" step only appears if user later upgrades to Pro.
-
-### 3. Home dashboard — Individual-first layout
-
-**Home.tsx**: Redesign for a solo user's daily command center:
-
-- **Greeting + today's date** (keep, it's warm)
-- **Daily progress bar**: "X horas registradas hoy de Y disponibles" — uses work_start/end_hour from profile
-- **WelcomeChecklist**: Update items to be individual-relevant:
-  - "Registra tu primera hora" (keep)
-  - "Agrega tu primer cliente" (keep)
-  - ~~"Invita a alguien de tu equipo"~~ (remove for free)
-  - ~~"Crea tu primera cotización"~~ (keep but reword: "Crea tu primera propuesta")
-  - ~~"Completa el perfil de tu agencia"~~ → "Configura tu perfil"
-- **Main grid**: Keep TimerLauncherWidget + DayTasksWidget
-- **Secondary**: Keep IdeasWidget + GapsWidget. Remove TeamWidget for free users.
-- Hide AdminKPIs entirely for non-admin
-
-### 4. Sidebar — Clean up for free tier
-
-**AppSidebar.tsx**: 
-- Fix duplicate upgrade banners (there are TWO "Mejorar plan" blocks — lines 229-243 and 246-261). Remove one.
-- For free users, show only: Inicio, Bitácora, Settings
-- The upgrade CTA stays but with better copy: "Desbloquea clientes, equipo y cotizaciones"
-
-**BottomNav.tsx**: For free users, show only: Inicio, Bitácora, Ajustes (currently shows Clients, Vault, Finances which are Pro-only and would just redirect)
-
-### 5. BitacoraLayout — Small polish
-
-**BitacoraLayout.tsx**: 
-- Change logo from "B" to "O" (OasisOS branding, not a separate product)
-- Add user avatar/name in header for context
-- Add link to /home if using BitacoraLayout
-
----
-
-## Technical details
-
-### Files to edit
-- `src/components/AuthLayout.tsx` — update copy and features
-- `src/pages/Login.tsx` — update subtitle
-- `src/pages/Signup.tsx` — update copy, remove confirm password
-- `src/components/OnboardingWizard.tsx` — restructure to 3 steps for solo
-- `src/pages/Home.tsx` — add daily progress, conditional widgets
-- `src/components/dashboard/WelcomeChecklist.tsx` — update items for individual
-- `src/components/AppSidebar.tsx` — remove duplicate upgrade banner, filter nav for free
-- `src/components/BottomNav.tsx` — filter nav items by plan
-- `src/components/BitacoraLayout.tsx` — branding fix + user context
-
-### No database changes needed
-All profile fields already exist. The "workspace type" (solo vs team) is implicit from the plan.
-
-### No new files needed
-This is pure UX/copy/flow refinement of existing components.
+## Sin archivos nuevos de página
+Todo se integra en componentes existentes.
 
