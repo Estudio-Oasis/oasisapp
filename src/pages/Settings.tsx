@@ -153,6 +153,42 @@ function FreeProfileView({ profile, userId, onUpdate }: { profile: { name: strin
   const [endHour, setEndHour] = useState(profile?.work_end_hour ?? 18);
   const [saving, setSaving] = useState(false);
 
+  // Economic profile state
+  const [incomeTarget, setIncomeTarget] = useState<string>("");
+  const [incomeMinimum, setIncomeMinimum] = useState<string>("");
+  const [incomeCurrency, setIncomeCurrency] = useState("MXN");
+  const [availableHours, setAvailableHours] = useState<string>("");
+  const [workDays, setWorkDays] = useState<string[]>(["mon", "tue", "wed", "thu", "fri"]);
+  const [profileType, setProfileType] = useState<string>("");
+  const [economyLoaded, setEconomyLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!userId) return;
+    supabase
+      .from("profiles")
+      .select("income_target, income_minimum, income_currency, available_hours_per_week, work_days, profile_type")
+      .eq("id", userId)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setIncomeTarget(data.income_target != null ? String(data.income_target) : "");
+          setIncomeMinimum(data.income_minimum != null ? String(data.income_minimum) : "");
+          setIncomeCurrency((data.income_currency as string) || "MXN");
+          setAvailableHours(data.available_hours_per_week != null ? String(data.available_hours_per_week) : "");
+          setWorkDays((data.work_days as string[]) || ["mon", "tue", "wed", "thu", "fri"]);
+          setProfileType((data.profile_type as string) || "");
+        }
+        setEconomyLoaded(true);
+      });
+  }, [userId]);
+
+  // Calculate rates locally
+  const hrs = Number(availableHours) || 0;
+  const monthlyHours = hrs * 4.33;
+  const rateTarget = hrs > 0 && incomeTarget ? Math.round((Number(incomeTarget) / monthlyHours) * 100) / 100 : null;
+  const rateMinimum = hrs > 0 && incomeMinimum ? Math.round((Number(incomeMinimum) / monthlyHours) * 100) / 100 : null;
+  const ratePremium = rateTarget ? Math.round(rateTarget * 1.3 * 100) / 100 : null;
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId) return;
@@ -161,21 +197,54 @@ function FreeProfileView({ profile, userId, onUpdate }: { profile: { name: strin
       name: name.trim(),
       work_start_hour: startHour,
       work_end_hour: endHour,
-    }).eq("id", userId);
+      income_target: incomeTarget ? Number(incomeTarget) : null,
+      income_minimum: incomeMinimum ? Number(incomeMinimum) : null,
+      income_currency: incomeCurrency,
+      available_hours_per_week: availableHours ? Number(availableHours) : null,
+      work_days: workDays,
+      profile_type: profileType || null,
+    } as any).eq("id", userId);
     setSaving(false);
     if (error) { toast.error("No se pudo guardar"); return; }
     toast.success("Perfil actualizado");
     onUpdate();
   };
 
+  const DAYS = [
+    { key: "mon", label: "L" },
+    { key: "tue", label: "M" },
+    { key: "wed", label: "Mi" },
+    { key: "thu", label: "J" },
+    { key: "fri", label: "V" },
+    { key: "sat", label: "S" },
+    { key: "sun", label: "D" },
+  ];
+
+  const PROFILE_TYPES = [
+    { value: "freelancer", label: "Freelancer", emoji: "🎨" },
+    { value: "founder", label: "Fundador", emoji: "🚀" },
+    { value: "employee", label: "Empleado", emoji: "💼" },
+    { value: "other", label: "Otro", emoji: "✨" },
+  ];
+
+  const CURRENCIES = [
+    { value: "MXN", label: "MXN" },
+    { value: "USD", label: "USD" },
+    { value: "COP", label: "COP" },
+    { value: "ARS", label: "ARS" },
+    { value: "CLP", label: "CLP" },
+    { value: "EUR", label: "EUR" },
+  ];
+
   return (
     <div className="max-w-lg">
       <h1 className="text-h1 text-foreground">Mi perfil</h1>
       <p className="text-small text-foreground-secondary mt-1">
-        Configura tu nombre y horario de trabajo
+        Configura tu perfil y modelo económico
       </p>
 
       <form onSubmit={handleSave} className="mt-8 space-y-5">
+        {/* Basic info */}
         <div className="space-y-1.5">
           <label className="text-label">Nombre</label>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre" />
@@ -184,6 +253,26 @@ function FreeProfileView({ profile, userId, onUpdate }: { profile: { name: strin
         <div className="space-y-1.5">
           <label className="text-label">Correo</label>
           <Input value={profile?.email || ""} disabled className="opacity-60" />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-label">¿Cómo te describes?</label>
+          <div className="flex flex-wrap gap-2">
+            {PROFILE_TYPES.map((pt) => (
+              <button
+                key={pt.value}
+                type="button"
+                onClick={() => setProfileType(profileType === pt.value ? "" : pt.value)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                  profileType === pt.value
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border bg-background hover:bg-muted text-foreground"
+                }`}
+              >
+                {pt.emoji} {pt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -195,6 +284,109 @@ function FreeProfileView({ profile, userId, onUpdate }: { profile: { name: strin
             <label className="text-label">Fin de jornada</label>
             <Input type="number" min={0} max={23} value={endHour} onChange={(e) => setEndHour(Number(e.target.value))} />
           </div>
+        </div>
+
+        {/* Work days */}
+        <div className="space-y-1.5">
+          <label className="text-label">Días laborales</label>
+          <div className="flex gap-1.5">
+            {DAYS.map((d) => (
+              <button
+                key={d.key}
+                type="button"
+                onClick={() => setWorkDays(prev => prev.includes(d.key) ? prev.filter(x => x !== d.key) : [...prev, d.key])}
+                className={`h-8 w-8 rounded-full text-xs font-semibold border transition-colors ${
+                  workDays.includes(d.key)
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border bg-background text-foreground-muted hover:bg-muted"
+                }`}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Economic section */}
+        <div className="border-t border-border pt-5 space-y-4">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">Tu modelo económico</h2>
+            <p className="text-[11px] text-foreground-secondary mt-0.5">Define tu objetivo y el sistema calcula tu valor hora</p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2 space-y-1.5">
+              <label className="text-label">Ingreso mensual objetivo</label>
+              <Input
+                type="number"
+                min={0}
+                value={incomeTarget}
+                onChange={(e) => setIncomeTarget(e.target.value)}
+                placeholder="ej: 50000"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-label">Moneda</label>
+              <select
+                value={incomeCurrency}
+                onChange={(e) => setIncomeCurrency(e.target.value)}
+                className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                {CURRENCIES.map((c) => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-label">Ingreso mínimo aceptable</label>
+            <Input
+              type="number"
+              min={0}
+              value={incomeMinimum}
+              onChange={(e) => setIncomeMinimum(e.target.value)}
+              placeholder="ej: 30000"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-label">Horas disponibles por semana</label>
+            <Input
+              type="number"
+              min={1}
+              max={80}
+              value={availableHours}
+              onChange={(e) => setAvailableHours(e.target.value)}
+              placeholder="ej: 40"
+            />
+          </div>
+
+          {/* Calculated rates */}
+          {rateTarget && (
+            <div className="rounded-xl border border-accent/30 bg-accent/5 p-4 space-y-2">
+              <p className="text-[10px] font-semibold text-accent uppercase tracking-wider">Tus valores hora calculados</p>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                {rateMinimum && (
+                  <div>
+                    <p className="text-lg font-bold text-foreground-secondary">${rateMinimum.toLocaleString()}</p>
+                    <p className="text-[10px] text-foreground-muted">Mínimo</p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-lg font-bold text-accent">${rateTarget.toLocaleString()}</p>
+                  <p className="text-[10px] text-foreground-muted">Objetivo</p>
+                </div>
+                {ratePremium && (
+                  <div>
+                    <p className="text-lg font-bold text-foreground">${ratePremium.toLocaleString()}</p>
+                    <p className="text-[10px] text-foreground-muted">Premium</p>
+                  </div>
+                )}
+              </div>
+              <p className="text-[10px] text-foreground-muted text-center">{incomeCurrency}/hr</p>
+            </div>
+          )}
         </div>
 
         <PlanSection />

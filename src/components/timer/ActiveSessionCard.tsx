@@ -14,6 +14,8 @@ interface ActiveSessionCardProps {
   description?: string | null;
   clientId?: string | null;
   elapsedSeconds: number;
+  rateTarget?: number | null;
+  incomeCurrency?: string;
   onDescriptionChange?: (newDesc: string) => void;
   children?: React.ReactNode;
 }
@@ -25,6 +27,8 @@ export function ActiveSessionCard({
   description,
   clientId,
   elapsedSeconds,
+  rateTarget,
+  incomeCurrency = "MXN",
   onDescriptionChange,
   children,
 }: ActiveSessionCardProps) {
@@ -94,6 +98,11 @@ export function ActiveSessionCard({
           )}
         </div>
         <p className="text-display text-accent tabular-nums pt-2">{formatElapsed(elapsedSeconds)}</p>
+        {rateTarget && (
+          <p className="text-xs text-foreground-muted">
+            💰 ~${Math.round((elapsedSeconds / 3600) * rateTarget).toLocaleString()} {incomeCurrency}
+          </p>
+        )}
         {children}
       </div>
     );
@@ -114,9 +123,16 @@ export function ActiveSessionCard({
             </span>
             <span className="text-[10px] font-semibold text-accent uppercase tracking-wider">{UI_COPY.sessionActive}</span>
           </div>
-          <p className="text-[28px] font-black text-accent tabular-nums tracking-tight leading-none">
-            {formatElapsed(elapsedSeconds)}
-          </p>
+          <div className="text-right">
+            <p className="text-[28px] font-black text-accent tabular-nums tracking-tight leading-none">
+              {formatElapsed(elapsedSeconds)}
+            </p>
+            {rateTarget && (
+              <p className="text-[11px] text-foreground-muted mt-0.5">
+                💰 ~${Math.round((elapsedSeconds / 3600) * rateTarget).toLocaleString()} {incomeCurrency}
+              </p>
+            )}
+          </div>
         </div>
 
         {onDescriptionChange ? (

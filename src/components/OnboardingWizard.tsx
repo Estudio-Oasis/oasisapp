@@ -65,6 +65,8 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
   const [profileType, setProfileType] = useState("");
   const [country, setCountry] = useState("MX");
   const [currency, setCurrency] = useState("MXN");
+  const [incomeTarget, setIncomeTarget] = useState("");
+  const [availableHours, setAvailableHours] = useState("40");
 
   // Step 2 — First client
   const [clientName, setClientName] = useState("");
@@ -123,6 +125,10 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
         name: displayName.trim() || null,
         job_title: profileType || null,
         role: "admin",
+        profile_type: profileType || null,
+        income_target: incomeTarget ? Number(incomeTarget) : null,
+        income_currency: currency,
+        available_hours_per_week: availableHours ? Number(availableHours) : null,
       } as any).eq("id", user.id);
 
       // Create agency_settings
@@ -230,7 +236,7 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
                   ))}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-label mb-1.5 block">País</label>
                   <Select value={country} onValueChange={setCountry}>
@@ -253,6 +259,29 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              {/* Economic basics */}
+              <div>
+                <label className="text-label mb-1.5 block">¿Cuánto quieres ganar al mes?</label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={incomeTarget}
+                  onChange={(e) => setIncomeTarget(e.target.value)}
+                  placeholder={`ej: 50,000 ${currency}`}
+                />
+              </div>
+              <div>
+                <label className="text-label mb-1.5 block">Horas disponibles por semana</label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={80}
+                  value={availableHours}
+                  onChange={(e) => setAvailableHours(e.target.value)}
+                  placeholder="40"
+                />
               </div>
             </div>
             <Button onClick={handleStep1} disabled={saving} className="w-full">
