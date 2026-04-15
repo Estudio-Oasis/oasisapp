@@ -186,7 +186,7 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
   const TOTAL_STEPS = 3;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center">
+    <div id="onboarding-overlay" className="fixed inset-0 z-[100] bg-background flex items-center justify-center">
       {/* Close button */}
       <button
         onClick={handleClose}
