@@ -149,9 +149,9 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
       if (settingsErr) console.warn("agency_settings insert failed:", settingsErr);
 
       setStep(2);
-    } catch (err) {
-      console.error(err);
-      toast.error("Error al configurar tu espacio");
+    } catch (err: any) {
+      console.error("Onboarding step 1 error:", err);
+      toast.error(err?.message || "Error al configurar tu espacio");
     } finally {
       setSaving(false);
     }
