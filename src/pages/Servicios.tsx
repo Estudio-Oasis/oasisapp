@@ -13,6 +13,8 @@ const SERVICES = [
       "Logotipos · Sistemas de identidad visual · Naming · Paletas de color · Tipografía · Packaging · Señalética · Papelería · Brandbooks · Rediseños · Mockups · Merchandise",
     dark: false,
     imageRight: true,
+    placeholderBg: "#C9A96E",
+    placeholderLabel: "BRANDING",
   },
   {
     num: "02",
@@ -23,6 +25,8 @@ const SERVICES = [
       "Estrategia de contenido · Campañas Meta Ads · Google Ads · TikTok Ads · Community management · Producción foto y video · Email marketing · Influencer marketing · OOH y medios tradicionales · SEO",
     dark: true,
     imageRight: false,
+    placeholderBg: "#2D5A3D",
+    placeholderLabel: "MARKETING",
   },
   {
     num: "03",
@@ -33,6 +37,8 @@ const SERVICES = [
       "Websites · Landing pages · E-commerce · Apps web y móvil · Webflow · Shopify · Sistemas internos · Intranets · Tiendas en MercadoLibre y Amazon · SEO técnico",
     dark: false,
     imageRight: true,
+    placeholderBg: "#1a3a5c",
+    placeholderLabel: "TECNOLOGÍA",
   },
 ];
 
@@ -86,14 +92,14 @@ export default function ServiciosPage() {
         const bgClass = s.dark ? "bg-[#1a1a1a]" : "bg-[#FAF7F2]";
         const textColor = s.dark ? "text-white" : "text-[#1C1917]";
         const subColor = s.dark ? "text-[#A8A29E]" : "text-[#57534E]";
-        const placeholderBg = s.dark ? "bg-[#2a2a2a]" : "bg-[#E7E0D8]";
 
         const image = (
           <div
-            className={`aspect-square rounded-sm ${placeholderBg} flex items-center justify-center`}
+            className="h-[240px] md:h-[400px] rounded-sm flex items-center justify-center"
+            style={{ backgroundColor: s.placeholderBg }}
           >
-            <span className={`text-[13px] ${subColor} font-mono-label`}>
-              Imagen
+            <span className="text-white/80 text-[18px] md:text-[24px] font-mono-label tracking-[0.3em]">
+              {s.placeholderLabel}
             </span>
           </div>
         );
@@ -120,8 +126,8 @@ export default function ServiciosPage() {
         );
 
         return (
-          <section key={s.num} className={`${bgClass} py-20 md:py-28`}>
-            <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <section key={s.num} className={`${bgClass} py-16 md:py-28`}>
+            <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
               {s.imageRight ? (
                 <>
                   {content}
@@ -129,8 +135,8 @@ export default function ServiciosPage() {
                 </>
               ) : (
                 <>
-                  {image}
-                  {content}
+                  <div className="order-2 md:order-1">{image}</div>
+                  <div className="order-1 md:order-2">{content}</div>
                 </>
               )}
             </div>
@@ -139,9 +145,9 @@ export default function ServiciosPage() {
       })}
 
       {/* Process */}
-      <section className="py-20 md:py-28 bg-[#1C1917]">
+      <section className="py-16 md:py-28 bg-[#1C1917]">
         <div className="max-w-6xl mx-auto px-6">
-          <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] text-white text-center mb-16">
+          <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] text-white text-center mb-12 md:mb-16">
             Nuestro <span className="italic text-[#C8A96E]">proceso.</span>
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 md:gap-14">
@@ -163,7 +169,7 @@ export default function ServiciosPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 md:py-28 bg-[#FAF7F2]">
+      <section className="py-16 md:py-28 bg-[#FAF7F2]">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="font-serif-display text-[clamp(28px,4.5vw,48px)] text-[#1C1917]">
             ¿Tienes un proyecto{" "}

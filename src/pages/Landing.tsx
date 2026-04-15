@@ -62,7 +62,7 @@ export default function LandingPage() {
             </div>
           </div>
           {/* Editorial image collage */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="hidden md:grid grid-cols-2 gap-3">
             <div className="space-y-3">
               <div className="aspect-[4/3] rounded-sm bg-[#E7E0D8] overflow-hidden">
                 <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/oasis_liverpool_46662b18.jpg" alt="Liverpool Gourmet" className="w-full h-full object-cover" loading="eager" />
