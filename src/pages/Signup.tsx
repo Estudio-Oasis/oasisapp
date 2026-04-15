@@ -8,6 +8,20 @@ import { hasDemoEntries, migrateDemoEntries } from "@/modules/bitacora/demo/migr
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
 
+const PROFILE_TYPES = [
+  { value: "freelancer", label: "Soy freelancer", emoji: "🎨" },
+  { value: "founder", label: "Tengo un equipo", emoji: "🚀" },
+  { value: "agency", label: "Tengo una agencia", emoji: "🏢" },
+  { value: "other", label: "Otro", emoji: "✨" },
+];
+
+const SUBTITLES: Record<string, string> = {
+  freelancer: "Organiza tu trabajo y cobra lo que vales",
+  founder: "Organiza a tu equipo y gana visibilidad",
+  agency: "Opera tu agencia con datos reales",
+  other: "Empieza a trackear tu tiempo y cobrar mejor",
+};
+
 export default function Signup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -18,6 +32,7 @@ export default function Signup() {
     trackEvent("signup_start", { from_demo: fromDemo, from_beta: fromBeta });
   }, []);
 
+  const [profileType, setProfileType] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,7 +59,7 @@ export default function Signup() {
       email,
       password,
       options: {
-        data: { name },
+        data: { name, profile_type: profileType || undefined },
         emailRedirectTo: window.location.origin,
       },
     });
@@ -55,7 +70,7 @@ export default function Signup() {
       return;
     }
 
-    trackEvent("signup_complete", { from_demo: fromDemo, has_demo_entries: hasDemoEntries() });
+    trackEvent("signup_complete", { from_demo: fromDemo, has_demo_entries: hasDemoEntries(), profile_type: profileType });
 
     if (data.user && hasDemoEntries()) {
       const count = await migrateDemoEntries(data.user.id);
@@ -71,6 +86,12 @@ export default function Signup() {
     navigate(fromBeta ? "/onboarding?ref=beta" : "/onboarding");
   };
 
+  const subtitle = fromBeta
+    ? "Acceso anticipado a OasisOS"
+    : fromDemo && demoCount > 0
+    ? `Tienes ${demoCount} registro${demoCount > 1 ? "s" : ""} del demo que se guardarán automáticamente`
+    : SUBTITLES[profileType] || "Empieza a trackear tu tiempo y cobrar mejor";
+
   return (
     <AuthLayout>
       <div>
@@ -78,15 +99,31 @@ export default function Signup() {
           {fromBeta ? "Únete al beta" : fromDemo ? "Guarda tu día" : "Crea tu cuenta gratis"}
         </h1>
         <p className="text-sm text-muted-foreground text-center mt-1">
-          {fromBeta
-            ? "Acceso anticipado a OasisOS"
-            : fromDemo && demoCount > 0
-            ? `Tienes ${demoCount} registro${demoCount > 1 ? "s" : ""} del demo que se guardarán automáticamente`
-            : "Empieza a trackear tu tiempo y cobrar mejor"}
+          {subtitle}
         </p>
       </div>
 
-      <form onSubmit={handleSignup} className="mt-8 space-y-5">
+      {/* Profile type selector */}
+      {!fromDemo && !fromBeta && (
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {PROFILE_TYPES.map((pt) => (
+            <button
+              key={pt.value}
+              type="button"
+              onClick={() => setProfileType(pt.value === profileType ? "" : pt.value)}
+              className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                profileType === pt.value
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border bg-background hover:bg-muted text-foreground"
+              }`}
+            >
+              {pt.emoji} {pt.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <form onSubmit={handleSignup} className="mt-6 space-y-5">
         {error && (
           <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}

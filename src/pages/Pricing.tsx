@@ -17,7 +17,7 @@ const FREE_FEATURES = [
 ];
 
 const PRO_FEATURES = [
-  "Todo lo del plan Solo",
+  "Todo lo del plan Individual",
   "Hub de equipo en tiempo real",
   "Hasta 6 miembros",
   "Clientes + Proyectos + Tareas",
@@ -95,14 +95,14 @@ export default function PricingPage() {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 pb-20 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* SOLO */}
+        {/* INDIVIDUAL */}
         <div className="border border-border rounded-xl p-6 flex flex-col">
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <Zap className="h-5 w-5 text-foreground-secondary" />
-              <h3 className="text-lg font-bold text-foreground">Solo</h3>
+              <h3 className="text-lg font-bold text-foreground">Individual</h3>
             </div>
-            <p className="text-sm text-foreground-secondary mb-4">Bitácora Personal</p>
+            <p className="text-sm text-foreground-secondary mb-4">Para freelancers y creativos</p>
             <div className="flex items-baseline gap-1">
               <span className="text-4xl font-bold text-foreground">$0</span>
               <span className="text-foreground-muted text-sm">/mes</span>
