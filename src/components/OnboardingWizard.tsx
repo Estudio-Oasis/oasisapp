@@ -94,14 +94,25 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
     if (!user) return;
     setSaving(true);
     try {
-      // Guard: prevent double-creation
-      const { data: existingProfile } = await supabase
+      // Guard: prevent double-creation — re-fetch fresh profile
+      const { data: existingProfile, error: profileCheckErr } = await supabase
         .from("profiles")
         .select("agency_id")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
+      
       if (existingProfile?.agency_id) {
         setCreatedAgencyId(existingProfile.agency_id);
+        // Still update profile fields the user may have changed
+        await supabase.from("profiles").update({
+          name: displayName.trim() || null,
+          profile_type: profileType || null,
+          ...(isIndividual ? {
+            income_target: incomeTarget ? Number(incomeTarget) : null,
+            income_currency: currency,
+            available_hours_per_week: availableHours ? Number(availableHours) : null,
+          } : {}),
+        } as any).eq("id", user.id);
         setStep(2);
         setSaving(false);
         return;
@@ -121,7 +132,24 @@ export function OnboardingWizard({ open, userName, onComplete, onSkip }: Onboard
         } as any)
         .select("id")
         .single();
-      if (agencyErr) throw agencyErr;
+      
+      if (agencyErr) {
+        // If RLS error, the user may already have an agency — re-check
+        if (agencyErr.message?.includes("row-level security")) {
+          const { data: recheck } = await supabase
+            .from("profiles")
+            .select("agency_id")
+            .eq("id", user.id)
+            .maybeSingle();
+          if (recheck?.agency_id) {
+            setCreatedAgencyId(recheck.agency_id);
+            setStep(2);
+            setSaving(false);
+            return;
+          }
+        }
+        throw agencyErr;
+      }
 
       const agencyId = agency!.id;
       setCreatedAgencyId(agencyId);
