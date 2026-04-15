@@ -21,7 +21,6 @@ export default function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [demoCount] = useState(() => {
@@ -35,8 +34,8 @@ export default function Signup() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres");
       return;
     }
     setLoading(true);
@@ -76,14 +75,14 @@ export default function Signup() {
     <AuthLayout>
       <div>
         <h1 className="text-2xl font-bold text-foreground text-center">
-          {fromBeta ? "Únete al beta" : fromDemo ? "Guarda tu día" : "Crea tu agencia"}
+          {fromBeta ? "Únete al beta" : fromDemo ? "Guarda tu día" : "Crea tu cuenta gratis"}
         </h1>
         <p className="text-sm text-muted-foreground text-center mt-1">
           {fromBeta
-            ? "Acceso anticipado a OasisOS para tu agencia"
+            ? "Acceso anticipado a OasisOS"
             : fromDemo && demoCount > 0
             ? `Tienes ${demoCount} registro${demoCount > 1 ? "s" : ""} del demo que se guardarán automáticamente`
-            : "El sistema operativo para tu agencia creativa"}
+            : "Empieza a trackear tu tiempo y cobrar mejor"}
         </p>
       </div>
 
@@ -111,7 +110,7 @@ export default function Signup() {
           <Input
             id="email"
             type="email"
-            placeholder="tu@empresa.com"
+            placeholder="tu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -123,22 +122,9 @@ export default function Signup() {
           <Input
             id="password"
             type="password"
-            placeholder="••••••••"
+            placeholder="Mínimo 6 caracteres"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          <label htmlFor="confirmPassword" className="text-sm font-medium">Confirmar contraseña</label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            placeholder="••••••••"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
             required
             minLength={6}
           />
@@ -149,7 +135,7 @@ export default function Signup() {
             ? "Creando cuenta…"
             : fromDemo && demoCount > 0
               ? `Crear cuenta y guardar ${demoCount} registro${demoCount > 1 ? "s" : ""}`
-              : "Crear cuenta"}
+              : "Crear cuenta gratis"}
         </Button>
       </form>
 

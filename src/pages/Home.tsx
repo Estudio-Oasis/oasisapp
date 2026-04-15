@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
-import { useTimer } from "@/contexts/TimerContext";
+import { usePlan } from "@/hooks/usePlan";
 import { supabase } from "@/integrations/supabase/client";
 import { DayTasksWidget } from "@/components/dashboard/DayTasksWidget";
 import { TimerLauncherWidget } from "@/components/dashboard/TimerLauncherWidget";
@@ -9,10 +9,54 @@ import { IdeasWidget } from "@/components/dashboard/IdeasWidget";
 import { TeamWidget } from "@/components/dashboard/TeamWidget";
 import { GapsWidget } from "@/components/dashboard/GapsWidget";
 import { FinanceSummaryWidget } from "@/components/dashboard/FinanceSummaryWidget";
-import { WidgetCard } from "@/components/ui/widget-card";
 import { WelcomeChecklist } from "@/components/dashboard/WelcomeChecklist";
 import { formatDuration } from "@/lib/timer-utils";
 import { Clock, Users, FileText, Receipt, TrendingUp } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+
+function DailyProgressBar() {
+  const { user } = useAuth();
+  const [minutesToday, setMinutesToday] = useState(0);
+  const [availableMin, setAvailableMin] = useState(480); // default 8h
+
+  useEffect(() => {
+    if (!user) return;
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    Promise.all([
+      supabase
+        .from("time_entries")
+        .select("duration_min")
+        .eq("user_id", user.id)
+        .gte("started_at", todayStart.toISOString())
+        .not("ended_at", "is", null),
+      supabase
+        .from("profiles")
+        .select("work_start_hour, work_end_hour")
+        .eq("id", user.id)
+        .single(),
+    ]).then(([entries, profile]) => {
+      const total = (entries.data || []).reduce((s: number, e: any) => s + (Number(e.duration_min) || 0), 0);
+      setMinutesToday(total);
+      if (profile.data) {
+        const diff = (profile.data.work_end_hour - profile.data.work_start_hour) * 60;
+        if (diff > 0) setAvailableMin(diff);
+      }
+    });
+  }, [user]);
+
+  const pct = Math.min((minutesToday / availableMin) * 100, 100);
+
+  return (
+    <div className="flex items-center gap-3">
+      <Progress value={pct} className="h-2 flex-1" />
+      <span className="text-xs text-muted-foreground whitespace-nowrap">
+        {formatDuration(minutesToday)} de {formatDuration(availableMin)} hoy
+      </span>
+    </div>
+  );
+}
 
 function AdminKPIs() {
   const [kpis, setKpis] = useState({ mrr: 0, teamHoursToday: 0, pendingQuotes: 0, overdueInvoices: 0 });
@@ -60,6 +104,7 @@ function AdminKPIs() {
 export default function HomePage() {
   const { user } = useAuth();
   const { isAdmin } = useRole();
+  const { isFree } = usePlan();
   const [ideaRefresh, setIdeaRefresh] = useState(0);
 
   const hour = new Date().getHours();
@@ -68,32 +113,32 @@ export default function HomePage() {
   return (
     <div className="space-y-5 max-w-5xl mx-auto">
       {/* Header */}
-      <div>
+      <div className="space-y-2">
         <h1 className="text-2xl font-bold text-foreground">{greeting} 👋</h1>
-        <p className="text-[12px] text-foreground-muted mt-0.5">Tu centro de comando para hoy</p>
+        <DailyProgressBar />
       </div>
 
-      {/* Welcome checklist for new agencies */}
+      {/* Welcome checklist for new users */}
       <WelcomeChecklist />
 
-      {/* Admin KPIs */}
-      {isAdmin && <AdminKPIs />}
+      {/* Admin KPIs — only for paid plan admins */}
+      {isAdmin && !isFree && <AdminKPIs />}
 
-      {/* Main grid — mobile: stack, desktop: 2 columns */}
+      {/* Main grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <DayTasksWidget />
         <TimerLauncherWidget onIdea={() => setIdeaRefresh(r => r + 1)} />
       </div>
 
       {/* Secondary row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className={`grid grid-cols-1 gap-4 ${isFree ? "md:grid-cols-2" : "md:grid-cols-2 lg:grid-cols-3"}`}>
         <IdeasWidget refreshTrigger={ideaRefresh} />
         <GapsWidget />
-        <TeamWidget />
+        {!isFree && <TeamWidget />}
       </div>
 
       {/* Admin-only: Finance summary */}
-      {isAdmin && <FinanceSummaryWidget />}
+      {isAdmin && !isFree && <FinanceSummaryWidget />}
     </div>
   );
 }
