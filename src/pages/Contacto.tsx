@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { SiteFooter } from "@/components/SiteFooter";
 import { toast } from "sonner";
 import { ArrowRight, Mail, Phone, Globe, MapPin } from "lucide-react";
 
@@ -54,18 +57,41 @@ export default function ContactoPage() {
       return;
     }
     setSending(true);
-    const subject = encodeURIComponent(
-      `Proyecto: ${form.company || form.name}`
-    );
-    const body = encodeURIComponent(
-      `Nombre: ${form.name}\nEmail: ${form.email}\nEmpresa: ${form.company}\nNecesita: ${form.need}\nPresupuesto: ${form.budget}\n\n${form.message}`
-    );
-    window.open(
-      `mailto:r@oasistud.io?subject=${subject}&body=${body}`,
-      "_blank"
-    );
-    toast.success("¡Gracias! Te contactaremos pronto.");
-    setSending(false);
+    const submissionId = crypto.randomUUID();
+    try {
+      // Send confirmation to the person who submitted
+      await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "contact-confirmation",
+          recipientEmail: form.email,
+          idempotencyKey: `contact-confirm-${submissionId}`,
+          templateData: { name: form.name, company: form.company, need: form.need },
+        },
+      });
+      // Send internal notification to agency
+      await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "contact-internal",
+          recipientEmail: "r@oasistud.io",
+          idempotencyKey: `contact-internal-${submissionId}`,
+          templateData: {
+            name: form.name,
+            email: form.email,
+            company: form.company,
+            need: form.need,
+            budget: form.budget,
+            message: form.message,
+          },
+        },
+      });
+      toast.success("¡Mensaje enviado! Te contactaremos pronto.");
+      setForm(INITIAL);
+    } catch (err) {
+      console.error("Contact form error:", err);
+      toast.error("Error al enviar. Intenta de nuevo.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const prefillIntern = () => {
