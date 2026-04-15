@@ -44,6 +44,10 @@ import QuoteApprovalPage from "./pages/QuoteApproval";
 import UnsubscribePage from "./pages/Unsubscribe";
 import OnboardingPage from "./pages/Onboarding";
 import SuperAdminPage from "./pages/SuperAdmin";
+import ServiciosPage from "./pages/Servicios";
+import ContactoPage from "./pages/Contacto";
+import OasisOSPage from "./pages/OasisOS";
+import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -72,6 +76,11 @@ const App = () => (
                   <Route path="/portfolio" element={<Portfolio />} />
                   <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
                   <Route path="/pricing" element={<PricingPage />} />
+                  <Route path="/servicios" element={<ServiciosPage />} />
+                  <Route path="/contacto" element={<ContactoPage />} />
+                  <Route path="/oasis-os" element={<OasisOSPage />} />
+                  <Route path="/precios" element={<Navigate to="/oasis-os" replace />} />
+                  <Route path="/aviso-de-privacidad" element={<AvisoPrivacidadPage />} />
                   <Route path="/q/:token" element={<QuoteApprovalPage />} />
                   <Route path="/unsubscribe" element={<UnsubscribePage />} />
                   <Route path="/onboarding" element={<OnboardingPage />} />
