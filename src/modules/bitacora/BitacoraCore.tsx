@@ -29,6 +29,7 @@ import type { EntryInfo, GapInfo } from "./types";
 export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { autoOpenSheet?: boolean; hideQuickLog?: boolean } = {}) {
   const bita = useBitacora();
   const vm = useBitacoraVM();
+  const { rates: hourlyRates, economic: economicProfile } = useHourlyRate();
 
   const [quickSheetOpen, setQuickSheetOpen] = useState(false);
   const autoOpenedRef = useRef(false);
