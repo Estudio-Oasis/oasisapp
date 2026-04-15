@@ -66,22 +66,31 @@ export default function ContactoPage() {
           templateData: { name: form.name, company: form.company, need: form.need },
         },
       });
-      // Send internal notification to agency
-      await supabase.functions.invoke("send-transactional-email", {
-        body: {
-          templateName: "contact-internal",
-          recipientEmail: "r@oasistud.io",
-          idempotencyKey: `contact-internal-${submissionId}`,
-          templateData: {
-            name: form.name,
-            email: form.email,
-            company: form.company,
-            need: form.need,
-            budget: form.budget,
-            message: form.message,
-          },
-        },
-      });
+      // Send internal notification to all team members
+      const internalRecipients = [
+        "r@estudiooasis.com",
+        "carla@estudiooasis.com",
+        "joserogelioteran@gmail.com",
+      ];
+      await Promise.all(
+        internalRecipients.map((recipient, i) =>
+          supabase.functions.invoke("send-transactional-email", {
+            body: {
+              templateName: "contact-internal",
+              recipientEmail: recipient,
+              idempotencyKey: `contact-internal-${submissionId}-${i}`,
+              templateData: {
+                name: form.name,
+                email: form.email,
+                company: form.company,
+                need: form.need,
+                budget: form.budget,
+                message: form.message,
+              },
+            },
+          })
+        )
+      );
       toast.success("¡Mensaje enviado! Te contactaremos pronto.");
       setForm(INITIAL);
     } catch (err) {
