@@ -137,7 +137,7 @@ export default function Portfolio() {
                     type="button"
                     onClick={() => setLightboxIdx(i)}
                     className="block w-full aspect-[16/10] overflow-hidden bg-[#F0E8DD] cursor-zoom-in relative"
-                    aria-label={`Ampliar imagen de ${p.client}`}
+                    aria-label={p.youtubeId ? `Reproducir video de ${p.client}` : `Ampliar imagen de ${p.client}`}
                   >
                     <img
                       src={p.img}
@@ -145,6 +145,13 @@ export default function Portfolio() {
                       className={`w-full h-full ${contain ? "object-contain p-4" : "object-cover"} group-hover:scale-[1.02] transition-transform duration-500`}
                       loading="lazy"
                     />
+                    {p.youtubeId && (
+                      <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                        <span className="h-16 w-16 rounded-full bg-white/95 flex items-center justify-center shadow-lg">
+                          <span className="ml-1 w-0 h-0 border-y-[10px] border-y-transparent border-l-[16px] border-l-[#1C1917]" />
+                        </span>
+                      </span>
+                    )}
                   </button>
                   <div className="p-5 flex-1 flex flex-col">
                     <span className="self-start text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-sm bg-[#F0E8DD] text-[#57534E]">{p.category}</span>
@@ -194,11 +201,23 @@ export default function Portfolio() {
             </>
           )}
           <div className="max-w-6xl w-full max-h-full flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={filtered[lightboxIdx].img}
-              alt={filtered[lightboxIdx].title}
-              className="max-w-full max-h-[80vh] object-contain rounded-sm"
-            />
+            {filtered[lightboxIdx].youtubeId ? (
+              <div className="w-full max-w-5xl aspect-video bg-black rounded-sm overflow-hidden">
+                <iframe
+                  src={`https://www.youtube.com/embed/${filtered[lightboxIdx].youtubeId}?autoplay=1&rel=0`}
+                  title={filtered[lightboxIdx].title}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : (
+              <img
+                src={filtered[lightboxIdx].img}
+                alt={filtered[lightboxIdx].title}
+                className="max-w-full max-h-[80vh] object-contain rounded-sm"
+              />
+            )}
             <div className="text-center text-white">
               <p className="text-[11px] font-mono-label tracking-[0.3em] uppercase text-[#C8A96E]">{filtered[lightboxIdx].client}</p>
               <h3 className="mt-1 font-serif-display text-[20px] md:text-[24px]">{filtered[lightboxIdx].title}</h3>
