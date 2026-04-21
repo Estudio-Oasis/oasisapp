@@ -277,6 +277,9 @@ export default function AboutRoger() {
             <p className="mt-4 text-[16px] text-[#A8A29E] max-w-lg">
               {t.heroSub}
             </p>
+            <div className="mt-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#C8A96E]/30 bg-[#C8A96E]/10">
+              <span className="text-[11px] font-mono-label tracking-wider text-[#C8A96E]">{t.availabilityBadge}</span>
+            </div>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/portfolio" className="h-11 px-6 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[13px] font-semibold flex items-center gap-2 hover:bg-[#D4B87A] transition-colors">
                 {t.ctaPortfolio} <ArrowRight className="h-4 w-4" />
