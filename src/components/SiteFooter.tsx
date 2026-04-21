@@ -45,25 +45,25 @@ export function SiteFooter() {
           </h4>
           <div className="space-y-2">
             <a
-              href="mailto:r@oasistud.io"
+              href="mailto:joserogelioteran@gmail.com"
               className="block text-[13px] text-[#A8A29E] hover:text-white transition-colors"
             >
-              r@oasistud.io
+              Escríbenos por mail
             </a>
             <a
-              href="tel:+524531090660"
-              className="block text-[13px] text-[#A8A29E] hover:text-white transition-colors"
-            >
-              +52 453 109 0660
-            </a>
-            <a
-              href="https://instagram.com/oasistud.io"
+              href="https://wa.me/525667701206"
               target="_blank"
               rel="noopener noreferrer"
               className="block text-[13px] text-[#A8A29E] hover:text-white transition-colors"
             >
-              @oasistud.io
+              Escríbenos por WhatsApp
             </a>
+            <Link
+              to="/contacto"
+              className="block text-[13px] text-[#A8A29E] hover:text-white transition-colors"
+            >
+              Formulario de contacto
+            </Link>
           </div>
         </div>
 
@@ -79,7 +79,7 @@ export function SiteFooter() {
               rel="noopener noreferrer"
               className="block text-[13px] text-[#A8A29E] hover:text-white transition-colors"
             >
-              Instagram
+              Instagram · @oasistud.io
             </a>
             <a
               href="https://www.linkedin.com/in/rogerteran"
@@ -87,7 +87,7 @@ export function SiteFooter() {
               rel="noopener noreferrer"
               className="block text-[13px] text-[#A8A29E] hover:text-white transition-colors"
             >
-              LinkedIn
+              LinkedIn · Roger Terán
             </a>
             <a
               href="https://www.behance.net/rogertern"
@@ -95,7 +95,7 @@ export function SiteFooter() {
               rel="noopener noreferrer"
               className="block text-[13px] text-[#A8A29E] hover:text-white transition-colors"
             >
-              Behance
+              Behance · rogertern
             </a>
           </div>
         </div>
