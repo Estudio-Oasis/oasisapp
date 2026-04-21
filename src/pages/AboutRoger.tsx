@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Menu, X, ChevronDown, MapPin, GraduationCap, ExternalLink } from "lucide-react";
+import { ArrowRight, MapPin, GraduationCap, ExternalLink, Mail } from "lucide-react";
+import { SiteNavbar } from "@/components/SiteNavbar";
+import { SiteFooter } from "@/components/SiteFooter";
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -27,54 +29,15 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
   );
 }
 
-function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [aboutOpen, setAboutOpen] = useState(false);
-  return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FAF7F2] border-b border-[#E7E0D8]">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="font-serif-display text-[20px] font-bold text-[#1C1917]">OASIS</Link>
-        <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="text-[13px] font-medium text-[#57534E] hover:text-[#1C1917]">Inicio</Link>
-          <div className="relative group" onMouseEnter={() => setAboutOpen(true)} onMouseLeave={() => setAboutOpen(false)}>
-            <button className="text-[13px] font-medium text-[#C8A96E] flex items-center gap-1">About <ChevronDown className="h-3 w-3" /></button>
-            {aboutOpen && (
-              <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-[#E7E0D8] py-2 min-w-[180px]">
-                <Link to="/about" className="block px-4 py-2 text-[13px] text-[#1C1917] hover:bg-[#F0E8DD]">Estudio Oasis</Link>
-                <Link to="/about/roger-teran" className="block px-4 py-2 text-[13px] text-[#1C1917] hover:bg-[#F0E8DD]">Roger Terán</Link>
-              </div>
-            )}
-          </div>
-          <Link to="/portfolio" className="text-[13px] font-medium text-[#57534E] hover:text-[#1C1917]">Portafolio</Link>
-          <Link to="/login" className="text-[13px] font-medium text-[#57534E] hover:text-[#1C1917]">Oasis OS</Link>
-          <Link to="/signup" className="h-9 px-5 rounded-sm bg-[#1C1917] text-white text-[13px] font-semibold flex items-center">Probar gratis</Link>
-        </div>
-        <button className="md:hidden text-[#1C1917]" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
-      </div>
-      {mobileOpen && (
-        <div className="md:hidden bg-[#FAF7F2] border-b border-[#E7E0D8] px-6 pb-4 space-y-3">
-          <Link to="/" onClick={() => setMobileOpen(false)} className="block text-sm">Inicio</Link>
-          <Link to="/about" onClick={() => setMobileOpen(false)} className="block text-sm">Estudio Oasis</Link>
-          <Link to="/about/roger-teran" onClick={() => setMobileOpen(false)} className="block text-sm text-[#C8A96E]">Roger Terán</Link>
-          <Link to="/portfolio" onClick={() => setMobileOpen(false)} className="block text-sm">Portafolio</Link>
-        </div>
-      )}
-    </nav>
-  );
-}
-
 const TIMELINE = [
   { years: "2011–2014", role: "Becario de RH / Marketing Interno", company: "Rassini", desc: "Primeros pasos en comunicación organizacional, marketing interno y branding corporativo." },
   { years: "2014–2016", role: "Brand Manager", company: "Mundo Cuervo / José Cuervo", desc: "Dirección creativa, desarrollo de marca y marketing experiencial para la división turística de José Cuervo en Tequila, Jalisco." },
   { years: "2015–2017", role: "Creative Direction", company: "Miami Ad School", desc: "Formación en dirección creativa y copywriting en una de las escuelas de publicidad más reconocidas del mundo." },
   { years: "2016–2019", role: "Growth Manager / CMO", company: "Zoé Water & 98 Coast Avenue", desc: "Liderazgo de estrategia creativa y growth. +200% tráfico web en Zoé Water. Campaña internacional 'Living the Coast Life' en 98 Coast Av." },
-  { years: "2019–2021", role: "Retention Copywriter", company: "Platzi", desc: "Equipo de crecimiento. Estrategias para reducir churn y mantener engagement. Profesor de Creatividad." },
+  { years: "2019–2021", role: "Retention Copywriter", company: "Platzi", desc: "Equipo de crecimiento enfocado en retención y engagement. Profesor de Creatividad." },
   { years: "2021–2024", role: "Chief Growth Officer", company: "Rocketfy", desc: "Escalé revenue mensual de $1.5M a $4M USD en dos trimestres. Lideré equipos de 40+ personas en Growth, Data, BI y Producto." },
   { years: "2023–Presente", role: "Profesor & Mentor", company: "Miami Ad School México", desc: "Copywriting, Branding, Creative Direction, Paid Media, Design Systems. Formando talento creativo senior." },
   { years: "2024–2025", role: "Brand Manager Español", company: "San Francisco 49ers", desc: "Estrategia de marca para el mercado hispanohablante. El equipo se convirtió en #1 en redes sociales de la NFL en México." },
-  { years: "2025–Presente", role: "Founder", company: "Estudio Oasis / Oasis OS", desc: "Estudio creativo y sistema operativo para agencias y equipos de servicios." },
 ];
 
 const EXPERTISE = [
@@ -98,24 +61,28 @@ const FEATURED_WORK = [
 export default function AboutRoger() {
   return (
     <div className="min-h-screen font-body bg-[#FAF7F2]">
-      <Navbar />
+      <SiteNavbar />
 
       {/* Hero */}
       <section className="relative pt-32 pb-16 md:pt-40 md:pb-20 bg-[#1C1917]">
         <div className="relative max-w-6xl mx-auto px-6">
           <Reveal>
-            <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Sobre Roger</p>
+            <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Hola, soy</p>
             <h1 className="font-serif-display text-[clamp(36px,6vw,64px)] leading-[1.05] text-white">
               José Rogelio<br /><span className="italic text-[#C8A96E]">"Roger" Terán</span>
             </h1>
             <p className="mt-4 text-[16px] text-[#A8A29E] max-w-lg">
               Product & Growth Leader con formación en psicología y una trayectoria que combina marketing, producto y toma de decisiones basada en datos.
             </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link to="/portfolio" className="h-11 px-6 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[13px] font-semibold flex items-center gap-2 hover:bg-[#D4B87A] transition-colors">
+                Ver portafolio <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a href="mailto:r@estudiooasis.com" className="h-11 px-6 rounded-sm border border-white/20 text-white text-[13px] font-semibold flex items-center gap-2 hover:bg-white/5 transition-colors">
+                <Mail className="h-4 w-4" /> Contáctame
+              </a>
+            </div>
           </Reveal>
-          <div className="mt-8 flex gap-6 border-b border-white/10">
-            <Link to="/about" className="pb-3 text-[14px] text-[#A8A29E] hover:text-white/70">Estudio Oasis</Link>
-            <Link to="/about/roger-teran" className="pb-3 text-[14px] font-semibold text-white border-b-2 border-[#C8A96E]">Roger Terán</Link>
-          </div>
         </div>
       </section>
 
@@ -131,7 +98,7 @@ export default function AboutRoger() {
                   <div>BS Psicología — Tec de Monterrey<br />Creative Direction — Miami Ad School<br />Social Justice — Harvard University</div>
                 </div>
               </div>
-              <div className="mt-6 flex gap-3">
+              <div className="mt-6 flex flex-wrap gap-3">
                 {[
                   { label: "LinkedIn", href: "https://linkedin.com/in/rogerteran" },
                   { label: "Behance", href: "https://behance.net/rogertern" },
@@ -147,7 +114,7 @@ export default function AboutRoger() {
 
           <div className="md:col-span-3">
             <Reveal>
-              <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Sobre Roger</p>
+              <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Sobre mí</p>
               <h2 className="font-serif-display text-[clamp(24px,3.5vw,40px)] leading-tight text-[#1C1917]">
                 Product & Growth Leader<br /><span className="italic text-[#B85C38]">con alma creativa</span>
               </h2>
@@ -157,7 +124,7 @@ export default function AboutRoger() {
                 <p>Soy José Rogelio "Roger" Terán Bueno. Estudié Psicología en el Tec de Monterrey y después Dirección Creativa en Miami Ad School. Esa combinación — entender cómo piensan las personas y cómo comunicar ideas — ha definido toda mi carrera.</p>
                 <p>He trabajado en agencias como Ogilvy, Leo Burnett, Havas, FCB, Media Monks y VML. Fui Director Creativo para Nivea en FCB. Lideré la estrategia de marca en español de los San Francisco 49ers, convirtiéndolos en el equipo #1 en redes sociales de la NFL en México.</p>
                 <p>Como Chief Growth Officer en Rocketfy, escalé el revenue mensual de $1.5M a $4M USD en dos trimestres, liderando equipos de más de 40 personas. En Platzi, trabajé en el equipo de crecimiento enfocado en retención.</p>
-                <p>Hoy soy profesor en Miami Ad School México, donde enseño Copywriting, Branding, Creative Direction y Paid Media. Y soy el fundador de Estudio Oasis y Oasis OS — donde condenso todo lo que aprendí en 15+ años de agencias en un sistema que le pone proceso a la creatividad.</p>
+                <p>Hoy soy profesor en Miami Ad School México, donde enseño Copywriting, Branding, Creative Direction y Paid Media.</p>
                 <p>Mi principal fortaleza es traducir data compleja en decisiones estratégicas claras, alinear equipos alrededor de métricas que realmente importan y construir productos y experiencias que crecen porque resuelven problemas reales.</p>
               </div>
               <Link to="/portfolio" className="inline-block mt-6 text-[12px] font-semibold uppercase tracking-[0.15em] text-[#C8A96E] hover:text-[#D4B87A]">
@@ -250,21 +217,21 @@ export default function AboutRoger() {
         <div className="max-w-3xl mx-auto px-6 text-center">
           <Reveal>
             <h2 className="font-serif-display text-[clamp(24px,4vw,44px)] text-white">
-              Ve mi <span className="italic text-[#C8A96E]">trabajo</span>
+              Trabajemos <span className="italic text-[#C8A96E]">juntos</span>
             </h2>
-            <Link to="/portfolio" className="mt-8 inline-flex h-12 px-7 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[14px] font-semibold items-center gap-2 hover:bg-[#D4B87A]">
-              Ver portafolio <ArrowRight className="h-4 w-4" />
-            </Link>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link to="/portfolio" className="h-12 px-7 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[14px] font-semibold flex items-center gap-2 hover:bg-[#D4B87A]">
+                Ver portafolio <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a href="mailto:r@estudiooasis.com" className="h-12 px-7 rounded-sm border border-white/20 text-white text-[14px] font-semibold flex items-center gap-2 hover:bg-white/5">
+                <Mail className="h-4 w-4" /> Escríbeme
+              </a>
+            </div>
           </Reveal>
         </div>
       </section>
 
-      <footer className="py-10 bg-[#1C1917] border-t border-white/10">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between gap-4">
-          <p className="text-[11px] text-[#A8A29E]/50">© 2026 Estudio Oasis. Todos los derechos reservados.</p>
-          <p className="text-[11px] text-[#A8A29E]/50">Ciudad de México, México</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

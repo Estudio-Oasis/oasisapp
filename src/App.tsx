@@ -72,7 +72,8 @@ const App = () => (
                   <Route path="/setup" element={<SetupPage />} />
                   <Route path="/bitacora-demo" element={<BitacoraDemo />} />
                   <Route path="/about" element={<AboutStudio />} />
-                  <Route path="/about/roger-teran" element={<AboutRoger />} />
+                  <Route path="/roger" element={<AboutRoger />} />
+                  <Route path="/about/roger-teran" element={<Navigate to="/roger" replace />} />
                   <Route path="/portfolio" element={<Portfolio />} />
                   <Route path="/playground/activity-engine" element={<PlaygroundActivityEngine />} />
                   <Route path="/pricing" element={<PricingPage />} />
