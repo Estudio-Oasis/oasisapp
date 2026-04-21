@@ -39,12 +39,18 @@ type Project = {
   category: Category;
   desc: string;
   role: string;
-  img: string;
+  img?: string;
   /** When true, the image is shown contained (full image visible) on a neutral background.
    *  When false, the image fills the frame (cover). Default: true. */
   contain?: boolean;
   /** Optional YouTube video ID. When present, the card and lightbox embed the video. */
   youtubeId?: string;
+  /** When true, render an editorial / infographic card (no image, big copy + highlights). */
+  infographic?: boolean;
+  /** Highlight metrics or deliverables shown on infographic cards. */
+  highlights?: string[];
+  /** Accent color hue for infographic background gradient. */
+  accent?: "sand" | "ink" | "gold" | "terracotta" | "olive";
 };
 
 const PROJECTS: Project[] = [
@@ -52,17 +58,17 @@ const PROJECTS: Project[] = [
   { title: "Rocketfy", client: "Rocketfy", category: "Growth", desc: "Como Chief Growth Officer, escalé el revenue mensual de $1.5M a $4M USD en dos trimestres.", role: "Chief Growth Officer", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/oasis_rocketfy_d8528d42.jpg" },
   { title: "Liverpool Gourmet", client: "Liverpool", category: "Brand Identity", desc: "Materiales de branding para el mercado gourmet de Liverpool. Texturas de mármol negro, recetario, packaging premium.", role: "Branding & Packaging", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/oasis_liverpool_46662b18.jpg" },
   { title: "Mundo Cuervo", client: "José Cuervo", category: "Brand Identity", desc: "Dirección creativa, desarrollo de marca y marketing experiencial para la división turística de José Cuervo.", role: "Brand Manager", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/oasis_josecuervo_4a462909.jpg" },
-  { title: "Zoé Water", client: "Zoé Water", category: "Brand Identity", desc: "Refinamiento de logotipo, colección de stickers digitales con 30,000+ descargas, campaña con Playmobil.", role: "Brand Strategy & Growth", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/sSnOTstnVAIyYMic.jpg" },
-  { title: "INDUMET Aerospace", client: "Indumet", category: "Brand Identity", desc: "Identidad visual futurista para empresa aeroespacial. Logotipo moderno, sitio web innovador, branding completo.", role: "Logo, Website, Branding", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/mdCAeemnwUZhbqGV.jpg" },
-  { title: "The Baileys Babe", client: "Baileys", category: "Advertising", desc: "Campaña 'The Baileys Babe' para rejuvenecer la marca. Sitio web, marketing digital, advertising y webmenu.", role: "Creative Direction", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/BzLqnsJyfVkbOGBg.jpg" },
+  { title: "Zoé Water", client: "Zoé Water", category: "Brand Identity", desc: "Refinamiento de logotipo histórico, colección de stickers digitales con 30,000+ descargas y campaña con Playmobil.", role: "Brand Strategy & Growth", infographic: true, accent: "olive", highlights: ["30K+ descargas de stickers", "Refresh de logotipo", "Campaña Playmobil"] },
+  { title: "INDUMET Aerospace", client: "Indumet", category: "Brand Identity", desc: "Identidad visual futurista para empresa aeroespacial mexicana. Logotipo, sitio web y sistema de marca completo.", role: "Logo · Website · Branding", infographic: true, accent: "ink", highlights: ["Sector aeroespacial", "Logo + sitio web", "Sistema de marca"] },
+  { title: "The Baileys Babe", client: "Baileys", category: "Advertising", desc: "Campaña 'The Baileys Babe' para rejuvenecer la marca: sitio web, advertising digital y webmenu de cocteles.", role: "Creative Direction", infographic: true, accent: "terracotta", highlights: ["Rebranding generacional", "Webmenu interactivo", "Advertising digital"] },
   { title: "Café Society", client: "Café Society", category: "Content Strategy", desc: "Dirección artística para Instagram, estrategia de contenido cohesivo, website y social media.", role: "Logo, Website, Marketing, Social, Branding", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/oasis_cafe_society_3d651b9d.jpg" },
-  { title: "98 Coast Avenue", client: "98 Coast Avenue", category: "Advertising", desc: "Campaña internacional 'Living the Coast Life'. Marketing digital, advertising, social media y branding.", role: "Marketing, Advertising, Social, Branding", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/oasis_98coast_322b6ebd.jpg" },
-  { title: "Ya Nos Vinos", client: "Ya Nos Vinos", category: "Content Strategy", desc: "Experiencia de marca vibrante y auténtica para amantes del vino. Feed dinámico, contenido inteligente.", role: "Marketing, Advertising, RRSS, Branding", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/nMtedhczGaBcaXhh.jpg" },
-  { title: "Panoramika", client: "Panoramika", category: "Advertising", desc: "Contenido que combina fotografía, infografías y datos para clínica dental. Espectaculares, social media, app.", role: "Logo, Marketing, Social Media", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/rSpgZWrUkrkCzxyd.jpg" },
+  { title: "98 Coast Avenue", client: "98 Coast Avenue", category: "Advertising", desc: "Campaña internacional 'Living the Coast Life'. Marketing digital, advertising, social media y branding.", role: "Marketing · Advertising · Social", infographic: true, accent: "sand", highlights: ["Campaña internacional", "Living the Coast Life", "Social + Branding"] },
+  { title: "Ya Nos Vinos", client: "Ya Nos Vinos", category: "Content Strategy", desc: "Experiencia de marca vibrante y auténtica para amantes del vino. Feed dinámico y contenido inteligente.", role: "Marketing · Advertising · RRSS", infographic: true, accent: "terracotta", highlights: ["Feed dinámico", "Voz de marca propia", "Contenido shareable"] },
+  { title: "Panoramika", client: "Panoramika", category: "Advertising", desc: "Contenido que combina fotografía, infografías y datos para clínica dental: espectaculares, social media y app.", role: "Logo · Marketing · Social", infographic: true, accent: "ink", highlights: ["OOH + Social", "Infografías médicas", "App de pacientes"] },
   { title: "Platzi", client: "Platzi", category: "Growth", desc: "Equipo de crecimiento enfocado en retención. Estrategias para reducir churn y mantener engagement.", role: "Retention Copywriter & Growth", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/oasis_platzi_7158a39e.jpg" },
-  { title: "RAGSAN", client: "RAGSAN", category: "Product Design", desc: "App CAMU para presidentes municipales. Plataforma legal para gestión de expedientes.", role: "Website, Intranet, App, Social", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/nPfRKPmkZWnNjjuv.jpg" },
-  { title: "El Carnalito", client: "El Carnalito", category: "Advertising", desc: "Propuesta integral para apertura de nueva sucursal. Materiales promocionales, espectaculares y social media.", role: "Advertising & Social Media", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/KQjLLIBqvxIsdiqb.jpg" },
-  { title: "Tiendas en Línea & Websites", client: "Múltiples clientes", category: "Product Design", desc: "Páginas web poderosas, intuitivas y responsivas. Plataformas digitales a medida, tiendas en línea.", role: "Landing, Websites, Apps & Ecommerce", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/BYLrjGrOJOKVdgon.jpg" },
+  { title: "RAGSAN — App CAMU", client: "RAGSAN", category: "Product Design", desc: "App CAMU para presidentes municipales: plataforma legal para gestión de expedientes, intranet y comunicación.", role: "Website · Intranet · App", infographic: true, accent: "gold", highlights: ["Gobierno municipal", "Gestión de expedientes", "Web + Intranet + App"] },
+  { title: "El Carnalito", client: "El Carnalito", category: "Advertising", desc: "Propuesta integral para apertura de nueva sucursal: materiales promocionales, espectaculares y social media.", role: "Advertising & Social Media", infographic: true, accent: "terracotta", highlights: ["Apertura de sucursal", "Espectaculares OOH", "Social media kit"] },
+  { title: "Tiendas en Línea & Websites", client: "Múltiples clientes", category: "Product Design", desc: "Páginas web poderosas, intuitivas y responsivas. Plataformas digitales a medida, tiendas en línea y landings.", role: "Landing · Websites · Apps · Ecommerce", infographic: true, accent: "olive", highlights: ["20+ sitios entregados", "Ecommerce a medida", "Landings de conversión"] },
   { title: "Oasis OS", client: "Estudio Oasis", category: "Product Design", desc: "Diseño y desarrollo de producto para el sistema operativo de agencias creativas.", role: "Founder & Product Designer", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/os-product-UpwfCF6FLaSYDwR3ZBW5Jz.webp", contain: false },
   { title: "Brand Identity Collection", client: "Casa Nungaray · Ixtlahuaca · Apolo & más", category: "Brand Identity", desc: "Sistema visual completo para Casa Nungaray (Mezcal de Cata, Oaxaca), branding institucional Ixtlahuaca, identidad Apolo y dirección creativa para múltiples marcas.", role: "Brand Identity, Packaging & Strategy", img: brandIdentityCollection },
   { title: "Advertising Strategy", client: "Cubbo · Mabe · Kellogg's · Platzi", category: "Advertising", desc: "Campañas multi-marca: lanzamiento Cubbo (fulfillment), Mabe estufas doble deli, All-Bran de Kellogg's y Platzi Day. Estrategia, copy y dirección de arte.", role: "Creative Direction & Copywriting", img: advertisingStrategy },
@@ -135,29 +141,60 @@ export default function Portfolio() {
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-8">
           {filtered.map((p, i) => {
             const contain = p.contain !== false;
+            const accentMap: Record<NonNullable<Project["accent"]>, { bg: string; ink: string; chip: string; rule: string }> = {
+              sand:       { bg: "bg-gradient-to-br from-[#F0E8DD] to-[#E7DCC8]", ink: "text-[#1C1917]", chip: "bg-white/70 text-[#1C1917]", rule: "bg-[#1C1917]/15" },
+              ink:        { bg: "bg-gradient-to-br from-[#1C1917] to-[#2A211C]", ink: "text-white",     chip: "bg-white/10 text-white",     rule: "bg-white/20" },
+              gold:       { bg: "bg-gradient-to-br from-[#C8A96E] to-[#A4884F]", ink: "text-[#1C1917]", chip: "bg-white/30 text-[#1C1917]", rule: "bg-[#1C1917]/25" },
+              terracotta: { bg: "bg-gradient-to-br from-[#B85C3B] to-[#8C3F26]", ink: "text-white",     chip: "bg-white/15 text-white",     rule: "bg-white/25" },
+              olive:      { bg: "bg-gradient-to-br from-[#7A8359] to-[#5C6442]", ink: "text-white",     chip: "bg-white/15 text-white",     rule: "bg-white/25" },
+            };
+            const acc = accentMap[p.accent ?? "sand"];
+
             return (
               <Reveal key={p.title} delay={i * 60}>
                 <article className="border border-[#E7E0D8] rounded-sm overflow-hidden bg-white group flex flex-col h-full">
-                  <button
-                    type="button"
-                    onClick={() => setLightboxIdx(i)}
-                    className="block w-full aspect-[16/10] overflow-hidden bg-[#F0E8DD] cursor-zoom-in relative"
-                    aria-label={p.youtubeId ? `Reproducir video de ${p.client}` : `Ampliar imagen de ${p.client}`}
-                  >
-                    <img
-                      src={p.img}
-                      alt={`${p.client} — ${p.title}`}
-                      className={`w-full h-full ${contain ? "object-contain p-4" : "object-cover"} group-hover:scale-[1.02] transition-transform duration-500`}
-                      loading="lazy"
-                    />
-                    {p.youtubeId && (
-                      <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
-                        <span className="h-16 w-16 rounded-full bg-white/95 flex items-center justify-center shadow-lg">
-                          <span className="ml-1 w-0 h-0 border-y-[10px] border-y-transparent border-l-[16px] border-l-[#1C1917]" />
+                  {p.infographic ? (
+                    <div className={`w-full aspect-[16/10] ${acc.bg} relative p-6 flex flex-col justify-between`}>
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[10px] font-mono-label tracking-[0.25em] uppercase ${acc.ink} opacity-70`}>{p.category}</span>
+                        <span className={`text-[10px] font-mono-label tracking-[0.2em] uppercase px-2 py-1 rounded-sm ${acc.chip}`}>Case Study</span>
+                      </div>
+                      <div>
+                        <p className={`font-serif-display italic text-[clamp(22px,4vw,36px)] leading-[1.05] ${acc.ink}`}>{p.client}</p>
+                        <div className={`mt-3 h-px w-12 ${acc.rule}`} />
+                        {p.highlights && (
+                          <ul className={`mt-3 space-y-1 ${acc.ink}`}>
+                            {p.highlights.map((h) => (
+                              <li key={h} className="text-[12px] font-medium flex items-baseline gap-2 opacity-90">
+                                <span className="opacity-60">→</span>{h}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setLightboxIdx(i)}
+                      className="block w-full aspect-[16/10] overflow-hidden bg-[#F0E8DD] cursor-zoom-in relative"
+                      aria-label={p.youtubeId ? `Reproducir video de ${p.client}` : `Ampliar imagen de ${p.client}`}
+                    >
+                      <img
+                        src={p.img}
+                        alt={`${p.client} — ${p.title}`}
+                        className={`w-full h-full ${contain ? "object-contain p-4" : "object-cover"} group-hover:scale-[1.02] transition-transform duration-500`}
+                        loading="lazy"
+                      />
+                      {p.youtubeId && (
+                        <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                          <span className="h-16 w-16 rounded-full bg-white/95 flex items-center justify-center shadow-lg">
+                            <span className="ml-1 w-0 h-0 border-y-[10px] border-y-transparent border-l-[16px] border-l-[#1C1917]" />
+                          </span>
                         </span>
-                      </span>
-                    )}
-                  </button>
+                      )}
+                    </button>
+                  )}
                   <div className="p-5 flex-1 flex flex-col">
                     <span className="self-start text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-sm bg-[#F0E8DD] text-[#57534E]">{p.category}</span>
                     <h3 className="mt-3 text-[17px] font-semibold text-[#1C1917]">{p.title}</h3>
