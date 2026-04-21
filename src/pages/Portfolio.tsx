@@ -2,6 +2,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { ExternalLink, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
+import brandIdentityCollection from "@/assets/portfolio/brand-identity-collection.png";
+import advertisingStrategy from "@/assets/portfolio/advertising-strategy.png";
+import contentStrategyImg from "@/assets/portfolio/content-strategy.png";
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -61,7 +64,9 @@ const PROJECTS: Project[] = [
   { title: "El Carnalito", client: "El Carnalito", category: "Advertising", desc: "Propuesta integral para apertura de nueva sucursal. Materiales promocionales, espectaculares y social media.", role: "Advertising & Social Media", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/KQjLLIBqvxIsdiqb.jpg" },
   { title: "Tiendas en Línea & Websites", client: "Múltiples clientes", category: "Product Design", desc: "Páginas web poderosas, intuitivas y responsivas. Plataformas digitales a medida, tiendas en línea.", role: "Landing, Websites, Apps & Ecommerce", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/BYLrjGrOJOKVdgon.jpg" },
   { title: "Oasis OS", client: "Estudio Oasis", category: "Product Design", desc: "Diseño y desarrollo de producto para el sistema operativo de agencias creativas.", role: "Founder & Product Designer", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/os-product-UpwfCF6FLaSYDwR3ZBW5Jz.webp", contain: false },
-  { title: "Brand Identity Collection", client: "Múltiples marcas", category: "Brand Identity", desc: "Colección de identidades de marca: Casa Arrebato, Gaston, Inefable, Thisabilities, y más.", role: "Brand Identity & Strategy", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/UiruLEtuDDHnWuwK.jpg" },
+  { title: "Brand Identity Collection", client: "Casa Nungaray · Ixtlahuaca · Apolo & más", category: "Brand Identity", desc: "Sistema visual completo para Casa Nungaray (Mezcal de Cata, Oaxaca), branding institucional Ixtlahuaca, identidad Apolo y dirección creativa para múltiples marcas.", role: "Brand Identity, Packaging & Strategy", img: brandIdentityCollection },
+  { title: "Advertising Strategy", client: "Cubbo · Mabe · Kellogg's · Platzi", category: "Advertising", desc: "Campañas multi-marca: lanzamiento Cubbo (fulfillment), Mabe estufas doble deli, All-Bran de Kellogg's y Platzi Day. Estrategia, copy y dirección de arte.", role: "Creative Direction & Copywriting", img: advertisingStrategy },
+  { title: "Content Strategy", client: "Kit-Cat Klock · Rocketfy", category: "Content Strategy", desc: "Dirección de contenido para Kit-Cat Klock (USA, the iconic clock with eyes desde 1932) y Rocketfy: pop culture, narrativa visual y feeds que convierten.", role: "Content Direction & Social Strategy", img: contentStrategyImg },
   { title: "Game Trailer — Dirección Musical & Edición", client: "Gaming", category: "Gaming", desc: "Dirigí la música del trailer y edité el corte final para sincronizar ritmo, impacto y narrativa visual del juego.", role: "Music Direction & Video Editing", img: "https://img.youtube.com/vi/5u5ptgu1PRU/maxresdefault.jpg", contain: false, youtubeId: "5u5ptgu1PRU" },
 ];
 
