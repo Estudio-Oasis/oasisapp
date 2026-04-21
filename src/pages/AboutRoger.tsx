@@ -292,6 +292,53 @@ export default function AboutRoger() {
         </div>
       </section>
 
+      {/* Pitch strip */}
+      <section className="py-14 md:py-16 bg-[#C8A96E]">
+        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-[1fr_auto] gap-8 items-center">
+          <Reveal>
+            <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#1C1917]/70 mb-2">{t.pitchEyebrow}</p>
+            <h2 className="font-serif-display text-[clamp(22px,3vw,34px)] leading-tight text-[#1C1917]">{t.pitchTitle}</h2>
+            <p className="mt-2 text-[14px] text-[#1C1917]/80 max-w-2xl">{t.pitchSub}</p>
+          </Reveal>
+          <Reveal delay={120}>
+            <div className="flex flex-wrap gap-3">
+              <a href={WA_URL} target="_blank" rel="noopener noreferrer" className="h-11 px-6 rounded-sm bg-[#1C1917] text-white text-[13px] font-semibold flex items-center gap-2 hover:bg-[#2D2D2D] transition-colors">
+                <MessageCircle className="h-4 w-4" /> {t.pitchWa}
+              </a>
+              <a href={MAIL_URL} className="h-11 px-6 rounded-sm border border-[#1C1917]/30 text-[#1C1917] text-[13px] font-semibold flex items-center gap-2 hover:bg-[#1C1917]/5 transition-colors">
+                <Mail className="h-4 w-4" /> {t.pitchMail}
+              </a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Results strip */}
+      <section className="py-16 md:py-20 bg-[#FAF7F2] border-b border-[#E7E0D8]">
+        <div className="max-w-6xl mx-auto px-6">
+          <Reveal>
+            <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-3 text-center">{t.resultsEyebrow}</p>
+            <h2 className="font-serif-display text-[clamp(22px,3vw,34px)] text-[#1C1917] text-center mb-10">{t.resultsTitle}</h2>
+          </Reveal>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[t.result1, t.result2, t.result3, t.result4].map((r, i) => (
+              <Reveal key={i} delay={i * 80}>
+                <div className="border border-[#E7E0D8] rounded-sm p-5 bg-white h-full">
+                  <p className="text-[14px] font-semibold text-[#1C1917] leading-snug">{r}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal delay={200}>
+            <div className="mt-10 text-center">
+              <a href={WA_URL} target="_blank" rel="noopener noreferrer" className="inline-flex h-12 px-7 rounded-sm bg-[#1C1917] text-white text-[14px] font-semibold items-center gap-2 hover:bg-[#2D2D2D] transition-colors">
+                <MessageCircle className="h-4 w-4" /> {t.resultsCta}
+              </a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* Bio */}
       <section id="about" className="py-24 md:py-36 scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-5 gap-16">
@@ -347,6 +394,24 @@ export default function AboutRoger() {
         </div>
       </section>
 
+      {/* Inline CTA 1 */}
+      <section className="py-14 bg-[#1C1917]">
+        <div className="max-w-4xl mx-auto px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <h3 className="font-serif-display text-[clamp(20px,2.5vw,28px)] text-white leading-tight">{t.inlineCta1}</h3>
+            <p className="mt-2 text-[14px] text-[#A8A29E] max-w-xl">{t.inlineCta1Sub}</p>
+          </div>
+          <div className="flex flex-wrap gap-3 shrink-0">
+            <a href={WA_URL} target="_blank" rel="noopener noreferrer" className="h-11 px-6 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[13px] font-semibold flex items-center gap-2 hover:bg-[#D4B87A]">
+              <MessageCircle className="h-4 w-4" /> WhatsApp
+            </a>
+            <a href={MAIL_URL} className="h-11 px-6 rounded-sm border border-white/20 text-white text-[13px] font-semibold flex items-center gap-2 hover:bg-white/5">
+              <Mail className="h-4 w-4" /> {lang === "es" ? "Correo" : "Email"}
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Expertise */}
       <section id="expertise" className="py-20 bg-[#F0E8DD] scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6">
@@ -367,6 +432,24 @@ export default function AboutRoger() {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Inline CTA 2 */}
+      <section className="py-14 bg-[#FAF7F2]">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <Reveal>
+            <h3 className="font-serif-display text-[clamp(22px,3vw,32px)] text-[#1C1917]">{t.inlineCta2}</h3>
+            <p className="mt-2 text-[14px] text-[#57534E]">{t.inlineCta2Sub}</p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <a href={WA_URL} target="_blank" rel="noopener noreferrer" className="h-11 px-6 rounded-sm bg-[#1C1917] text-white text-[13px] font-semibold flex items-center gap-2 hover:bg-[#2D2D2D]">
+                <MessageCircle className="h-4 w-4" /> WhatsApp
+              </a>
+              <a href={MAIL_URL} className="h-11 px-6 rounded-sm border border-[#1C1917]/30 text-[#1C1917] text-[13px] font-semibold flex items-center gap-2 hover:bg-[#1C1917]/5">
+                <Mail className="h-4 w-4" /> {lang === "es" ? "Correo" : "Email"}
+              </a>
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -394,6 +477,24 @@ export default function AboutRoger() {
                 </Reveal>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Inline CTA 3 — post timeline */}
+      <section className="py-14 bg-[#B85C38]">
+        <div className="max-w-4xl mx-auto px-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-white/70 mb-2">{t.pitchEyebrow}</p>
+            <h3 className="font-serif-display text-[clamp(20px,2.5vw,28px)] text-white leading-tight">{t.pitchTitle}</h3>
+          </div>
+          <div className="flex flex-wrap gap-3 shrink-0">
+            <a href={WA_URL} target="_blank" rel="noopener noreferrer" className="h-11 px-6 rounded-sm bg-white text-[#1C1917] text-[13px] font-semibold flex items-center gap-2 hover:bg-[#F0E8DD]">
+              <MessageCircle className="h-4 w-4" /> WhatsApp
+            </a>
+            <a href={MAIL_URL} className="h-11 px-6 rounded-sm border border-white/40 text-white text-[13px] font-semibold flex items-center gap-2 hover:bg-white/10">
+              <Mail className="h-4 w-4" /> {lang === "es" ? "Correo" : "Email"}
+            </a>
           </div>
         </div>
       </section>
