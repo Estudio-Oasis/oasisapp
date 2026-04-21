@@ -141,29 +141,60 @@ export default function Portfolio() {
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-8">
           {filtered.map((p, i) => {
             const contain = p.contain !== false;
+            const accentMap: Record<NonNullable<Project["accent"]>, { bg: string; ink: string; chip: string; rule: string }> = {
+              sand:       { bg: "bg-gradient-to-br from-[#F0E8DD] to-[#E7DCC8]", ink: "text-[#1C1917]", chip: "bg-white/70 text-[#1C1917]", rule: "bg-[#1C1917]/15" },
+              ink:        { bg: "bg-gradient-to-br from-[#1C1917] to-[#2A211C]", ink: "text-white",     chip: "bg-white/10 text-white",     rule: "bg-white/20" },
+              gold:       { bg: "bg-gradient-to-br from-[#C8A96E] to-[#A4884F]", ink: "text-[#1C1917]", chip: "bg-white/30 text-[#1C1917]", rule: "bg-[#1C1917]/25" },
+              terracotta: { bg: "bg-gradient-to-br from-[#B85C3B] to-[#8C3F26]", ink: "text-white",     chip: "bg-white/15 text-white",     rule: "bg-white/25" },
+              olive:      { bg: "bg-gradient-to-br from-[#7A8359] to-[#5C6442]", ink: "text-white",     chip: "bg-white/15 text-white",     rule: "bg-white/25" },
+            };
+            const acc = accentMap[p.accent ?? "sand"];
+
             return (
               <Reveal key={p.title} delay={i * 60}>
                 <article className="border border-[#E7E0D8] rounded-sm overflow-hidden bg-white group flex flex-col h-full">
-                  <button
-                    type="button"
-                    onClick={() => setLightboxIdx(i)}
-                    className="block w-full aspect-[16/10] overflow-hidden bg-[#F0E8DD] cursor-zoom-in relative"
-                    aria-label={p.youtubeId ? `Reproducir video de ${p.client}` : `Ampliar imagen de ${p.client}`}
-                  >
-                    <img
-                      src={p.img}
-                      alt={`${p.client} — ${p.title}`}
-                      className={`w-full h-full ${contain ? "object-contain p-4" : "object-cover"} group-hover:scale-[1.02] transition-transform duration-500`}
-                      loading="lazy"
-                    />
-                    {p.youtubeId && (
-                      <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
-                        <span className="h-16 w-16 rounded-full bg-white/95 flex items-center justify-center shadow-lg">
-                          <span className="ml-1 w-0 h-0 border-y-[10px] border-y-transparent border-l-[16px] border-l-[#1C1917]" />
+                  {p.infographic ? (
+                    <div className={`w-full aspect-[16/10] ${acc.bg} relative p-6 flex flex-col justify-between`}>
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[10px] font-mono-label tracking-[0.25em] uppercase ${acc.ink} opacity-70`}>{p.category}</span>
+                        <span className={`text-[10px] font-mono-label tracking-[0.2em] uppercase px-2 py-1 rounded-sm ${acc.chip}`}>Case Study</span>
+                      </div>
+                      <div>
+                        <p className={`font-serif-display italic text-[clamp(22px,4vw,36px)] leading-[1.05] ${acc.ink}`}>{p.client}</p>
+                        <div className={`mt-3 h-px w-12 ${acc.rule}`} />
+                        {p.highlights && (
+                          <ul className={`mt-3 space-y-1 ${acc.ink}`}>
+                            {p.highlights.map((h) => (
+                              <li key={h} className="text-[12px] font-medium flex items-baseline gap-2 opacity-90">
+                                <span className="opacity-60">→</span>{h}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setLightboxIdx(i)}
+                      className="block w-full aspect-[16/10] overflow-hidden bg-[#F0E8DD] cursor-zoom-in relative"
+                      aria-label={p.youtubeId ? `Reproducir video de ${p.client}` : `Ampliar imagen de ${p.client}`}
+                    >
+                      <img
+                        src={p.img}
+                        alt={`${p.client} — ${p.title}`}
+                        className={`w-full h-full ${contain ? "object-contain p-4" : "object-cover"} group-hover:scale-[1.02] transition-transform duration-500`}
+                        loading="lazy"
+                      />
+                      {p.youtubeId && (
+                        <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                          <span className="h-16 w-16 rounded-full bg-white/95 flex items-center justify-center shadow-lg">
+                            <span className="ml-1 w-0 h-0 border-y-[10px] border-y-transparent border-l-[16px] border-l-[#1C1917]" />
+                          </span>
                         </span>
-                      </span>
-                    )}
-                  </button>
+                      )}
+                    </button>
+                  )}
                   <div className="p-5 flex-1 flex flex-col">
                     <span className="self-start text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-sm bg-[#F0E8DD] text-[#57534E]">{p.category}</span>
                     <h3 className="mt-3 text-[17px] font-semibold text-[#1C1917]">{p.title}</h3>
