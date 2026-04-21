@@ -28,7 +28,7 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
   );
 }
 
-type Category = "Todos" | "Brand Identity" | "Advertising" | "Content Strategy" | "Product Design" | "Growth";
+type Category = "Todos" | "Brand Identity" | "Advertising" | "Content Strategy" | "Product Design" | "Growth" | "Gaming";
 
 type Project = {
   title: string;
@@ -40,6 +40,8 @@ type Project = {
   /** When true, the image is shown contained (full image visible) on a neutral background.
    *  When false, the image fills the frame (cover). Default: true. */
   contain?: boolean;
+  /** Optional YouTube video ID. When present, the card and lightbox embed the video. */
+  youtubeId?: string;
 };
 
 const PROJECTS: Project[] = [
@@ -60,9 +62,10 @@ const PROJECTS: Project[] = [
   { title: "Tiendas en Línea & Websites", client: "Múltiples clientes", category: "Product Design", desc: "Páginas web poderosas, intuitivas y responsivas. Plataformas digitales a medida, tiendas en línea.", role: "Landing, Websites, Apps & Ecommerce", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/BYLrjGrOJOKVdgon.jpg" },
   { title: "Oasis OS", client: "Estudio Oasis", category: "Product Design", desc: "Diseño y desarrollo de producto para el sistema operativo de agencias creativas.", role: "Founder & Product Designer", img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/os-product-UpwfCF6FLaSYDwR3ZBW5Jz.webp", contain: false },
   { title: "Brand Identity Collection", client: "Múltiples marcas", category: "Brand Identity", desc: "Colección de identidades de marca: Casa Arrebato, Gaston, Inefable, Thisabilities, y más.", role: "Brand Identity & Strategy", img: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/UiruLEtuDDHnWuwK.jpg" },
+  { title: "Game Trailer — Dirección Musical & Edición", client: "Gaming", category: "Gaming", desc: "Dirigí la música del trailer y edité el corte final para sincronizar ritmo, impacto y narrativa visual del juego.", role: "Music Direction & Video Editing", img: "https://img.youtube.com/vi/5u5ptgu1PRU/maxresdefault.jpg", contain: false, youtubeId: "5u5ptgu1PRU" },
 ];
 
-const CATEGORIES: Category[] = ["Todos", "Brand Identity", "Advertising", "Content Strategy", "Product Design", "Growth"];
+const CATEGORIES: Category[] = ["Todos", "Brand Identity", "Advertising", "Content Strategy", "Product Design", "Growth", "Gaming"];
 
 export default function Portfolio() {
   const [filter, setFilter] = useState<Category>("Todos");
