@@ -39,12 +39,18 @@ type Project = {
   category: Category;
   desc: string;
   role: string;
-  img: string;
+  img?: string;
   /** When true, the image is shown contained (full image visible) on a neutral background.
    *  When false, the image fills the frame (cover). Default: true. */
   contain?: boolean;
   /** Optional YouTube video ID. When present, the card and lightbox embed the video. */
   youtubeId?: string;
+  /** When true, render an editorial / infographic card (no image, big copy + highlights). */
+  infographic?: boolean;
+  /** Highlight metrics or deliverables shown on infographic cards. */
+  highlights?: string[];
+  /** Accent color hue for infographic background gradient. */
+  accent?: "sand" | "ink" | "gold" | "terracotta" | "olive";
 };
 
 const PROJECTS: Project[] = [
