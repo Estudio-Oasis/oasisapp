@@ -431,7 +431,11 @@ export default function AboutRoger() {
             <h2 className="font-serif-display text-[clamp(24px,4vw,44px)] text-white">
               {t.ctaTitle1} <span className="italic text-[#C8A96E]">{t.ctaTitle2}</span>
             </h2>
-            <p className="mt-3 text-[13px] text-[#A8A29E]">{WHATSAPP_DISPLAY}</p>
+            <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#C8A96E]/30 bg-[#C8A96E]/10">
+              <span className="text-[11px] font-mono-label tracking-wider text-[#C8A96E]">{t.availabilityBadge}</span>
+            </div>
+            <p className="mt-3 text-[13px] text-[#A8A29E]">{WHATSAPP_DISPLAY} · {EMAIL}</p>
+            <p className="mt-1 text-[12px] text-[#A8A29E]/70">{t.finalKicker}</p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <a href={WA_URL} target="_blank" rel="noopener noreferrer" className="h-12 px-7 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[14px] font-semibold flex items-center gap-2 hover:bg-[#D4B87A]">
                 <MessageCircle className="h-4 w-4" /> {t.ctaWa}
