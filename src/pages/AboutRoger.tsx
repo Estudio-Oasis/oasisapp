@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin, GraduationCap, ExternalLink, Mail, MessageCircle, Menu, X } from "lucide-react";
 import { SiteFooter } from "@/components/SiteFooter";
+import { RogerContactFab } from "@/components/RogerContactFab";
 
 const WHATSAPP = "525667701206";
 const WHATSAPP_DISPLAY = "+52 56 6770 1206";
@@ -405,6 +406,7 @@ export default function AboutRoger() {
       </section>
 
       <SiteFooter />
+      <RogerContactFab lang={lang} />
     </div>
   );
 }
