@@ -159,10 +159,9 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
       toast.error("No puedes eliminarte a ti mismo");
       return;
     }
-    const { error } = await supabase
-      .from("profiles")
-      .update({ agency_id: null })
-      .eq("id", memberId);
+    const { error } = await supabase.rpc("remove_agency_member", {
+      _member_id: memberId,
+    });
     if (error) {
       toast.error("No se pudo eliminar al miembro");
       return;
