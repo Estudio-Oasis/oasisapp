@@ -1410,6 +1410,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      remove_agency_member: { Args: { _member_id: string }; Returns: undefined }
       same_agency_as: { Args: { target_user_id: string }; Returns: boolean }
       user_agency_id: { Args: never; Returns: string }
     }
