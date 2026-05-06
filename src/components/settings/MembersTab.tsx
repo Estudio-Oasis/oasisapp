@@ -298,6 +298,58 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
         </div>
       )}
 
+      {/* Universal invite link */}
+      {isAdmin && (
+        <div className="rounded-xl border border-border bg-card p-4">
+          <h3 className="text-h3 text-foreground flex items-center gap-2">
+            <Link2 className="h-4 w-4" />
+            Enlace de invitación universal
+          </h3>
+          <p className="text-xs text-foreground-muted mt-1">
+            Comparte un solo enlace con tu equipo. Cualquiera con el enlace podrá unirse al workspace.
+          </p>
+
+          {!inviteToken || !linkEnabled ? (
+            <Button onClick={handleGenerateLink} disabled={linkBusy} size="sm" className="mt-3">
+              {linkBusy ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <>
+                  <Link2 className="h-3.5 w-3.5 mr-1.5" />
+                  Generar enlace
+                </>
+              )}
+            </Button>
+          ) : (
+            <>
+              <div className="flex gap-2 mt-3">
+                <Input value={inviteUrl ?? ""} readOnly className="flex-1 font-mono text-xs" />
+                <Button onClick={handleCopyLink} size="sm" variant="outline">
+                  <Copy className="h-3.5 w-3.5 mr-1.5" />
+                  Copiar
+                </Button>
+              </div>
+              <div className="flex gap-2 mt-2">
+                <Button onClick={handleGenerateLink} disabled={linkBusy} size="sm" variant="outline">
+                  <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                  Regenerar
+                </Button>
+                <Button
+                  onClick={handleDisableLink}
+                  disabled={linkBusy}
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Power className="h-3.5 w-3.5 mr-1.5" />
+                  Desactivar
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Pending invitations */}
       {invitations.length > 0 && (
         <div className="space-y-2">
