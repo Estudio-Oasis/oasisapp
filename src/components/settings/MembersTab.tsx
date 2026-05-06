@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Mail, RefreshCw, Trash2, UserPlus } from "lucide-react";
+import { Loader2, Mail, RefreshCw, Trash2, UserPlus, Link2, Copy, Power } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface Member {
@@ -44,6 +44,9 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
   const [loading, setLoading] = useState(true);
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
   const cooldownTimers = useRef<Record<string, ReturnType<typeof setInterval>>>({});
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [linkEnabled, setLinkEnabled] = useState(false);
+  const [linkBusy, setLinkBusy] = useState(false);
 
   // Cleanup timers on unmount
   useEffect(() => {
@@ -70,7 +73,7 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
   }, []);
 
   const fetchData = useCallback(async () => {
-    const [membersRes, invitesRes] = await Promise.all([
+    const [membersRes, invitesRes, agencyRes] = await Promise.all([
       supabase
         .from("profiles")
         .select("id, name, email, role, avatar_url")
@@ -80,16 +83,63 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
         .select("*")
         .eq("agency_id", agencyId)
         .eq("status", "pending"),
+      supabase
+        .from("agencies")
+        .select("invite_token, invite_link_enabled")
+        .eq("id", agencyId)
+        .maybeSingle(),
     ]);
 
     if (membersRes.data) setMembers(membersRes.data);
     if (invitesRes.data) setInvitations(invitesRes.data as Invitation[]);
+    if (agencyRes.data) {
+      setInviteToken((agencyRes.data as any).invite_token ?? null);
+      setLinkEnabled(!!(agencyRes.data as any).invite_link_enabled);
+    }
     setLoading(false);
   }, [agencyId]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const inviteUrl = inviteToken
+    ? `${window.location.origin}/join-workspace/${inviteToken}`
+    : null;
+
+  const handleGenerateLink = async () => {
+    setLinkBusy(true);
+    const { data, error } = await supabase.rpc("regenerate_agency_invite_link");
+    setLinkBusy(false);
+    if (error) {
+      toast.error("No se pudo generar el enlace");
+      return;
+    }
+    const row = Array.isArray(data) ? data[0] : data;
+    if (row) {
+      setInviteToken((row as any).invite_token);
+      setLinkEnabled(!!(row as any).invite_link_enabled);
+    }
+    toast.success("Enlace generado");
+  };
+
+  const handleDisableLink = async () => {
+    setLinkBusy(true);
+    const { error } = await supabase.rpc("disable_agency_invite_link");
+    setLinkBusy(false);
+    if (error) {
+      toast.error("No se pudo desactivar");
+      return;
+    }
+    setLinkEnabled(false);
+    toast.success("Enlace desactivado");
+  };
+
+  const handleCopyLink = async () => {
+    if (!inviteUrl) return;
+    await navigator.clipboard.writeText(inviteUrl);
+    toast.success("Enlace copiado");
+  };
 
   const handleInviteResponse = (data: any, error: any, email: string, cooldownKey: string): boolean => {
     if (error) {
@@ -245,6 +295,58 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
               )}
             </Button>
           </div>
+        </div>
+      )}
+
+      {/* Universal invite link */}
+      {isAdmin && (
+        <div className="rounded-xl border border-border bg-card p-4">
+          <h3 className="text-h3 text-foreground flex items-center gap-2">
+            <Link2 className="h-4 w-4" />
+            Enlace de invitación universal
+          </h3>
+          <p className="text-xs text-foreground-muted mt-1">
+            Comparte un solo enlace con tu equipo. Cualquiera con el enlace podrá unirse al workspace.
+          </p>
+
+          {!inviteToken || !linkEnabled ? (
+            <Button onClick={handleGenerateLink} disabled={linkBusy} size="sm" className="mt-3">
+              {linkBusy ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <>
+                  <Link2 className="h-3.5 w-3.5 mr-1.5" />
+                  Generar enlace
+                </>
+              )}
+            </Button>
+          ) : (
+            <>
+              <div className="flex gap-2 mt-3">
+                <Input value={inviteUrl ?? ""} readOnly className="flex-1 font-mono text-xs" />
+                <Button onClick={handleCopyLink} size="sm" variant="outline">
+                  <Copy className="h-3.5 w-3.5 mr-1.5" />
+                  Copiar
+                </Button>
+              </div>
+              <div className="flex gap-2 mt-2">
+                <Button onClick={handleGenerateLink} disabled={linkBusy} size="sm" variant="outline">
+                  <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                  Regenerar
+                </Button>
+                <Button
+                  onClick={handleDisableLink}
+                  disabled={linkBusy}
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Power className="h-3.5 w-3.5 mr-1.5" />
+                  Desactivar
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       )}
 

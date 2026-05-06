@@ -83,7 +83,9 @@ export default function Signup() {
       toast.success("¡Listo! Tu cuenta está creada. ¿En qué estás trabajando?");
     }
 
-    navigate(fromBeta ? "/onboarding?ref=beta" : "/onboarding");
+    const redirect = searchParams.get("redirect");
+    if (redirect) navigate(redirect);
+    else navigate(fromBeta ? "/onboarding?ref=beta" : "/onboarding");
   };
 
   const subtitle = fromBeta

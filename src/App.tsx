@@ -48,6 +48,7 @@ import ServiciosPage from "./pages/Servicios";
 import ContactoPage from "./pages/Contacto";
 import OasisOSPage from "./pages/OasisOS";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
+import JoinWorkspace from "./pages/JoinWorkspace";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -84,6 +85,7 @@ const App = () => (
                   <Route path="/q/:token" element={<QuoteApprovalPage />} />
                   <Route path="/unsubscribe" element={<UnsubscribePage />} />
                   <Route path="/onboarding" element={<OnboardingPage />} />
+                  <Route path="/join-workspace/:token" element={<JoinWorkspace />} />
                   <Route path="/superadmin" element={<SuperAdminRoute><SuperAdminPage /></SuperAdminRoute>} />
 
                   {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
