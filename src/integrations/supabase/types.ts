@@ -27,6 +27,9 @@ export type Database = {
           created_at: string
           fiscal_address: string | null
           id: string
+          invite_link_created_at: string | null
+          invite_link_enabled: boolean
+          invite_token: string | null
           is_active: boolean
           legal_name: string | null
           logo_url: string | null
@@ -48,6 +51,9 @@ export type Database = {
           created_at?: string
           fiscal_address?: string | null
           id?: string
+          invite_link_created_at?: string | null
+          invite_link_enabled?: boolean
+          invite_token?: string | null
           is_active?: boolean
           legal_name?: string | null
           logo_url?: string | null
@@ -69,6 +75,9 @@ export type Database = {
           created_at?: string
           fiscal_address?: string | null
           id?: string
+          invite_link_created_at?: string | null
+          invite_link_enabled?: boolean
+          invite_token?: string | null
           is_active?: boolean
           legal_name?: string | null
           logo_url?: string | null
@@ -1379,9 +1388,20 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      disable_agency_invite_link: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      get_agency_by_invite_token: {
+        Args: { _token: string }
+        Returns: {
+          id: string
+          logo_url: string
+          member_count: number
+          name: string
+          plan: string
+        }[]
       }
       has_role: {
         Args: {
@@ -1392,6 +1412,10 @@ export type Database = {
       }
       is_admin: { Args: never; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }
+      join_agency_via_invite_token: {
+        Args: { _token: string }
+        Returns: string
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -1408,6 +1432,14 @@ export type Database = {
           message: Json
           msg_id: number
           read_ct: number
+        }[]
+      }
+      regenerate_agency_invite_link: {
+        Args: never
+        Returns: {
+          invite_link_created_at: string
+          invite_link_enabled: boolean
+          invite_token: string
         }[]
       }
       remove_agency_member: { Args: { _member_id: string }; Returns: undefined }
