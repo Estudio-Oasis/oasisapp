@@ -48,6 +48,7 @@ import ServiciosPage from "./pages/Servicios";
 import ContactoPage from "./pages/Contacto";
 import OasisOSPage from "./pages/OasisOS";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
+import JoinWorkspace from "./pages/JoinWorkspace";
 const queryClient = new QueryClient();
 
 const App = () => (
