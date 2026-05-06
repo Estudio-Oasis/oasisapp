@@ -44,6 +44,9 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
   const [loading, setLoading] = useState(true);
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
   const cooldownTimers = useRef<Record<string, ReturnType<typeof setInterval>>>({});
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [linkEnabled, setLinkEnabled] = useState(false);
+  const [linkBusy, setLinkBusy] = useState(false);
 
   // Cleanup timers on unmount
   useEffect(() => {
