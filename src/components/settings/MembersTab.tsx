@@ -73,7 +73,7 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
   }, []);
 
   const fetchData = useCallback(async () => {
-    const [membersRes, invitesRes] = await Promise.all([
+    const [membersRes, invitesRes, agencyRes] = await Promise.all([
       supabase
         .from("profiles")
         .select("id, name, email, role, avatar_url")
@@ -83,16 +83,63 @@ export function MembersTab({ agencyId, isAdmin, allowedDomain }: Props) {
         .select("*")
         .eq("agency_id", agencyId)
         .eq("status", "pending"),
+      supabase
+        .from("agencies")
+        .select("invite_token, invite_link_enabled")
+        .eq("id", agencyId)
+        .maybeSingle(),
     ]);
 
     if (membersRes.data) setMembers(membersRes.data);
     if (invitesRes.data) setInvitations(invitesRes.data as Invitation[]);
+    if (agencyRes.data) {
+      setInviteToken((agencyRes.data as any).invite_token ?? null);
+      setLinkEnabled(!!(agencyRes.data as any).invite_link_enabled);
+    }
     setLoading(false);
   }, [agencyId]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const inviteUrl = inviteToken
+    ? `${window.location.origin}/join-workspace/${inviteToken}`
+    : null;
+
+  const handleGenerateLink = async () => {
+    setLinkBusy(true);
+    const { data, error } = await supabase.rpc("regenerate_agency_invite_link");
+    setLinkBusy(false);
+    if (error) {
+      toast.error("No se pudo generar el enlace");
+      return;
+    }
+    const row = Array.isArray(data) ? data[0] : data;
+    if (row) {
+      setInviteToken((row as any).invite_token);
+      setLinkEnabled(!!(row as any).invite_link_enabled);
+    }
+    toast.success("Enlace generado");
+  };
+
+  const handleDisableLink = async () => {
+    setLinkBusy(true);
+    const { error } = await supabase.rpc("disable_agency_invite_link");
+    setLinkBusy(false);
+    if (error) {
+      toast.error("No se pudo desactivar");
+      return;
+    }
+    setLinkEnabled(false);
+    toast.success("Enlace desactivado");
+  };
+
+  const handleCopyLink = async () => {
+    if (!inviteUrl) return;
+    await navigator.clipboard.writeText(inviteUrl);
+    toast.success("Enlace copiado");
+  };
 
   const handleInviteResponse = (data: any, error: any, email: string, cooldownKey: string): boolean => {
     if (error) {
