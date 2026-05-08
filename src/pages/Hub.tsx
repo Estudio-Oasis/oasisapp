@@ -140,25 +140,31 @@ export default function HubPage() {
       });
       setRecentActivity(actFeed);
 
-      // Hours per user — guard against runaway open sessions (cap fallback to 12h)
+      const presenceMap = new Map<string, MemberPresence>();
+      (presenceData || []).forEach((p: any) => presenceMap.set(p.user_id, p));
+
+      // Hours per user — only count entries that started TODAY (local).
+      // Open sessions only count if the user is actively present (avoid zombie sessions).
       const hoursMap: Record<string, number> = {};
       (todayEntries || []).forEach((e: any) => {
-        let mins: number;
+        const startedMs = new Date(e.started_at).getTime();
+        if (startedMs < todayStart.getTime()) return; // safety: outside today
+        let mins = 0;
         if (e.duration_min != null) {
           mins = Number(e.duration_min);
         } else if (e.ended_at) {
-          mins = (new Date(e.ended_at).getTime() - new Date(e.started_at).getTime()) / 60000;
+          mins = (new Date(e.ended_at).getTime() - startedMs) / 60000;
         } else {
-          // Open session: only count elapsed since today's start (not across days)
-          const sessionStart = Math.max(new Date(e.started_at).getTime(), todayStart.getTime());
-          mins = Math.min((Date.now() - sessionStart) / 60000, 12 * 60);
+          // Open session: skip if owner looks offline (zombie). Cap to 8h.
+          const presence = presenceMap.get(e.user_id);
+          const lastSeen = presence ? new Date(presence.last_seen_at).getTime() : 0;
+          const isPresent = presence && Date.now() - lastSeen < OFFLINE_THRESHOLD_MS;
+          if (!isPresent) return;
+          mins = Math.min((Date.now() - startedMs) / 60000, 8 * 60);
         }
         if (!isFinite(mins) || mins < 0) mins = 0;
         hoursMap[e.user_id] = (hoursMap[e.user_id] || 0) + mins;
       });
-
-      const presenceMap = new Map<string, MemberPresence>();
-      (presenceData || []).forEach((p: any) => presenceMap.set(p.user_id, p));
 
       const myPresence = presenceMap.get(user.id);
       if (myPresence) setMyStatus(myPresence.status);
@@ -203,9 +209,10 @@ export default function HubPage() {
   const teamStats = useMemo(() => {
     const activeCount = members.filter((m) => m.status !== "offline").length;
     const totalMinutes = members.reduce((s, m) => s + m.todayMinutes, 0);
-    const billableSet = new Set(["working", "meeting"]);
-    const workingMin = members.filter((m) => billableSet.has(m.status)).reduce((s, m) => s + m.todayMinutes, 0);
-    const avgMin = members.length ? Math.round(totalMinutes / members.length) : 0;
+    // Average across members who actually logged time today (avoids dragging avg to 0)
+    const withHours = members.filter((m) => m.todayMinutes > 0);
+    const avgMin = withHours.length ? Math.round(totalMinutes / withHours.length) : 0;
+    const peopleWithHours = withHours.length;
     const topClient = (() => {
       const clientCounts: Record<string, number> = {};
       members.forEach((m) => {
@@ -214,7 +221,7 @@ export default function HubPage() {
       const top = Object.entries(clientCounts).sort((a, b) => b[1] - a[1])[0];
       return top ? top[0] : null;
     })();
-    return { activeCount, totalMinutes, workingMin, avgMin, topClient };
+    return { activeCount, totalMinutes, avgMin, peopleWithHours, topClient };
   }, [members]);
 
   // Group members by status bucket (matches PDF: TRABAJANDO / EN REUNIÓN / EN PAUSA / AUSENTES)
@@ -544,32 +551,32 @@ export default function HubPage() {
                 {formatDuration(teamStats.totalMinutes)}
               </p>
               <p className="text-[10px] text-foreground-muted mt-1.5 tabular-nums">
-                Promedio {formatDuration(teamStats.avgMin)} por persona
+                {teamStats.peopleWithHours > 0
+                  ? `${teamStats.peopleWithHours} ${teamStats.peopleWithHours === 1 ? "persona registró" : "personas registraron"} · prom. ${formatDuration(teamStats.avgMin)}`
+                  : "Sin registros hoy"}
               </p>
             </div>
-            {/* Breakdown bar */}
+            {/* Top contributors today */}
             {teamStats.totalMinutes > 0 && (
-              <div className="space-y-2 pt-1">
-                <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-background-tertiary">
-                  <div
-                    className="bg-success"
-                    style={{ width: `${Math.round((teamStats.workingMin / teamStats.totalMinutes) * 100)}%` }}
-                  />
-                  <div
-                    className="bg-accent/70"
-                    style={{ width: `${Math.round(((teamStats.totalMinutes - teamStats.workingMin) / teamStats.totalMinutes) * 100)}%` }}
-                  />
-                </div>
-                <div className="flex items-center justify-between text-[10px] text-foreground-muted">
-                  <span className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-success" />
-                    Productivo {formatDuration(teamStats.workingMin)}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accent/70" />
-                    Pausa/otros
-                  </span>
-                </div>
+              <div className="space-y-1.5 pt-1">
+                {[...members]
+                  .filter((m) => m.todayMinutes > 0)
+                  .sort((a, b) => b.todayMinutes - a.todayMinutes)
+                  .slice(0, 3)
+                  .map((m) => {
+                    const pct = Math.round((m.todayMinutes / teamStats.totalMinutes) * 100);
+                    return (
+                      <div key={m.user_id} className="space-y-1">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="truncate text-foreground">{m.profile.name?.split(" ")[0] || m.profile.email?.split("@")[0]}</span>
+                          <span className="tabular-nums text-foreground-muted">{formatDuration(m.todayMinutes)}</span>
+                        </div>
+                        <div className="h-1 w-full overflow-hidden rounded-full bg-background-tertiary">
+                          <div className="h-full bg-accent" style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             )}
           </div>
