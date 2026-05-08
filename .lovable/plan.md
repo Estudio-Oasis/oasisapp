@@ -1,176 +1,115 @@
-# Comando — Vista de operación para Super Admin
 
-Una sola pantalla nueva, accesible solo para `super_admin_users`, en `/comando`. No reemplaza al Hub del equipo (que sigue siendo social/colaborativo). Comando es la **war-room**: dónde está el dinero, dónde está el riesgo, dónde está atorada la operación.
+# Rediseño OasisOS · Cassiu v2
 
-## Filosofía (lo que NO es)
+Pre-mortem honesto antes de empezar:
 
-- **Si** es un panóptico de productividad por persona.
-- **Si** muestra "tiempo activo" como métrica heroica, ni rankings, ni productivity scores.
-  **Si puede que** es una grilla de barras en tiempo real de quién está tecleando.
-- **Sí** es una bandeja de excepciones priorizada por señal, con cada item accionable.
-
-## Acceso
-
-- Ruta `/comando` envuelta en `<SuperAdminRoute>`.
-- Entrada visible solo para super admins: ítem en sidebar desktop ("Comando", icono `Radar`) y acceso rápido en `/superadmin`.
-- El equipo regular no ve la ruta ni el ítem de navegación.
+- **El riesgo grande no es feo, es romper el día a día.** Bitácora y Home son las pantallas que el equipo abre 30 veces al día. Si tropiezan, pierdes confianza. Por eso vamos por fases pequeñas, una por turno, con preview entre cada una.
+- **El tono "bold"** (más ámbar, hero moments, texturas) puede pasarse de Apple-bento a "casino". Lo aplicamos con disciplina: ámbar como acento, no como fondo. Texturas sutiles (noise grain a 3% de opacidad). Un hero por pantalla, no varios.
+- **Datos vs decoración.** Cada widget tiene que responder "¿qué hago con esto?". Si no, fuera.
 
 ---
 
-## Estructura desktop (1440px) sugerida
+## Fase 0 — Acceso Comando (5 minutos)
 
-```text
-┌───────────────────────────────────────────────────────────────┐
-│  PULSO  · 1 línea, sticky                                     │
-│  8 personas · 4 activas · 32h hoy · 78% facturable · ▁▃▅▇▅▃▁ │
-├───────────────────────────────────────────────────────────────┤
-│  ⚡ ATENCIÓN (3-7 cards apiladas, prioridad descendente)      │
-│  [Lazaro: 7h sin pausa]      [Snooze] [Mensaje] [Ver]         │
-│  [Voccalo: +14% vs budget]   [Ajustar] [Ver cliente]          │
-│  [Tarea X · 4 días en WIP]   [Reasignar] [Mensaje]            │
-├──────────────────────────────────┬────────────────────────────┤
-│  CALOR POR CLIENTE (2/3)         │  PIPELINE & DINERO (1/3)   │
-│  Cliente · Horas/Budget · Riesgo │  Cotizaciones por vencer   │
-│  Voccalo  ████████░ 32/28  +14% │  Facturas atrasadas        │
-│  Acme     ██████░░░ 18/40  ok   │  Por cobrar este mes       │
-├──────────────────────────────────┴────────────────────────────┤
-│  TIRA DEL DÍA (8 filas apiladas, mini-Gantt)                  │
-│  Carla    ▓▓░▓▓▓▓░░▓▓                                         │
-│  Lazaro   ▓▓▓▓▓▓▓▓▓▓▓▓ (sin huecos = señal)                  │
-├───────────────────────────────────────────────────────────────┤
-│  EQUIPO (de-emphasized, ordenado por señal, no alfabético)    │
-│  Cards compactas, quien tiene anomalía aparece arriba         │
-└───────────────────────────────────────────────────────────────┘
+Insertar `r@estudiooasis.com` y `carla@estudiooasis.com` en `super_admin_users` para que ambos vean el link "Comando" en el sidebar y puedan entrar a `/comando`. Esto destraba lo que ya está construido.
+
+## Fase 1 — Móvil bento + bottom tabs
+
+Lo más visible y de más alto impacto. La pantalla principal del móvil pasa a ser un tablero bento.
+
+- **Home mobile** (`src/pages/Home.tsx` versión mobile): hero ámbar con saludo + frase contextual ("Llevas 4h 33m hoy, 55% facturable…"), seguido de tablero bento con widgets de tamaño variado:
+  - Timer activo (grande, hero ámbar si hay timer corriendo)
+  - Tira del día (rail compacto con bloques de horas)
+  - Hueco a llenar (si existe)
+  - Próxima tarea
+  - KPIs del día (horas, % facturable)
+  - Equipo en vivo (mini)
+  - Briefing OasisOS
+- **Bottom nav** (`src/components/BottomNav.tsx`): 4 tabs — Inicio, Bitácora, Hub, Más. FAB ámbar central para captura rápida (`⌘K` equivalente en móvil → abre `QuickLogInput` en sheet).
+- **Tab "Más"**: tareas, clientes, cotizaciones, finanzas, vault, ajustes en lista agrupada.
+
+```
+┌─────────────────────┐
+│  Buenas tardes,     │  ← hero ámbar
+│  Roger              │
+│  4h 33m · 55% bill  │
+├──────────┬──────────┤
+│ ⏱ ACTIVO │ TU DÍA   │
+│  0:42    │ ▓▓░▓▓░  │
+│ Plan Q4  │ 4h 33m  │
+├──────────┴──────────┤
+│ HUECO 33m · llenar →│
+├──────────┬──────────┤
+│ EQUIPO   │ PRÓXIMA  │
+│ 4 act.   │ tarea... │
+└──────────┴──────────┘
+[Inicio][Bit][Hub][Más]
+        ⊕ FAB ámbar
 ```
 
-### 1. Pulso (header, una sola línea)
+## Fase 2 — Inicio v2 desktop (tablero bento)
 
-Sticky top. Texto plano, números tabulares, sin cards. Sparkline 7d de horas facturables. Click en cualquier número → drilldown.
+Convertir `Home.tsx` desktop al mismo lenguaje bento que el móvil:
 
-### 2. ⚡ Atención (el feature asesino)
+- Hero ámbar con saludo contextual + frase del día.
+- Grid bento (no las columnas actuales), con widgets reutilizando los que ya existen (`TimerLauncherWidget`, `DayTasksWidget`, `GapsWidget`, `TeamWidget`, `FinanceSummaryWidget`, `IdeasWidget`) pero con tamaños variados (grande / mediano / chico) en lugar de columnas iguales.
+- "Cliente del día" como widget nuevo (cliente con más horas hoy + MRR + horas/mo).
+- Acceso visible a "Captura rápida ⌘K" en el header.
 
-Motor de reglas que produce una **cola priorizada**. Cada item:
+## Fase 3 — Bitácora v2 (riel + bloques)
 
-- Título humano ("Lazaro lleva 7h sin pausa")
-- Subtítulo con el "por qué importa"
-- 2-3 acciones inline: **Snooze 4h**, **Enviar mensaje**, **Ver detalle**
-- Badge de severidad (info / warn / risk)
+El cambio más profundo. Resolver el conflicto "timeline vs lista":
 
-Reglas iniciales (todas configurables luego):
+- Una sola columna del día con riel de horas a la izquierda (08 → 19h).
+- Cada `time_entry` se renderiza como bloque sobre el riel, con altura proporcional a duración.
+- Huecos como bloques rayados (no como banner aparte).
+- Click en bloque → abre `EntryEditSheet` lateral.
+- Filtros arriba: Todo / Facturable / Huecos / Hoy.
+- Mantener `MorningBriefing` arriba si no hay actividad.
 
-- Sesión activa > 6h sin pausa → fatiga
-- Miembro sin actividad > 48h hábiles → check-in
-- Cliente que rebasa horas vs `monthly_rate` esperado → margen
-- Tarea `in_progress` > 3 días sin time entry → atorada
-- Cotización `sent` > 7 días sin respuesta → seguimiento
-- Factura `overdue` → cobranza
-- Gap > 4h en bitácora de hoy de algún miembro activo → registro pendiente
+Refactor de `BitacoraCore.tsx` + `InteractiveTimeline.tsx` (se fusionan en un solo componente `DayRail.tsx`).
 
-Si la cola está vacía: estado vacío celebratorio ("Todo bajo control. 🟢"), no un placeholder genérico.
+## Fase 4 — Hub v2
 
-### 3. Calor por cliente
+Reorganizar `Hub.tsx` con secciones por estado, ordenadas por señal (no alfa):
 
-Tabla compacta, 1 fila por cliente activo:
+- TRABAJANDO · N (verde)
+- EN REUNIÓN · N
+- EN PAUSA · N
+- AUSENTES · N
+- ACTIVIDAD RECIENTE (feed de últimos eventos)
 
-- Nombre · Barra horas semana / budget esperado · % desviación · Responsable principal · Última actividad
-- Color: verde dentro de rango, ámbar 90-110%, rojo >110%
-- Reencuadra "ver al equipo" como "ver margen". Click → `/clients/:id`.
+Cada miembro muestra avatar, nombre, cliente actual, tarea actual, tiempo en sesión.
 
-### 4. Pipeline & dinero (columna derecha)
+## Fase 5 — Refinamientos secundarios
 
-Tres mini-listas:
-
-- **Cotizaciones por vencer** (status `sent`, `valid_until` próximo)
-- **Facturas atrasadas** (`due_date < today`, `status != paid`)
-- **Por cobrar este mes** (suma `invoices.amount` pending)
-
-### 5. Tira del día
-
-Un mini-Gantt: 8 filas (una por miembro), eje X = horario laboral. Bloques de `time_entries` de hoy. Huecos visibles. Sin nombres de tarea (eso es entrar al detalle); solo densidad y forma. Hover → tooltip con detalle.
-
-### 6. Equipo (de-emphasized)
-
-Cards al final, ordenadas por señal:
-
-1. Miembros con item activo en ⚡ Atención
-2. Miembros con sesión activa
-3. Resto
-
-Cada card: avatar, nombre, estado actual (cliente/tarea), última actividad. Sin "score".
+Pulido de Tareas (lista agrupada con hero ámbar para P1 más urgente, toggle a Kanban), Clientes (MRR + horas + salud), Cotizaciones (pipeline visual), Finanzas (MRR + por cobrar + facturación reciente), Vault (sin cambios mayores). Estos son retoques visuales, no refactor.
 
 ---
 
-## Mobile (375-414px)
+## Tono visual "bold" — reglas de aplicación
 
-**No es desktop chiquito.** Es la bandeja de excepciones del fundador en movimiento.
+Para evitar que se sienta de casino:
 
-Stack vertical, sin tabs internos:
-
-1. **Pulso** colapsado a 2 líneas (8 personas · 4 activas · 32h | 78% facturable)
-2. **⚡ Atención** — cards swipeables horizontalmente (snap), una visible a la vez. Swipe izquierda = snooze, derecha = ver. Es el corazón de la pantalla móvil.
-3. **Tira del día** — scroll horizontal compacto, una imagen del día.
-4. **Calor por cliente compacto** — top 5 con desviación más alta.
-5. **Pipeline** — solo facturas atrasadas + cotizaciones por vencer (los 2 que requieren acción humana).
-
-Sin equipo cards en móvil — no es lo que el fundador necesita atender desde el teléfono.
-
-Acceso desde móvil: ítem en bottom nav solo visible si es super admin, o FAB tipo "Radar" en `/home`.
+- **Ámbar = acento, no fondo.** Solo en: hero del saludo, FAB, números KPI heroicos, badge del timer activo.
+- **Textura:** ruido sutil (`bg-[url(noise.svg)] opacity-[0.03]`) solo en hero del saludo.
+- **Hero moments:** UN hero por pantalla. El saludo en Home, el timer activo en Bitácora, el "atención #1" en Comando.
+- **Tipografía:** números tabulares grandes (text-4xl/5xl) para KPIs heroicos. Playfair se mantiene para titulares editoriales (saludo).
+- Tokens nuevos en `index.css`: `--gradient-amber-hero`, `--texture-grain`. Sin tocar Sand/Charcoal/Gold base.
 
 ---
 
-## Detalles técnicos (sección para devs)
+## Detalles técnicos (referencia)
 
-### Frontend
-
-- Nueva ruta `/comando` en `src/App.tsx` envuelta en `SuperAdminRoute`.
-- Página `src/pages/Comando.tsx`.
-- Componentes nuevos en `src/components/comando/`:
-  - `PulseHeader.tsx`
-  - `AttentionQueue.tsx` + `AttentionCard.tsx`
-  - `ClientHeatmap.tsx`
-  - `MoneyPipeline.tsx`
-  - `DayStrip.tsx`
-  - `TeamSignalList.tsx`
-- Hook `useAttentionSignals.ts` — corre las reglas client-side sobre datos ya en cache (time_entries, tasks, invoices, quotes, clients, profiles, member_presence) y devuelve cola ordenada por severidad/recencia.
-- Reusar `WidgetCard` existente para mantener DNA visual.
-- Mobile: detectar con `useIsMobile()` y renderizar layout alternativo (no responsive puro — son layouts distintos).
-
-### Backend
-
-- **Sin cambios de schema en esta primera versión.** Toda la información ya existe.
-- Lectura cruzada multi-agencia: la RLS actual scope-a por `agency_id`, pero los super admins ya tienen policies `is_super_admin()` en `profiles`, `agencies`, `feedback`. Se necesitan policies adicionales `Super admins can view all ...` para:
-  - `time_entries`
-  - `tasks`
-  - `clients`, `projects`
-  - `invoices`, `quotes`, `payments`
-  - `member_presence`
-  Cada una: `CREATE POLICY ... FOR SELECT TO authenticated USING (is_super_admin())`. Solo SELECT, no escritura.
-- Acciones inline ("snooze", "mensaje") en v1: snooze guarda en `localStorage` (no requiere tabla); mensaje abre el chat existente con el miembro.
-
-### V2 (no en este sprint, pero pensado)
-
-- Tabla `attention_snoozes` para que snooze persista cross-device.
-- Tabla `attention_rules` configurable por super admin (umbrales).
-- Edge function `nightly-digest` que envía resumen de Atención por email cada mañana.
+- Fase 0: `INSERT INTO super_admin_users (id) SELECT id FROM profiles WHERE email IN ('r@estudiooasis.com','carla@estudiooasis.com');`
+- Fase 1: `BottomNav.tsx` (4 tabs + FAB), nuevo `src/components/home/MobileBentoHome.tsx`, condicional `useIsMobile()` en `Home.tsx`.
+- Fase 2: refactor de `Home.tsx` desktop con CSS Grid bento (`grid-cols-12` con `col-span` variables).
+- Fase 3: nuevo `src/components/bitacora/DayRail.tsx`, sustituye render actual en `BitacoraCore.tsx`. `InteractiveTimeline.tsx` se deprecia.
+- Fase 4: refactor de `Hub.tsx`, reusa `MemberBubble`, agrupa por status.
+- Tokens nuevos en `src/index.css` y `tailwind.config.ts`.
 
 ---
 
-## Lo que pre-mortem decía y cómo lo evito
+## Cómo procedemos
 
-
-| Riesgo                  | Mitigación en este diseño                                                                     |
-| ----------------------- | --------------------------------------------------------------------------------------------- |
-| Sentirse vigilancia     | Acceso restringido a super admin; sin productivity scores; sin rankings; equipo de-emphasized |
-| Adicción a refrescar    | Sin auto-refresh agresivo; foco en cola accionable, no en tiempo real                         |
-| Datos sin decisión      | Cada item de Atención tiene CTA; cada cliente lleva a su perfil; cada métrica es clickeable   |
-| No escala a 30 personas | Equipo ordenado por señal, no por nombre; tira del día con virtualización                     |
-| Mobile mal entendido    | Layout móvil ≠ desktop; móvil = bandeja de excepciones, no dashboard                          |
-
-
----
-
-## Pregunta antes de implementar
-
-Una sola: el motor de **Atención** es el corazón. ¿Quieres que arranque con las 7 reglas que listé arriba, o prefieres elegir 3-4 para v1 y agregar el resto después de ver cómo se siente con datos reales? Mi recomendación: arrancar con **fatiga, tarea atorada, cliente sobre budget, factura atrasada** (4 reglas, una por cuadrante: persona / trabajo / cliente / dinero).  
-  
-Todo esto es una sugerencia, el outcome es una sección de este producto donde se pueda visualizar toda la información y actividad relevante en tiempo real y al mismo tiempo es decir en la misma sección
+Cuando aceptes este plan ejecuto **Fase 0 + Fase 1 en el primer turno** (acceso Comando + móvil bento, ambos cambios independientes y de bajo riesgo). Luego avanzamos una fase por turno con preview entre cada una. Si en cualquier punto algo no se siente bien, lo corregimos antes de seguir.

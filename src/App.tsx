@@ -50,6 +50,7 @@ import OasisOSPage from "./pages/OasisOS";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
 import JoinWorkspace from "./pages/JoinWorkspace";
 import ComandoPage from "./pages/Comando";
+import MasPage from "./pages/Mas";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -103,6 +104,7 @@ const App = () => (
                     <Route path="/bitacora" element={<BitacoraPage />} />
                     <Route path="/timer" element={<Navigate to="/bitacora" replace />} />
                     <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/mas" element={<MasPage />} />
 
                     {/* Pro-only routes */}
                     <Route path="/hub" element={<ProRoute><HubPage /></ProRoute>} />
