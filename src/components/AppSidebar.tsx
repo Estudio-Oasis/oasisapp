@@ -191,11 +191,12 @@ export function AppSidebar() {
         {/* Navigation */}
         <SidebarContent className="px-3 mt-2">
           <nav className="flex flex-col gap-1">
-            {navItems.map((item) => {
+            {navItems.map((item: any) => {
               const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + "/");
+              const label = item.titleKey ? t(item.titleKey) : item.label;
               return (
                 <Link
-                  key={item.titleKey}
+                  key={item.url}
                   to={item.url}
                   data-tour={item.tourId}
                   className={`relative flex h-9 items-center gap-2.5 rounded-md px-3 text-sm font-medium transition-colors ${
@@ -208,7 +209,7 @@ export function AppSidebar() {
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-accent" />
                   )}
                   <item.icon className="h-4 w-4 shrink-0" />
-                  <span>{t(item.titleKey)}</span>
+                  <span>{label}</span>
                   {item.url === "/hub" && unreadCount > 0 && (
                     <span className="ml-auto flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1">
                       {unreadCount}
