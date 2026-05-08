@@ -108,11 +108,20 @@ export default {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(-50%)" },
         },
+        "pulse-halo": {
+          "0%, 100%": {
+            boxShadow: "0 0 0 0 hsl(var(--accent) / 0.55), 0 0 0 0 hsl(var(--accent) / 0.35)",
+          },
+          "50%": {
+            boxShadow: "0 0 0 6px hsl(var(--accent) / 0), 0 0 28px 4px hsl(var(--accent) / 0.55)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         marquee: "marquee 30s linear infinite",
+        "pulse-halo": "pulse-halo 1.6s ease-in-out infinite",
       },
     },
   },
