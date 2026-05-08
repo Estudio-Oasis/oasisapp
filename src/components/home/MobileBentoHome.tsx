@@ -170,7 +170,7 @@ function DayRail({ blocks }: { blocks: DayBlock[] }) {
 export function MobileBentoHome() {
   const { user } = useAuth();
   const { isRunning, activeClient, activeTask, activeEntry, elapsedSeconds } = useTimer();
-  const data = useDayData();
+  const { loading, ...data } = useDayData();
   const navigate = useNavigate();
   const [name, setName] = useState<string>("");
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
