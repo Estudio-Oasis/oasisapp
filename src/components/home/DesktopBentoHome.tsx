@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTimer } from "@/contexts/TimerContext";
@@ -14,6 +14,7 @@ import { TeamWidget } from "@/components/dashboard/TeamWidget";
 import { GapsWidget } from "@/components/dashboard/GapsWidget";
 import { FinanceSummaryWidget } from "@/components/dashboard/FinanceSummaryWidget";
 import { WelcomeChecklist } from "@/components/dashboard/WelcomeChecklist";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Radar, ArrowRight, Clock, Target, TrendingUp, Users as UsersIcon,
   Sparkles, Command,
@@ -27,60 +28,98 @@ function useHomeData() {
     minutesToday: 0, billableMin: 0, blocks: [] as DayBlock[],
     teamActive: 0, monthIncome: 0, topClient: null as { name: string; hours: number } | null,
   });
+  const [loading, setLoading] = useState(true);
+  const debounceRef = useRef<number | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!user) return;
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-    Promise.all([
+    const [entries, presence, payments, monthEntries] = await Promise.all([
       supabase.from("time_entries")
         .select("started_at, ended_at, duration_min, client_id, clients(name, monthly_rate)")
-        .eq("user_id", user.id).gte("started_at", todayStart).order("started_at"),
-      supabase.from("member_presence").select("user_id").eq("status", "online"),
+        .eq("user_id", user.id).gte("started_at", todayStart.toISOString()).order("started_at"),
+      supabase.from("member_presence").select("user_id, status, last_seen_at"),
       supabase.from("payments").select("amount_received").gte("date_received", monthStart),
       supabase.from("time_entries")
         .select("duration_min, clients(name)")
         .eq("user_id", user.id).gte("started_at", monthStart).not("ended_at", "is", null),
-    ]).then(([entries, presence, payments, monthEntries]) => {
-      const list = entries.data || [];
-      let totalMin = 0, billableMin = 0;
-      const blocks: DayBlock[] = [];
-      list.forEach((e: any) => {
-        const dur = Number(e.duration_min) || 0;
-        if (!e.ended_at) return;
-        totalMin += dur;
-        const billable = Number(e?.clients?.monthly_rate || 0) > 0;
-        if (billable) billableMin += dur;
+    ]);
+
+    const list = entries.data || [];
+    let totalMin = 0, billableMin = 0;
+    const blocks: DayBlock[] = [];
+    list.forEach((e: any) => {
+      let dur: number;
+      if (e.duration_min != null) dur = Number(e.duration_min);
+      else if (e.ended_at) dur = (new Date(e.ended_at).getTime() - new Date(e.started_at).getTime()) / 60000;
+      else {
+        const sStart = Math.max(new Date(e.started_at).getTime(), todayStart.getTime());
+        dur = Math.min((Date.now() - sStart) / 60000, 12 * 60);
+      }
+      if (!isFinite(dur) || dur < 0) dur = 0;
+      totalMin += dur;
+      const billable = Number(e?.clients?.monthly_rate || 0) > 0;
+      if (billable) billableMin += dur;
+      if (e.ended_at) {
         const s = new Date(e.started_at), en = new Date(e.ended_at);
         blocks.push({
           start: s.getHours() * 60 + s.getMinutes(),
           end: en.getHours() * 60 + en.getMinutes(),
           billable,
         });
-      });
-
-      // Top client of month
-      const byClient = new Map<string, number>();
-      (monthEntries.data || []).forEach((e: any) => {
-        const name = e?.clients?.name;
-        if (!name) return;
-        byClient.set(name, (byClient.get(name) || 0) + (Number(e.duration_min) || 0));
-      });
-      const topEntry = [...byClient.entries()].sort((a, b) => b[1] - a[1])[0];
-
-      setData({
-        minutesToday: totalMin, billableMin, blocks,
-        teamActive: (presence.data || []).filter((p) => p.user_id !== user.id).length,
-        monthIncome: (payments.data || []).reduce((s: number, p: any) => s + Number(p.amount_received), 0),
-        topClient: topEntry ? { name: topEntry[0], hours: Math.round(topEntry[1] / 6) / 10 } : null,
-      });
+      }
     });
-  }, [user]);
 
-  return data;
+    const byClient = new Map<string, number>();
+    (monthEntries.data || []).forEach((e: any) => {
+      const name = e?.clients?.name;
+      if (!name) return;
+      byClient.set(name, (byClient.get(name) || 0) + (Number(e.duration_min) || 0));
+    });
+    const topEntry = [...byClient.entries()].sort((a, b) => b[1] - a[1])[0];
+
+    const nowMs = Date.now();
+    const teamActive = (presence.data || []).filter((p: any) =>
+      p.user_id !== user.id &&
+      p.status !== "offline" &&
+      nowMs - new Date(p.last_seen_at).getTime() < 2 * 60 * 1000
+    ).length;
+
+    setData({
+      minutesToday: totalMin, billableMin, blocks,
+      teamActive,
+      monthIncome: (payments.data || []).reduce((s: number, p: any) => s + Number(p.amount_received), 0),
+      topClient: topEntry ? { name: topEntry[0], hours: Math.round(topEntry[1] / 6) / 10 } : null,
+    });
+    setLoading(false);
+  }, [user?.id]);
+
+  const scheduleLoad = useCallback(() => {
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    debounceRef.current = window.setTimeout(() => load(), 400);
+  }, [load]);
+
+  useEffect(() => {
+    if (!user) return;
+    load();
+    const ch = supabase
+      .channel("home-desktop-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "time_entries", filter: `user_id=eq.${user.id}` }, scheduleLoad)
+      .on("postgres_changes", { event: "*", schema: "public", table: "member_presence" }, scheduleLoad)
+      .on("postgres_changes", { event: "*", schema: "public", table: "payments" }, scheduleLoad)
+      .subscribe();
+    return () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
+      supabase.removeChannel(ch);
+    };
+  }, [user?.id, load, scheduleLoad]);
+
+  return { ...data, loading };
 }
+
 
 function DayRail({ blocks }: { blocks: DayBlock[] }) {
   const startH = 8, endH = 19;
@@ -148,8 +187,10 @@ export function DesktopBentoHome({ onIdea }: { onIdea?: () => void }) {
             <h1 className="mt-1.5 text-4xl lg:text-5xl font-bold leading-tight">
               {greeting}{name ? `, ${name}` : ""}
             </h1>
-            <p className="mt-3 text-base opacity-90 max-w-lg">
-              {data.minutesToday > 0
+            <p className="mt-3 text-base opacity-90 max-w-lg min-h-[24px]">
+              {data.loading ? (
+                <Skeleton className="h-5 w-72 bg-accent-foreground/20" />
+              ) : data.minutesToday > 0
                 ? <>Llevas <span className="font-bold tabular-nums">{formatDuration(data.minutesToday)}</span> registradas hoy · <span className="font-bold tabular-nums">{billablePct}%</span> facturable</>
                 : "Sin actividad registrada todavía. Empieza el día."}
             </p>
@@ -237,12 +278,21 @@ export function DesktopBentoHome({ onIdea }: { onIdea?: () => void }) {
               <Clock className="h-3.5 w-3.5" />
               <span className="text-[10px] font-semibold uppercase tracking-widest">Mi día</span>
             </div>
-            <p className="mt-3 text-4xl font-bold tabular-nums text-foreground">
-              {formatDuration(data.minutesToday)}
-            </p>
-            <p className="mt-1 text-xs text-foreground-secondary tabular-nums">
-              {billablePct}% facturable
-            </p>
+            {data.loading ? (
+              <>
+                <Skeleton className="mt-3 h-9 w-24" />
+                <Skeleton className="mt-2 h-3 w-20" />
+              </>
+            ) : (
+              <>
+                <p className="mt-3 text-4xl font-bold tabular-nums text-foreground">
+                  {formatDuration(data.minutesToday)}
+                </p>
+                <p className="mt-1 text-xs text-foreground-secondary tabular-nums">
+                  {billablePct}% facturable
+                </p>
+              </>
+            )}
           </div>
 
           <div className="col-span-12 md:col-span-3 rounded-2xl border border-border/60 bg-card p-5">
@@ -250,12 +300,21 @@ export function DesktopBentoHome({ onIdea }: { onIdea?: () => void }) {
               <UsersIcon className="h-3.5 w-3.5" />
               <span className="text-[10px] font-semibold uppercase tracking-widest">Equipo activo</span>
             </div>
-            <p className="mt-3 text-4xl font-bold tabular-nums text-foreground">
-              {data.teamActive}
-            </p>
-            <p className="mt-1 text-xs text-foreground-secondary">
-              {data.teamActive === 1 ? "persona ahora" : "personas ahora"}
-            </p>
+            {data.loading ? (
+              <>
+                <Skeleton className="mt-3 h-9 w-12" />
+                <Skeleton className="mt-2 h-3 w-24" />
+              </>
+            ) : (
+              <>
+                <p className="mt-3 text-4xl font-bold tabular-nums text-foreground">
+                  {data.teamActive}
+                </p>
+                <p className="mt-1 text-xs text-foreground-secondary">
+                  {data.teamActive === 1 ? "persona ahora" : "personas ahora"}
+                </p>
+              </>
+            )}
           </div>
 
           {hasEconomicProfile && target > 0 && (
