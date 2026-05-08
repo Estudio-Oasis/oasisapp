@@ -93,25 +93,7 @@ export default function MasPage() {
       </div>
 
       {/* Comando — chip destacado super admin (mobile) */}
-      {!loading && isSuperAdmin && (
-        <Link
-          to="/comando"
-          className="relative overflow-hidden flex items-center gap-3 rounded-2xl bg-foreground text-background p-4 active:scale-[0.99] transition-transform shadow-sm"
-        >
-          <span className="absolute -right-8 -top-10 h-24 w-24 rounded-full bg-accent/40 blur-2xl pointer-events-none" />
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-accent">
-            <Radar className="h-4 w-4 text-accent-foreground" />
-          </div>
-          <div className="relative flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-bold">Centro de comando</p>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-accent">LIVE</span>
-            </div>
-            <p className="text-[11px] text-background/60 truncate">Pulso de toda la organización</p>
-          </div>
-          <ChevronRight className="relative h-4 w-4 text-background/60" />
-        </Link>
-      )}
+      {!loading && isSuperAdmin && <ComandoMobileCard />}
 
       {loading ? (
         <div className="space-y-5">
