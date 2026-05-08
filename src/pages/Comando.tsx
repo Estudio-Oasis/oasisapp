@@ -293,7 +293,7 @@ function ClientHeatmap({ data }: { data: any }) {
                   status === "neutral" && "text-foreground-muted"
                 )}
               >
-                {r.budget > 0 ? `${Math.round((r.ratio - 1) * 100 >= 0 ? "+" : "")}${Math.round((r.ratio - 1) * 100)}%` : "—"}
+                {r.budget > 0 ? `${(r.ratio - 1) >= 0 ? "+" : ""}${Math.round((r.ratio - 1) * 100)}%` : "—"}
               </span>
             </button>
           );
