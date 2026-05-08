@@ -231,14 +231,28 @@ export default function TasksPage() {
     );
   };
 
+  const totalActive = tasks.filter((t) => t.status !== "done").length;
+  const dueToday = tasks.filter((t) => t.due_date && new Date(t.due_date).toDateString() === today.toDateString() && t.status !== "done").length;
+
   return (
     <div>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-h1 text-foreground">{t("tasks.title")}</h1>
-        <Button data-tour="new-task-btn" onClick={() => { setNewTaskPrefillStatus(undefined); setNewTaskOpen(true); }}>
-          <Plus className="h-4 w-4" /> {t("tasks.newTask")}
-        </Button>
+      {/* Bold hero header — v2 */}
+      <div className="mb-6 rounded-3xl border border-border/60 bg-gradient-to-br from-accent/15 via-accent/5 to-transparent p-6 sm:p-7">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent">Tareas · v2</p>
+            <h1 className="mt-1 text-4xl sm:text-5xl font-black tracking-tight text-foreground leading-none">
+              {totalActive} <span className="text-foreground-muted font-bold">activas</span>
+            </h1>
+            <p className="mt-2 text-sm text-foreground-secondary">
+              {dueToday > 0 ? <><span className="font-semibold text-foreground">{dueToday}</span> vencen hoy · </> : null}
+              {overdueCount > 0 ? <span className="text-destructive font-semibold">{overdueCount} atrasadas</span> : <span>Sin retrasos</span>}
+            </p>
+          </div>
+          <Button data-tour="new-task-btn" size="lg" className="shrink-0 rounded-xl" onClick={() => { setNewTaskPrefillStatus(undefined); setNewTaskOpen(true); }}>
+            <Plus className="h-4 w-4" /> {t("tasks.newTask")}
+          </Button>
+        </div>
       </div>
 
       {/* Stats as widgets */}

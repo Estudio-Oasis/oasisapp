@@ -8,7 +8,7 @@ import { useRole } from "@/hooks/useRole";
 import { useUnreadChats } from "@/hooks/useUnreadChats";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlan } from "@/hooks/usePlan";
-import { TimerWidget } from "@/components/TimerWidget";
+import { SidebarTimerSlot } from "@/components/SidebarTimerSlot";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProfileSheet } from "@/components/ProfileSheet";
 import { WelcomeModal } from "@/components/WelcomeModal";
@@ -35,7 +35,6 @@ const allNavItems = [
   { titleKey: "nav.quotes" as TranslationKey, url: "/quotes", icon: FileText },
   { titleKey: "nav.vault" as TranslationKey, url: "/vault", icon: Shield },
   { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true },
-  { titleKey: "nav.admin" as TranslationKey, url: "/admin", icon: LayoutDashboard, adminOnly: true },
   { url: "/comando", label: "Comando", icon: Radar, superAdminOnly: true } as any,
   { titleKey: "nav.settings" as TranslationKey, url: "/settings", icon: Settings },
 ];
@@ -162,7 +161,7 @@ export function AppSidebar() {
                   const MODULE_NAMES: Record<string, string> = {
                     '/home': 'Inicio', '/bitacora': 'Bitácora', '/hub': 'Hub', '/clients': 'Clientes',
                     '/tasks': 'Tareas', '/quotes': 'Cotizaciones', '/vault': 'Vault',
-                    '/finances': 'Finanzas', '/admin': 'Admin', '/settings': 'Ajustes',
+                    '/finances': 'Finanzas', '/comando': 'Comando', '/settings': 'Ajustes',
                   };
                   const base = '/' + location.pathname.split('/')[1];
                   return MODULE_NAMES[base] ?? '';
@@ -226,10 +225,8 @@ export function AppSidebar() {
           <NotificationBell />
         </div>
 
-        {/* Timer widget */}
-        <div data-tour="start-timer-btn">
-          <TimerWidget />
-        </div>
+        {/* Timer slot — bold v2 unified launcher */}
+        <SidebarTimerSlot />
 
         {/* Onboarding checklist */}
         {profile && !profile.onboarded && !showWizard && (
