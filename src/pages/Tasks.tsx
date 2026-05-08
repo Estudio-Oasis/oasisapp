@@ -418,11 +418,13 @@ export default function TasksPage() {
         />
       )}
 
-      <StartTimerModal
+      <QuickSheet
         open={timerModalOpen}
         onOpenChange={setTimerModalOpen}
+        mode="start"
         prefillClientId={timerPrefill?.clientId}
         prefillTaskId={timerPrefill?.taskId}
+        autoStart
       />
     </div>
   );
