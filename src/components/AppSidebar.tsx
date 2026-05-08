@@ -8,7 +8,7 @@ import { useRole } from "@/hooks/useRole";
 import { useUnreadChats } from "@/hooks/useUnreadChats";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlan } from "@/hooks/usePlan";
-import { TimerWidget } from "@/components/TimerWidget";
+import { SidebarTimerSlot } from "@/components/SidebarTimerSlot";
 import { NotificationBell } from "@/components/NotificationBell";
 import { ProfileSheet } from "@/components/ProfileSheet";
 import { WelcomeModal } from "@/components/WelcomeModal";
