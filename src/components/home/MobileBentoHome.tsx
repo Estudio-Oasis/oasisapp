@@ -202,8 +202,10 @@ export function MobileBentoHome() {
           <h1 className="mt-1 text-3xl font-bold leading-tight">
             {greeting}{name ? `, ${name}` : ""}
           </h1>
-          <p className="mt-2 text-sm opacity-90">
-            {data.minutesToday > 0
+          <p className="mt-2 text-sm opacity-90 min-h-[20px]">
+            {loading ? (
+              <Skeleton className="h-4 w-48 bg-accent-foreground/20" />
+            ) : data.minutesToday > 0
               ? <>Llevas <span className="font-bold tabular-nums">{formatDuration(data.minutesToday)}</span> hoy · <span className="font-bold tabular-nums">{billablePct}%</span> facturable</>
               : "Sin actividad registrada todavía. Empieza a registrar."}
           </p>
