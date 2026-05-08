@@ -4,6 +4,7 @@ import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Loader2, Link2, Unlink, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { logActivity } from "@/lib/activityLog";
 
 interface Identity {
   identity_id?: string;
@@ -54,6 +55,12 @@ export function IdentitiesSection() {
       if (error) {
         toast.error(error.message);
       } else if ((data as any)?.url) {
+        void logActivity({
+          category: "identity",
+          action: "identity.link_started",
+          description: "Vinculación con Google iniciada",
+          metadata: { provider: "google" },
+        });
         window.location.href = (data as any).url;
       }
     } catch (e: any) {
@@ -75,6 +82,12 @@ export function IdentitiesSection() {
       toast.error(error.message);
     } else {
       toast.success("Método desvinculado");
+      void logActivity({
+        category: "identity",
+        action: "identity.unlinked",
+        description: `Identidad ${identity.provider} desvinculada`,
+        metadata: { provider: identity.provider },
+      });
       load();
     }
   };
