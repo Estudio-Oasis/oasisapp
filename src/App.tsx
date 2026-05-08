@@ -49,6 +49,7 @@ import ContactoPage from "./pages/Contacto";
 import OasisOSPage from "./pages/OasisOS";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
 import JoinWorkspace from "./pages/JoinWorkspace";
+import ComandoPage from "./pages/Comando";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -87,6 +88,7 @@ const App = () => (
                   <Route path="/onboarding" element={<OnboardingPage />} />
                   <Route path="/join-workspace/:token" element={<JoinWorkspace />} />
                   <Route path="/superadmin" element={<SuperAdminRoute><SuperAdminPage /></SuperAdminRoute>} />
+                  
 
                   {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
                   <Route
@@ -111,6 +113,7 @@ const App = () => (
                     <Route path="/vault" element={<ProRoute><VaultPage /></ProRoute>} />
                     <Route path="/finances" element={<ProRoute><AdminRoute><FinancesPage /></AdminRoute></ProRoute>} />
                     <Route path="/admin" element={<ProRoute><AdminRoute><AdminDashboard /></AdminRoute></ProRoute>} />
+                    <Route path="/comando" element={<SuperAdminRoute><ComandoPage /></SuperAdminRoute>} />
                   </Route>
 
                   <Route path="*" element={<NotFound />} />

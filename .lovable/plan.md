@@ -1,95 +1,176 @@
+# Comando — Vista de operación para Super Admin
 
+Una sola pantalla nueva, accesible solo para `super_admin_users`, en `/comando`. No reemplaza al Hub del equipo (que sigue siendo social/colaborativo). Comando es la **war-room**: dónde está el dinero, dónde está el riesgo, dónde está atorada la operación.
 
-# Estrategia de Diferenciación: Individual vs Agencia vs Equipo
+## Filosofía (lo que NO es)
 
-## El insight clave
+- **Si** es un panóptico de productividad por persona.
+- **Si** muestra "tiempo activo" como métrica heroica, ni rankings, ni productivity scores.
+  **Si puede que** es una grilla de barras en tiempo real de quién está tecleando.
+- **Sí** es una bandeja de excepciones priorizada por señal, con cada item accionable.
 
-No necesitas 3 onboardings diferentes. Necesitas **UN onboarding que se adapte** según una sola pregunta temprana: "¿Cómo vas a usar esto?"
+## Acceso
 
-La selección de `profile_type` que ya capturas (Freelancer/Fundador/Empleado/Otro) es exactamente el pivot point, pero hoy no hace nada. Debería cambiar 3 cosas: el copy, los pasos que se muestran, y hacia dónde se dirige al usuario.
+- Ruta `/comando` envuelta en `<SuperAdminRoute>`.
+- Entrada visible solo para super admins: ítem en sidebar desktop ("Comando", icono `Radar`) y acceso rápido en `/superadmin`.
+- El equipo regular no ve la ruta ni el ítem de navegación.
 
-## Cómo se diferencia cada segmento
+---
+
+## Estructura desktop (1440px) sugerida
 
 ```text
-┌─────────────────┬──────────────────┬──────────────────┬──────────────────┐
-│                 │ Individual       │ Equipo/Startup   │ Agencia          │
-│                 │ (Freelancer)     │ (Fundador)       │ (Empleado/Otro)  │
-├─────────────────┼──────────────────┼──────────────────┼──────────────────┤
-│ Signup copy     │ "Organiza tu     │ "Organiza a tu   │ "Opera tu        │
-│                 │  trabajo"        │  equipo"         │  agencia"        │
-├─────────────────┼──────────────────┼──────────────────┼──────────────────┤
-│ Onboarding      │ 3 pasos:         │ 4 pasos:         │ 4 pasos:         │
-│ steps           │ Perfil → Cliente │ Perfil → Nombre  │ Perfil → Nombre  │
-│                 │ → Listo          │ espacio → Cliente │ agencia → Cliente│
-│                 │                  │ → Listo          │ → Listo          │
-├─────────────────┼──────────────────┼──────────────────┼──────────────────┤
-│ Workspace name  │ Auto (tu nombre) │ Le pides nombre  │ Le pides nombre  │
-│                 │                  │ del equipo       │ de la agencia    │
-├─────────────────┼──────────────────┼──────────────────┼──────────────────┤
-│ Income question │ "¿Cuánto quieres │ Omitida          │ Omitida          │
-│                 │  ganar al mes?"  │                  │                  │
-├─────────────────┼──────────────────┼──────────────────┼──────────────────┤
-│ Plan tier       │ Free (Solo)      │ Starter/Estudio  │ Estudio/Agencia  │
-├─────────────────┼──────────────────┼──────────────────┼──────────────────┤
-│ First landing   │ Bitácora         │ Home (dashboard) │ Home (dashboard) │
-└─────────────────┴──────────────────┴──────────────────┴──────────────────┘
+┌───────────────────────────────────────────────────────────────┐
+│  PULSO  · 1 línea, sticky                                     │
+│  8 personas · 4 activas · 32h hoy · 78% facturable · ▁▃▅▇▅▃▁ │
+├───────────────────────────────────────────────────────────────┤
+│  ⚡ ATENCIÓN (3-7 cards apiladas, prioridad descendente)      │
+│  [Lazaro: 7h sin pausa]      [Snooze] [Mensaje] [Ver]         │
+│  [Voccalo: +14% vs budget]   [Ajustar] [Ver cliente]          │
+│  [Tarea X · 4 días en WIP]   [Reasignar] [Mensaje]            │
+├──────────────────────────────────┬────────────────────────────┤
+│  CALOR POR CLIENTE (2/3)         │  PIPELINE & DINERO (1/3)   │
+│  Cliente · Horas/Budget · Riesgo │  Cotizaciones por vencer   │
+│  Voccalo  ████████░ 32/28  +14% │  Facturas atrasadas        │
+│  Acme     ██████░░░ 18/40  ok   │  Por cobrar este mes       │
+├──────────────────────────────────┴────────────────────────────┤
+│  TIRA DEL DÍA (8 filas apiladas, mini-Gantt)                  │
+│  Carla    ▓▓░▓▓▓▓░░▓▓                                         │
+│  Lazaro   ▓▓▓▓▓▓▓▓▓▓▓▓ (sin huecos = señal)                  │
+├───────────────────────────────────────────────────────────────┤
+│  EQUIPO (de-emphasized, ordenado por señal, no alfabético)    │
+│  Cards compactas, quien tiene anomalía aparece arriba         │
+└───────────────────────────────────────────────────────────────┘
 ```
 
-## Cambios concretos
+### 1. Pulso (header, una sola línea)
 
-### 1. AuthLayout — Adaptar el panel izquierdo
+Sticky top. Texto plano, números tabulares, sin cards. Sparkline 7d de horas facturables. Click en cualquier número → drilldown.
 
-Hoy el panel izquierdo es genérico. Propuesta: mantenerlo genérico pero con un mensaje que cubra ambos ("Organiza tu trabajo. Cobra lo que vales." ya funciona para todos). No necesita cambiar.
+### 2. ⚡ Atención (el feature asesino)
 
-### 2. Signup — Mover `profile_type` AL REGISTRO
+Motor de reglas que produce una **cola priorizada**. Cada item:
 
-Este es el cambio más importante. En lugar de preguntar en el onboarding, preguntar en el signup ANTES del formulario:
+- Título humano ("Lazaro lleva 7h sin pausa")
+- Subtítulo con el "por qué importa"
+- 2-3 acciones inline: **Snooze 4h**, **Enviar mensaje**, **Ver detalle**
+- Badge de severidad (info / warn / risk)
 
-- 4 chips: "Soy freelancer" / "Tengo un equipo" / "Tengo una agencia" / "Otro"
-- Esto cambia el subtítulo del formulario dinámicamente
-- Se guarda como metadata del signup y se pasa al onboarding
+Reglas iniciales (todas configurables luego):
 
-### 3. OnboardingWizard — Ramas condicionales
+- Sesión activa > 6h sin pausa → fatiga
+- Miembro sin actividad > 48h hábiles → check-in
+- Cliente que rebasa horas vs `monthly_rate` esperado → margen
+- Tarea `in_progress` > 3 días sin time entry → atorada
+- Cotización `sent` > 7 días sin respuesta → seguimiento
+- Factura `overdue` → cobranza
+- Gap > 4h en bitácora de hoy de algún miembro activo → registro pendiente
 
-Según el `profile_type` seleccionado en signup:
+Si la cola está vacía: estado vacío celebratorio ("Todo bajo control. 🟢"), no un placeholder genérico.
 
-**Freelancer/Otro (individual)**:
-- Step 1: Nombre + País/Moneda + Income target + Horas (como está)
-- Step 2: Primer cliente (como está)
-- Step 3: Listo → va a Bitácora
-- Workspace se crea automáticamente con su nombre
+### 3. Calor por cliente
 
-**Fundador/Equipo**:
-- Step 1: Nombre + "¿Cómo se llama tu equipo?" + País/Moneda
-- Step 2: Primer cliente
-- Step 3: Listo → va a Home
-- Sin preguntas de income (eso es individual)
+Tabla compacta, 1 fila por cliente activo:
 
-### 4. Landing page — Sección "Para quién es"
+- Nombre · Barra horas semana / budget esperado · % desviación · Responsable principal · Última actividad
+- Color: verde dentro de rango, ámbar 90-110%, rojo >110%
+- Reencuadra "ver al equipo" como "ver margen". Click → `/clients/:id`.
 
-Agregar una sección breve antes del pricing con 3 columnas:
-- Freelancers: "Trackea tu tiempo, calcula tu valor hora, cobra mejor"
-- Equipos: "Visibilidad en tiempo real de quién trabaja en qué"
-- Agencias: "Gestiona clientes, cotizaciones y finanzas en un lugar"
+### 4. Pipeline & dinero (columna derecha)
 
-### 5. Pricing — Renombrar para claridad
+Tres mini-listas:
 
-El tier free ya no se llama "Solo" sino "Individual". Los paid se mantienen como "Starter", "Estudio", "Agencia".
+- **Cotizaciones por vencer** (status `sent`, `valid_until` próximo)
+- **Facturas atrasadas** (`due_date < today`, `status != paid`)
+- **Por cobrar este mes** (suma `invoices.amount` pending)
 
-## Archivos a editar
+### 5. Tira del día
 
-- `src/pages/Signup.tsx` — agregar selector de profile_type antes del form
-- `src/components/OnboardingWizard.tsx` — ramas condicionales según profile_type
-- `src/components/AuthLayout.tsx` — sin cambios grandes, el copy actual sirve
-- `src/pages/Landing.tsx` — agregar sección "Para quién es"
-- `src/pages/Pricing.tsx` — renombrar tier free
-- `src/lib/stripe-plans.ts` — actualizar descripción del plan
+Un mini-Gantt: 8 filas (una por miembro), eje X = horario laboral. Bloques de `time_entries` de hoy. Huecos visibles. Sin nombres de tarea (eso es entrar al detalle); solo densidad y forma. Hover → tooltip con detalle.
 
-## Sin cambios de DB
+### 6. Equipo (de-emphasized)
 
-El campo `profile_type` ya existe en profiles. Solo se pasa como metadata en el signup y se lee en el onboarding.
+Cards al final, ordenadas por señal:
 
-## Principio rector
+1. Miembros con item activo en ⚡ Atención
+2. Miembros con sesión activa
+3. Resto
 
-El producto es el mismo. La diferencia es cómo te lo presento según tu contexto. Un freelancer no necesita saber que existe el Hub. Un fundador no necesita que le pregunten cuánto quiere ganar al mes. Cada uno ve lo que le importa, pero todos llegan al mismo sistema.
+Cada card: avatar, nombre, estado actual (cliente/tarea), última actividad. Sin "score".
 
+---
+
+## Mobile (375-414px)
+
+**No es desktop chiquito.** Es la bandeja de excepciones del fundador en movimiento.
+
+Stack vertical, sin tabs internos:
+
+1. **Pulso** colapsado a 2 líneas (8 personas · 4 activas · 32h | 78% facturable)
+2. **⚡ Atención** — cards swipeables horizontalmente (snap), una visible a la vez. Swipe izquierda = snooze, derecha = ver. Es el corazón de la pantalla móvil.
+3. **Tira del día** — scroll horizontal compacto, una imagen del día.
+4. **Calor por cliente compacto** — top 5 con desviación más alta.
+5. **Pipeline** — solo facturas atrasadas + cotizaciones por vencer (los 2 que requieren acción humana).
+
+Sin equipo cards en móvil — no es lo que el fundador necesita atender desde el teléfono.
+
+Acceso desde móvil: ítem en bottom nav solo visible si es super admin, o FAB tipo "Radar" en `/home`.
+
+---
+
+## Detalles técnicos (sección para devs)
+
+### Frontend
+
+- Nueva ruta `/comando` en `src/App.tsx` envuelta en `SuperAdminRoute`.
+- Página `src/pages/Comando.tsx`.
+- Componentes nuevos en `src/components/comando/`:
+  - `PulseHeader.tsx`
+  - `AttentionQueue.tsx` + `AttentionCard.tsx`
+  - `ClientHeatmap.tsx`
+  - `MoneyPipeline.tsx`
+  - `DayStrip.tsx`
+  - `TeamSignalList.tsx`
+- Hook `useAttentionSignals.ts` — corre las reglas client-side sobre datos ya en cache (time_entries, tasks, invoices, quotes, clients, profiles, member_presence) y devuelve cola ordenada por severidad/recencia.
+- Reusar `WidgetCard` existente para mantener DNA visual.
+- Mobile: detectar con `useIsMobile()` y renderizar layout alternativo (no responsive puro — son layouts distintos).
+
+### Backend
+
+- **Sin cambios de schema en esta primera versión.** Toda la información ya existe.
+- Lectura cruzada multi-agencia: la RLS actual scope-a por `agency_id`, pero los super admins ya tienen policies `is_super_admin()` en `profiles`, `agencies`, `feedback`. Se necesitan policies adicionales `Super admins can view all ...` para:
+  - `time_entries`
+  - `tasks`
+  - `clients`, `projects`
+  - `invoices`, `quotes`, `payments`
+  - `member_presence`
+  Cada una: `CREATE POLICY ... FOR SELECT TO authenticated USING (is_super_admin())`. Solo SELECT, no escritura.
+- Acciones inline ("snooze", "mensaje") en v1: snooze guarda en `localStorage` (no requiere tabla); mensaje abre el chat existente con el miembro.
+
+### V2 (no en este sprint, pero pensado)
+
+- Tabla `attention_snoozes` para que snooze persista cross-device.
+- Tabla `attention_rules` configurable por super admin (umbrales).
+- Edge function `nightly-digest` que envía resumen de Atención por email cada mañana.
+
+---
+
+## Lo que pre-mortem decía y cómo lo evito
+
+
+| Riesgo                  | Mitigación en este diseño                                                                     |
+| ----------------------- | --------------------------------------------------------------------------------------------- |
+| Sentirse vigilancia     | Acceso restringido a super admin; sin productivity scores; sin rankings; equipo de-emphasized |
+| Adicción a refrescar    | Sin auto-refresh agresivo; foco en cola accionable, no en tiempo real                         |
+| Datos sin decisión      | Cada item de Atención tiene CTA; cada cliente lleva a su perfil; cada métrica es clickeable   |
+| No escala a 30 personas | Equipo ordenado por señal, no por nombre; tira del día con virtualización                     |
+| Mobile mal entendido    | Layout móvil ≠ desktop; móvil = bandeja de excepciones, no dashboard                          |
+
+
+---
+
+## Pregunta antes de implementar
+
+Una sola: el motor de **Atención** es el corazón. ¿Quieres que arranque con las 7 reglas que listé arriba, o prefieres elegir 3-4 para v1 y agregar el resto después de ver cómo se siente con datos reales? Mi recomendación: arrancar con **fatiga, tarea atorada, cliente sobre budget, factura atrasada** (4 reglas, una por cuadrante: persona / trabajo / cliente / dinero).  
+  
+Todo esto es una sugerencia, el outcome es una sección de este producto donde se pueda visualizar toda la información y actividad relevante en tiempo real y al mismo tiempo es decir en la misma sección

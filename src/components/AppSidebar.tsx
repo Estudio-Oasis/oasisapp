@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe, Shield, FileText, Rocket, Home, type LucideIcon } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe, Shield, FileText, Rocket, Home, Radar, type LucideIcon } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +36,7 @@ const allNavItems = [
   { titleKey: "nav.vault" as TranslationKey, url: "/vault", icon: Shield },
   { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true },
   { titleKey: "nav.admin" as TranslationKey, url: "/admin", icon: LayoutDashboard, adminOnly: true },
+  { url: "/comando", label: "Comando", icon: Radar, superAdminOnly: true } as any,
   { titleKey: "nav.settings" as TranslationKey, url: "/settings", icon: Settings },
 ];
 
@@ -65,7 +66,15 @@ export function AppSidebar() {
   const [showTour, setShowTour] = useState(false);
   const [tourTimerOpen, setTourTimerOpen] = useState(false);
   const [tourTaskOpen, setTourTaskOpen] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const welcomeShownRef = useRef(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("super_admin_users" as any).select("id").eq("id", user.id).maybeSingle().then(({ data }) => {
+      setIsSuperAdmin(!!data);
+    });
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user) return;
@@ -99,7 +108,11 @@ export function AppSidebar() {
   const displayName = profile?.name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
   const role = profile?.role || "member";
 
-  const navItems = allNavItems.filter((item) => !item.adminOnly || (!roleLoading && isAdmin));
+  const navItems = allNavItems.filter((item: any) => {
+    if (item.adminOnly && (roleLoading || !isAdmin)) return false;
+    if (item.superAdminOnly && !isSuperAdmin) return false;
+    return true;
+  });
 
   const toggleLanguage = () => setLanguage(language === "es" ? "en" : "es");
 
@@ -178,11 +191,12 @@ export function AppSidebar() {
         {/* Navigation */}
         <SidebarContent className="px-3 mt-2">
           <nav className="flex flex-col gap-1">
-            {navItems.map((item) => {
+            {navItems.map((item: any) => {
               const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + "/");
+              const label = item.titleKey ? t(item.titleKey) : item.label;
               return (
                 <Link
-                  key={item.titleKey}
+                  key={item.url}
                   to={item.url}
                   data-tour={item.tourId}
                   className={`relative flex h-9 items-center gap-2.5 rounded-md px-3 text-sm font-medium transition-colors ${
@@ -195,7 +209,7 @@ export function AppSidebar() {
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-accent" />
                   )}
                   <item.icon className="h-4 w-4 shrink-0" />
-                  <span>{t(item.titleKey)}</span>
+                  <span>{label}</span>
                   {item.url === "/hub" && unreadCount > 0 && (
                     <span className="ml-auto flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1">
                       {unreadCount}
