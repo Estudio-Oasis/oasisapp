@@ -123,8 +123,10 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
   }, [profile]);
 
   // ---------- Field-level autosave on profiles ----------
-  const updateProfile = (patch: Record<string, any>) =>
-    supabase.from("profiles").update(patch).eq("id", user?.id ?? "");
+  const updateProfile = async (patch: Record<string, any>) => {
+    const { error } = await supabase.from("profiles").update(patch as any).eq("id", user?.id ?? "");
+    return { error: error ? { message: error.message } : null };
+  };
 
   const nameSave = useAutosave({
     value: name,
