@@ -3,7 +3,7 @@ import { useBitacora, useBitacoraVM } from "./BitacoraContext";
 import { ActiveSessionCard } from "@/components/timer/ActiveSessionCard";
 import { TimerControls } from "@/components/timer/TimerControls";
 import { QuickLogInput } from "@/components/timer/QuickLogInput";
-import { InteractiveTimeline } from "@/components/bitacora/InteractiveTimeline";
+import { DayRailVertical } from "@/components/bitacora/DayRailVertical";
 import { MorningBriefing } from "@/components/bitacora/MorningBriefing";
 import { DailyDigest } from "@/components/bitacora/DailyDigest";
 import { DayInsights } from "@/components/timer/DayInsights";
@@ -195,20 +195,22 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
               </span>
             )}
           </div>
-          <InteractiveTimeline
-            entries={vm.timelineEntries}
-            gaps={vm.gaps}
-            activeSession={bita.isRunning && bita.activeEntry ? {
-              startedAt: bita.activeEntry.startedAt || new Date().toISOString(),
-              description: bita.activeEntry.description,
-              clientName: bita.activeEntry.clientName,
-              clientId: bita.activeEntry.clientId,
-            } : null}
-            onGapClick={openGapModal}
-            onEntryClick={handleEntryClick}
-            workStartHour={vm.workSchedule.startHour}
-            workEndHour={vm.workSchedule.endHour}
-          />
+          {vm.view === "today" ? (
+            <DayRailVertical
+              entries={vm.timelineEntries}
+              gaps={vm.gaps}
+              activeSession={bita.isRunning && bita.activeEntry ? {
+                startedAt: bita.activeEntry.startedAt || new Date().toISOString(),
+                description: bita.activeEntry.description,
+                clientName: bita.activeEntry.clientName,
+                clientId: bita.activeEntry.clientId,
+              } : null}
+              onGapClick={openGapModal}
+              onEntryClick={handleEntryClick}
+              workStartHour={vm.workSchedule.startHour}
+              workEndHour={vm.workSchedule.endHour}
+            />
+          ) : null}
         </div>
 
         {/* Insights */}
