@@ -331,6 +331,12 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     setEmailDialogOpen(false);
     setNewEmail("");
     toast.success("Te enviamos un correo de confirmación a tu nueva dirección");
+    void logActivity({
+      category: "auth",
+      action: "auth.email_change_requested",
+      description: `Cambio de email solicitado a ${trimmed}`,
+      metadata: { from: user?.email, to: trimmed },
+    });
   };
 
   // ---------- Password ----------
@@ -343,11 +349,21 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     if (error) { toast.error(error.message); return; }
     toast.success("Contraseña actualizada");
     setNewPassword(""); setConfirmPassword("");
+    void logActivity({
+      category: "security",
+      action: "security.password_updated",
+      description: "Contraseña actualizada",
+    });
   };
 
   // ---------- Danger ----------
   const handleSignOutAll = async () => {
     setSigningOutAll(true);
+    void logActivity({
+      category: "session",
+      action: "session.signout_all",
+      description: "Sesión cerrada en todos los dispositivos",
+    });
     const { error } = await supabase.auth.signOut({ scope: "global" });
     setSigningOutAll(false);
     if (error) toast.error(error.message);
