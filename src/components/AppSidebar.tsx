@@ -161,7 +161,7 @@ export function AppSidebar() {
                   const MODULE_NAMES: Record<string, string> = {
                     '/home': 'Inicio', '/bitacora': 'Bitácora', '/hub': 'Hub', '/clients': 'Clientes',
                     '/tasks': 'Tareas', '/quotes': 'Cotizaciones', '/vault': 'Vault',
-                    '/finances': 'Finanzas', '/admin': 'Admin', '/settings': 'Ajustes',
+                    '/finances': 'Finanzas', '/comando': 'Comando', '/settings': 'Ajustes',
                   };
                   const base = '/' + location.pathname.split('/')[1];
                   return MODULE_NAMES[base] ?? '';
