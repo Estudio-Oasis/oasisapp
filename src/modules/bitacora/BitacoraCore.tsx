@@ -3,7 +3,7 @@ import { useBitacora, useBitacoraVM } from "./BitacoraContext";
 import { ActiveSessionCard } from "@/components/timer/ActiveSessionCard";
 import { TimerControls } from "@/components/timer/TimerControls";
 import { QuickLogInput } from "@/components/timer/QuickLogInput";
-import { InteractiveTimeline } from "@/components/bitacora/InteractiveTimeline";
+import { DayRailVertical } from "@/components/bitacora/DayRailVertical";
 import { MorningBriefing } from "@/components/bitacora/MorningBriefing";
 import { DailyDigest } from "@/components/bitacora/DailyDigest";
 import { DayInsights } from "@/components/timer/DayInsights";
@@ -195,20 +195,22 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
               </span>
             )}
           </div>
-          <InteractiveTimeline
-            entries={vm.timelineEntries}
-            gaps={vm.gaps}
-            activeSession={bita.isRunning && bita.activeEntry ? {
-              startedAt: bita.activeEntry.startedAt || new Date().toISOString(),
-              description: bita.activeEntry.description,
-              clientName: bita.activeEntry.clientName,
-              clientId: bita.activeEntry.clientId,
-            } : null}
-            onGapClick={openGapModal}
-            onEntryClick={handleEntryClick}
-            workStartHour={vm.workSchedule.startHour}
-            workEndHour={vm.workSchedule.endHour}
-          />
+          {vm.view === "today" ? (
+            <DayRailVertical
+              entries={vm.timelineEntries}
+              gaps={vm.gaps}
+              activeSession={bita.isRunning && bita.activeEntry ? {
+                startedAt: bita.activeEntry.startedAt || new Date().toISOString(),
+                description: bita.activeEntry.description,
+                clientName: bita.activeEntry.clientName,
+                clientId: bita.activeEntry.clientId,
+              } : null}
+              onGapClick={openGapModal}
+              onEntryClick={handleEntryClick}
+              workStartHour={vm.workSchedule.startHour}
+              workEndHour={vm.workSchedule.endHour}
+            />
+          ) : null}
         </div>
 
         {/* Insights */}
@@ -286,17 +288,15 @@ export function BitacoraCore({ autoOpenSheet = false, hideQuickLog = false }: { 
       {vm.view === "today" ? (
         !vm.hasData && !bita.isRunning ? null : vm.entries.length === 0 && bita.isRunning ? null : (
           <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
+            <div className="px-3 py-2 border-b border-border/40 flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">
+                Detalle del día
+              </span>
+              <span className="text-[10px] text-foreground-muted tabular-nums">
+                {vm.entries.length} {vm.entries.length === 1 ? "registro" : "registros"}
+              </span>
+            </div>
             <div className="divide-y divide-border/50">
-              {vm.gaps.map((g, i) => (
-                <div key={`gap-${i}`} className="px-3 py-1">
-                  <GapAlert
-                    startTime={g.startTime}
-                    endTime={g.endTime}
-                    durationMin={g.durationMin}
-                    onFill={() => openGapModal(g)}
-                  />
-                </div>
-              ))}
               {vm.entries.map((entry) => (
                 <div key={entry.id} className="px-3">
                   <TimeEntryRow
