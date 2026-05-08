@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTimer } from "@/contexts/TimerContext";
@@ -8,6 +8,7 @@ import {
   Zap, Play, Clock, Users, ListTodo, Sparkles, ArrowRight, Radar,
 } from "lucide-react";
 import { QuickSheet } from "@/components/timer/QuickSheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 interface DayBlock {
@@ -16,23 +17,32 @@ interface DayBlock {
   billable: boolean;
 }
 
+interface DayData {
+  minutesToday: number;
+  billableMin: number;
+  blocks: DayBlock[];
+  nextTask: { title: string; client: string | null } | null;
+  activeMembers: number;
+  gapMin: number;
+  gapStart: string | null;
+}
+
+const EMPTY: DayData = {
+  minutesToday: 0, billableMin: 0, blocks: [], nextTask: null,
+  activeMembers: 0, gapMin: 0, gapStart: null,
+};
+
 function useDayData() {
   const { user } = useAuth();
-  const [data, setData] = useState({
-    minutesToday: 0,
-    billableMin: 0,
-    blocks: [] as DayBlock[],
-    nextTask: null as { title: string; client: string | null } | null,
-    activeMembers: 0,
-    gapMin: 0,
-    gapStart: null as string | null,
-  });
+  const [data, setData] = useState<DayData>(EMPTY);
+  const [loading, setLoading] = useState(true);
+  const debounceRef = useRef<number | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!user) return;
     const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
 
-    Promise.all([
+    const [entries, tasks, presence] = await Promise.all([
       supabase.from("time_entries")
         .select("started_at, ended_at, duration_min, client_id, clients(monthly_rate)")
         .eq("user_id", user.id)
@@ -45,18 +55,25 @@ function useDayData() {
         .order("due_date", { ascending: true, nullsFirst: false })
         .limit(1),
       supabase.from("member_presence")
-        .select("user_id")
-        .eq("status", "online"),
-    ]).then(([entries, tasks, presence]) => {
-      const list = entries.data || [];
-      let totalMin = 0, billableMin = 0;
-      const blocks: DayBlock[] = [];
-      list.forEach((e: any) => {
-        const dur = Number(e.duration_min) || 0;
-        if (!e.ended_at) return;
-        totalMin += dur;
-        const billable = Number(e?.clients?.monthly_rate || 0) > 0;
-        if (billable) billableMin += dur;
+        .select("user_id, status, last_seen_at"),
+    ]);
+
+    const list = entries.data || [];
+    let totalMin = 0, billableMin = 0;
+    const blocks: DayBlock[] = [];
+    list.forEach((e: any) => {
+      let dur: number;
+      if (e.duration_min != null) dur = Number(e.duration_min);
+      else if (e.ended_at) dur = (new Date(e.ended_at).getTime() - new Date(e.started_at).getTime()) / 60000;
+      else {
+        const sStart = Math.max(new Date(e.started_at).getTime(), todayStart.getTime());
+        dur = Math.min((Date.now() - sStart) / 60000, 12 * 60);
+      }
+      if (!isFinite(dur) || dur < 0) dur = 0;
+      totalMin += dur;
+      const billable = Number(e?.clients?.monthly_rate || 0) > 0;
+      if (billable) billableMin += dur;
+      if (e.ended_at) {
         const s = new Date(e.started_at);
         const en = new Date(e.ended_at);
         blocks.push({
@@ -64,38 +81,67 @@ function useDayData() {
           end: en.getHours() * 60 + en.getMinutes(),
           billable,
         });
-      });
-
-      // detect biggest gap > 15min during work day (8-19)
-      let gapMin = 0, gapStart: string | null = null;
-      const sorted = [...blocks].sort((a, b) => a.start - b.start);
-      let prevEnd = 8 * 60;
-      for (const b of sorted) {
-        if (b.start > prevEnd && b.start - prevEnd >= 15) {
-          if (b.start - prevEnd > gapMin) {
-            gapMin = b.start - prevEnd;
-            const h = Math.floor(prevEnd / 60); const m = prevEnd % 60;
-            gapStart = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-          }
-        }
-        prevEnd = Math.max(prevEnd, b.end);
       }
-
-      const t = tasks.data?.[0] as any;
-      setData({
-        minutesToday: totalMin,
-        billableMin,
-        blocks,
-        nextTask: t ? { title: t.title, client: t.clients?.name || null } : null,
-        activeMembers: (presence.data || []).filter((p) => p.user_id !== user.id).length,
-        gapMin,
-        gapStart,
-      });
     });
-  }, [user]);
 
-  return data;
+    let gapMin = 0, gapStart: string | null = null;
+    const sorted = [...blocks].sort((a, b) => a.start - b.start);
+    let prevEnd = 8 * 60;
+    for (const b of sorted) {
+      if (b.start > prevEnd && b.start - prevEnd >= 15) {
+        if (b.start - prevEnd > gapMin) {
+          gapMin = b.start - prevEnd;
+          const h = Math.floor(prevEnd / 60); const m = prevEnd % 60;
+          gapStart = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+        }
+      }
+      prevEnd = Math.max(prevEnd, b.end);
+    }
+
+    const t = tasks.data?.[0] as any;
+    const now = Date.now();
+    const activeMembers = (presence.data || []).filter((p: any) =>
+      p.user_id !== user.id &&
+      p.status !== "offline" &&
+      now - new Date(p.last_seen_at).getTime() < 2 * 60 * 1000
+    ).length;
+
+    setData({
+      minutesToday: totalMin,
+      billableMin,
+      blocks,
+      nextTask: t ? { title: t.title, client: t.clients?.name || null } : null,
+      activeMembers,
+      gapMin,
+      gapStart,
+    });
+    setLoading(false);
+  }, [user?.id]);
+
+  // Debounced reload to coalesce realtime bursts
+  const scheduleLoad = useCallback(() => {
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    debounceRef.current = window.setTimeout(() => load(), 400);
+  }, [load]);
+
+  useEffect(() => {
+    if (!user) return;
+    load();
+    const ch = supabase
+      .channel("home-mobile-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "time_entries", filter: `user_id=eq.${user.id}` }, scheduleLoad)
+      .on("postgres_changes", { event: "*", schema: "public", table: "member_presence" }, scheduleLoad)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tasks", filter: `assignee_id=eq.${user.id}` }, scheduleLoad)
+      .subscribe();
+    return () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
+      supabase.removeChannel(ch);
+    };
+  }, [user?.id, load, scheduleLoad]);
+
+  return { ...data, loading };
 }
+
 
 function DayRail({ blocks }: { blocks: DayBlock[] }) {
   const startH = 8, endH = 19;
