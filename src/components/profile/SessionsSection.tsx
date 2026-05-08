@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Loader2, Monitor, Smartphone, X, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { logActivity } from "@/lib/activityLog";
 
 interface Session {
   id: string;
@@ -72,6 +73,12 @@ export function SessionsSection() {
       toast.error(error.message);
     } else {
       toast.success("Sesión cerrada");
+      void logActivity({
+        category: "session",
+        action: "session.revoked_one",
+        description: "Sesión remota cerrada",
+        metadata: { session_id: sessionId },
+      });
       load();
     }
   };
@@ -85,6 +92,11 @@ export function SessionsSection() {
     if (error) toast.error(error.message);
     else {
       toast.success("Cerradas las demás sesiones");
+      void logActivity({
+        category: "session",
+        action: "session.revoked_others",
+        description: "Cerradas todas las demás sesiones",
+      });
       load();
     }
   };

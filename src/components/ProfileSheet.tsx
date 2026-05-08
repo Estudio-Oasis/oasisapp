@@ -23,6 +23,8 @@ import { toast } from "sonner";
 import { MembersTab } from "@/components/settings/MembersTab";
 import { IdentitiesSection } from "@/components/profile/IdentitiesSection";
 import { SessionsSection } from "@/components/profile/SessionsSection";
+import { ActivityHistorySection } from "@/components/profile/ActivityHistorySection";
+import { logActivity } from "@/lib/activityLog";
 
 interface ProfileSheetProps {
   open: boolean;
@@ -68,7 +70,7 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
 
-  const [tab, setTab] = useState<"account" | "preferences" | "team">("account");
+  const [tab, setTab] = useState<"account" | "preferences" | "team" | "activity">("account");
   const [loaded, setLoaded] = useState(false);
 
   // Account
@@ -123,8 +125,19 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
   }, [profile]);
 
   // ---------- Field-level autosave on profiles ----------
-  const updateProfile = async (patch: Record<string, any>) => {
+  const updateProfile = async (
+    patch: Record<string, any>,
+    log?: { category: "profile" | "preferences"; action: string; description: string },
+  ) => {
     const { error } = await supabase.from("profiles").update(patch as any).eq("id", user?.id ?? "");
+    if (!error && log) {
+      void logActivity({
+        category: log.category,
+        action: log.action,
+        description: log.description,
+        metadata: { fields: Object.keys(patch) },
+      });
+    }
     return { error: error ? { message: error.message } : null };
   };
 
@@ -133,7 +146,10 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     enabled: loaded && !!user,
     validate: (v) => (v.trim().length < 2 ? "Mínimo 2 caracteres" : v.trim().length > 60 ? "Máximo 60" : null),
     onSave: async (v) => {
-      const res = await updateProfile({ name: v.trim() });
+      const res = await updateProfile(
+        { name: v.trim() },
+        { category: "profile", action: "profile.name_updated", description: `Nombre actualizado a "${v.trim()}"` },
+      );
       if (!res.error) onProfileUpdated({ name: v.trim(), avatar_url: avatarUrl, job_title: jobTitle.trim() || null });
       return res;
     },
@@ -143,7 +159,10 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     enabled: loaded && !!user,
     validate: (v) => (v.length > 80 ? "Máximo 80" : null),
     onSave: async (v) => {
-      const res = await updateProfile({ job_title: v.trim() || null });
+      const res = await updateProfile(
+        { job_title: v.trim() || null },
+        { category: "profile", action: "profile.job_title_updated", description: `Puesto actualizado` },
+      );
       if (!res.error) onProfileUpdated({ name: name.trim(), avatar_url: avatarUrl, job_title: v.trim() || null });
       return res;
     },
@@ -152,39 +171,66 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     value: phone,
     enabled: loaded && !!user,
     validate: (v) => (v && !/^[+0-9 ()-]{6,20}$/.test(v.trim()) ? "Teléfono inválido" : null),
-    onSave: (v) => updateProfile({ phone: v.trim() || null }),
+    onSave: (v) =>
+      updateProfile(
+        { phone: v.trim() || null },
+        { category: "profile", action: "profile.phone_updated", description: "Teléfono actualizado" },
+      ),
   });
   const bioSave = useAutosave({
     value: bio,
     enabled: loaded && !!user,
     validate: (v) => (v.length > 280 ? "Máximo 280" : null),
-    onSave: (v) => updateProfile({ bio: v.trim() || null }),
+    onSave: (v) =>
+      updateProfile(
+        { bio: v.trim() || null },
+        { category: "profile", action: "profile.bio_updated", description: "Bio actualizada" },
+      ),
   });
   const tzSave = useAutosave({
     value: timezone,
     enabled: loaded && !!user,
-    onSave: (v) => updateProfile({ timezone: v }),
+    onSave: (v) =>
+      updateProfile(
+        { timezone: v },
+        { category: "preferences", action: "preferences.timezone_updated", description: `Zona horaria: ${v}` },
+      ),
   });
   const weekSave = useAutosave({
     value: weekStart,
     enabled: loaded && !!user,
-    onSave: (v) => updateProfile({ week_start_day: v }),
+    onSave: (v) =>
+      updateProfile(
+        { week_start_day: v },
+        { category: "preferences", action: "preferences.week_start_updated", description: `Inicio de semana: ${v === 1 ? "lunes" : "domingo"}` },
+      ),
   });
   const prefsSave = useAutosave({
     value: prefs,
     enabled: loaded && !!user,
-    onSave: (v) => updateProfile({ notification_preferences: v }),
+    onSave: (v) =>
+      updateProfile(
+        { notification_preferences: v },
+        { category: "preferences", action: "preferences.notifications_updated", description: "Preferencias de notificaciones actualizadas" },
+      ),
   });
   const workSave = useAutosave({
     value: { workStartHour, workStartMinute, workEndHour, workEndMinute },
     enabled: loaded && !!user,
     onSave: (v) =>
-      updateProfile({
-        work_start_hour: v.workStartHour,
-        work_start_minute: v.workStartMinute,
-        work_end_hour: v.workEndHour,
-        work_end_minute: v.workEndMinute,
-      }),
+      updateProfile(
+        {
+          work_start_hour: v.workStartHour,
+          work_start_minute: v.workStartMinute,
+          work_end_hour: v.workEndHour,
+          work_end_minute: v.workEndMinute,
+        },
+        {
+          category: "preferences",
+          action: "preferences.work_hours_updated",
+          description: `Horario laboral: ${String(v.workStartHour).padStart(2, "0")}:${String(v.workStartMinute).padStart(2, "0")} – ${String(v.workEndHour).padStart(2, "0")}:${String(v.workEndMinute).padStart(2, "0")}`,
+        },
+      ),
   });
 
   // Load profile + auth metadata
@@ -285,6 +331,12 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     setEmailDialogOpen(false);
     setNewEmail("");
     toast.success("Te enviamos un correo de confirmación a tu nueva dirección");
+    void logActivity({
+      category: "auth",
+      action: "auth.email_change_requested",
+      description: `Cambio de email solicitado a ${trimmed}`,
+      metadata: { from: user?.email, to: trimmed },
+    });
   };
 
   // ---------- Password ----------
@@ -297,11 +349,21 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     if (error) { toast.error(error.message); return; }
     toast.success("Contraseña actualizada");
     setNewPassword(""); setConfirmPassword("");
+    void logActivity({
+      category: "security",
+      action: "security.password_updated",
+      description: "Contraseña actualizada",
+    });
   };
 
   // ---------- Danger ----------
   const handleSignOutAll = async () => {
     setSigningOutAll(true);
+    void logActivity({
+      category: "session",
+      action: "session.signout_all",
+      description: "Sesión cerrada en todos los dispositivos",
+    });
     const { error } = await supabase.auth.signOut({ scope: "global" });
     setSigningOutAll(false);
     if (error) toast.error(error.message);
@@ -371,6 +433,7 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
             <TabsList className="w-full">
               <TabsTrigger value="account" className="flex-1">Cuenta</TabsTrigger>
               <TabsTrigger value="preferences" className="flex-1">Preferencias</TabsTrigger>
+              <TabsTrigger value="activity" className="flex-1">Actividad</TabsTrigger>
               {isAdmin && <TabsTrigger value="team" className="flex-1">Equipo</TabsTrigger>}
             </TabsList>
 
@@ -621,6 +684,12 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
                 ))}
               </section>
 
+              <div className="h-6" />
+            </TabsContent>
+
+            {/* ACTIVIDAD */}
+            <TabsContent value="activity" className="mt-5">
+              <ActivityHistorySection />
               <div className="h-6" />
             </TabsContent>
 

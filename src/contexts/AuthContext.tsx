@@ -26,9 +26,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let mounted = true;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, nextSession) => {
+      (event, nextSession) => {
         if (!mounted) return;
         setSession(nextSession);
+        if (event === "SIGNED_IN" && nextSession?.user) {
+          // Defer to avoid deadlocks inside the auth callback
+          setTimeout(() => {
+            void import("@/lib/activityLog").then(({ logActivity }) =>
+              logActivity({
+                category: "auth",
+                action: "auth.signed_in",
+                description: `Inicio de sesión (${nextSession.user.app_metadata.provider ?? "email"})`,
+                metadata: { provider: nextSession.user.app_metadata.provider ?? "email" },
+              }),
+            );
+          }, 0);
+        }
       }
     );
 
@@ -45,6 +58,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = async () => {
+    void import("@/lib/activityLog").then(({ logActivity }) =>
+      logActivity({ category: "auth", action: "auth.signed_out", description: "Cierre de sesión" }),
+    );
     await supabase.auth.signOut();
   };
 
