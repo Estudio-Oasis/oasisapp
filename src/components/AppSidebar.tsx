@@ -35,7 +35,6 @@ const allNavItems = [
   { titleKey: "nav.quotes" as TranslationKey, url: "/quotes", icon: FileText },
   { titleKey: "nav.vault" as TranslationKey, url: "/vault", icon: Shield },
   { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true },
-  { url: "/comando", label: "Comando", icon: Radar, superAdminOnly: true } as any,
   { titleKey: "nav.settings" as TranslationKey, url: "/settings", icon: Settings },
 ];
 
@@ -109,7 +108,6 @@ export function AppSidebar() {
 
   const navItems = allNavItems.filter((item: any) => {
     if (item.adminOnly && (roleLoading || !isAdmin)) return false;
-    if (item.superAdminOnly && !isSuperAdmin) return false;
     return true;
   });
 
@@ -186,6 +184,25 @@ export function AppSidebar() {
             </button>
           </div>
         </div>
+
+        {/* Comando — chip destacado para super admin */}
+        {isSuperAdmin && (
+          <div className="px-3 mb-1">
+            <Link
+              to="/comando"
+              className={`group relative flex items-center gap-2.5 rounded-lg px-3 h-10 text-sm font-semibold transition-all overflow-hidden ${
+                location.pathname.startsWith("/comando")
+                  ? "bg-foreground text-background"
+                  : "bg-accent/15 text-foreground border border-accent/30 hover:bg-accent/25"
+              }`}
+            >
+              <span className="absolute -right-6 -top-6 h-12 w-12 rounded-full bg-accent/30 blur-xl pointer-events-none" />
+              <Radar className="h-4 w-4 shrink-0 text-accent" />
+              <span className="flex-1">Comando</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-accent">LIVE</span>
+            </Link>
+          </div>
+        )}
 
         {/* Navigation */}
         <SidebarContent className="px-3 mt-2">
