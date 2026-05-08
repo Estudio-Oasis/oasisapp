@@ -209,9 +209,10 @@ export default function HubPage() {
   const teamStats = useMemo(() => {
     const activeCount = members.filter((m) => m.status !== "offline").length;
     const totalMinutes = members.reduce((s, m) => s + m.todayMinutes, 0);
-    const billableSet = new Set(["working", "meeting"]);
-    const workingMin = members.filter((m) => billableSet.has(m.status)).reduce((s, m) => s + m.todayMinutes, 0);
-    const avgMin = members.length ? Math.round(totalMinutes / members.length) : 0;
+    // Average across members who actually logged time today (avoids dragging avg to 0)
+    const withHours = members.filter((m) => m.todayMinutes > 0);
+    const avgMin = withHours.length ? Math.round(totalMinutes / withHours.length) : 0;
+    const peopleWithHours = withHours.length;
     const topClient = (() => {
       const clientCounts: Record<string, number> = {};
       members.forEach((m) => {
@@ -220,7 +221,7 @@ export default function HubPage() {
       const top = Object.entries(clientCounts).sort((a, b) => b[1] - a[1])[0];
       return top ? top[0] : null;
     })();
-    return { activeCount, totalMinutes, workingMin, avgMin, topClient };
+    return { activeCount, totalMinutes, avgMin, peopleWithHours, topClient };
   }, [members]);
 
   // Group members by status bucket (matches PDF: TRABAJANDO / EN REUNIÓN / EN PAUSA / AUSENTES)
