@@ -274,25 +274,45 @@ export function MobileBentoHome() {
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl border border-border/60 bg-card p-4">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">Tu día</p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
-            {formatDuration(data.minutesToday)}
-          </p>
-          <div className="mt-3"><DayRail blocks={data.blocks} /></div>
-          <p className="mt-2 text-[10px] text-foreground-muted tabular-nums">08h → 19h</p>
+          {loading ? (
+            <>
+              <Skeleton className="mt-1 h-7 w-20" />
+              <Skeleton className="mt-3 h-2 w-full rounded-full" />
+              <Skeleton className="mt-2 h-3 w-16" />
+            </>
+          ) : (
+            <>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-foreground">
+                {formatDuration(data.minutesToday)}
+              </p>
+              <div className="mt-3"><DayRail blocks={data.blocks} /></div>
+              <p className="mt-2 text-[10px] text-foreground-muted tabular-nums">08h → 19h</p>
+            </>
+          )}
         </div>
 
         <div className="rounded-2xl border border-border/60 bg-card p-4">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">Facturable</p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-accent">{billablePct}%</p>
-          <p className="mt-3 text-[11px] text-foreground-secondary tabular-nums">
-            {formatDuration(data.billableMin)}
-          </p>
-          <p className="mt-1 text-[10px] text-foreground-muted">de horas registradas</p>
+          {loading ? (
+            <>
+              <Skeleton className="mt-1 h-7 w-16" />
+              <Skeleton className="mt-3 h-3 w-20" />
+              <Skeleton className="mt-1 h-3 w-24" />
+            </>
+          ) : (
+            <>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-accent">{billablePct}%</p>
+              <p className="mt-3 text-[11px] text-foreground-secondary tabular-nums">
+                {formatDuration(data.billableMin)}
+              </p>
+              <p className="mt-1 text-[10px] text-foreground-muted">de horas registradas</p>
+            </>
+          )}
         </div>
       </div>
 
       {/* HUECO — fila completa si existe */}
-      {data.gapMin >= 15 && (
+      {!loading && data.gapMin >= 15 && (
         <Link
           to="/bitacora"
           className="flex items-center justify-between rounded-2xl border border-accent/30 bg-accent/5 px-4 py-3 active:scale-[0.99] transition-transform"
@@ -321,7 +341,12 @@ export function MobileBentoHome() {
             <ListTodo className="h-3.5 w-3.5 text-foreground-muted" />
             <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">Próxima</p>
           </div>
-          {data.nextTask ? (
+          {loading ? (
+            <>
+              <Skeleton className="mt-2 h-4 w-full" />
+              <Skeleton className="mt-1.5 h-3 w-20" />
+            </>
+          ) : data.nextTask ? (
             <>
               <p className="mt-2 text-sm font-semibold text-foreground line-clamp-2">
                 {data.nextTask.title}
@@ -340,12 +365,21 @@ export function MobileBentoHome() {
             <Users className="h-3.5 w-3.5 text-foreground-muted" />
             <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">Equipo</p>
           </div>
-          <p className="mt-2 text-2xl font-bold tabular-nums text-foreground">
-            {data.activeMembers}
-          </p>
-          <p className="mt-1 text-[11px] text-foreground-muted">
-            {data.activeMembers === 1 ? "persona activa" : "personas activas"}
-          </p>
+          {loading ? (
+            <>
+              <Skeleton className="mt-2 h-7 w-10" />
+              <Skeleton className="mt-1 h-3 w-24" />
+            </>
+          ) : (
+            <>
+              <p className="mt-2 text-2xl font-bold tabular-nums text-foreground">
+                {data.activeMembers}
+              </p>
+              <p className="mt-1 text-[11px] text-foreground-muted">
+                {data.activeMembers === 1 ? "persona activa" : "personas activas"}
+              </p>
+            </>
+          )}
         </Link>
       </div>
 
