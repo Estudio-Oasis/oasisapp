@@ -301,7 +301,7 @@ export function AppSidebar() {
       />
 
       {/* Tour-triggered modals */}
-      <StartTimerModal open={tourTimerOpen} onOpenChange={setTourTimerOpen} mode="start" />
+      <QuickSheet open={tourTimerOpen} onOpenChange={setTourTimerOpen} mode="start" />
       <NewTaskModal open={tourTaskOpen} onOpenChange={setTourTaskOpen} />
 
       {/* Onboarding Wizard (new users without agency) */}
