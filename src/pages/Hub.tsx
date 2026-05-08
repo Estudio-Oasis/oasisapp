@@ -193,8 +193,10 @@ export default function HubPage() {
   const teamStats = useMemo(() => {
     const activeCount = members.filter((m) => m.status !== "offline").length;
     const totalMinutes = members.reduce((s, m) => s + m.todayMinutes, 0);
+    const billableSet = new Set(["working", "meeting"]);
+    const workingMin = members.filter((m) => billableSet.has(m.status)).reduce((s, m) => s + m.todayMinutes, 0);
+    const avgMin = members.length ? Math.round(totalMinutes / members.length) : 0;
     const topClient = (() => {
-      // Simple: find the most common current_client
       const clientCounts: Record<string, number> = {};
       members.forEach((m) => {
         if (m.current_client) clientCounts[m.current_client] = (clientCounts[m.current_client] || 0) + 1;
@@ -202,7 +204,24 @@ export default function HubPage() {
       const top = Object.entries(clientCounts).sort((a, b) => b[1] - a[1])[0];
       return top ? top[0] : null;
     })();
-    return { activeCount, totalMinutes, topClient };
+    return { activeCount, totalMinutes, workingMin, avgMin, topClient };
+  }, [members]);
+
+  // Group members by status bucket (matches PDF: TRABAJANDO / EN REUNIÓN / EN PAUSA / AUSENTES)
+  const grouped = useMemo(() => {
+    const buckets = {
+      working: [] as MemberWithProfile[],
+      meeting: [] as MemberWithProfile[],
+      paused: [] as MemberWithProfile[],
+      offline: [] as MemberWithProfile[],
+    };
+    members.forEach((m) => {
+      if (m.status === "working" || m.status === "online") buckets.working.push(m);
+      else if (m.status === "meeting") buckets.meeting.push(m);
+      else if (m.status === "offline") buckets.offline.push(m);
+      else buckets.paused.push(m);
+    });
+    return buckets;
   }, [members]);
 
   const handleMemberClick = (memberId: string) => {
