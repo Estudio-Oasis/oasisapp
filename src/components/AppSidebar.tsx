@@ -108,7 +108,11 @@ export function AppSidebar() {
   const displayName = profile?.name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
   const role = profile?.role || "member";
 
-  const navItems = allNavItems.filter((item) => !item.adminOnly || (!roleLoading && isAdmin));
+  const navItems = allNavItems.filter((item: any) => {
+    if (item.adminOnly && (roleLoading || !isAdmin)) return false;
+    if (item.superAdminOnly && !isSuperAdmin) return false;
+    return true;
+  });
 
   const toggleLanguage = () => setLanguage(language === "es" ? "en" : "es");
 
