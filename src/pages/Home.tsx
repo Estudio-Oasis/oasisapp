@@ -16,6 +16,7 @@ import { Clock, Users, FileText, Receipt, TrendingUp, Target } from "lucide-reac
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileBentoHome } from "@/components/home/MobileBentoHome";
+import { DesktopBentoHome } from "@/components/home/DesktopBentoHome";
 
 function DailyProgressBar() {
   const { user } = useAuth();
