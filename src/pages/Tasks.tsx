@@ -324,8 +324,14 @@ export default function TasksPage() {
         </div>
       </div>
 
-      {/* Empty state */}
-      {tasks.length === 0 ? (
+      {/* Loading skeleton */}
+      {loading ? (
+        <div className="space-y-2">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-[68px] w-full rounded-2xl" />
+          ))}
+        </div>
+      ) : tasks.length === 0 ? (
         <div className="flex flex-col items-center py-12 text-center">
           <CheckSquare className="h-12 w-12 text-border mb-4" />
           <p className="text-lg font-semibold text-foreground">{t("tasks.noTasks")}</p>
