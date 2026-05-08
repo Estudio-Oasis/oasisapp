@@ -34,6 +34,7 @@ export default function TasksPage() {
   const { user } = useAuth();
   const { t } = useLanguage();
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
   const [clients, setClients] = useState<ClientInfo[]>([]);
   const [assignees, setAssignees] = useState<Record<string, AssigneeInfo>>({});
   const [clientMap, setClientMap] = useState<Record<string, ClientInfo>>({});
@@ -64,6 +65,7 @@ export default function TasksPage() {
     const aMap: Record<string, AssigneeInfo> = {};
     ((profileData || []) as AssigneeInfo[]).forEach((p) => { aMap[p.id] = p; });
     setAssignees(aMap);
+    setLoading(false);
   }, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
