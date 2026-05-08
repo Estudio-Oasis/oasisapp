@@ -4,7 +4,7 @@ import { useTimer } from "@/contexts/TimerContext";
 import { formatElapsed, getClientColor } from "@/lib/timer-utils";
 import { getNormalizedActivityType, getActivityConfig } from "@/components/timer/ActivityConstants";
 import { QuickSheet } from "@/components/timer/QuickSheet";
-import { Loader2, Play, Square, ArrowRightLeft, ChevronUp, X, Zap } from "lucide-react";
+import { Loader2, Square, ArrowRightLeft, ChevronUp, X, Zap } from "lucide-react";
 import { InlineEditableText } from "@/components/ui/inline-editable-text";
 
 /**

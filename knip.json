@@ -1,0 +1,26 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "src/main.tsx",
+    "src/App.tsx",
+    "vite.config.ts",
+    "tailwind.config.ts",
+    "vitest.config.ts",
+    "supabase/functions/**/index.ts"
+  ],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignore": [
+    "src/integrations/supabase/types.ts",
+    "src/test/**",
+    "playwright.config.ts",
+    "playwright-fixture.ts"
+  ],
+  "ignoreDependencies": [
+    "@playwright/test",
+    "lovable-tagger",
+    "autoprefixer",
+    "postcss",
+    "@tailwindcss/typography",
+    "tailwindcss-animate"
+  ]
+}

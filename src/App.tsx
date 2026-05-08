@@ -11,8 +11,6 @@ import { ProtectedRoute, ProRoute } from "@/components/ProtectedRoute";
 import { AdminRoute } from "@/components/AdminRoute";
 import { SuperAdminRoute } from "@/components/SuperAdminRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { AppLayout } from "@/components/AppLayout";
-import { BitacoraLayout } from "@/components/BitacoraLayout";
 import { PlanRouter } from "@/components/PlanRouter";
 
 import Login from "./pages/Login";

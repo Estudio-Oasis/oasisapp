@@ -4,7 +4,7 @@ import { useRole } from "@/hooks/useRole";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Pencil, Zap, Loader2 } from "lucide-react";
-import { formatDuration, getClientColor } from "@/lib/timer-utils";
+import { formatDuration } from "@/lib/timer-utils";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import type { Tables } from "@/integrations/supabase/types";

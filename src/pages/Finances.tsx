@@ -25,7 +25,6 @@ import {
   LineChart,
   ComposedChart,
   Legend,
-  CartesianGrid,
 } from "recharts";
 import { NewInvoiceModal } from "@/components/NewInvoiceModal";
 import { InvoiceDetailPanel } from "@/components/InvoiceDetailPanel";

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
-import { Bell, X, Check, Clock, User, AlertTriangle } from "lucide-react";
+import { Bell, X, Check, Clock, User } from "lucide-react";
 import { getCompletenessLevel, getMissingFields } from "@/lib/clientCompleteness";
 
 interface NotificationItem {

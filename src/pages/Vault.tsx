@@ -16,7 +16,6 @@ import {
   Globe, Shield, RefreshCw, ExternalLink, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
-import type { TranslationKey } from "@/lib/translations";
 
 const CATEGORIES = ["all", "social", "dev", "email", "hosting", "cms", "finance", "other"] as const;
 type Category = (typeof CATEGORIES)[number];

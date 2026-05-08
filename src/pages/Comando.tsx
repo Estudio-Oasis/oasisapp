@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Radar, Zap, AlertTriangle, AlertCircle, Info, MessageCircle, MoreHorizontal, ArrowRight, Clock } from "lucide-react";
+import { Radar, Zap, AlertTriangle, AlertCircle, Info, MessageCircle, ArrowRight, Clock } from "lucide-react";
 import { useOperationalData, useAttentionSignals, snoozeSignal, type AttentionSignal } from "@/hooks/useAttentionSignals";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

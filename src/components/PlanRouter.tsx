@@ -1,4 +1,3 @@
-import { Outlet } from "react-router-dom";
 import { usePlan } from "@/hooks/usePlan";
 import { AppLayout } from "@/components/AppLayout";
 import { BitacoraLayout } from "@/components/BitacoraLayout";

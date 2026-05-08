@@ -50,7 +50,7 @@ export function MorningBriefing({ onStartDay, onFillGaps }: MorningBriefingProps
     const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon...
     
     // Find reference day: yesterday, or last Friday if Monday, or find last day with data
-    let refDay = new Date(today);
+    const refDay = new Date(today);
     let isWeekSummary = false;
     
     if (dayOfWeek === 1) {

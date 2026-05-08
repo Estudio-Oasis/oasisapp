@@ -1,9 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useBitacora } from "./BitacoraContext";
 import { getClientColor } from "@/lib/timer-utils";
 import {
   FolderOpen,
-  Building2,
   CheckSquare,
   X,
   ChevronUp,

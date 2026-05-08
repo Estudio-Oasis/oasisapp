@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { getClientColor } from "@/lib/timer-utils";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Task = Tables<"tasks">;
@@ -33,7 +32,7 @@ export function TaskGanttView({ tasks, clientMap, onSelectTask }: Props) {
   // Generate week labels
   const weeks = useMemo(() => {
     const w: { label: string; offsetPct: number; widthPct: number }[] = [];
-    let d = new Date(rangeStart);
+    const d = new Date(rangeStart);
     // Align to Monday
     const day = d.getDay();
     d.setDate(d.getDate() - ((day + 6) % 7));

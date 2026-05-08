@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { WidgetCard } from "@/components/ui/widget-card";
-import { Clock, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface Gap {

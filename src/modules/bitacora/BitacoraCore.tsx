@@ -9,7 +9,6 @@ import { DailyDigest } from "@/components/bitacora/DailyDigest";
 import { DayInsights } from "@/components/timer/DayInsights";
 import { TimeEntryRow } from "@/components/timer/TimeEntryRow";
 import { useHourlyRate } from "@/hooks/useHourlyRate";
-import { GapAlert } from "@/components/timer/GapAlert";
 import { EmptyState } from "@/components/timer/EmptyState";
 import { ACTIVITY_TYPES, UI_COPY } from "@/components/timer/ActivityConstants";
 import type { ActivityType } from "@/components/timer/ActivityConstants";

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, LayoutDashboard, Globe, Shield, FileText, Rocket, Home, Radar, type LucideIcon } from "lucide-react";
+import { Timer, Users, CheckSquare, DollarSign, Settings, Sun, Moon, Radio, Shield, FileText, Rocket, Home, Radar } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,8 +17,6 @@ import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
 import { QuickSheet } from "@/components/timer/QuickSheet";
 import { NewTaskModal } from "@/components/NewTaskModal";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import {
   Sidebar,
   SidebarContent,
