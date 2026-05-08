@@ -94,7 +94,7 @@ export function AppLayout() {
         <BottomNav />
         {!isBitacora && <TimerFAB />}
         <HelpFAB />
-        <CommandCenterTour />
+        
       </div>
     </SidebarProvider>
   );
