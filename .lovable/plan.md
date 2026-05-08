@@ -1,87 +1,107 @@
+## Objetivo
 
-# Perfil completo — estándar moderno (Linear / Notion / Vercel)
+Convertir el panel "Mi perfil" en algo verdaderamente vivo: guardado y validación en tiempo real, ver y cerrar sesiones activas, y la pestaña Equipo solo para admins. Además, habilitar **Google Sign-In** para vincular `joserogelioteran@gmail.com` a tu cuenta `r@estudiooasis.com`, de modo que puedas entrar por cualquiera de los dos métodos sin duplicar la cuenta.
 
-Hoy `ProfileSheet` solo permite editar nombre, foto, puesto y contraseña. Falta lo básico: email, idioma, tema, zona horaria, notificaciones, sesión activa y eliminar cuenta. Vamos a convertirlo en un panel profesional, organizado por secciones colapsadas tipo acordeón/tabs.
+---
 
-## Estructura nueva (3 pestañas dentro del Sheet)
+## 1. Identidades múltiples (login por varios mails)
 
-```
-Mi perfil
-├─ Cuenta         ← personal, identidad
-├─ Preferencias   ← idioma, tema, horario, notificaciones
-└─ Equipo         ← (solo admin) miembros + invitaciones
-```
+Supabase no permite "agregar un segundo email/contraseña" a la misma cuenta, pero **sí permite vincular varias identidades OAuth** (Identity Linking) a un mismo usuario. El estándar de la industria para este caso es:
 
-Footer fijo: "Cerrar sesión" y "Eliminar cuenta" (zona peligro colapsada).
+1. Activar **Google** como proveedor (Lovable Cloud Managed Social Login).
+2. En *Mi perfil → Cuenta → Métodos de inicio de sesión*, mostrar identidades vinculadas (`auth.getUserIdentities()`).
+3. Botón **"Vincular cuenta de Google"** → llama `supabase.auth.linkIdentity({ provider: 'google' })` mientras estás logueado con `r@estudiooasis.com`. Al completar el OAuth con `joserogelioteran@gmail.com`, esa identidad queda atada al mismo `user.id`. A partir de ese momento podrás entrar:
+   - Email + contraseña con `r@estudiooasis.com`
+   - Google con `joserogelioteran@gmail.com`
+   - Ambos resuelven al mismo perfil, agencia y datos.
+4. Botón "Desvincular" por cada identidad (solo si queda al menos una).
 
-## Tab 1 — Cuenta
+> Nota: si en el futuro quieres también iniciar con `joserogelioteran@gmail.com` por contraseña, lo correcto es seguir usando Google (esa es la razón por la que existe el linking). No vamos a duplicar usuarios en `auth.users`.
 
-- **Avatar** con upload (ya existe) + botón "Quitar foto".
-- **Nombre completo** (ya existe).
-- **Puesto / Rol funcional** (ya existe).
-- **Email** ✱ nuevo — editable con `supabase.auth.updateUser({ email })`. Muestra estado: "Verificado" o "Pendiente de verificar". Banner de aviso de que se enviará correo de confirmación al nuevo email.
-- **Teléfono** ✱ nuevo (opcional, columna `profiles.phone` si existe; si no, lo añadimos a profiles).
-- **Bio corta** ✱ nuevo (opcional, `profiles.bio` text, máx 160 chars).
-- **Cambiar contraseña** (ya existe) en sub-bloque colapsable.
-- **Info read-only**: ID de usuario, fecha de creación de cuenta, último login, agencia a la que pertenece.
+---
 
-## Tab 2 — Preferencias
+## 2. Guardado y validación en tiempo real
 
-- **Idioma** — selector ES / EN (ya hay `LanguageContext`, conectarlo aquí).
-- **Tema** — Sistema / Claro / Oscuro con `next-themes` (ya importado, falta exponer UI).
-- **Zona horaria** — select con detección automática de `Intl.DateTimeFormat().resolvedOptions().timeZone`, guardar en `profiles.timezone`.
-- **Horario de trabajo** (ya existe — moverlo aquí).
-- **Notificaciones** — switches:
-  - Email: resúmenes diarios, menciones en chat, recordatorios de tareas, novedades del producto.
-  - In-app: bell de notificaciones, sonidos.
-  Guardar en `profiles.notification_preferences jsonb`.
-- **Inicio de semana** — Lunes / Domingo.
+Reemplazar los botones "Guardar" actuales por **autoguardado con debounce (700 ms)** y feedback inline:
 
-## Tab 3 — Equipo (admin)
+**Cuenta**
+- `name`, `job_title`, `phone`, `bio`: validación en blur + autoguardado. Indicador de estado por campo: idle / "Guardando…" / "Guardado ✓" / error.
+- `email`: editable en línea con confirmación modal (sigue usando `supabase.auth.updateUser({ email })`); muestra estado "Pendiente de verificación" si hay `new_email`.
+- Validaciones: nombre 2-60 chars, teléfono regex E.164 opcional, bio ≤ 280 chars, email RFC.
+- Contraseña: misma sección, no autosave (requiere botón explícito por seguridad), validación de fortaleza visible.
 
-(Mantener lo que ya existe: invitaciones pendientes, miembros, toggle rol).
+**Preferencias**
+- `theme`, `language`, `timezone`, `week_start_day`, `work_hours`, `notification_preferences`: autoguardan al cambiar. El switch / select aplica el cambio y hace `update` inmediato con toast discreto solo en error.
 
-## Zona de peligro (footer colapsable)
+**Equipo** (solo lectura/acciones, ya es realtime por naturaleza).
 
-- **Cerrar sesión** (ya existe).
-- **Cerrar sesión en todos los dispositivos** — `supabase.auth.signOut({ scope: 'global' })`.
-- **Eliminar cuenta** — modal de confirmación pidiendo escribir el email para confirmar. Llama edge function `delete-account` (a crear) que:
-  1. Verifica que el usuario no sea único admin de la agencia (si lo es, bloquear con instrucción de transferir o eliminar agencia primero).
-  2. Borra `profiles` (cascade hace el resto).
-  3. Borra `auth.users` con service role.
+Estructura: hook `useAutosaveField(field, value, validator)` centralizado que envuelve el `update` a `profiles` y maneja debounce + estado.
+
+---
+
+## 3. Sesiones activas
+
+Supabase no expone las sesiones del propio usuario desde el cliente, así que se hace vía edge function con service role:
+
+- **Edge function `list-user-sessions`** (`verify_jwt` activo, valida JWT en código): llama `supabase.auth.admin.listUserSessions(userId)` y devuelve `id`, `created_at`, `updated_at`, `user_agent`, `ip`, `factor_id`, marcando cuál es la sesión actual (comparando con `session.access_token`'s `session_id` claim).
+- **Edge function `revoke-user-session`**: recibe `session_id`, llama `supabase.auth.admin.signOut(session_id, 'local')` para revocar una sola.
+- En *Mi perfil → Cuenta → Sesiones activas*: lista con dispositivo (parseado de UA), última actividad, ubicación aproximada y botones "Cerrar esta sesión" / "Cerrar sesión en todos los demás dispositivos" (ya existe el global; añadir el "demás" excluyendo la actual).
+
+---
+
+## 4. Pestaña Equipo (solo admin)
+
+Ya está parcialmente. Consolidar para que use exactamente el mismo esquema que `MembersTab.tsx` (la versión completa de Settings) para evitar duplicación lógica:
+
+- Renderizar `<MembersTab agencyId={...} isAdmin allowedDomain={...} />` directamente dentro del Tab "Equipo" del ProfileSheet, en lugar de mantener su propia mini-implementación.
+- Si no eres admin, la pestaña no se muestra.
+- Beneficio: una sola fuente de verdad para invitaciones, enlace universal, cooldowns, cambio de rol, eliminación, etc.
+
+---
 
 ## Cambios técnicos
 
-### 1. Migración DB
-Añadir a `profiles`:
-- `phone text`
-- `bio text`
-- `timezone text default 'America/Mexico_City'`
-- `notification_preferences jsonb default '{"email_daily_summary":true,"email_mentions":true,"email_task_reminders":true,"email_product_updates":false,"inapp_sounds":true}'`
-- `week_start_day int default 1` (1=lunes, 0=domingo)
+```text
+Backend (Supabase)
+├─ configure_social_auth: enable ['google']
+├─ edge fn  supabase/functions/list-user-sessions/index.ts
+└─ edge fn  supabase/functions/revoke-user-session/index.ts
 
-### 2. Edge function `delete-account`
-Nueva función con `verify_jwt = true` que recibe confirmación, valida sole-admin, borra profile y user.
+Frontend
+├─ src/hooks/useAutosave.ts                (debounce + estado por campo)
+├─ src/components/profile/IdentitiesSection.tsx
+│       (lista identidades, botón Vincular Google, Desvincular)
+├─ src/components/profile/SessionsSection.tsx
+│       (fetch sesiones, revocar individual, "cerrar otras")
+├─ src/components/ProfileSheet.tsx
+│       - quitar botones "Guardar" de Cuenta y Preferencias
+│       - integrar autosave en cada input/switch/select
+│       - insertar IdentitiesSection y SessionsSection en pestaña Cuenta
+│       - reemplazar Tab Equipo por <MembersTab/>
+└─ src/pages/Login.tsx
+        - añadir botón "Continuar con Google"
+```
 
-### 3. Componentes
-- Refactor `ProfileSheet.tsx` para usar `<Tabs>` (ya existe en shadcn).
-- Sub-componentes nuevos: `ProfileTabAccount.tsx`, `ProfileTabPreferences.tsx`, `ProfileTabTeam.tsx`, `DangerZone.tsx`, `ChangeEmailDialog.tsx`, `DeleteAccountDialog.tsx`.
-- Ancho del Sheet: pasar de 380px a 480px en desktop (mantener 100% en móvil).
+Sin cambios de DB (los campos `phone`, `bio`, `timezone`, `notification_preferences`, `week_start_day` ya existen).
 
-### 4. Dependencias frontend
-Reusar `Tabs`, `Switch`, `Select`, `Dialog` (todos ya en el proyecto). Sin paquetes nuevos.
+---
 
-## Premortem (puntos a vigilar)
+## Premortem
 
 | Riesgo | Mitigación |
 |---|---|
-| Cambio de email rompe sesión activa | Usar flow estándar de Supabase: confirma desde correo, mantiene sesión. Mostrar mensaje "Revisa tu bandeja". |
-| Único admin se elimina y agencia queda huérfana | Edge function bloquea con error claro. |
-| Toggle de notificaciones sin backend que las consuma | Guardar preferencias ahora; los edge functions de email respetan el flag (`process-email-queue` ya filtra por `unsubscribes` — extender a `notification_preferences`). |
-| Tabs largos en móvil | Sheet con scroll vertical interno por tab. |
+| Vincular Google con `joserogelioteran@gmail.com` falla porque ya existe otra cuenta con ese email | Si pasa, Supabase devuelve `identity_already_exists`. Mostramos guía clara: "Esa cuenta ya existe; entra una vez con ella y se vincula sola al haber session compartida" o pedir borrar la huérfana. |
+| Autosave dispara escrituras excesivas | Debounce 700 ms + diff vs último valor guardado. |
+| `linkIdentity` redirige fuera de la SPA | Usar `redirectTo: window.location.href` para volver al mismo lugar y refrescar identidades al volver. |
+| `listUserSessions` no disponible en tu versión de `supabase-js` | El admin API la soporta server-side; la llamamos desde la edge fn, no desde el cliente. |
+| Cambio de email rompe sesión | Supabase mantiene la sesión; solo se confirma el nuevo correo por link. Mostramos badge "Pendiente de confirmación". |
+| Confusión "tengo dos emails, ¿cuál es el principal?" | UI marca claramente Email principal (el de `auth.users.email`) y "Identidades vinculadas" como métodos de acceso, no como direcciones de contacto. |
 
-## Resultado visible
+---
 
-El usuario abre "Mi perfil" y encuentra un panel profesional con 3 pestañas. Puede cambiar email, idioma, tema, zona horaria, horario, notificaciones, cerrar sesión global y eliminar cuenta. Equiparable a Linear/Notion.
+## Resultado esperado
 
-¿Apruebas el plan o quieres ajustar alcance (p.ej. omitir eliminar cuenta o teléfono/bio en esta iteración)?
+- Editas tu perfil y todo se guarda sin tocar botones.
+- Vas a *Cuenta → Métodos de inicio de sesión*, pulsas "Vincular Google", entras con `joserogelioteran@gmail.com`, y desde ese momento puedes loguear con cualquiera de los dos.
+- Ves todas tus sesiones activas (dispositivo, IP, última actividad) y cierras la que quieras.
+- Si eres admin, la pestaña Equipo es exactamente la misma de Ajustes — sin duplicar código.
