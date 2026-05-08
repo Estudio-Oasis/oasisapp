@@ -70,23 +70,17 @@ export default function MasPage() {
 
   return (
     <div className="space-y-5 pb-4">
-      {/* Profile header */}
-      <Link to="/settings" className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card p-4 active:scale-[0.99] transition-transform">
-        {profile.avatar_url ? (
-          <img src={profile.avatar_url} alt="" className="h-12 w-12 rounded-full object-cover" />
-        ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-background font-semibold">
-            {initials}
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-foreground truncate">
-            {profile.name || "Tu perfil"}
-          </p>
-          <p className="text-[11px] text-foreground-muted truncate">{profile.email}</p>
-        </div>
-        <ChevronRight className="h-4 w-4 text-foreground-muted" />
-      </Link>
+      {/* Bold hero — v2 */}
+      <div className="rounded-3xl border border-border/60 bg-gradient-to-br from-accent/15 via-accent/5 to-transparent p-5">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-accent">Más</p>
+        <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground leading-none">
+          {profile.name?.split(" ")[0] || "Hola"}
+        </h1>
+        <p className="mt-1.5 text-[12px] text-foreground-muted truncate">{profile.email}</p>
+        <Link to="/settings" className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-accent hover:underline underline-offset-2">
+          Ver perfil <ChevronRight className="h-3 w-3" />
+        </Link>
+      </div>
 
       {sections.map((section) => {
         const items = section.items.filter((i) => {
