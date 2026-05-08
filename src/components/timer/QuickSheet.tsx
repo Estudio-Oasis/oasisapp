@@ -250,8 +250,21 @@ export function QuickSheet({
   }, [startBreakTimer, startTimer, switchTask, mode, onOpenChange]);
 
   const handleSubmit = useCallback(() => {
-    handleStart(text.trim() || null, selectedClientId, null, selectedProjectId);
-  }, [text, selectedClientId, selectedProjectId, handleStart]);
+    handleStart(text.trim() || null, selectedClientId, prefillTaskId || null, selectedProjectId);
+  }, [text, selectedClientId, selectedProjectId, prefillTaskId, handleStart]);
+
+  // AutoStart when prefilled (e.g. clicking ⚡ on a task row)
+  const autoStartedRef = useRef(false);
+  useEffect(() => {
+    if (!open) { autoStartedRef.current = false; return; }
+    if (!autoStart || autoStartedRef.current) return;
+    if (!prefillTaskId && !prefillClientId) return;
+    autoStartedRef.current = true;
+    const id = setTimeout(() => {
+      handleStart(prefillDescription || prefillTaskTitle, prefillClientId, prefillTaskId, prefillProjectId);
+    }, 50);
+    return () => clearTimeout(id);
+  }, [open, autoStart, prefillTaskId, prefillClientId, prefillProjectId, prefillDescription, prefillTaskTitle, handleStart]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
