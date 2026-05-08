@@ -97,6 +97,13 @@ export default function HubPage() {
 
   const [drawerMember, setDrawerMember] = useState<MemberWithProfile | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("super_admin_users" as any).select("id").eq("id", user.id).maybeSingle()
+      .then(({ data }) => setIsSuperAdmin(!!data));
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user) return;
