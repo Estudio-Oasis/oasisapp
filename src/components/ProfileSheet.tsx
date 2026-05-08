@@ -70,7 +70,7 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
 
-  const [tab, setTab] = useState<"account" | "preferences" | "team">("account");
+  const [tab, setTab] = useState<"account" | "preferences" | "team" | "activity">("account");
   const [loaded, setLoaded] = useState(false);
 
   // Account
