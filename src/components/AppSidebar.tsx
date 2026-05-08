@@ -66,7 +66,15 @@ export function AppSidebar() {
   const [showTour, setShowTour] = useState(false);
   const [tourTimerOpen, setTourTimerOpen] = useState(false);
   const [tourTaskOpen, setTourTaskOpen] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const welcomeShownRef = useRef(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("super_admin_users" as any).select("id").eq("id", user.id).maybeSingle().then(({ data }) => {
+      setIsSuperAdmin(!!data);
+    });
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user) return;
