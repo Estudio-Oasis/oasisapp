@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { WidgetCard, StatWidget } from "@/components/ui/widget-card";
 import { NewTaskModal } from "@/components/NewTaskModal";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
-import { StartTimerModal } from "@/components/StartTimerModal";
+import { QuickSheet } from "@/components/timer/QuickSheet";
 import { getClientColor, formatDuration } from "@/lib/timer-utils";
 import { CheckSquare, List, LayoutGrid, GanttChart, Zap, Plus, AlertTriangle, Clock, CheckCircle2, Inbox, Eye } from "lucide-react";
 import { TaskGanttView } from "@/components/tasks/TaskGanttView";
