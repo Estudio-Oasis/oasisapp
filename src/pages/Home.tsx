@@ -14,6 +14,8 @@ import { formatDuration } from "@/lib/timer-utils";
 import { useHourlyRate } from "@/hooks/useHourlyRate";
 import { Clock, Users, FileText, Receipt, TrendingUp, Target } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileBentoHome } from "@/components/home/MobileBentoHome";
 
 function DailyProgressBar() {
   const { user } = useAuth();
