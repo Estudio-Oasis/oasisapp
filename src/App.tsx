@@ -113,6 +113,7 @@ const App = () => (
                     <Route path="/vault" element={<ProRoute><VaultPage /></ProRoute>} />
                     <Route path="/finances" element={<ProRoute><AdminRoute><FinancesPage /></AdminRoute></ProRoute>} />
                     <Route path="/admin" element={<ProRoute><AdminRoute><AdminDashboard /></AdminRoute></ProRoute>} />
+                    <Route path="/comando" element={<SuperAdminRoute><ComandoPage /></SuperAdminRoute>} />
                   </Route>
 
                   <Route path="*" element={<NotFound />} />
