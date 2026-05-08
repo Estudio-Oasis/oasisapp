@@ -1,115 +1,57 @@
+## Objetivo
 
-# Rediseño OasisOS · Cassiu v2
+Hacer descubrible el Centro de Comando para super-admins con tres ayudas visuales: tour inicial, breadcrumb persistente y pulso de atención.
 
-Pre-mortem honesto antes de empezar:
+## 1. Mini-tour de primera vez (super-admin)
 
-- **El riesgo grande no es feo, es romper el día a día.** Bitácora y Home son las pantallas que el equipo abre 30 veces al día. Si tropiezan, pierdes confianza. Por eso vamos por fases pequeñas, una por turno, con preview entre cada una.
-- **El tono "bold"** (más ámbar, hero moments, texturas) puede pasarse de Apple-bento a "casino". Lo aplicamos con disciplina: ámbar como acento, no como fondo. Texturas sutiles (noise grain a 3% de opacidad). Un hero por pantalla, no varios.
-- **Datos vs decoración.** Cada widget tiene que responder "¿qué hago con esto?". Si no, fuera.
+Nuevo componente `src/components/comando/CommandCenterTour.tsx`:
+- Overlay ligero (no bloqueante) con 2-3 tarjetas paso a paso usando `Popover`/posicionamiento absoluto.
+- Pasos:
+  1. **Desktop**: apunta al chip "Comando" en la parte superior del sidebar (halo ámbar + flecha).
+  2. **Móvil**: apunta a la tarjeta hero "Centro de comando" en `/mas`.
+  3. Cierre con CTA "Ir a Comando" o "Omitir".
+- Detecta viewport (`md:` breakpoint) para mostrar solo el paso relevante al dispositivo actual; desktop muestra ambos por contexto.
+- Persistencia: `localStorage["oasis.commandTour.dismissed"] = "1"` al pulsar **Omitir** o **Entendido**. No vuelve a mostrarse.
+- Trigger: se monta en `AppLayout` y se renderiza solo si `isSuperAdmin && !dismissed && !location.pathname.startsWith("/comando")`. Aparece a los ~1.5s tras el primer login (delay para no chocar con otros toasts).
 
----
+Hook `useCommandTour()` que expone `{ shouldShow, dismiss, isSuperAdmin }`. Reusa la consulta `super_admin_users` ya cacheada.
 
-## Fase 0 — Acceso Comando (5 minutos)
+## 2. Breadcrumb visible en /comando
 
-Insertar `r@estudiooasis.com` y `carla@estudiooasis.com` en `super_admin_users` para que ambos vean el link "Comando" en el sidebar y puedan entrar a `/comando`. Esto destraba lo que ya está construido.
+En `AppLayout.tsx`:
+- Añadir un sub-header compacto (alto ~36px, fondo `bg-muted/40`, borde inferior) que se renderiza **solo cuando** `location.pathname.startsWith("/comando")`.
+- Contenido: `Radar` icon ámbar + `Inicio › Centro de Comando` + badge "LIVE" (pulse dot ámbar). Link `Inicio` vuelve a `/`.
+- Visible tanto en desktop como móvil (sustituye el header compacto móvil cuando aplica para no duplicar).
 
-## Fase 1 — Móvil bento + bottom tabs
+## 3. Pulso/halo temporal en el chip "Comando"
 
-Lo más visible y de más alto impacto. La pantalla principal del móvil pasa a ser un tablero bento.
+- En `AppSidebar.tsx` (chip desktop) y `Mas.tsx` (hero móvil): añadir clase condicional `animate-pulse-halo` durante los primeros **6 segundos** al montar la ruta `/tasks` o `/mas`.
+- Implementación: `useEffect` con `setTimeout(6000)` que togglea un estado `highlight`. Solo se activa una vez por sesión (`sessionStorage["oasis.commandPulse.shown"]`).
+- Halo: ring ámbar `ring-2 ring-accent/60` + sombra animada (`shadow-[0_0_24px_hsl(var(--accent)/0.5)]`) con keyframe `pulse-halo` añadido a `tailwind.config.ts`.
+- Si el usuario ya hizo dismiss del tour, igual mantenemos el pulso (refuerzo pasivo).
 
-- **Home mobile** (`src/pages/Home.tsx` versión mobile): hero ámbar con saludo + frase contextual ("Llevas 4h 33m hoy, 55% facturable…"), seguido de tablero bento con widgets de tamaño variado:
-  - Timer activo (grande, hero ámbar si hay timer corriendo)
-  - Tira del día (rail compacto con bloques de horas)
-  - Hueco a llenar (si existe)
-  - Próxima tarea
-  - KPIs del día (horas, % facturable)
-  - Equipo en vivo (mini)
-  - Briefing OasisOS
-- **Bottom nav** (`src/components/BottomNav.tsx`): 4 tabs — Inicio, Bitácora, Hub, Más. FAB ámbar central para captura rápida (`⌘K` equivalente en móvil → abre `QuickLogInput` en sheet).
-- **Tab "Más"**: tareas, clientes, cotizaciones, finanzas, vault, ajustes en lista agrupada.
+## Detalles técnicos
 
-```
-┌─────────────────────┐
-│  Buenas tardes,     │  ← hero ámbar
-│  Roger              │
-│  4h 33m · 55% bill  │
-├──────────┬──────────┤
-│ ⏱ ACTIVO │ TU DÍA   │
-│  0:42    │ ▓▓░▓▓░  │
-│ Plan Q4  │ 4h 33m  │
-├──────────┴──────────┤
-│ HUECO 33m · llenar →│
-├──────────┬──────────┤
-│ EQUIPO   │ PRÓXIMA  │
-│ 4 act.   │ tarea... │
-└──────────┴──────────┘
-[Inicio][Bit][Hub][Más]
-        ⊕ FAB ámbar
-```
+- Animación nueva en `tailwind.config.ts`:
+  ```text
+  keyframes: pulse-halo { 0%,100%: ring-opacity .3 ; 50%: ring-opacity .8 + shadow expand }
+  animation: pulse-halo: pulse-halo 1.6s ease-in-out infinite
+  ```
+- Sin cambios de DB ni de lógica de negocio. Todo presentación/UI.
+- Sin nuevas dependencias.
 
-## Fase 2 — Inicio v2 desktop (tablero bento)
+## Archivos a modificar/crear
 
-Convertir `Home.tsx` desktop al mismo lenguaje bento que el móvil:
+- `src/components/comando/CommandCenterTour.tsx` (nuevo)
+- `src/hooks/useCommandTour.ts` (nuevo)
+- `src/components/AppLayout.tsx` (sub-header breadcrumb + montar tour)
+- `src/components/AppSidebar.tsx` (pulso temporal en chip)
+- `src/pages/Mas.tsx` (pulso temporal en hero)
+- `tailwind.config.ts` (keyframe pulse-halo)
 
-- Hero ámbar con saludo contextual + frase del día.
-- Grid bento (no las columnas actuales), con widgets reutilizando los que ya existen (`TimerLauncherWidget`, `DayTasksWidget`, `GapsWidget`, `TeamWidget`, `FinanceSummaryWidget`, `IdeasWidget`) pero con tamaños variados (grande / mediano / chico) en lugar de columnas iguales.
-- "Cliente del día" como widget nuevo (cliente con más horas hoy + MRR + horas/mo).
-- Acceso visible a "Captura rápida ⌘K" en el header.
+## Criterios de aceptación
 
-## Fase 3 — Bitácora v2 (riel + bloques)
-
-El cambio más profundo. Resolver el conflicto "timeline vs lista":
-
-- Una sola columna del día con riel de horas a la izquierda (08 → 19h).
-- Cada `time_entry` se renderiza como bloque sobre el riel, con altura proporcional a duración.
-- Huecos como bloques rayados (no como banner aparte).
-- Click en bloque → abre `EntryEditSheet` lateral.
-- Filtros arriba: Todo / Facturable / Huecos / Hoy.
-- Mantener `MorningBriefing` arriba si no hay actividad.
-
-Refactor de `BitacoraCore.tsx` + `InteractiveTimeline.tsx` (se fusionan en un solo componente `DayRail.tsx`).
-
-## Fase 4 — Hub v2
-
-Reorganizar `Hub.tsx` con secciones por estado, ordenadas por señal (no alfa):
-
-- TRABAJANDO · N (verde)
-- EN REUNIÓN · N
-- EN PAUSA · N
-- AUSENTES · N
-- ACTIVIDAD RECIENTE (feed de últimos eventos)
-
-Cada miembro muestra avatar, nombre, cliente actual, tarea actual, tiempo en sesión.
-
-## Fase 5 — Refinamientos secundarios
-
-Pulido de Tareas (lista agrupada con hero ámbar para P1 más urgente, toggle a Kanban), Clientes (MRR + horas + salud), Cotizaciones (pipeline visual), Finanzas (MRR + por cobrar + facturación reciente), Vault (sin cambios mayores). Estos son retoques visuales, no refactor.
-
----
-
-## Tono visual "bold" — reglas de aplicación
-
-Para evitar que se sienta de casino:
-
-- **Ámbar = acento, no fondo.** Solo en: hero del saludo, FAB, números KPI heroicos, badge del timer activo.
-- **Textura:** ruido sutil (`bg-[url(noise.svg)] opacity-[0.03]`) solo en hero del saludo.
-- **Hero moments:** UN hero por pantalla. El saludo en Home, el timer activo en Bitácora, el "atención #1" en Comando.
-- **Tipografía:** números tabulares grandes (text-4xl/5xl) para KPIs heroicos. Playfair se mantiene para titulares editoriales (saludo).
-- Tokens nuevos en `index.css`: `--gradient-amber-hero`, `--texture-grain`. Sin tocar Sand/Charcoal/Gold base.
-
----
-
-## Detalles técnicos (referencia)
-
-- Fase 0: `INSERT INTO super_admin_users (id) SELECT id FROM profiles WHERE email IN ('r@estudiooasis.com','carla@estudiooasis.com');`
-- Fase 1: `BottomNav.tsx` (4 tabs + FAB), nuevo `src/components/home/MobileBentoHome.tsx`, condicional `useIsMobile()` en `Home.tsx`.
-- Fase 2: refactor de `Home.tsx` desktop con CSS Grid bento (`grid-cols-12` con `col-span` variables).
-- Fase 3: nuevo `src/components/bitacora/DayRail.tsx`, sustituye render actual en `BitacoraCore.tsx`. `InteractiveTimeline.tsx` se deprecia.
-- Fase 4: refactor de `Hub.tsx`, reusa `MemberBubble`, agrupa por status.
-- Tokens nuevos en `src/index.css` y `tailwind.config.ts`.
-
----
-
-## Cómo procedemos
-
-Cuando aceptes este plan ejecuto **Fase 0 + Fase 1 en el primer turno** (acceso Comando + móvil bento, ambos cambios independientes y de bajo riesgo). Luego avanzamos una fase por turno con preview entre cada una. Si en cualquier punto algo no se siente bien, lo corregimos antes de seguir.
+- Super-admin nuevo ve el tour una sola vez; "Omitir" no lo vuelve a mostrar.
+- En `/comando` siempre hay un breadcrumb visible identificando la sección.
+- Al entrar a `/tasks` o `/mas` por primera vez en la sesión, el chip/hero "Comando" pulsa ~6s y luego se calma.
+- No afecta a usuarios que no son super-admin.

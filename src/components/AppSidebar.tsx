@@ -187,21 +187,7 @@ export function AppSidebar() {
 
         {/* Comando — chip destacado para super admin */}
         {isSuperAdmin && (
-          <div className="px-3 mb-1">
-            <Link
-              to="/comando"
-              className={`group relative flex items-center gap-2.5 rounded-lg px-3 h-10 text-sm font-semibold transition-all overflow-hidden ${
-                location.pathname.startsWith("/comando")
-                  ? "bg-foreground text-background"
-                  : "bg-accent/15 text-foreground border border-accent/30 hover:bg-accent/25"
-              }`}
-            >
-              <span className="absolute -right-6 -top-6 h-12 w-12 rounded-full bg-accent/30 blur-xl pointer-events-none" />
-              <Radar className="h-4 w-4 shrink-0 text-accent" />
-              <span className="flex-1">Comando</span>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-accent">LIVE</span>
-            </Link>
-          </div>
+          <CommandChip active={location.pathname.startsWith("/comando")} currentPath={location.pathname} />
         )}
 
         {/* Navigation */}
@@ -338,3 +324,42 @@ export function AppSidebar() {
     </>
   );
 }
+
+/** Chip "Comando" con halo pulsante temporal cuando entras a /tasks o /mas. */
+function CommandChip({ active, currentPath }: { active: boolean; currentPath: string }) {
+  const [highlight, setHighlight] = useState(false);
+
+  useEffect(() => {
+    const isHighlightRoute =
+      currentPath.startsWith("/tasks") || currentPath.startsWith("/mas");
+    if (!isHighlightRoute) return;
+    let key: string | null = null;
+    try {
+      key = `oasis.commandPulse.shown.${currentPath.startsWith("/tasks") ? "tasks" : "mas"}`;
+      if (sessionStorage.getItem(key) === "1") return;
+      sessionStorage.setItem(key, "1");
+    } catch {}
+    setHighlight(true);
+    const t = setTimeout(() => setHighlight(false), 6000);
+    return () => clearTimeout(t);
+  }, [currentPath]);
+
+  return (
+    <div className="px-3 mb-1">
+      <Link
+        to="/comando"
+        className={`group relative flex items-center gap-2.5 rounded-lg px-3 h-10 text-sm font-semibold transition-all overflow-hidden ${
+          active
+            ? "bg-foreground text-background"
+            : "bg-accent/15 text-foreground border border-accent/30 hover:bg-accent/25"
+        } ${highlight ? "ring-2 ring-accent/60 animate-pulse-halo" : ""}`}
+      >
+        <span className="absolute -right-6 -top-6 h-12 w-12 rounded-full bg-accent/30 blur-xl pointer-events-none" />
+        <Radar className="h-4 w-4 shrink-0 text-accent" />
+        <span className="flex-1">Comando</span>
+        <span className="text-[9px] font-bold uppercase tracking-widest text-accent">LIVE</span>
+      </Link>
+    </div>
+  );
+}
+
