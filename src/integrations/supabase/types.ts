@@ -881,6 +881,7 @@ export type Database = {
           agency_id: string | null
           available_hours_per_week: number | null
           avatar_url: string | null
+          bio: string | null
           created_at: string
           email: string | null
           id: string
@@ -889,12 +890,16 @@ export type Database = {
           income_target: number | null
           job_title: string | null
           name: string | null
+          notification_preferences: Json
           onboarded: boolean
           onboarding_skipped: boolean
+          phone: string | null
           plan: string
           profile_type: string | null
           role: Database["public"]["Enums"]["app_role"]
+          timezone: string
           updated_at: string
+          week_start_day: number
           work_days: string[]
           work_end_hour: number
           work_end_minute: number
@@ -905,6 +910,7 @@ export type Database = {
           agency_id?: string | null
           available_hours_per_week?: number | null
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email?: string | null
           id: string
@@ -913,12 +919,16 @@ export type Database = {
           income_target?: number | null
           job_title?: string | null
           name?: string | null
+          notification_preferences?: Json
           onboarded?: boolean
           onboarding_skipped?: boolean
+          phone?: string | null
           plan?: string
           profile_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          timezone?: string
           updated_at?: string
+          week_start_day?: number
           work_days?: string[]
           work_end_hour?: number
           work_end_minute?: number
@@ -929,6 +939,7 @@ export type Database = {
           agency_id?: string | null
           available_hours_per_week?: number | null
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -937,12 +948,16 @@ export type Database = {
           income_target?: number | null
           job_title?: string | null
           name?: string | null
+          notification_preferences?: Json
           onboarded?: boolean
           onboarding_skipped?: boolean
+          phone?: string | null
           plan?: string
           profile_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          timezone?: string
           updated_at?: string
+          week_start_day?: number
           work_days?: string[]
           work_end_hour?: number
           work_end_minute?: number
