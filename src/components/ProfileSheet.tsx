@@ -23,6 +23,8 @@ import { toast } from "sonner";
 import { MembersTab } from "@/components/settings/MembersTab";
 import { IdentitiesSection } from "@/components/profile/IdentitiesSection";
 import { SessionsSection } from "@/components/profile/SessionsSection";
+import { ActivityHistorySection } from "@/components/profile/ActivityHistorySection";
+import { logActivity } from "@/lib/activityLog";
 
 interface ProfileSheetProps {
   open: boolean;
