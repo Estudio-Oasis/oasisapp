@@ -146,7 +146,10 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     enabled: loaded && !!user,
     validate: (v) => (v.trim().length < 2 ? "Mínimo 2 caracteres" : v.trim().length > 60 ? "Máximo 60" : null),
     onSave: async (v) => {
-      const res = await updateProfile({ name: v.trim() });
+      const res = await updateProfile(
+        { name: v.trim() },
+        { category: "profile", action: "profile.name_updated", description: `Nombre actualizado a "${v.trim()}"` },
+      );
       if (!res.error) onProfileUpdated({ name: v.trim(), avatar_url: avatarUrl, job_title: jobTitle.trim() || null });
       return res;
     },
@@ -156,7 +159,10 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     enabled: loaded && !!user,
     validate: (v) => (v.length > 80 ? "Máximo 80" : null),
     onSave: async (v) => {
-      const res = await updateProfile({ job_title: v.trim() || null });
+      const res = await updateProfile(
+        { job_title: v.trim() || null },
+        { category: "profile", action: "profile.job_title_updated", description: `Puesto actualizado` },
+      );
       if (!res.error) onProfileUpdated({ name: name.trim(), avatar_url: avatarUrl, job_title: v.trim() || null });
       return res;
     },
@@ -165,39 +171,66 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
     value: phone,
     enabled: loaded && !!user,
     validate: (v) => (v && !/^[+0-9 ()-]{6,20}$/.test(v.trim()) ? "Teléfono inválido" : null),
-    onSave: (v) => updateProfile({ phone: v.trim() || null }),
+    onSave: (v) =>
+      updateProfile(
+        { phone: v.trim() || null },
+        { category: "profile", action: "profile.phone_updated", description: "Teléfono actualizado" },
+      ),
   });
   const bioSave = useAutosave({
     value: bio,
     enabled: loaded && !!user,
     validate: (v) => (v.length > 280 ? "Máximo 280" : null),
-    onSave: (v) => updateProfile({ bio: v.trim() || null }),
+    onSave: (v) =>
+      updateProfile(
+        { bio: v.trim() || null },
+        { category: "profile", action: "profile.bio_updated", description: "Bio actualizada" },
+      ),
   });
   const tzSave = useAutosave({
     value: timezone,
     enabled: loaded && !!user,
-    onSave: (v) => updateProfile({ timezone: v }),
+    onSave: (v) =>
+      updateProfile(
+        { timezone: v },
+        { category: "preferences", action: "preferences.timezone_updated", description: `Zona horaria: ${v}` },
+      ),
   });
   const weekSave = useAutosave({
     value: weekStart,
     enabled: loaded && !!user,
-    onSave: (v) => updateProfile({ week_start_day: v }),
+    onSave: (v) =>
+      updateProfile(
+        { week_start_day: v },
+        { category: "preferences", action: "preferences.week_start_updated", description: `Inicio de semana: ${v === 1 ? "lunes" : "domingo"}` },
+      ),
   });
   const prefsSave = useAutosave({
     value: prefs,
     enabled: loaded && !!user,
-    onSave: (v) => updateProfile({ notification_preferences: v }),
+    onSave: (v) =>
+      updateProfile(
+        { notification_preferences: v },
+        { category: "preferences", action: "preferences.notifications_updated", description: "Preferencias de notificaciones actualizadas" },
+      ),
   });
   const workSave = useAutosave({
     value: { workStartHour, workStartMinute, workEndHour, workEndMinute },
     enabled: loaded && !!user,
     onSave: (v) =>
-      updateProfile({
-        work_start_hour: v.workStartHour,
-        work_start_minute: v.workStartMinute,
-        work_end_hour: v.workEndHour,
-        work_end_minute: v.workEndMinute,
-      }),
+      updateProfile(
+        {
+          work_start_hour: v.workStartHour,
+          work_start_minute: v.workStartMinute,
+          work_end_hour: v.workEndHour,
+          work_end_minute: v.workEndMinute,
+        },
+        {
+          category: "preferences",
+          action: "preferences.work_hours_updated",
+          description: `Horario laboral: ${String(v.workStartHour).padStart(2, "0")}:${String(v.workStartMinute).padStart(2, "0")} – ${String(v.workEndHour).padStart(2, "0")}:${String(v.workEndMinute).padStart(2, "0")}`,
+        },
+      ),
   });
 
   // Load profile + auth metadata
