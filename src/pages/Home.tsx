@@ -170,12 +170,8 @@ export default function HomePage() {
 
   if (isMobile) return <MobileBentoHome />;
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Buenos días" : hour < 18 ? "Buenas tardes" : "Buenas noches";
-
-  return (
-    <div className="space-y-5 max-w-5xl mx-auto">
-      {/* Header */}
+  return <DesktopBentoHome onIdea={() => setIdeaRefresh(r => r + 1)} />;
+}
       <div className="space-y-2">
         <h1 className="text-2xl font-bold text-foreground">{greeting} 👋</h1>
         <DailyProgressBar />
