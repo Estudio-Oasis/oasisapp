@@ -4,9 +4,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
 import { usePlan } from "@/hooks/usePlan";
 import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   ListTodo, Users, FileText, DollarSign, Shield, Settings,
-  ChevronRight, Radar, BarChart3, MessageSquare, LogOut,
+  ChevronRight, Radar, LogOut,
 } from "lucide-react";
 
 interface ItemDef {
@@ -17,6 +18,7 @@ interface ItemDef {
   paidOnly?: boolean;
   adminOnly?: boolean;
   superAdminOnly?: boolean;
+  highlight?: boolean;
 }
 
 const sections: { title: string; items: ItemDef[] }[] = [
@@ -36,12 +38,6 @@ const sections: { title: string; items: ItemDef[] }[] = [
     ],
   },
   {
-    title: "Comando",
-    items: [
-      { to: "/comando", label: "Centro de comando", icon: Radar, desc: "Pulso en vivo de la organización", superAdminOnly: true },
-    ],
-  },
-  {
     title: "Cuenta",
     items: [
       { to: "/settings", label: "Ajustes", icon: Settings, desc: "Equipo, perfil, plan" },
@@ -53,17 +49,22 @@ export default function MasPage() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useRole();
   const { isFree } = usePlan();
+  const [loading, setLoading] = useState(true);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [profile, setProfile] = useState<{ name: string | null; email: string | null; avatar_url: string | null }>({
     name: null, email: null, avatar_url: null,
   });
 
   useEffect(() => {
-    if (!user) return;
-    supabase.from("profiles").select("name, email, avatar_url").eq("id", user.id).maybeSingle()
-      .then(({ data }) => data && setProfile(data));
-    supabase.from("super_admin_users" as any).select("id").eq("id", user.id).maybeSingle()
-      .then(({ data }) => setIsSuperAdmin(!!data));
+    if (!user) { setLoading(false); return; }
+    Promise.all([
+      supabase.from("profiles").select("name, email, avatar_url").eq("id", user.id).maybeSingle(),
+      supabase.from("super_admin_users" as any).select("id").eq("id", user.id).maybeSingle(),
+    ]).then(([prof, sa]) => {
+      if (prof.data) setProfile(prof.data as any);
+      setIsSuperAdmin(!!sa.data);
+      setLoading(false);
+    });
   }, [user?.id]);
 
 
@@ -72,51 +73,93 @@ export default function MasPage() {
       {/* Bold hero — v2 */}
       <div className="rounded-3xl border border-border/60 bg-gradient-to-br from-accent/15 via-accent/5 to-transparent p-5">
         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-accent">Más</p>
-        <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground leading-none">
-          {profile.name?.split(" ")[0] || "Hola"}
-        </h1>
-        <p className="mt-1.5 text-[12px] text-foreground-muted truncate">{profile.email}</p>
-        <Link to="/settings" className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-accent hover:underline underline-offset-2">
-          Ver perfil <ChevronRight className="h-3 w-3" />
-        </Link>
+        {loading ? (
+          <>
+            <Skeleton className="mt-2 h-8 w-32" />
+            <Skeleton className="mt-2 h-3 w-48" />
+            <Skeleton className="mt-3 h-4 w-20" />
+          </>
+        ) : (
+          <>
+            <h1 className="mt-1 text-3xl font-black tracking-tight text-foreground leading-none">
+              {profile.name?.split(" ")[0] || "Hola"}
+            </h1>
+            <p className="mt-1.5 text-[12px] text-foreground-muted truncate">{profile.email}</p>
+            <Link to="/settings" className="mt-3 inline-flex items-center gap-1.5 text-[12px] font-semibold text-accent hover:underline underline-offset-2">
+              Ver perfil <ChevronRight className="h-3 w-3" />
+            </Link>
+          </>
+        )}
       </div>
 
-      {sections.map((section) => {
-        const items = section.items.filter((i) => {
-          if (i.paidOnly && isFree) return false;
-          if (i.adminOnly && !isAdmin) return false;
-          if (i.superAdminOnly && !isSuperAdmin) return false;
-          return true;
-        });
-        if (items.length === 0) return null;
-        return (
-          <div key={section.title} className="space-y-2">
-            <p className="px-1 text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">
-              {section.title}
-            </p>
-            <div className="overflow-hidden rounded-2xl border border-border/60 bg-card divide-y divide-border/60">
-              {items.map((item) => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className="flex items-center gap-3 px-4 py-3 active:bg-muted/50 transition-colors"
-                >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted">
-                    <item.icon className="h-4 w-4 text-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">{item.label}</p>
-                    {item.desc && (
-                      <p className="text-[11px] text-foreground-muted truncate">{item.desc}</p>
-                    )}
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-foreground-muted" />
-                </Link>
-              ))}
-            </div>
+      {/* Comando — chip destacado super admin (mobile) */}
+      {!loading && isSuperAdmin && (
+        <Link
+          to="/comando"
+          className="relative overflow-hidden flex items-center gap-3 rounded-2xl bg-foreground text-background p-4 active:scale-[0.99] transition-transform shadow-sm"
+        >
+          <span className="absolute -right-8 -top-10 h-24 w-24 rounded-full bg-accent/40 blur-2xl pointer-events-none" />
+          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-accent">
+            <Radar className="h-4 w-4 text-accent-foreground" />
           </div>
-        );
-      })}
+          <div className="relative flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-bold">Centro de comando</p>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-accent">LIVE</span>
+            </div>
+            <p className="text-[11px] text-background/60 truncate">Pulso de toda la organización</p>
+          </div>
+          <ChevronRight className="relative h-4 w-4 text-background/60" />
+        </Link>
+      )}
+
+      {loading ? (
+        <div className="space-y-5">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="space-y-2">
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-[140px] w-full rounded-2xl" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        sections.map((section) => {
+          const items = section.items.filter((i) => {
+            if (i.paidOnly && isFree) return false;
+            if (i.adminOnly && !isAdmin) return false;
+            if (i.superAdminOnly && !isSuperAdmin) return false;
+            return true;
+          });
+          if (items.length === 0) return null;
+          return (
+            <div key={section.title} className="space-y-2">
+              <p className="px-1 text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">
+                {section.title}
+              </p>
+              <div className="overflow-hidden rounded-2xl border border-border/60 bg-card divide-y divide-border/60">
+                {items.map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className="flex items-center gap-3 px-4 py-3 active:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted">
+                      <item.icon className="h-4 w-4 text-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{item.label}</p>
+                      {item.desc && (
+                        <p className="text-[11px] text-foreground-muted truncate">{item.desc}</p>
+                      )}
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-foreground-muted" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          );
+        })
+      )}
 
       <button
         onClick={() => void signOut()}
