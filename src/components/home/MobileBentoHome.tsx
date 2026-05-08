@@ -54,7 +54,7 @@ function useDayData() {
         .order("due_date", { ascending: true, nullsFirst: false })
         .limit(1),
       supabase.from("member_presence")
-        .select("user_id, status, last_seen_at, current_activity, profiles(name)"),
+        .select("user_id, status, last_seen_at, current_task, current_client"),
     ]);
 
     const list = entries.data || [];
@@ -111,6 +111,14 @@ function useDayData() {
       now - new Date(p.last_seen_at).getTime() < 2 * 60 * 1000
     );
 
+    // Resolve names for active members in parallel
+    const activeIds = activeList.map((p: any) => p.user_id);
+    const profilesRes = activeIds.length
+      ? await supabase.from("profiles").select("id, name").in("id", activeIds)
+      : { data: [] as any[] };
+    const nameById = new Map<string, string>();
+    (profilesRes.data || []).forEach((p: any) => nameById.set(p.id, p.name || ""));
+
     const topClients = [...byClient.entries()]
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
@@ -123,8 +131,8 @@ function useDayData() {
       nextTask: t ? { title: t.title, client: t.clients?.name || null } : null,
       activeMembers: activeList.length,
       topMembers: activeList.slice(0, 3).map((p: any) => ({
-        name: (p.profiles?.name || "").split(" ")[0] || "Miembro",
-        clientName: p.current_activity || null,
+        name: (nameById.get(p.user_id) || "").split(" ")[0] || "Miembro",
+        clientName: p.current_task || p.current_client || null,
       })),
       gapMin,
       gapStart,
