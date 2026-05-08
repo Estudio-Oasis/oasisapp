@@ -1,47 +1,54 @@
-import { Timer, Users, DollarSign, Shield, Home, Settings } from "lucide-react";
+import { Timer, Users, Home, MoreHorizontal, Radio } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useRole } from "@/hooks/useRole";
 import { usePlan } from "@/hooks/usePlan";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { TranslationKey } from "@/lib/translations";
 
-const allNavItems = [
-  { titleKey: "nav.home" as TranslationKey, url: "/home", icon: Home },
-  { titleKey: "nav.bitacora" as TranslationKey, url: "/bitacora", icon: Timer },
-  { titleKey: "nav.clients" as TranslationKey, url: "/clients", icon: Users, paidOnly: true },
-  { titleKey: "nav.vault" as TranslationKey, url: "/vault", icon: Shield, paidOnly: true },
-  { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true, paidOnly: true },
-  { titleKey: "nav.settings" as TranslationKey, url: "/settings", icon: Settings, freeOnly: true },
+interface NavItem {
+  titleKey: TranslationKey;
+  fallback: string;
+  url: string;
+  icon: any;
+  paidOnly?: boolean;
+  freeOnly?: boolean;
+}
+
+const allNavItems: NavItem[] = [
+  { titleKey: "nav.home" as TranslationKey, fallback: "Inicio", url: "/home", icon: Home },
+  { titleKey: "nav.bitacora" as TranslationKey, fallback: "Bitácora", url: "/bitacora", icon: Timer },
+  { titleKey: "nav.hub" as TranslationKey, fallback: "Hub", url: "/hub", icon: Radio, paidOnly: true },
+  { titleKey: "nav.more" as TranslationKey, fallback: "Más", url: "/mas", icon: MoreHorizontal },
 ];
 
 export function BottomNav() {
   const location = useLocation();
-  const { isAdmin } = useRole();
   const { isFree } = usePlan();
   const { t } = useLanguage();
 
   const navItems = allNavItems.filter((item) => {
-    if (item.adminOnly && !isAdmin) return false;
     if (item.paidOnly && isFree) return false;
     if (item.freeOnly && !isFree) return false;
     return true;
   });
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-sm md:hidden safe-area-bottom">
-      <div className="flex h-[48px] items-center justify-around px-8">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-md md:hidden safe-area-bottom">
+      <div className="flex h-[56px] items-center justify-around px-4">
         {navItems.map((item) => {
           const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + "/");
+          const label = (() => {
+            try { const v = t(item.titleKey); return v && v !== item.titleKey ? v : item.fallback; } catch { return item.fallback; }
+          })();
           return (
             <Link
-              key={item.titleKey}
+              key={item.url}
               to={item.url}
-              className={`flex min-h-[44px] flex-col items-center justify-center gap-0.5 px-5 transition-colors ${
-                isActive ? "text-accent" : "text-foreground-muted"
+              className={`flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 transition-colors ${
+                isActive ? "text-foreground" : "text-foreground-muted"
               }`}
             >
-              <item.icon className="h-[18px] w-[18px]" strokeWidth={isActive ? 2.5 : 1.8} />
-              <span className="text-[9px] font-medium leading-none">{t(item.titleKey)}</span>
+              <item.icon className="h-[20px] w-[20px]" strokeWidth={isActive ? 2.4 : 1.8} />
+              <span className="text-[10px] font-medium leading-none">{label}</span>
             </Link>
           );
         })}
