@@ -50,6 +50,7 @@ import OasisOSPage from "./pages/OasisOS";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
 import JoinWorkspace from "./pages/JoinWorkspace";
 import ComandoPage from "./pages/Comando";
+import MasPage from "./pages/Mas";
 const queryClient = new QueryClient();
 
 const App = () => (
