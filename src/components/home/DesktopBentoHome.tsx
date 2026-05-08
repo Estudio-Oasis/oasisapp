@@ -187,8 +187,10 @@ export function DesktopBentoHome({ onIdea }: { onIdea?: () => void }) {
             <h1 className="mt-1.5 text-4xl lg:text-5xl font-bold leading-tight">
               {greeting}{name ? `, ${name}` : ""}
             </h1>
-            <p className="mt-3 text-base opacity-90 max-w-lg">
-              {data.minutesToday > 0
+            <p className="mt-3 text-base opacity-90 max-w-lg min-h-[24px]">
+              {data.loading ? (
+                <Skeleton className="h-5 w-72 bg-accent-foreground/20" />
+              ) : data.minutesToday > 0
                 ? <>Llevas <span className="font-bold tabular-nums">{formatDuration(data.minutesToday)}</span> registradas hoy · <span className="font-bold tabular-nums">{billablePct}%</span> facturable</>
                 : "Sin actividad registrada todavía. Empieza el día."}
             </p>
