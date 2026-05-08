@@ -1,7 +1,6 @@
 import { Zap, ChevronRight, Play } from "lucide-react";
 import { UI_COPY } from "./ActivityConstants";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { formatDuration } from "@/lib/timer-utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface QuickLogInputProps {

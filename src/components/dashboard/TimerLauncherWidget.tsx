@@ -9,7 +9,7 @@ import { formatElapsed, getClientColor } from "@/lib/timer-utils";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
-  Timer, Play, Search, Plus, Clock, ChevronDown, ChevronUp,
+  Timer, Play, Search, Plus, Clock,
   Coffee, ArrowRightLeft, StickyNote, Lightbulb, X, Loader2,
 } from "lucide-react";
 import { QuickSheet } from "@/components/timer/QuickSheet";

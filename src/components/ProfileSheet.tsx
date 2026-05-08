@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Loader2, Users, Sun, Moon, Monitor, UserPlus, Clock, RotateCw, X, Camera, Briefcase } from "lucide-react";
+import { LogOut, Loader2, Users, Sun, Moon, Monitor, UserPlus, Clock, RotateCw, X, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { getClientColor } from "@/lib/timer-utils";
 import { InviteMemberModal } from "@/components/InviteMemberModal";

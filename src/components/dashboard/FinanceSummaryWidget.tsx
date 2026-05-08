@@ -1,9 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { WidgetCard } from "@/components/ui/widget-card";
-import { DollarSign, TrendingUp, AlertCircle, ChevronRight } from "lucide-react";
+import { DollarSign, TrendingUp, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getClientColor } from "@/lib/timer-utils";
 
 interface PaymentMin {
   id: string;

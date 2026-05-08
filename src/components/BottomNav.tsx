@@ -1,4 +1,4 @@
-import { Timer, Users, Home, MoreHorizontal, Radio } from "lucide-react";
+import { Timer, Home, MoreHorizontal, Radio } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { usePlan } from "@/hooks/usePlan";
 import { useLanguage } from "@/contexts/LanguageContext";

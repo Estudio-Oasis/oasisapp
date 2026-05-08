@@ -155,7 +155,7 @@ export function StartTimerModal({
       return;
     }
     const timer = setTimeout(() => {
-      let pool = allTasks;
+      const pool = allTasks;
       if (selectedClientId) {
         // Prioritize client tasks first, then others
         const clientTasks = pool.filter((t) => t.client_id === selectedClientId && t.title.toLowerCase().includes(query));

@@ -8,7 +8,6 @@ import { EmptyState } from "@/components/timer/EmptyState";
 import { QuickLogInput } from "@/components/timer/QuickLogInput";
 import { RecentsPanel, type RecentItem } from "@/components/timer/RecentsPanel";
 import { ContextBadge } from "@/components/timer/ContextBadge";
-import { ActivityTypeSelector } from "@/components/timer/ActivityTypeSelector";
 import { UI_COPY } from "@/components/timer/ActivityConstants";
 import { formatDateLong, formatDuration } from "@/lib/timer-utils";
 import { Button } from "@/components/ui/button";

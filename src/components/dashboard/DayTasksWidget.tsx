@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { getClientColor } from "@/lib/timer-utils";
 import { toast } from "sonner";
 import {
-  CheckSquare, Plus, Zap, CalendarPlus, ChevronRight, X,
+  CheckSquare, Plus, Zap, CalendarPlus, X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Tables } from "@/integrations/supabase/types";

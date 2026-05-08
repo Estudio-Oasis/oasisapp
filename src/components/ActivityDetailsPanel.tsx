@@ -6,7 +6,6 @@ import {
   Plus,
   DollarSign,
   FileText,
-  X,
 } from "lucide-react";
 import { getClientColor } from "@/lib/timer-utils";
 import { toast } from "sonner";

@@ -12,7 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Plus, Search, Users, ChevronRight, Building2, TrendingUp, AlertTriangle, MoreHorizontal, Trash2, Archive } from "lucide-react";
 import { getClientColor } from "@/lib/timer-utils";
 import { formatDuration } from "@/lib/timer-utils";
-import { getCompletenessLevel, type CompletenessLevel } from "@/lib/clientCompleteness";
+import { getCompletenessLevel } from "@/lib/clientCompleteness";
 import { NewClientModal } from "@/components/NewClientModal";
 import { toast } from "sonner";
 

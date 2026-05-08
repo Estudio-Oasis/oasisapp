@@ -13,7 +13,7 @@ import { usePlan } from "@/hooks/usePlan";
 import { useSubscription } from "@/hooks/useSubscription";
 import { STRIPE_PLANS } from "@/lib/stripe-plans";
 import { toast } from "sonner";
-import { CheckCircle2, Crown, ExternalLink } from "lucide-react";
+import { Crown, ExternalLink } from "lucide-react";
 
 export interface Agency {
   id: string;

@@ -4,7 +4,7 @@ import { useTimer } from "@/contexts/TimerContext";
 import { formatDuration, getClientColor } from "@/lib/timer-utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Play, Clock, TrendingUp, Briefcase } from "lucide-react";
+import { Play } from "lucide-react";
 import { BitacoraQuickSheet } from "@/modules/bitacora/BitacoraQuickSheet";
 
 /**
