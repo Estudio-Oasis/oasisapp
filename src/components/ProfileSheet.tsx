@@ -687,6 +687,12 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
               <div className="h-6" />
             </TabsContent>
 
+            {/* ACTIVIDAD */}
+            <TabsContent value="activity" className="mt-5">
+              <ActivityHistorySection />
+              <div className="h-6" />
+            </TabsContent>
+
             {/* EQUIPO */}
             {isAdmin && (
               <TabsContent value="team" className="mt-5">
