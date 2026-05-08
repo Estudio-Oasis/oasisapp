@@ -10,6 +10,7 @@ import { TaskDetailPanel } from "@/components/TaskDetailPanel";
 import { QuickSheet } from "@/components/timer/QuickSheet";
 import { getClientColor, formatDuration } from "@/lib/timer-utils";
 import { CheckSquare, List, LayoutGrid, GanttChart, Zap, Plus, AlertTriangle, Clock, CheckCircle2, Inbox, Eye } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TaskGanttView } from "@/components/tasks/TaskGanttView";
 import { TaskKanbanView } from "@/components/tasks/TaskKanbanView";
 import type { Tables } from "@/integrations/supabase/types";
@@ -254,13 +255,22 @@ export default function TasksPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-accent">Tareas · v2</p>
-            <h1 className="mt-1 text-4xl sm:text-5xl font-black tracking-tight text-foreground leading-none">
-              {totalActive} <span className="text-foreground-muted font-bold">activas</span>
-            </h1>
-            <p className="mt-2 text-sm text-foreground-secondary">
-              {dueToday > 0 ? <><span className="font-semibold text-foreground">{dueToday}</span> vencen hoy · </> : null}
-              {overdueCount > 0 ? <span className="text-destructive font-semibold">{overdueCount} atrasadas</span> : <span>Sin retrasos</span>}
-            </p>
+            {loading ? (
+              <>
+                <Skeleton className="mt-2 h-12 w-44" />
+                <Skeleton className="mt-3 h-4 w-56" />
+              </>
+            ) : (
+              <>
+                <h1 className="mt-1 text-4xl sm:text-5xl font-black tracking-tight text-foreground leading-none">
+                  {totalActive} <span className="text-foreground-muted font-bold">activas</span>
+                </h1>
+                <p className="mt-2 text-sm text-foreground-secondary">
+                  {dueToday > 0 ? <><span className="font-semibold text-foreground">{dueToday}</span> vencen hoy · </> : null}
+                  {overdueCount > 0 ? <span className="text-destructive font-semibold">{overdueCount} atrasadas</span> : <span>Sin retrasos</span>}
+                </p>
+              </>
+            )}
           </div>
           <Button data-tour="new-task-btn" size="lg" className="shrink-0 rounded-xl" onClick={() => { setNewTaskPrefillStatus(undefined); setNewTaskOpen(true); }}>
             <Plus className="h-4 w-4" /> {t("tasks.newTask")}
