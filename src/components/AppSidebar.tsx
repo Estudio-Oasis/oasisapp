@@ -225,10 +225,8 @@ export function AppSidebar() {
           <NotificationBell />
         </div>
 
-        {/* Timer widget */}
-        <div data-tour="start-timer-btn">
-          <TimerWidget />
-        </div>
+        {/* Timer slot — bold v2 unified launcher */}
+        <SidebarTimerSlot />
 
         {/* Onboarding checklist */}
         {profile && !profile.onboarded && !showWizard && (
