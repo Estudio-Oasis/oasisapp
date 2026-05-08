@@ -1,113 +1,87 @@
-## Análisis: limpieza de código y duplicados
 
-He auditado los 41,121 LOC del proyecto (51 componentes raíz, 37 páginas, 12 hooks, ~30 componentes shadcn/ui). Estos son los hallazgos y el plan de limpieza.
+# Perfil completo — estándar moderno (Linear / Notion / Vercel)
 
----
+Hoy `ProfileSheet` solo permite editar nombre, foto, puesto y contraseña. Falta lo básico: email, idioma, tema, zona horaria, notificaciones, sesión activa y eliminar cuenta. Vamos a convertirlo en un panel profesional, organizado por secciones colapsadas tipo acordeón/tabs.
 
-### 1. Archivos huérfanos (sin imports en ningún sitio)
+## Estructura nueva (3 pestañas dentro del Sheet)
 
-**Componentes producto (8):**
-- `src/components/NavLink.tsx` — reemplazado por `<Link>` directo
-- `src/components/TimerWidget.tsx` — sustituido por `SidebarTimerSlot` + `TimerLauncherWidget`
-- `src/components/bitacora/InteractiveTimeline.tsx` — sustituido por `timer/DayTimeline`
-- `src/components/dashboard/ShortcutsWidget.tsx` — quitado del bento home
-- `src/components/hub/MemberBubble.tsx` — Hub usa cards ahora
-- `src/components/timer/InlineContextChips.tsx` — duplicado de `modules/bitacora/BitacoraInlineChips`
-- `src/modules/bitacora/BitacoraInlineChips.tsx` — sin consumidores
-- `src/modules/bitacora/demo/TrackDayHint.tsx` — quitado de demo
+```
+Mi perfil
+├─ Cuenta         ← personal, identidad
+├─ Preferencias   ← idioma, tema, horario, notificaciones
+└─ Equipo         ← (solo admin) miembros + invitaciones
+```
 
-**Página muerta:**
-- `src/pages/Index.tsx` — placeholder "Welcome to Your Blank App", no enrutado
-- `src/pages/Timer.tsx` — `/timer` ahora redirige a `/bitacora` con `<Navigate>`; el `import TimerPage from "./pages/Timer"` en `App.tsx` es código muerto
+Footer fijo: "Cerrar sesión" y "Eliminar cuenta" (zona peligro colapsada).
 
-**Hook muerto:**
-- `src/hooks/useActivityTracking.ts`
+## Tab 1 — Cuenta
 
-**Lib muerto:**
-- `src/lib/plan-limits.ts` (la lógica vive en `usePlan`/`stripe-plans`)
+- **Avatar** con upload (ya existe) + botón "Quitar foto".
+- **Nombre completo** (ya existe).
+- **Puesto / Rol funcional** (ya existe).
+- **Email** ✱ nuevo — editable con `supabase.auth.updateUser({ email })`. Muestra estado: "Verificado" o "Pendiente de verificar". Banner de aviso de que se enviará correo de confirmación al nuevo email.
+- **Teléfono** ✱ nuevo (opcional, columna `profiles.phone` si existe; si no, lo añadimos a profiles).
+- **Bio corta** ✱ nuevo (opcional, `profiles.bio` text, máx 160 chars).
+- **Cambiar contraseña** (ya existe) en sub-bloque colapsable.
+- **Info read-only**: ID de usuario, fecha de creación de cuenta, último login, agencia a la que pertenece.
 
-**Componentes UI shadcn no usados (19):**
-`accordion`, `aspect-ratio`, `breadcrumb`, `calendar`, `carousel`, `chart`, `checkbox`, `collapsible`, `command`, `context-menu`, `form`, `hover-card`, `input-otp`, `menubar`, `navigation-menu`, `pagination`, `radio-group`, `resizable`, `scroll-area`, `toggle-group`
+## Tab 2 — Preferencias
 
-(Boilerplate de shadcn que nunca se importó. Se borra el `.tsx` y la dependencia `@radix-ui/react-*` correspondiente del `package.json`.)
+- **Idioma** — selector ES / EN (ya hay `LanguageContext`, conectarlo aquí).
+- **Tema** — Sistema / Claro / Oscuro con `next-themes` (ya importado, falta exponer UI).
+- **Zona horaria** — select con detección automática de `Intl.DateTimeFormat().resolvedOptions().timeZone`, guardar en `profiles.timezone`.
+- **Horario de trabajo** (ya existe — moverlo aquí).
+- **Notificaciones** — switches:
+  - Email: resúmenes diarios, menciones en chat, recordatorios de tareas, novedades del producto.
+  - In-app: bell de notificaciones, sonidos.
+  Guardar en `profiles.notification_preferences jsonb`.
+- **Inicio de semana** — Lunes / Domingo.
 
-**Test setup huérfano:**
-- `src/test/setup.ts` está referenciado por `vitest.config.ts` pero el único test (`src/test/example.test.ts`) no necesita matchers DOM. Mantener si vamos a escribir tests; documentar. **Acción:** mantener.
+## Tab 3 — Equipo (admin)
 
----
+(Mantener lo que ya existe: invitaciones pendientes, miembros, toggle rol).
 
-### 2. Duplicados funcionales (consolidar)
+## Zona de peligro (footer colapsable)
 
-| Capa | Duplicado | Canónico | Acción |
-|---|---|---|---|
-| Timer launcher | `TimerWidget.tsx` | `SidebarTimerSlot` + `dashboard/TimerLauncherWidget` | borrar `TimerWidget` |
-| Inline chips | `timer/InlineContextChips` + `modules/bitacora/BitacoraInlineChips` | ninguno consumido | borrar ambos |
-| Timeline | `bitacora/InteractiveTimeline` | `timer/DayTimeline` | borrar `InteractiveTimeline` |
-| `/timer` route | `pages/Timer.tsx` | redirect a `/bitacora` | borrar página + import |
-| Landing/Index | `pages/Index.tsx` | `pages/Landing.tsx` | borrar `Index.tsx` |
+- **Cerrar sesión** (ya existe).
+- **Cerrar sesión en todos los dispositivos** — `supabase.auth.signOut({ scope: 'global' })`.
+- **Eliminar cuenta** — modal de confirmación pidiendo escribir el email para confirmar. Llama edge function `delete-account` (a crear) que:
+  1. Verifica que el usuario no sea único admin de la agencia (si lo es, bloquear con instrucción de transferir o eliminar agencia primero).
+  2. Borra `profiles` (cascade hace el resto).
+  3. Borra `auth.users` con service role.
 
-**No tocar (parecen duplicados, pero no lo son):**
-- `TimerFAB` (FAB móvil) ≠ `SidebarTimerSlot` (sidebar desktop) ≠ `TimerLauncherWidget` (widget Home). Tres contextos legítimos.
-- `StartTimerModal` ≠ `QuickSheet` (uno es modal de start, otro hoja inferior móvil).
-- `HelpFAB`/`HelpDrawer` ≠ `RogerContactFab` (último vive solo en `/roger`).
+## Cambios técnicos
 
----
+### 1. Migración DB
+Añadir a `profiles`:
+- `phone text`
+- `bio text`
+- `timezone text default 'America/Mexico_City'`
+- `notification_preferences jsonb default '{"email_daily_summary":true,"email_mentions":true,"email_task_reminders":true,"email_product_updates":false,"inapp_sounds":true}'`
+- `week_start_day int default 1` (1=lunes, 0=domingo)
 
-### 3. Premortem — qué podría romper
+### 2. Edge function `delete-account`
+Nueva función con `verify_jwt = true` que recibe confirmación, valida sole-admin, borra profile y user.
+
+### 3. Componentes
+- Refactor `ProfileSheet.tsx` para usar `<Tabs>` (ya existe en shadcn).
+- Sub-componentes nuevos: `ProfileTabAccount.tsx`, `ProfileTabPreferences.tsx`, `ProfileTabTeam.tsx`, `DangerZone.tsx`, `ChangeEmailDialog.tsx`, `DeleteAccountDialog.tsx`.
+- Ancho del Sheet: pasar de 380px a 480px en desktop (mantener 100% en móvil).
+
+### 4. Dependencias frontend
+Reusar `Tabs`, `Switch`, `Select`, `Dialog` (todos ya en el proyecto). Sin paquetes nuevos.
+
+## Premortem (puntos a vigilar)
 
 | Riesgo | Mitigación |
 |---|---|
-| Borro un UI shadcn que `lovable-tagger`/algún componente nuevo usará luego | Solo borro los que `rg` confirma 0 imports hoy. Reinstalable con `bun add`. |
-| `plan-limits.ts` tiene lógica única no migrada | Verificar `rg` antes de borrar; si hay referencia indirecta, abortar ese archivo. |
-| `pages/Timer.tsx` aún linkado por algún botón o `navigate("/timer")` | La ruta `/timer` se mantiene como redirect; solo borro el archivo y el import. |
-| Tests rompen | Solo hay `example.test.ts`; no toca lo borrado. |
-| Build falla por dep removida que algún UI sí usa | Por cada `@radix-ui/react-*` borrado, ejecutar `rg "@radix-ui/react-X"` antes. |
+| Cambio de email rompe sesión activa | Usar flow estándar de Supabase: confirma desde correo, mantiene sesión. Mostrar mensaje "Revisa tu bandeja". |
+| Único admin se elimina y agencia queda huérfana | Edge function bloquea con error claro. |
+| Toggle de notificaciones sin backend que las consuma | Guardar preferencias ahora; los edge functions de email respetan el flag (`process-email-queue` ya filtra por `unsubscribes` — extender a `notification_preferences`). |
+| Tabs largos en móvil | Sheet con scroll vertical interno por tab. |
 
----
+## Resultado visible
 
-### 4. QA post-limpieza
+El usuario abre "Mi perfil" y encuentra un panel profesional con 3 pestañas. Puede cambiar email, idioma, tema, zona horaria, horario, notificaciones, cerrar sesión global y eliminar cuenta. Equiparable a Linear/Notion.
 
-1. `bun run build` (lo dispara la harness automáticamente).
-2. Smoke en preview: `/`, `/home`, `/bitacora`, `/tasks`, `/hub`, `/clients`, `/finances`, `/settings`, `/comando`, `/timer` (debe redirigir).
-3. Confirmar que sidebar, timer FAB móvil y bento Home siguen renderizando.
-
----
-
-### 5. Plan de cambios
-
-**Fase A — borrar archivos huérfanos (sin tocar imports porque no existen):**
-```
-src/components/NavLink.tsx
-src/components/TimerWidget.tsx
-src/components/bitacora/InteractiveTimeline.tsx
-src/components/dashboard/ShortcutsWidget.tsx
-src/components/hub/MemberBubble.tsx
-src/components/timer/InlineContextChips.tsx
-src/modules/bitacora/BitacoraInlineChips.tsx
-src/modules/bitacora/demo/TrackDayHint.tsx
-src/hooks/useActivityTracking.ts
-src/lib/plan-limits.ts
-src/pages/Index.tsx
-```
-
-**Fase B — borrar `pages/Timer.tsx` + quitar su import en `src/App.tsx`** (ruta `/timer` ya es `<Navigate to="/bitacora">`).
-
-**Fase C — borrar shadcn no usados:**
-```
-src/components/ui/{accordion,aspect-ratio,breadcrumb,calendar,carousel,chart,
-  checkbox,collapsible,command,context-menu,form,hover-card,input-otp,menubar,
-  navigation-menu,pagination,radio-group,resizable,scroll-area,toggle-group}.tsx
-```
-Y `bun remove` de los `@radix-ui/react-*` huérfanos correspondientes + `cmdk`, `embla-carousel-react`, `input-otp`, `react-day-picker`, `react-resizable-panels`, `recharts` (si confirmo 0 imports en Fase C).
-
-**Fase D — verificar:** build limpio + smoke routes.
-
----
-
-### Resultado esperado
-- ~30 archivos borrados (~3,500–4,500 LOC menos).
-- ~10–12 dependencias menos en `package.json`.
-- Cero cambios funcionales para el usuario.
-- Sidebar, Home bento, Bitácora, Hub, Tasks intactos.
-
-¿Procedo con las 4 fases o prefieres que omita la **Fase C** (shadcn UI) por seguridad?
+¿Apruebas el plan o quieres ajustar alcance (p.ej. omitir eliminar cuenta o teléfono/bio en esta iteración)?
