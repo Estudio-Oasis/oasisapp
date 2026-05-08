@@ -125,8 +125,19 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
   }, [profile]);
 
   // ---------- Field-level autosave on profiles ----------
-  const updateProfile = async (patch: Record<string, any>) => {
+  const updateProfile = async (
+    patch: Record<string, any>,
+    log?: { category: "profile" | "preferences"; action: string; description: string },
+  ) => {
     const { error } = await supabase.from("profiles").update(patch as any).eq("id", user?.id ?? "");
+    if (!error && log) {
+      void logActivity({
+        category: log.category,
+        action: log.action,
+        description: log.description,
+        metadata: { fields: Object.keys(patch) },
+      });
+    }
     return { error: error ? { message: error.message } : null };
   };
 
