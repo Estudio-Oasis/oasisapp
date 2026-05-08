@@ -21,7 +21,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import BitacoraPage from "./pages/Bitacora";
 import BitacoraDemo from "./pages/BitacoraDemo";
-import TimerPage from "./pages/Timer";
+
 import SetupPage from "./pages/Setup";
 import ClientsPage from "./pages/Clients";
 import ClientProfilePage from "./pages/ClientProfile";

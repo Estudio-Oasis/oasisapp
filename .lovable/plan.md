@@ -1,57 +1,113 @@
-## Objetivo
+## Análisis: limpieza de código y duplicados
 
-Hacer descubrible el Centro de Comando para super-admins con tres ayudas visuales: tour inicial, breadcrumb persistente y pulso de atención.
+He auditado los 41,121 LOC del proyecto (51 componentes raíz, 37 páginas, 12 hooks, ~30 componentes shadcn/ui). Estos son los hallazgos y el plan de limpieza.
 
-## 1. Mini-tour de primera vez (super-admin)
+---
 
-Nuevo componente `src/components/comando/CommandCenterTour.tsx`:
-- Overlay ligero (no bloqueante) con 2-3 tarjetas paso a paso usando `Popover`/posicionamiento absoluto.
-- Pasos:
-  1. **Desktop**: apunta al chip "Comando" en la parte superior del sidebar (halo ámbar + flecha).
-  2. **Móvil**: apunta a la tarjeta hero "Centro de comando" en `/mas`.
-  3. Cierre con CTA "Ir a Comando" o "Omitir".
-- Detecta viewport (`md:` breakpoint) para mostrar solo el paso relevante al dispositivo actual; desktop muestra ambos por contexto.
-- Persistencia: `localStorage["oasis.commandTour.dismissed"] = "1"` al pulsar **Omitir** o **Entendido**. No vuelve a mostrarse.
-- Trigger: se monta en `AppLayout` y se renderiza solo si `isSuperAdmin && !dismissed && !location.pathname.startsWith("/comando")`. Aparece a los ~1.5s tras el primer login (delay para no chocar con otros toasts).
+### 1. Archivos huérfanos (sin imports en ningún sitio)
 
-Hook `useCommandTour()` que expone `{ shouldShow, dismiss, isSuperAdmin }`. Reusa la consulta `super_admin_users` ya cacheada.
+**Componentes producto (8):**
+- `src/components/NavLink.tsx` — reemplazado por `<Link>` directo
+- `src/components/TimerWidget.tsx` — sustituido por `SidebarTimerSlot` + `TimerLauncherWidget`
+- `src/components/bitacora/InteractiveTimeline.tsx` — sustituido por `timer/DayTimeline`
+- `src/components/dashboard/ShortcutsWidget.tsx` — quitado del bento home
+- `src/components/hub/MemberBubble.tsx` — Hub usa cards ahora
+- `src/components/timer/InlineContextChips.tsx` — duplicado de `modules/bitacora/BitacoraInlineChips`
+- `src/modules/bitacora/BitacoraInlineChips.tsx` — sin consumidores
+- `src/modules/bitacora/demo/TrackDayHint.tsx` — quitado de demo
 
-## 2. Breadcrumb visible en /comando
+**Página muerta:**
+- `src/pages/Index.tsx` — placeholder "Welcome to Your Blank App", no enrutado
+- `src/pages/Timer.tsx` — `/timer` ahora redirige a `/bitacora` con `<Navigate>`; el `import TimerPage from "./pages/Timer"` en `App.tsx` es código muerto
 
-En `AppLayout.tsx`:
-- Añadir un sub-header compacto (alto ~36px, fondo `bg-muted/40`, borde inferior) que se renderiza **solo cuando** `location.pathname.startsWith("/comando")`.
-- Contenido: `Radar` icon ámbar + `Inicio › Centro de Comando` + badge "LIVE" (pulse dot ámbar). Link `Inicio` vuelve a `/`.
-- Visible tanto en desktop como móvil (sustituye el header compacto móvil cuando aplica para no duplicar).
+**Hook muerto:**
+- `src/hooks/useActivityTracking.ts`
 
-## 3. Pulso/halo temporal en el chip "Comando"
+**Lib muerto:**
+- `src/lib/plan-limits.ts` (la lógica vive en `usePlan`/`stripe-plans`)
 
-- En `AppSidebar.tsx` (chip desktop) y `Mas.tsx` (hero móvil): añadir clase condicional `animate-pulse-halo` durante los primeros **6 segundos** al montar la ruta `/tasks` o `/mas`.
-- Implementación: `useEffect` con `setTimeout(6000)` que togglea un estado `highlight`. Solo se activa una vez por sesión (`sessionStorage["oasis.commandPulse.shown"]`).
-- Halo: ring ámbar `ring-2 ring-accent/60` + sombra animada (`shadow-[0_0_24px_hsl(var(--accent)/0.5)]`) con keyframe `pulse-halo` añadido a `tailwind.config.ts`.
-- Si el usuario ya hizo dismiss del tour, igual mantenemos el pulso (refuerzo pasivo).
+**Componentes UI shadcn no usados (19):**
+`accordion`, `aspect-ratio`, `breadcrumb`, `calendar`, `carousel`, `chart`, `checkbox`, `collapsible`, `command`, `context-menu`, `form`, `hover-card`, `input-otp`, `menubar`, `navigation-menu`, `pagination`, `radio-group`, `resizable`, `scroll-area`, `toggle-group`
 
-## Detalles técnicos
+(Boilerplate de shadcn que nunca se importó. Se borra el `.tsx` y la dependencia `@radix-ui/react-*` correspondiente del `package.json`.)
 
-- Animación nueva en `tailwind.config.ts`:
-  ```text
-  keyframes: pulse-halo { 0%,100%: ring-opacity .3 ; 50%: ring-opacity .8 + shadow expand }
-  animation: pulse-halo: pulse-halo 1.6s ease-in-out infinite
-  ```
-- Sin cambios de DB ni de lógica de negocio. Todo presentación/UI.
-- Sin nuevas dependencias.
+**Test setup huérfano:**
+- `src/test/setup.ts` está referenciado por `vitest.config.ts` pero el único test (`src/test/example.test.ts`) no necesita matchers DOM. Mantener si vamos a escribir tests; documentar. **Acción:** mantener.
 
-## Archivos a modificar/crear
+---
 
-- `src/components/comando/CommandCenterTour.tsx` (nuevo)
-- `src/hooks/useCommandTour.ts` (nuevo)
-- `src/components/AppLayout.tsx` (sub-header breadcrumb + montar tour)
-- `src/components/AppSidebar.tsx` (pulso temporal en chip)
-- `src/pages/Mas.tsx` (pulso temporal en hero)
-- `tailwind.config.ts` (keyframe pulse-halo)
+### 2. Duplicados funcionales (consolidar)
 
-## Criterios de aceptación
+| Capa | Duplicado | Canónico | Acción |
+|---|---|---|---|
+| Timer launcher | `TimerWidget.tsx` | `SidebarTimerSlot` + `dashboard/TimerLauncherWidget` | borrar `TimerWidget` |
+| Inline chips | `timer/InlineContextChips` + `modules/bitacora/BitacoraInlineChips` | ninguno consumido | borrar ambos |
+| Timeline | `bitacora/InteractiveTimeline` | `timer/DayTimeline` | borrar `InteractiveTimeline` |
+| `/timer` route | `pages/Timer.tsx` | redirect a `/bitacora` | borrar página + import |
+| Landing/Index | `pages/Index.tsx` | `pages/Landing.tsx` | borrar `Index.tsx` |
 
-- Super-admin nuevo ve el tour una sola vez; "Omitir" no lo vuelve a mostrar.
-- En `/comando` siempre hay un breadcrumb visible identificando la sección.
-- Al entrar a `/tasks` o `/mas` por primera vez en la sesión, el chip/hero "Comando" pulsa ~6s y luego se calma.
-- No afecta a usuarios que no son super-admin.
+**No tocar (parecen duplicados, pero no lo son):**
+- `TimerFAB` (FAB móvil) ≠ `SidebarTimerSlot` (sidebar desktop) ≠ `TimerLauncherWidget` (widget Home). Tres contextos legítimos.
+- `StartTimerModal` ≠ `QuickSheet` (uno es modal de start, otro hoja inferior móvil).
+- `HelpFAB`/`HelpDrawer` ≠ `RogerContactFab` (último vive solo en `/roger`).
+
+---
+
+### 3. Premortem — qué podría romper
+
+| Riesgo | Mitigación |
+|---|---|
+| Borro un UI shadcn que `lovable-tagger`/algún componente nuevo usará luego | Solo borro los que `rg` confirma 0 imports hoy. Reinstalable con `bun add`. |
+| `plan-limits.ts` tiene lógica única no migrada | Verificar `rg` antes de borrar; si hay referencia indirecta, abortar ese archivo. |
+| `pages/Timer.tsx` aún linkado por algún botón o `navigate("/timer")` | La ruta `/timer` se mantiene como redirect; solo borro el archivo y el import. |
+| Tests rompen | Solo hay `example.test.ts`; no toca lo borrado. |
+| Build falla por dep removida que algún UI sí usa | Por cada `@radix-ui/react-*` borrado, ejecutar `rg "@radix-ui/react-X"` antes. |
+
+---
+
+### 4. QA post-limpieza
+
+1. `bun run build` (lo dispara la harness automáticamente).
+2. Smoke en preview: `/`, `/home`, `/bitacora`, `/tasks`, `/hub`, `/clients`, `/finances`, `/settings`, `/comando`, `/timer` (debe redirigir).
+3. Confirmar que sidebar, timer FAB móvil y bento Home siguen renderizando.
+
+---
+
+### 5. Plan de cambios
+
+**Fase A — borrar archivos huérfanos (sin tocar imports porque no existen):**
+```
+src/components/NavLink.tsx
+src/components/TimerWidget.tsx
+src/components/bitacora/InteractiveTimeline.tsx
+src/components/dashboard/ShortcutsWidget.tsx
+src/components/hub/MemberBubble.tsx
+src/components/timer/InlineContextChips.tsx
+src/modules/bitacora/BitacoraInlineChips.tsx
+src/modules/bitacora/demo/TrackDayHint.tsx
+src/hooks/useActivityTracking.ts
+src/lib/plan-limits.ts
+src/pages/Index.tsx
+```
+
+**Fase B — borrar `pages/Timer.tsx` + quitar su import en `src/App.tsx`** (ruta `/timer` ya es `<Navigate to="/bitacora">`).
+
+**Fase C — borrar shadcn no usados:**
+```
+src/components/ui/{accordion,aspect-ratio,breadcrumb,calendar,carousel,chart,
+  checkbox,collapsible,command,context-menu,form,hover-card,input-otp,menubar,
+  navigation-menu,pagination,radio-group,resizable,scroll-area,toggle-group}.tsx
+```
+Y `bun remove` de los `@radix-ui/react-*` huérfanos correspondientes + `cmdk`, `embla-carousel-react`, `input-otp`, `react-day-picker`, `react-resizable-panels`, `recharts` (si confirmo 0 imports en Fase C).
+
+**Fase D — verificar:** build limpio + smoke routes.
+
+---
+
+### Resultado esperado
+- ~30 archivos borrados (~3,500–4,500 LOC menos).
+- ~10–12 dependencias menos en `package.json`.
+- Cero cambios funcionales para el usuario.
+- Sidebar, Home bento, Bitácora, Hub, Tasks intactos.
+
+¿Procedo con las 4 fases o prefieres que omita la **Fase C** (shadcn UI) por seguridad?
