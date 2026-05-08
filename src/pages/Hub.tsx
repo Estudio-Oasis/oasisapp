@@ -9,7 +9,8 @@ import { ChatList } from "@/components/hub/ChatList";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { Coffee, Utensils, Bath, Monitor, Moon, Video, MessageSquare, Clock, Users, TrendingUp, Activity } from "lucide-react";
+import { Coffee, Utensils, Bath, Monitor, Moon, Video, MessageSquare, Clock, Users, TrendingUp, Activity, Radar, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { QuickSheet } from "@/components/timer/QuickSheet";
 import { formatDuration, getClientColor } from "@/lib/timer-utils";
 
