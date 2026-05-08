@@ -15,7 +15,7 @@ import { WelcomeModal } from "@/components/WelcomeModal";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
-import { StartTimerModal } from "@/components/StartTimerModal";
+import { QuickSheet } from "@/components/timer/QuickSheet";
 import { NewTaskModal } from "@/components/NewTaskModal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
