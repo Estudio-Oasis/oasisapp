@@ -112,9 +112,9 @@ export function AppSidebar() {
 
   const navItems = allNavItems.filter((item: any) => {
     if (item.adminOnly && (roleLoading || !isAdmin)) return false;
-    if (item.superAdminOnly && !isSuperAdmin) return false;
     return true;
   });
+  const visibleAdminItems = adminNavItems.filter((item: any) => !item.superAdminOnly || isSuperAdmin);
 
   const toggleLanguage = () => setLanguage(language === "es" ? "en" : "es");
 
