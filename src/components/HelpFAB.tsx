@@ -14,7 +14,7 @@ const MODULE_MAP: Record<string, string> = {
   "/quotes": "Cotizaciones",
   "/vault": "Vault",
   "/finances": "Finanzas",
-  "/admin": "Admin",
+  "/comando": "Comando",
   "/settings": "Ajustes",
 };
 

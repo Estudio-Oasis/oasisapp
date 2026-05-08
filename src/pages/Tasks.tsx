@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { WidgetCard, StatWidget } from "@/components/ui/widget-card";
 import { NewTaskModal } from "@/components/NewTaskModal";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
-import { StartTimerModal } from "@/components/StartTimerModal";
+import { QuickSheet } from "@/components/timer/QuickSheet";
 import { getClientColor, formatDuration } from "@/lib/timer-utils";
 import { CheckSquare, List, LayoutGrid, GanttChart, Zap, Plus, AlertTriangle, Clock, CheckCircle2, Inbox, Eye } from "lucide-react";
 import { TaskGanttView } from "@/components/tasks/TaskGanttView";
@@ -67,6 +67,17 @@ export default function TasksPage() {
   }, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  // Realtime — re-fetch on any task change in agency
+  useEffect(() => {
+    if (!user) return;
+    const ch = supabase
+      .channel("tasks-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, () => { fetchAll(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "time_entries", filter: `user_id=eq.${user.id}` }, () => { fetchAll(); })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [user?.id, fetchAll]);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -418,11 +429,13 @@ export default function TasksPage() {
         />
       )}
 
-      <StartTimerModal
+      <QuickSheet
         open={timerModalOpen}
         onOpenChange={setTimerModalOpen}
+        mode="start"
         prefillClientId={timerPrefill?.clientId}
         prefillTaskId={timerPrefill?.taskId}
+        autoStart
       />
     </div>
   );
