@@ -35,6 +35,7 @@ const allNavItems = [
   { titleKey: "nav.quotes" as TranslationKey, url: "/quotes", icon: FileText },
   { titleKey: "nav.vault" as TranslationKey, url: "/vault", icon: Shield },
   { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true },
+  { label: "Comando", url: "/comando", icon: Radar, superAdminOnly: true },
   { titleKey: "nav.settings" as TranslationKey, url: "/settings", icon: Settings },
 ];
 
@@ -108,6 +109,7 @@ export function AppSidebar() {
 
   const navItems = allNavItems.filter((item: any) => {
     if (item.adminOnly && (roleLoading || !isAdmin)) return false;
+    if (item.superAdminOnly && !isSuperAdmin) return false;
     return true;
   });
 
@@ -185,10 +187,7 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* Comando — chip destacado para super admin */}
-        {isSuperAdmin && (
-          <CommandChip active={location.pathname.startsWith("/comando")} currentPath={location.pathname} />
-        )}
+        {/* (Comando ahora es un item normal del nav para super-admins) */}
 
         {/* Navigation */}
         <SidebarContent className="px-3 mt-2">
