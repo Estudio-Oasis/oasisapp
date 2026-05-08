@@ -35,8 +35,11 @@ const allNavItems = [
   { titleKey: "nav.quotes" as TranslationKey, url: "/quotes", icon: FileText },
   { titleKey: "nav.vault" as TranslationKey, url: "/vault", icon: Shield },
   { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true },
-  { label: "Comando", url: "/comando", icon: Radar, superAdminOnly: true },
   { titleKey: "nav.settings" as TranslationKey, url: "/settings", icon: Settings },
+];
+
+const adminNavItems = [
+  { label: "Comando", url: "/comando", icon: Radar, superAdminOnly: true, badge: "LIVE" as const },
 ];
 
 interface Profile {
