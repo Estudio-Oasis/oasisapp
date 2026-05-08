@@ -66,6 +66,8 @@ export default function MasPage() {
       .then(({ data }) => setIsSuperAdmin(!!data));
   }, [user?.id]);
 
+  void initials;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const initials = (profile.name || profile.email || "?").slice(0, 2).toUpperCase();
 
   return (
