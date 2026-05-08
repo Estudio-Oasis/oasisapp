@@ -88,6 +88,7 @@ const App = () => (
                   <Route path="/onboarding" element={<OnboardingPage />} />
                   <Route path="/join-workspace/:token" element={<JoinWorkspace />} />
                   <Route path="/superadmin" element={<SuperAdminRoute><SuperAdminPage /></SuperAdminRoute>} />
+                  <Route path="/comando" element={<SuperAdminRoute><AppLayoutWrapper /></SuperAdminRoute>} />
 
                   {/* Plan-aware layout: shows BitacoraLayout for free, AppLayout for pro */}
                   <Route
