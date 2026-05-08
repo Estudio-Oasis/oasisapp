@@ -58,11 +58,27 @@ interface QuickSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode?: "start" | "switch";
+  /** Optional prefill — used by Tasks/Sidebar to pre-select context. */
+  prefillClientId?: string | null;
+  prefillProjectId?: string | null;
+  prefillTaskId?: string | null;
+  prefillDescription?: string | null;
+  /** When true, autostart immediately if all required prefill is present. */
+  autoStart?: boolean;
 }
 
 /* ── Component ─────────────────────────────────────────────── */
 
-export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetProps) {
+export function QuickSheet({
+  open,
+  onOpenChange,
+  mode = "start",
+  prefillClientId = null,
+  prefillProjectId = null,
+  prefillTaskId = null,
+  prefillDescription = null,
+  autoStart = false,
+}: QuickSheetProps) {
   const { startTimer, switchTask, startBreakTimer } = useTimer();
   const { user } = useAuth();
   const speech = useSpeechRecognition();
@@ -78,6 +94,7 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
   const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
   const [projects, setProjects] = useState<{ id: string; name: string; clientId: string }[]>([]);
+  const [prefillTaskTitle, setPrefillTaskTitle] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -85,21 +102,32 @@ export function QuickSheet({ open, onOpenChange, mode = "start" }: QuickSheetPro
   const suggestion = useAutoSuggestClient(text, clients, projects);
   const showSuggestion = suggestion && !selectedClientId && !suggestionDismissed;
 
-  // Reset on open
+  // Reset on open + apply prefill
   useEffect(() => {
     if (open) {
-      setText("");
-      setSelectedClientId(null);
-      setSelectedProjectId(null);
+      setText(prefillDescription || "");
+      setSelectedClientId(prefillClientId);
+      setSelectedProjectId(prefillProjectId);
       setSelectedActivityType(null);
       setIsBillable(true);
       setNotes("");
-      setSuggestionDismissed(false);
+      setSuggestionDismissed(!!prefillClientId);
+      setPrefillTaskTitle(null);
       setTimeout(() => inputRef.current?.focus(), 100);
+
+      // Resolve task title for prefilled task to show in input
+      if (prefillTaskId && !prefillDescription) {
+        supabase.from("tasks").select("title").eq("id", prefillTaskId).maybeSingle().then(({ data }) => {
+          if (data?.title) {
+            setText(data.title);
+            setPrefillTaskTitle(data.title);
+          }
+        });
+      }
     } else {
       if (speech.isListening) speech.stopListening();
     }
-  }, [open]);
+  }, [open, prefillClientId, prefillProjectId, prefillTaskId, prefillDescription]);
 
   // Speech transcript
   useEffect(() => {
