@@ -4,14 +4,16 @@ import { BottomNav } from "@/components/BottomNav";
 import { TimerFAB } from "@/components/TimerFAB";
 import { HelpFAB } from "@/components/HelpFAB";
 import { Outlet, useLocation, Link } from "react-router-dom";
-import { Radio, Settings } from "lucide-react";
+import { Radio, Settings, Radar, ChevronRight, Home } from "lucide-react";
 import { useUnreadChats } from "@/hooks/useUnreadChats";
+import { CommandCenterTour } from "@/components/comando/CommandCenterTour";
 
 export function AppLayout() {
   const location = useLocation();
   const { unreadCount } = useUnreadChats();
 
   const isBitacora = location.pathname === "/bitacora";
+  const isComando = location.pathname.startsWith("/comando");
 
   return (
     <SidebarProvider>
@@ -22,34 +24,63 @@ export function AppLayout() {
         </div>
 
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Mobile header — compact identity bar */}
-          <header className="flex h-11 items-center justify-between px-4 md:hidden">
-            <div className="flex items-center gap-1.5">
-              <div className="flex h-5 w-5 items-center justify-center rounded bg-foreground">
-                <span className="text-[7px] font-bold tracking-widest text-background">B</span>
+          {/* Mobile header — compact identity bar (oculto en /comando) */}
+          {!isComando && (
+            <header className="flex h-11 items-center justify-between px-4 md:hidden">
+              <div className="flex items-center gap-1.5">
+                <div className="flex h-5 w-5 items-center justify-center rounded bg-foreground">
+                  <span className="text-[7px] font-bold tracking-widest text-background">B</span>
+                </div>
+                <span className="text-sm font-semibold text-foreground">Bitácora</span>
               </div>
-              <span className="text-sm font-semibold text-foreground">Bitácora</span>
+              <div className="flex items-center gap-1">
+                <Link
+                  to="/hub"
+                  className="relative flex h-8 w-8 items-center justify-center rounded-lg text-foreground-muted hover:text-foreground transition-colors"
+                >
+                  <Radio className="h-4 w-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-accent text-[8px] font-bold text-accent-foreground px-0.5">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                </Link>
+                <Link
+                  to="/settings"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground-muted hover:text-foreground transition-colors"
+                >
+                  <Settings className="h-4 w-4" />
+                </Link>
+              </div>
+            </header>
+          )}
+
+          {/* Breadcrumb visible en /comando */}
+          {isComando && (
+            <div className="flex h-10 items-center justify-between gap-2 border-b border-border bg-muted/40 px-4 md:px-8">
+              <nav className="flex items-center gap-1.5 text-xs font-medium min-w-0" aria-label="Breadcrumb">
+                <Link
+                  to="/home"
+                  className="flex items-center gap-1 text-foreground-muted hover:text-foreground transition-colors"
+                >
+                  <Home className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Inicio</span>
+                </Link>
+                <ChevronRight className="h-3 w-3 text-foreground-muted/60 shrink-0" />
+                <span className="flex items-center gap-1.5 text-foreground font-semibold truncate">
+                  <Radar className="h-3.5 w-3.5 text-accent" />
+                  Centro de Comando
+                </span>
+              </nav>
+              <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-accent">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+                </span>
+                LIVE
+              </span>
             </div>
-            <div className="flex items-center gap-1">
-              <Link
-                to="/hub"
-                className="relative flex h-8 w-8 items-center justify-center rounded-lg text-foreground-muted hover:text-foreground transition-colors"
-              >
-                <Radio className="h-4 w-4" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-accent text-[8px] font-bold text-accent-foreground px-0.5">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
-              </Link>
-              <Link
-                to="/settings"
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground-muted hover:text-foreground transition-colors"
-              >
-                <Settings className="h-4 w-4" />
-              </Link>
-            </div>
-          </header>
+          )}
 
           {/* Main content */}
           <main className="flex-1 pb-[52px] md:pb-0">
@@ -63,6 +94,7 @@ export function AppLayout() {
         <BottomNav />
         {!isBitacora && <TimerFAB />}
         <HelpFAB />
+        <CommandCenterTour />
       </div>
     </SidebarProvider>
   );
