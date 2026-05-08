@@ -498,15 +498,70 @@ export default function HubPage() {
 
         {/* Right — Stats + Chats */}
         <div className="space-y-4">
-          {/* Team today stats */}
+          {/* Super-admin shortcut to Comando */}
+          {isSuperAdmin && (
+            <Link
+              to="/comando"
+              className="block rounded-2xl bg-gradient-to-br from-accent to-accent/80 p-4 text-accent-foreground shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-foreground/15">
+                    <Radar className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Solo super-admin</p>
+                    <p className="text-sm font-bold">Panel Comando</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4" />
+              </div>
+            </Link>
+          )}
+
+          {/* Team today stats — with breakdown */}
           <div className="rounded-2xl border border-border/50 bg-card p-4 shadow-sm space-y-3">
-            <h3 className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">
-              Equipo hoy
-            </h3>
-            <div className="text-center py-2">
-              <p className="text-3xl font-bold text-foreground tabular-nums">{formatDuration(teamStats.totalMinutes)}</p>
-              <p className="text-[10px] text-foreground-muted mt-1">de {teamStats.activeCount} personas activas</p>
+            <div className="flex items-center justify-between">
+              <h3 className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">
+                Equipo hoy
+              </h3>
+              <span className="text-[10px] text-foreground-muted tabular-nums">
+                {teamStats.activeCount}/{members.length} activos
+              </span>
             </div>
+            <div>
+              <p className="text-3xl font-bold text-foreground tabular-nums leading-none">
+                {formatDuration(teamStats.totalMinutes)}
+              </p>
+              <p className="text-[10px] text-foreground-muted mt-1.5 tabular-nums">
+                Promedio {formatDuration(teamStats.avgMin)} por persona
+              </p>
+            </div>
+            {/* Breakdown bar */}
+            {teamStats.totalMinutes > 0 && (
+              <div className="space-y-2 pt-1">
+                <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-background-tertiary">
+                  <div
+                    className="bg-success"
+                    style={{ width: `${Math.round((teamStats.workingMin / teamStats.totalMinutes) * 100)}%` }}
+                  />
+                  <div
+                    className="bg-accent/70"
+                    style={{ width: `${Math.round(((teamStats.totalMinutes - teamStats.workingMin) / teamStats.totalMinutes) * 100)}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[10px] text-foreground-muted">
+                  <span className="flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                    Productivo {formatDuration(teamStats.workingMin)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent/70" />
+                    Pausa/otros
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Top client today */}
