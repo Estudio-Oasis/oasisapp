@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_activity_log: {
+        Row: {
+          action: string
+          agency_id: string | null
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          agency_id?: string | null
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          agency_id?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       agencies: {
         Row: {
           allowed_email_domain: string | null
