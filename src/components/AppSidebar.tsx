@@ -36,6 +36,7 @@ const allNavItems = [
   { titleKey: "nav.vault" as TranslationKey, url: "/vault", icon: Shield },
   { titleKey: "nav.finances" as TranslationKey, url: "/finances", icon: DollarSign, adminOnly: true },
   { titleKey: "nav.admin" as TranslationKey, url: "/admin", icon: LayoutDashboard, adminOnly: true },
+  { url: "/comando", label: "Comando", icon: Radar, superAdminOnly: true } as any,
   { titleKey: "nav.settings" as TranslationKey, url: "/settings", icon: Settings },
 ];
 
