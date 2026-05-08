@@ -164,7 +164,10 @@ export default function HomePage() {
   const { user } = useAuth();
   const { isAdmin } = useRole();
   const { isFree } = usePlan();
+  const isMobile = useIsMobile();
   const [ideaRefresh, setIdeaRefresh] = useState(0);
+
+  if (isMobile) return <MobileBentoHome />;
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Buenos días" : hour < 18 ? "Buenas tardes" : "Buenas noches";
