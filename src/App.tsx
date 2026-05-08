@@ -104,6 +104,7 @@ const App = () => (
                     <Route path="/bitacora" element={<BitacoraPage />} />
                     <Route path="/timer" element={<Navigate to="/bitacora" replace />} />
                     <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/mas" element={<MasPage />} />
 
                     {/* Pro-only routes */}
                     <Route path="/hub" element={<ProRoute><HubPage /></ProRoute>} />
