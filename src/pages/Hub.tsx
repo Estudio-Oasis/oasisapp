@@ -361,88 +361,100 @@ export default function HubPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold text-foreground">Hub</h1>
-              <p className="text-[11px] text-foreground-muted capitalize">{today} · {teamStats.activeCount} de {members.length} trabajando</p>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">Hub</h1>
+              <p className="text-[11px] text-foreground-muted capitalize mt-0.5">{today} · {teamStats.activeCount} de {members.length} trabajando</p>
             </div>
+            {isSuperAdmin && (
+              <Link
+                to="/comando"
+                className="hidden md:flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 text-[11px] font-semibold text-accent hover:bg-accent/20 transition-colors"
+              >
+                <Radar className="h-3.5 w-3.5" />
+                Comando
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            )}
           </div>
 
-          {/* Active now */}
-          <div className="space-y-3">
-            <h2 className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">
-              Activo ahora
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {members.map((m) => {
-                const statusInfo = getStatusInfo(m.status);
-                const dotColor = statusDotColor[statusInfo.color] || statusDotColor.offline;
-                const initials = (m.profile.name || "?").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-                const dailyGoal = 480; // 8h default
-                const progressPct = Math.min(100, Math.round((m.todayMinutes / dailyGoal) * 100));
+          {/* Status sections — PDF style */}
+          {([
+            { key: "working", label: "Trabajando", dot: "bg-success" },
+            { key: "meeting", label: "En reunión", dot: "bg-primary" },
+            { key: "paused", label: "En pausa", dot: "bg-accent" },
+            { key: "offline", label: "Ausentes", dot: "bg-foreground-muted/40" },
+          ] as const).map(({ key, label, dot }) => {
+            const list = grouped[key];
+            if (list.length === 0) return null;
+            return (
+              <div key={key} className="space-y-2.5">
+                <div className="flex items-center gap-2">
+                  <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+                  <h2 className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">
+                    {label} · {list.length}
+                  </h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {list.map((m) => {
+                    const statusInfo = getStatusInfo(m.status);
+                    const dotColor = statusDotColor[statusInfo.color] || statusDotColor.offline;
+                    const initials = (m.profile.name || "?").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+                    const dailyGoal = 480;
+                    const progressPct = Math.min(100, Math.round((m.todayMinutes / dailyGoal) * 100));
 
-                return (
-                  <button
-                    key={m.user_id}
-                    onClick={() => handleMemberClick(m.user_id)}
-                    className="flex items-center gap-3 rounded-xl border border-border/50 bg-card p-3 hover:bg-muted/40 transition-colors text-left shadow-sm group"
-                  >
-                    {/* Avatar with status ring */}
-                    <div className="relative shrink-0">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background-tertiary overflow-hidden">
-                        {m.profile.avatar_url ? (
-                          <img src={m.profile.avatar_url} alt="" className="h-full w-full object-cover" />
-                        ) : (
-                          <span className="text-xs font-semibold text-foreground-secondary">{initials}</span>
-                        )}
-                      </div>
-                      <div className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card ${dotColor}`} />
-                    </div>
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-semibold text-foreground truncate">
-                          {m.user_id === user?.id ? "Tú" : m.profile.name?.split(" ")[0] || "?"}
-                        </span>
-                        <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${dotColor}`} />
-                      </div>
-                      {m.status !== "offline" && m.current_task ? (
-                        <p className="text-[11px] text-foreground-secondary truncate">
-                          {m.user_id === user?.id && isRunning && activeEntry
-                            ? `${(activeEntry.description || activeTask?.title || 'Actividad sin nombre').slice(0, 25)}${(activeEntry.description || activeTask?.title || '').length > 25 ? '...' : ''}${activeClient ? ` · ${activeClient.name}` : ''}`
-                            : m.current_task}
-                          {m.user_id !== user?.id && m.current_client && <span className="text-foreground-muted"> · {m.current_client}</span>}
-                        </p>
-                      ) : m.user_id === user?.id && isRunning && activeEntry ? (
-                        <p className="text-[11px] text-foreground-secondary truncate">
-                          {(activeEntry.description || activeTask?.title || 'Actividad sin nombre').slice(0, 25)}
-                          {activeClient && <span className="text-foreground-muted"> · {activeClient.name}</span>}
-                        </p>
-                      ) : m.status === "offline" ? (
-                        <p className="text-[10px] text-foreground-muted">
-                          {m.todayHours > 0 ? `Hoy: ${formatDuration(m.todayMinutes)}` : `Offline · ${timeAgo(m.last_seen_at)}`}
-                        </p>
-                      ) : (
-                        <p className="text-[10px] text-foreground-muted">{statusInfo.label}</p>
-                      )}
-                      {/* Progress bar */}
-                      {m.todayMinutes > 0 && (
-                        <div className="h-1 rounded-full bg-background-tertiary mt-1.5 overflow-hidden">
-                          <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${progressPct}%` }} />
+                    return (
+                      <button
+                        key={m.user_id}
+                        onClick={() => handleMemberClick(m.user_id)}
+                        className="flex items-center gap-3 rounded-xl border border-border/50 bg-card p-3 hover:bg-muted/40 transition-colors text-left shadow-sm"
+                      >
+                        <div className="relative shrink-0">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-background-tertiary overflow-hidden">
+                            {m.profile.avatar_url ? (
+                              <img src={m.profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                              <span className="text-xs font-semibold text-foreground-secondary">{initials}</span>
+                            )}
+                          </div>
+                          <div className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card ${dotColor}`} />
                         </div>
-                      )}
-                    </div>
-
-                    {/* Hours */}
-                    {m.todayMinutes > 0 && (
-                      <span className="text-[11px] font-bold text-foreground tabular-nums shrink-0">
-                        {formatDuration(m.todayMinutes)}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-sm font-semibold text-foreground truncate">
+                              {m.user_id === user?.id ? "Tú" : m.profile.name?.split(" ")[0] || "?"}
+                            </span>
+                          </div>
+                          {m.status !== "offline" && m.current_task ? (
+                            <p className="text-[11px] text-foreground-secondary truncate">
+                              {m.user_id === user?.id && isRunning && activeEntry
+                                ? `${(activeEntry.description || activeTask?.title || 'Actividad').slice(0, 28)}${activeClient ? ` · ${activeClient.name}` : ''}`
+                                : m.current_task}
+                              {m.user_id !== user?.id && m.current_client && <span className="text-foreground-muted"> · {m.current_client}</span>}
+                            </p>
+                          ) : m.status === "offline" ? (
+                            <p className="text-[10px] text-foreground-muted">
+                              {m.todayHours > 0 ? `Hoy: ${formatDuration(m.todayMinutes)}` : `Offline · ${timeAgo(m.last_seen_at)}`}
+                            </p>
+                          ) : (
+                            <p className="text-[10px] text-foreground-muted">{statusInfo.label}</p>
+                          )}
+                          {m.todayMinutes > 0 && (
+                            <div className="h-1 rounded-full bg-background-tertiary mt-1.5 overflow-hidden">
+                              <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${progressPct}%` }} />
+                            </div>
+                          )}
+                        </div>
+                        {m.todayMinutes > 0 && (
+                          <span className="text-[11px] font-bold text-foreground tabular-nums shrink-0">
+                            {formatDuration(m.todayMinutes)}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
 
           {/* Activity feed */}
           <div className="space-y-3">
