@@ -433,6 +433,7 @@ export function ProfileSheet({ open, onOpenChange, profile, onProfileUpdated, on
             <TabsList className="w-full">
               <TabsTrigger value="account" className="flex-1">Cuenta</TabsTrigger>
               <TabsTrigger value="preferences" className="flex-1">Preferencias</TabsTrigger>
+              <TabsTrigger value="activity" className="flex-1">Actividad</TabsTrigger>
               {isAdmin && <TabsTrigger value="team" className="flex-1">Equipo</TabsTrigger>}
             </TabsList>
 
