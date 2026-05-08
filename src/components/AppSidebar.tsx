@@ -223,6 +223,41 @@ export function AppSidebar() {
               );
             })}
           </nav>
+
+          {visibleAdminItems.length > 0 && (
+            <div className="mt-4 pt-3 border-t border-sidebar-border">
+              <div className="px-3 mb-1.5 flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-foreground-muted">Admin</span>
+                <div className="h-px flex-1 bg-sidebar-border" />
+              </div>
+              <nav className="flex flex-col gap-1">
+                {visibleAdminItems.map((item) => {
+                  const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + "/");
+                  return (
+                    <Link
+                      key={item.url}
+                      to={item.url}
+                      className={`relative flex h-9 items-center gap-2.5 rounded-md px-3 text-sm font-medium transition-colors ${
+                        isActive
+                          ? "bg-accent-light text-foreground font-semibold"
+                          : "text-foreground-secondary hover:bg-background-tertiary hover:text-foreground"
+                      }`}
+                    >
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-accent" />
+                      )}
+                      <item.icon className="h-4 w-4 shrink-0 text-amber-500" />
+                      <span>{item.label}</span>
+                      <span className="ml-auto flex items-center gap-1 px-1.5 h-4 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[9px] font-bold tracking-wider">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                        {item.badge}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          )}
         </SidebarContent>
 
         {/* Notification bell */}
