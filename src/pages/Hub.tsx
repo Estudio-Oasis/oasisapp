@@ -140,25 +140,31 @@ export default function HubPage() {
       });
       setRecentActivity(actFeed);
 
-      // Hours per user — guard against runaway open sessions (cap fallback to 12h)
+      const presenceMap = new Map<string, MemberPresence>();
+      (presenceData || []).forEach((p: any) => presenceMap.set(p.user_id, p));
+
+      // Hours per user — only count entries that started TODAY (local).
+      // Open sessions only count if the user is actively present (avoid zombie sessions).
       const hoursMap: Record<string, number> = {};
       (todayEntries || []).forEach((e: any) => {
-        let mins: number;
+        const startedMs = new Date(e.started_at).getTime();
+        if (startedMs < todayStart.getTime()) return; // safety: outside today
+        let mins = 0;
         if (e.duration_min != null) {
           mins = Number(e.duration_min);
         } else if (e.ended_at) {
-          mins = (new Date(e.ended_at).getTime() - new Date(e.started_at).getTime()) / 60000;
+          mins = (new Date(e.ended_at).getTime() - startedMs) / 60000;
         } else {
-          // Open session: only count elapsed since today's start (not across days)
-          const sessionStart = Math.max(new Date(e.started_at).getTime(), todayStart.getTime());
-          mins = Math.min((Date.now() - sessionStart) / 60000, 12 * 60);
+          // Open session: skip if owner looks offline (zombie). Cap to 8h.
+          const presence = presenceMap.get(e.user_id);
+          const lastSeen = presence ? new Date(presence.last_seen_at).getTime() : 0;
+          const isPresent = presence && Date.now() - lastSeen < OFFLINE_THRESHOLD_MS;
+          if (!isPresent) return;
+          mins = Math.min((Date.now() - startedMs) / 60000, 8 * 60);
         }
         if (!isFinite(mins) || mins < 0) mins = 0;
         hoursMap[e.user_id] = (hoursMap[e.user_id] || 0) + mins;
       });
-
-      const presenceMap = new Map<string, MemberPresence>();
-      (presenceData || []).forEach((p: any) => presenceMap.set(p.user_id, p));
 
       const myPresence = presenceMap.get(user.id);
       if (myPresence) setMyStatus(myPresence.status);
