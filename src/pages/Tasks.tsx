@@ -68,6 +68,17 @@ export default function TasksPage() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  // Realtime — re-fetch on any task change in agency
+  useEffect(() => {
+    if (!user) return;
+    const ch = supabase
+      .channel("tasks-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "tasks" }, () => { fetchAll(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "time_entries", filter: `user_id=eq.${user.id}` }, () => { fetchAll(); })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [user?.id, fetchAll]);
+
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
