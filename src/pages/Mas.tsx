@@ -36,10 +36,9 @@ const sections: { title: string; items: ItemDef[] }[] = [
     ],
   },
   {
-    title: "Administración",
+    title: "Comando",
     items: [
-      { to: "/comando", label: "Comando", icon: Radar, desc: "Pulso de la organización", superAdminOnly: true },
-      { to: "/admin", label: "Panel admin", icon: BarChart3, desc: "Métricas internas", paidOnly: true, adminOnly: true },
+      { to: "/comando", label: "Centro de comando", icon: Radar, desc: "Pulso en vivo de la organización", superAdminOnly: true },
     ],
   },
   {
