@@ -278,12 +278,21 @@ export function DesktopBentoHome({ onIdea }: { onIdea?: () => void }) {
               <Clock className="h-3.5 w-3.5" />
               <span className="text-[10px] font-semibold uppercase tracking-widest">Mi día</span>
             </div>
-            <p className="mt-3 text-4xl font-bold tabular-nums text-foreground">
-              {formatDuration(data.minutesToday)}
-            </p>
-            <p className="mt-1 text-xs text-foreground-secondary tabular-nums">
-              {billablePct}% facturable
-            </p>
+            {data.loading ? (
+              <>
+                <Skeleton className="mt-3 h-9 w-24" />
+                <Skeleton className="mt-2 h-3 w-20" />
+              </>
+            ) : (
+              <>
+                <p className="mt-3 text-4xl font-bold tabular-nums text-foreground">
+                  {formatDuration(data.minutesToday)}
+                </p>
+                <p className="mt-1 text-xs text-foreground-secondary tabular-nums">
+                  {billablePct}% facturable
+                </p>
+              </>
+            )}
           </div>
 
           <div className="col-span-12 md:col-span-3 rounded-2xl border border-border/60 bg-card p-5">
@@ -291,12 +300,21 @@ export function DesktopBentoHome({ onIdea }: { onIdea?: () => void }) {
               <UsersIcon className="h-3.5 w-3.5" />
               <span className="text-[10px] font-semibold uppercase tracking-widest">Equipo activo</span>
             </div>
-            <p className="mt-3 text-4xl font-bold tabular-nums text-foreground">
-              {data.teamActive}
-            </p>
-            <p className="mt-1 text-xs text-foreground-secondary">
-              {data.teamActive === 1 ? "persona ahora" : "personas ahora"}
-            </p>
+            {data.loading ? (
+              <>
+                <Skeleton className="mt-3 h-9 w-12" />
+                <Skeleton className="mt-2 h-3 w-24" />
+              </>
+            ) : (
+              <>
+                <p className="mt-3 text-4xl font-bold tabular-nums text-foreground">
+                  {data.teamActive}
+                </p>
+                <p className="mt-1 text-xs text-foreground-secondary">
+                  {data.teamActive === 1 ? "persona ahora" : "personas ahora"}
+                </p>
+              </>
+            )}
           </div>
 
           {hasEconomicProfile && target > 0 && (
