@@ -172,35 +172,4 @@ export default function HomePage() {
 
   return <DesktopBentoHome onIdea={() => setIdeaRefresh(r => r + 1)} />;
 }
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-foreground">{greeting} 👋</h1>
-        <DailyProgressBar />
-      </div>
 
-      {/* Month economic progress */}
-      <MonthProgressWidget />
-
-      {/* Welcome checklist for new users */}
-      <WelcomeChecklist />
-
-      {/* Admin KPIs — only for paid plan admins */}
-      {isAdmin && !isFree && <AdminKPIs />}
-
-      {/* Main grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <DayTasksWidget />
-        <TimerLauncherWidget onIdea={() => setIdeaRefresh(r => r + 1)} />
-      </div>
-
-      {/* Secondary row */}
-      <div className={`grid grid-cols-1 gap-4 ${isFree ? "md:grid-cols-2" : "md:grid-cols-2 lg:grid-cols-3"}`}>
-        <IdeasWidget refreshTrigger={ideaRefresh} />
-        <GapsWidget />
-        {!isFree && <TeamWidget />}
-      </div>
-
-      {/* Admin-only: Finance summary */}
-      {isAdmin && !isFree && <FinanceSummaryWidget />}
-    </div>
-  );
-}
