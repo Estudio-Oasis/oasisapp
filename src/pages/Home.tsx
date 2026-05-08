@@ -16,6 +16,7 @@ import { Clock, Users, FileText, Receipt, TrendingUp, Target } from "lucide-reac
 import { Progress } from "@/components/ui/progress";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileBentoHome } from "@/components/home/MobileBentoHome";
+import { DesktopBentoHome } from "@/components/home/DesktopBentoHome";
 
 function DailyProgressBar() {
   const { user } = useAuth();
@@ -169,41 +170,6 @@ export default function HomePage() {
 
   if (isMobile) return <MobileBentoHome />;
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Buenos días" : hour < 18 ? "Buenas tardes" : "Buenas noches";
-
-  return (
-    <div className="space-y-5 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-foreground">{greeting} 👋</h1>
-        <DailyProgressBar />
-      </div>
-
-      {/* Month economic progress */}
-      <MonthProgressWidget />
-
-      {/* Welcome checklist for new users */}
-      <WelcomeChecklist />
-
-      {/* Admin KPIs — only for paid plan admins */}
-      {isAdmin && !isFree && <AdminKPIs />}
-
-      {/* Main grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <DayTasksWidget />
-        <TimerLauncherWidget onIdea={() => setIdeaRefresh(r => r + 1)} />
-      </div>
-
-      {/* Secondary row */}
-      <div className={`grid grid-cols-1 gap-4 ${isFree ? "md:grid-cols-2" : "md:grid-cols-2 lg:grid-cols-3"}`}>
-        <IdeasWidget refreshTrigger={ideaRefresh} />
-        <GapsWidget />
-        {!isFree && <TeamWidget />}
-      </div>
-
-      {/* Admin-only: Finance summary */}
-      {isAdmin && !isFree && <FinanceSummaryWidget />}
-    </div>
-  );
+  return <DesktopBentoHome onIdea={() => setIdeaRefresh(r => r + 1)} />;
 }
+
