@@ -6,7 +6,7 @@ import { HelpFAB } from "@/components/HelpFAB";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { Radio, Settings, Radar, ChevronRight, Home } from "lucide-react";
 import { useUnreadChats } from "@/hooks/useUnreadChats";
-import { CommandCenterTour } from "@/components/comando/CommandCenterTour";
+
 
 export function AppLayout() {
   const location = useLocation();
@@ -94,7 +94,7 @@ export function AppLayout() {
         <BottomNav />
         {!isBitacora && <TimerFAB />}
         <HelpFAB />
-        <CommandCenterTour />
+        
       </div>
     </SidebarProvider>
   );
