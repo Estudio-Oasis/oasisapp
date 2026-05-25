@@ -1,107 +1,94 @@
-## Objetivo
 
-Convertir el panel "Mi perfil" en algo verdaderamente vivo: guardado y validación en tiempo real, ver y cerrar sesiones activas, y la pestaña Equipo solo para admins. Además, habilitar **Google Sign-In** para vincular `joserogelioteran@gmail.com` a tu cuenta `r@estudiooasis.com`, de modo que puedas entrar por cualquiera de los dos métodos sin duplicar la cuenta.
+# Separar Estudio Oasis (corporativo) de OasisOS (producto)
 
----
+Estrategia: **Remix** del proyecto actual → en el remix queda solo el sitio corporativo; en el proyecto original queda solo la app OasisOS. La landing `/oasis-os` se duplica en ambos para SEO y captación.
 
-## 1. Identidades múltiples (login por varios mails)
+## Paso 1 — Tú: crear el remix (manual, fuera del chat)
 
-Supabase no permite "agregar un segundo email/contraseña" a la misma cuenta, pero **sí permite vincular varias identidades OAuth** (Identity Linking) a un mismo usuario. El estándar de la industria para este caso es:
+1. En el dashboard de Lovable, clic en los tres puntos (⋯) del proyecto actual → **Remix**.
+2. Nombra el remix algo como **"Estudio Oasis — Sitio corporativo"**.
+3. Una vez creado, abre el remix y desde ahí me pides "limpia este proyecto dejando solo el sitio corporativo" (usaré el plan de abajo).
+4. Vuelves a este proyecto (el original) y me pides "limpia este proyecto dejando solo la app OasisOS".
 
-1. Activar **Google** como proveedor (Lovable Cloud Managed Social Login).
-2. En *Mi perfil → Cuenta → Métodos de inicio de sesión*, mostrar identidades vinculadas (`auth.getUserIdentities()`).
-3. Botón **"Vincular cuenta de Google"** → llama `supabase.auth.linkIdentity({ provider: 'google' })` mientras estás logueado con `r@estudiooasis.com`. Al completar el OAuth con `joserogelioteran@gmail.com`, esa identidad queda atada al mismo `user.id`. A partir de ese momento podrás entrar:
-   - Email + contraseña con `r@estudiooasis.com`
-   - Google con `joserogelioteran@gmail.com`
-   - Ambos resuelven al mismo perfil, agencia y datos.
-4. Botón "Desvincular" por cada identidad (solo si queda al menos una).
+No puedo crear el remix yo — es una acción de UI tuya.
 
-> Nota: si en el futuro quieres también iniciar con `joserogelioteran@gmail.com` por contraseña, lo correcto es seguir usando Google (esa es la razón por la que existe el linking). No vamos a duplicar usuarios en `auth.users`.
+## Paso 2 — Limpieza del REMIX (sitio corporativo)
 
----
+**Conservar:**
+- Páginas: `Landing`, `AboutRoger`, `AboutStudio`, `Servicios`, `Portfolio`, `Contacto`, `OasisOS`, `AvisoPrivacidad`, `Unsubscribe`, `QuoteApproval`, `NotFound`.
+- Componentes: `SiteNavbar`, `SiteFooter`, `RogerContactFab`, `ui/*` que se usen en esas páginas.
+- Assets: imágenes de marca, portfolio, product-* (para la landing de OasisOS).
+- Edge functions: `send-transactional-email`, `process-email-queue`, `handle-email-suppression`, `handle-email-unsubscribe`, `preview-transactional-email`, `auth-email-hook` (para signup más adelante si quieres), plantillas `contact-*`.
+- Supabase: tablas `analytics_events`, `email_send_log`, `email_send_state`, `email_unsubscribe_tokens`, `suppressed_emails`, `quotes`+`quote_items` (solo si quieres mantener el flow público de aprobación).
 
-## 2. Guardado y validación en tiempo real
+**Eliminar:**
+- Todas las páginas del app: `Home`, `Hub`, `Bitacora`, `BitacoraDemo`, `Tasks`, `Clients`, `ClientProfile`, `Finances`, `Quotes` (panel interno), `Vault`, `Settings`, `Comando`, `SuperAdmin`, `AdminDashboard`, `Onboarding`, `Setup`, `JoinWorkspace`, `Login`, `Signup`, `ForgotPassword`, `ResetPassword`, `Mas`, `Pricing`, `PlaygroundActivityEngine`.
+- Componentes del app: `AppLayout`, `AppSidebar`, `BottomNav`, `BitacoraLayout`, `ProfileSheet`, `TimerFAB`, `SidebarTimerSlot`, `NotificationBell`, `PlanRouter`, `Protected/Admin/SuperAdminRoute`, `OnboardingWizard/Tour/Checklist`, `WelcomeModal`, `HelpFAB/Drawer`, `FeedbackModal`, `AIAssistantDrawer`, `AiFieldHelper`, `InviteMemberModal`, todos los modales/paneles de tareas/facturas/pagos/clientes, todo `components/bitacora/*`, `components/dashboard/*`, `components/home/*`, `components/hub/*`, `components/profile/*`, `components/quotes/*` (excepto lo necesario para QuoteApproval), `components/settings/*`, `components/tasks/*`, `components/timer/*`.
+- Módulos: todo `src/modules/bitacora/*`.
+- Hooks: `useAutosave`, `useAttentionSignals`, `useAutoSuggestClient`, `useHourlyRate`, `usePlan`, `useRole`, `useSpeechRecognition`, `useSubscription`, `useTimeEntries`, `useUnreadChats`.
+- Contextos: `AuthContext`, `TimerContext` (mantener `LanguageContext` si lo usas).
+- Lib: `activityLog`, `clientCompleteness`, `extractClient`, `stripe-plans`, `timer-utils`.
+- Edge functions del app: todas las de IA, Stripe, invoices, scan-receipt, invite-member, slack-*, oasis-ai-chat, summarize-chat, delete-account, list/revoke-user-session, ai-field-helper, rewrite-description, extract-client, generate-quote-pdf (a menos que mantengas QuoteApproval).
+- Supabase: todas las tablas operativas (profiles, agencies, clients, projects, tasks, time_entries, invoices, payments, etc.) — pero **NO ejecutes drop**: simplemente el frontend deja de tocarlas. Si quieres limpieza real de DB, hacemos otro proyecto Supabase vacío para el corporativo.
+- Rutas en `App.tsx`: dejar solo las corporativas.
 
-Reemplazar los botones "Guardar" actuales por **autoguardado con debounce (700 ms)** y feedback inline:
+**Ajustes:**
+- `App.tsx`: router solo con páginas corporativas, sin `AuthProvider`, sin `TimerProvider`, sin `PlanRouter`.
+- CTAs "Probar gratis" / "Login" / "Empezar gratis" → `https://app.estudiooasis.com/signup` y `/login`.
+- `vite.config.ts`, `package.json`: quitar deps no usadas (Stripe, html2pdf, recharts si no se usa, etc.). `knip` se encarga.
+- Sitemap regenerado solo con rutas corporativas.
 
-**Cuenta**
-- `name`, `job_title`, `phone`, `bio`: validación en blur + autoguardado. Indicador de estado por campo: idle / "Guardando…" / "Guardado ✓" / error.
-- `email`: editable en línea con confirmación modal (sigue usando `supabase.auth.updateUser({ email })`); muestra estado "Pendiente de verificación" si hay `new_email`.
-- Validaciones: nombre 2-60 chars, teléfono regex E.164 opcional, bio ≤ 280 chars, email RFC.
-- Contraseña: misma sección, no autosave (requiere botón explícito por seguridad), validación de fortaleza visible.
+## Paso 3 — Limpieza del proyecto ORIGINAL (app OasisOS)
 
-**Preferencias**
-- `theme`, `language`, `timezone`, `week_start_day`, `work_hours`, `notification_preferences`: autoguardan al cambiar. El switch / select aplica el cambio y hace `update` inmediato con toast discreto solo en error.
+**Eliminar:**
+- Páginas corporativas: `Landing`, `AboutRoger`, `AboutStudio`, `Servicios`, `Portfolio`, `Contacto`, `AvisoPrivacidad`.
+- Componentes: `SiteNavbar`, `SiteFooter`, `RogerContactFab`.
+- Rutas correspondientes en `App.tsx`.
 
-**Equipo** (solo lectura/acciones, ya es realtime por naturaleza).
+**Conservar:**
+- `OasisOS.tsx` como landing pública (cara comercial dentro de la app, accesible sin login en `/` o `/oasis-os`).
+- `Login`, `Signup`, `Pricing`, `QuoteApproval`, `Unsubscribe`, `BitacoraDemo` (públicos).
+- Todo el resto de la app sin cambios.
 
-Estructura: hook `useAutosaveField(field, value, validator)` centralizado que envuelve el `update` a `profiles` y maneja debounce + estado.
+**Ajustes:**
+- Ruta `/` → ahora muestra `OasisOS.tsx` (landing del producto) para visitantes no autenticados; usuarios autenticados van a `/home` como hoy.
+- Sitemap regenerado solo con rutas del app + landing OasisOS.
 
----
+## Paso 4 — Dominios
 
-## 3. Sesiones activas
+1. En el **remix** (corporativo): Settings → Domains → conectar `estudiooasis.com` y `www.estudiooasis.com`. **Antes** lo desconectas del proyecto original.
+2. En el **proyecto original** (app): Settings → Domains → conectar `app.estudiooasis.com` (subdominio nuevo, registro A → 185.158.133.1).
+3. Actualizar memoria del proyecto: dominio canónico del app pasa a `https://app.estudiooasis.com` (afecta redirects de auth, invitaciones, emails).
+4. En Supabase (Cloud → Users → Auth settings): Site URL y URI allow list → `https://app.estudiooasis.com`.
 
-Supabase no expone las sesiones del propio usuario desde el cliente, así que se hace vía edge function con service role:
+## Paso 5 — Verificación
 
-- **Edge function `list-user-sessions`** (`verify_jwt` activo, valida JWT en código): llama `supabase.auth.admin.listUserSessions(userId)` y devuelve `id`, `created_at`, `updated_at`, `user_agent`, `ip`, `factor_id`, marcando cuál es la sesión actual (comparando con `session.access_token`'s `session_id` claim).
-- **Edge function `revoke-user-session`**: recibe `session_id`, llama `supabase.auth.admin.signOut(session_id, 'local')` para revocar una sola.
-- En *Mi perfil → Cuenta → Sesiones activas*: lista con dispositivo (parseado de UA), última actividad, ubicación aproximada y botones "Cerrar esta sesión" / "Cerrar sesión en todos los demás dispositivos" (ya existe el global; añadir el "demás" excluyendo la actual).
+- Corporativo: navegar Landing → Servicios → Portfolio → About → OasisOS → CTA debe ir a `app.estudiooasis.com/signup`.
+- App: login en `app.estudiooasis.com`, OAuth Google funciona con nuevo redirect, emails transaccionales usan nuevo dominio.
+- 404s, sitemap, robots.txt revisados en ambos.
 
----
-
-## 4. Pestaña Equipo (solo admin)
-
-Ya está parcialmente. Consolidar para que use exactamente el mismo esquema que `MembersTab.tsx` (la versión completa de Settings) para evitar duplicación lógica:
-
-- Renderizar `<MembersTab agencyId={...} isAdmin allowedDomain={...} />` directamente dentro del Tab "Equipo" del ProfileSheet, en lugar de mantener su propia mini-implementación.
-- Si no eres admin, la pestaña no se muestra.
-- Beneficio: una sola fuente de verdad para invitaciones, enlace universal, cooldowns, cambio de rol, eliminación, etc.
-
----
-
-## Cambios técnicos
+## Detalles técnicos
 
 ```text
-Backend (Supabase)
-├─ configure_social_auth: enable ['google']
-├─ edge fn  supabase/functions/list-user-sessions/index.ts
-└─ edge fn  supabase/functions/revoke-user-session/index.ts
+PROYECTO ORIGINAL (queda como app)
+  domain: app.estudiooasis.com
+  Supabase: el actual (intacto)
+  Stack: idéntico
 
-Frontend
-├─ src/hooks/useAutosave.ts                (debounce + estado por campo)
-├─ src/components/profile/IdentitiesSection.tsx
-│       (lista identidades, botón Vincular Google, Desvincular)
-├─ src/components/profile/SessionsSection.tsx
-│       (fetch sesiones, revocar individual, "cerrar otras")
-├─ src/components/ProfileSheet.tsx
-│       - quitar botones "Guardar" de Cuenta y Preferencias
-│       - integrar autosave en cada input/switch/select
-│       - insertar IdentitiesSection y SessionsSection en pestaña Cuenta
-│       - reemplazar Tab Equipo por <MembersTab/>
-└─ src/pages/Login.tsx
-        - añadir botón "Continuar con Google"
+REMIX (nuevo corporativo)
+  domain: estudiooasis.com + www
+  Supabase: el mismo (compartido) o uno nuevo vacío — decidir
+  Stack: React + Vite sin AuthProvider/TimerProvider, solo páginas estáticas + forms
 ```
 
-Sin cambios de DB (los campos `phone`, `bio`, `timezone`, `notification_preferences`, `week_start_day` ya existen).
+**Nota sobre Supabase:** El remix hereda la misma conexión Supabase. Tienes dos opciones:
+- (a) **Compartirla**: el form de Contacto y QuoteApproval siguen escribiendo a la misma DB. Más simple.
+- (b) **Crear Supabase nuevo y vacío** para el corporativo: aislamiento total, pero hay que re-crear `analytics_events`, `email_*`, etc.
 
----
+Recomiendo (a) por simplicidad.
 
-## Premortem
+## Qué necesito de ti para empezar
 
-| Riesgo | Mitigación |
-|---|---|
-| Vincular Google con `joserogelioteran@gmail.com` falla porque ya existe otra cuenta con ese email | Si pasa, Supabase devuelve `identity_already_exists`. Mostramos guía clara: "Esa cuenta ya existe; entra una vez con ella y se vincula sola al haber session compartida" o pedir borrar la huérfana. |
-| Autosave dispara escrituras excesivas | Debounce 700 ms + diff vs último valor guardado. |
-| `linkIdentity` redirige fuera de la SPA | Usar `redirectTo: window.location.href` para volver al mismo lugar y refrescar identidades al volver. |
-| `listUserSessions` no disponible en tu versión de `supabase-js` | El admin API la soporta server-side; la llamamos desde la edge fn, no desde el cliente. |
-| Cambio de email rompe sesión | Supabase mantiene la sesión; solo se confirma el nuevo correo por link. Mostramos badge "Pendiente de confirmación". |
-| Confusión "tengo dos emails, ¿cuál es el principal?" | UI marca claramente Email principal (el de `auth.users.email`) y "Identidades vinculadas" como métodos de acceso, no como direcciones de contacto. |
-
----
-
-## Resultado esperado
-
-- Editas tu perfil y todo se guarda sin tocar botones.
-- Vas a *Cuenta → Métodos de inicio de sesión*, pulsas "Vincular Google", entras con `joserogelioteran@gmail.com`, y desde ese momento puedes loguear con cualquiera de los dos.
-- Ves todas tus sesiones activas (dispositivo, IP, última actividad) y cierras la que quieras.
-- Si eres admin, la pestaña Equipo es exactamente la misma de Ajustes — sin duplicar código.
+1. Crea el remix manualmente y confirma el nombre.
+2. Confirma: ¿Supabase compartido (a) o nuevo (b) para el corporativo?
+3. Cuando estés en el remix, dime "limpia para corporativo" y ejecuto el Paso 2. Luego vuelves aquí y digo "limpia para app" para el Paso 3.
