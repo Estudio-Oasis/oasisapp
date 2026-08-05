@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { PALETTE, PILLARS, type Answer } from "./heroContent";
-import { AnswerDialog } from "./AnswerDialog";
+import { InlineAnswer } from "./InlineAnswer";
+
 
 const VERBS = ["Creamos", "Detonamos", "Arreglamos", "Diseñamos", "Auditamos", "Reparamos"];
 const TARGETS = ["Marcas", "Negocios", "Personas", "Organizaciones", "Gobiernos", "Startups", "Fundaciones"];
