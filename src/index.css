@@ -31,6 +31,14 @@ html {
   letter-spacing: -0.01em;
   text-transform: uppercase;
 }
+/* Ultra-condensed display for the brutalist hero */
+.font-ultra {
+  font-family: 'Big Shoulders Display', 'Anton', sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  font-stretch: condensed;
+}
 
 @tailwind base;
 @tailwind components;
