@@ -186,33 +186,8 @@ export default function LandingPage() {
         <MarqueeRow />
       </section>
 
-      {/* SECTION 6 — OASIS OS */}
-      <section className="py-20 md:py-28 bg-[#1C1917]">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-6">Producto propio</p>
-          <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] leading-tight text-white">
-            También construimos tecnología para{" "}
-            <span className="italic text-[#C8A96E]">creativos.</span>
-          </h2>
-          <p className="mt-6 text-[16px] text-[#A8A29E] leading-relaxed font-body max-w-2xl mx-auto">
-            OasisOS es nuestro sistema operativo para agencias y equipos creativos. Bitácora, tareas, cotizaciones, CRM y finanzas en un solo lugar.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
-            <Link
-              to="/oasis-os"
-              className="h-12 px-8 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#D4B87A] transition-all"
-            >
-              Conocer OasisOS <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/login"
-              className="h-12 px-8 rounded-sm border border-white/20 text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:border-white/40 transition-colors"
-            >
-              Probar gratis
-            </Link>
-          </div>
-        </div>
-      </section>
+
+
 
       {/* SECTION 7 — CTA FINAL */}
       <section className="py-20 md:py-28 bg-[#FAF7F2]">
