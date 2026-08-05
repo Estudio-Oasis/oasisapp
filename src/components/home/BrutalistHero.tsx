@@ -84,7 +84,7 @@ export function BrutalistHero() {
     <section className="bg-[#FCFCFA] pt-20 md:pt-24 pb-0">
       {/* Headline — ultra condensed, edge to edge */}
       <div className="max-w-[1700px] mx-auto px-4 md:px-6">
-        <h1 className="font-ultra text-[#111110] leading-[0.80] text-[clamp(64px,15.5vw,300px)]">
+        <h1 className="font-ultra text-[#111110] leading-[0.85] text-[clamp(64px,15.5vw,300px)]">
           <span className="block">
             <RotatingWord words={VERBS} interval={2200} className="text-[#111110]" />
           </span>
