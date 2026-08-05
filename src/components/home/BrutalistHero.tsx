@@ -1,19 +1,10 @@
 import { useEffect, useState } from "react";
+import { PALETTE, PILLARS, type Answer } from "./heroContent";
+import { AnswerDialog } from "./AnswerDialog";
 
 const VERBS = ["Creamos", "Detonamos", "Arreglamos", "Diseñamos", "Auditamos", "Reparamos"];
 const TARGETS = ["Marcas", "Negocios", "Personas", "Organizaciones", "Gobiernos", "Startups", "Fundaciones"];
 const FIXERS = ["Brand", "Marketing", "Business", "Startups"];
-
-const PALETTE = [
-  "#1A73E8", // blue
-  "#E8453C", // red
-  "#F9AB00", // yellow
-  "#1E8E3E", // green
-  "#9334E6", // purple
-  "#00897B", // teal
-  "#E8710A", // orange
-  "#C5221F", // deep red
-];
 
 const SERVICES = [
   "Estrategia de Marca (Branding)",
@@ -37,7 +28,6 @@ const SERVICES = [
   "Eventos",
 ];
 
-const PILLARS = ["Adquisición", "Activación", "Retención", "Lifetime Value (LTV)"];
 
 function useRotator(length: number, interval: number, offset = 0) {
   const [i, setI] = useState(0);
