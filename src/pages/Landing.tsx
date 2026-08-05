@@ -31,57 +31,9 @@ export default function LandingPage() {
     <div className="min-h-screen font-body">
       <SiteNavbar />
 
-      {/* SECTION 1 — HERO */}
-      <section className="min-h-[calc(100vh-4rem)] md:min-h-screen flex items-center bg-[#FAF7F2] pt-16">
-        <div className="max-w-6xl mx-auto px-6 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-12 md:py-20">
-          <div>
-            <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#A8A29E] mb-6">
-              ESTUDIO CREATIVO · CIUDAD DE MÉXICO · 10 AÑOS
-            </p>
-            <h1 className="font-serif-display text-[clamp(36px,5.5vw,64px)] leading-[1.05] text-[#1C1917]">
-              Creamos marcas que la
-              <br />
-              <span className="italic text-[#C8A96E]">competencia teme.</span>
-            </h1>
-            <p className="mt-6 text-[17px] leading-relaxed text-[#57534E] max-w-xl font-body">
-              Branding, marketing y tecnología para negocios que quieren crecer.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <Link
-                to="/portfolio"
-                className="h-12 px-7 rounded-sm bg-[#1C1917] text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#2D2D2D] transition-all"
-              >
-                Ver nuestro trabajo <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/contacto"
-                className="h-12 px-7 rounded-sm border border-[#1C1917] text-[#1C1917] text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#1C1917] hover:text-white transition-all"
-              >
-                Hablemos
-              </Link>
-            </div>
-          </div>
-          {/* Editorial image collage */}
-          <div className="hidden md:grid grid-cols-2 gap-3">
-            <div className="space-y-3">
-              <div className="aspect-[4/3] rounded-sm bg-[#E7E0D8] overflow-hidden">
-                <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/oasis_liverpool_46662b18.jpg" alt="Liverpool Gourmet" className="w-full h-full object-cover" loading="eager" />
-              </div>
-              <div className="aspect-[4/5] rounded-sm bg-[#E7E0D8] overflow-hidden">
-                <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/sSnOTstnVAIyYMic.jpg" alt="Zoé Water" className="w-full h-full object-cover" loading="eager" />
-              </div>
-            </div>
-            <div className="space-y-3 pt-8">
-              <div className="aspect-[4/5] rounded-sm bg-[#E7E0D8] overflow-hidden">
-                <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663445384891/mdCAeemnwUZhbqGV.jpg" alt="Indumet" className="w-full h-full object-cover" loading="eager" />
-              </div>
-              <div className="aspect-[4/3] rounded-sm bg-[#E7E0D8] overflow-hidden">
-                <img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663445384891/eFXXBswQmmosJvCxxJfAPY/oasis_josecuervo_4a462909.jpg" alt="José Cuervo" className="w-full h-full object-cover" loading="eager" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* SECTION 1 — HERO BRUTALISTA */}
+      <BrutalistHero />
+
 
       {/* SECTION 2 — MÉTRICAS */}
       <section className="py-16 bg-[#1C1917]">
