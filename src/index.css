@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap');
 
 /* Desert Modernism palette */
 :root {
@@ -20,10 +20,16 @@ html {
   font-family: 'Playfair Display', serif;
 }
 .font-body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Archivo', 'DM Sans', sans-serif;
 }
 .font-mono-label {
   font-family: 'JetBrains Mono', monospace;
+}
+.font-condensed {
+  font-family: 'Anton', 'Archivo', sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
 }
 
 @tailwind base;
@@ -231,4 +237,13 @@ html {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* Rotating word entrance */
+@keyframes wordIn {
+  0% { opacity: 0; transform: translateY(0.4em) skewY(1.5deg); }
+  100% { opacity: 1; transform: translateY(0) skewY(0); }
+}
+.animate-word-in {
+  animation: wordIn 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
