@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
 const VERBS = ["Creamos", "Detonamos", "Arreglamos", "Diseñamos", "Auditamos", "Reparamos"];
 const TARGETS = ["Marcas", "Negocios", "Personas", "Organizaciones", "Gobiernos", "Startups", "Fundaciones"];
@@ -37,6 +36,8 @@ const SERVICES = [
   "Automatizaciones",
   "Eventos",
 ];
+
+const PILLARS = ["Adquisición", "Activación", "Retención", "Lifetime Value (LTV)"];
 
 function useRotator(length: number, interval: number, offset = 0) {
   const [i, setI] = useState(0);
@@ -80,79 +81,64 @@ function RotatingWord({
 
 export function BrutalistHero() {
   return (
-    <section className="bg-[#F4F2ED] pt-24 pb-0">
-      {/* Meta bar */}
-      <div className="max-w-[1500px] mx-auto px-5 md:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1C1917]/15 pb-3 font-mono-label text-[10px] md:text-[11px] tracking-[0.2em] uppercase text-[#1C1917]/60">
-          <span>Estudio Oasis®</span>
-          <span className="hidden sm:inline">Ciudad de México · Desde 2015</span>
-          <span>[ 30+ expertos ]</span>
-        </div>
-      </div>
-
-      {/* Headline */}
-      <div className="max-w-[1500px] mx-auto px-5 md:px-8 pt-8 md:pt-12">
-        <h1 className="font-condensed text-[#1C1917] leading-[0.86] text-[clamp(52px,13.2vw,230px)]">
+    <section className="bg-[#FCFCFA] pt-20 md:pt-24 pb-0">
+      {/* Headline — ultra condensed, edge to edge */}
+      <div className="max-w-[1700px] mx-auto px-4 md:px-6">
+        <h1 className="font-ultra text-[#111110] leading-[0.85] text-[clamp(64px,15.5vw,300px)]">
           <span className="block">
-            <RotatingWord words={VERBS} interval={2200} className="text-[#1C1917]" />
+            <RotatingWord words={VERBS} interval={2200} className="text-[#111110]" />
           </span>
           <span className="block">Crecimiento</span>
-          <span className="block">
-            basado en
-            <span className="hidden md:inline"> </span>
-            <span className="md:hidden"><br /></span>
-            sistemas
-          </span>
-          <span className="flex items-baseline gap-[0.25em] flex-wrap">
-            <span className="font-mono-label text-[0.13em] tracking-[0.3em] text-[#1C1917]/40 self-end pb-[0.14em]">
-              para
-            </span>
+          <span className="block">basado en sistemas</span>
+          <span className="flex items-baseline gap-[0.12em] flex-wrap">
+            <span className="text-[#111110]/25">Para</span>
             <RotatingWord words={TARGETS} interval={2600} offset={700} className="text-[#E8453C]" />
           </span>
         </h1>
       </div>
 
-      {/* Sub row */}
-      <div className="max-w-[1500px] mx-auto px-5 md:px-8 mt-10 md:mt-14 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 items-end border-t border-[#1C1917]/15 pt-6">
-        <p className="font-body text-[15px] md:text-[17px] leading-[1.45] text-[#1C1917] max-w-3xl">
-          Expertos en <strong className="font-semibold">Adquisición</strong>,{" "}
-          <strong className="font-semibold">Activación</strong>,{" "}
-          <strong className="font-semibold">Retención</strong> y{" "}
-          <strong className="font-semibold">Lifetime Value (LTV)</strong>.
+      {/* Pillars — prominent statement */}
+      <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-12 md:mt-20 border-t-2 border-[#111110] pt-8 md:pt-12">
+        <p className="font-ultra text-[clamp(34px,7.6vw,124px)] leading-[0.92] text-[#111110]">
+          Expertos en{" "}
+          {PILLARS.map((p, i) => (
+            <span key={p}>
+              <span style={{ color: PALETTE[i % PALETTE.length] }}>{p}</span>
+              {i < PILLARS.length - 2 ? <span className="text-[#111110]/20">, </span> : null}
+              {i === PILLARS.length - 2 ? <span className="text-[#111110]/30"> y </span> : null}
+              {i === PILLARS.length - 1 ? <span className="text-[#111110]/20">.</span> : null}
+            </span>
+          ))}
         </p>
-        <div className="flex flex-wrap gap-3">
-          <Link
-            to="/portfolio"
-            className="h-11 px-6 rounded-full bg-[#1C1917] text-white font-mono-label text-[11px] tracking-[0.15em] uppercase flex items-center hover:bg-[#000] transition-colors"
-          >
-            Ver el trabajo
-          </Link>
-          <Link
-            to="/contacto"
-            className="h-11 px-6 rounded-full border border-[#1C1917] text-[#1C1917] font-mono-label text-[11px] tracking-[0.15em] uppercase flex items-center hover:bg-[#1C1917] hover:text-white transition-colors"
-          >
-            Hablemos
-          </Link>
-        </div>
       </div>
 
       {/* Expertise block */}
-      <div className="max-w-[1500px] mx-auto px-5 md:px-8 mt-14 md:mt-20 pb-16 md:pb-24">
-        <p className="font-mono-label text-[10px] tracking-[0.3em] uppercase text-[#1C1917]/50 mb-5">
+      <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-16 md:mt-24 pb-20 md:pb-28">
+        <p className="font-ultra text-[clamp(22px,3.6vw,58px)] leading-[1] text-[#111110]/45 mb-6 md:mb-8">
           Hasta ahora empleamos a más de 30 expertos en
         </p>
         <p className="font-condensed text-[clamp(20px,3.4vw,46px)] leading-[1.12] tracking-normal">
           {SERVICES.map((s, i) => (
-            <span key={s}>
-              <span style={{ color: PALETTE[i % PALETTE.length] }}>{s}</span>
-              <span className="text-[#1C1917]/20">{i === SERVICES.length - 1 ? ", etc." : ", "}</span>
+            <span key={s} className="animate-rise-in" style={{ animationDelay: `${i * 55}ms` }}>
+              <span
+                className="transition-colors duration-300 hover:text-[#111110]"
+                style={{ color: PALETTE[i % PALETTE.length] }}
+              >
+                {s}
+              </span>
+              <span className="text-[#111110]/20">{i === SERVICES.length - 1 ? ", etc." : ", "}</span>
             </span>
           ))}
         </p>
 
-        <p className="mt-10 md:mt-14 font-condensed text-[clamp(30px,6vw,92px)] leading-[0.95] text-[#1C1917]">
+        <p className="mt-12 md:mt-20 font-ultra text-[clamp(36px,8vw,140px)] leading-[0.9] text-[#111110]">
           We're the ultimate{" "}
-          <RotatingWord words={FIXERS} interval={1800} offset={400} className="text-[#1A73E8]" />{" "}
+          <RotatingWord
+            words={FIXERS}
+            interval={1800}
+            offset={400}
+            className="text-[#1A73E8] animate-hue-drift"
+          />{" "}
           Fixers.
         </p>
       </div>
