@@ -37,6 +37,10 @@ export default function LandingPage() {
       {/* SECTION 1 — HERO BRUTALISTA */}
       <BrutalistHero />
 
+      {/* SECTION 1.5 — ROMPECABEZAS DE DOLORES */}
+      <PainPointsSection />
+
+
 
       {/* SECTION 2 — MÉTRICAS */}
       <section className="py-16 bg-[#1C1917]">
