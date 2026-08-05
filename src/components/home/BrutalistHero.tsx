@@ -142,6 +142,9 @@ export function BrutalistHero() {
           Fixers.
         </p>
       </div>
+
+      <AnswerDialog answer={active} onClose={() => setActive(null)} />
     </section>
+
   );
 }
