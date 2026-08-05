@@ -16,7 +16,7 @@ export function SiteNavbar() {
     { label: "Servicios", to: "/servicios" },
     { label: "Portafolio", to: "/portfolio" },
     { label: "About", to: "/about" },
-    { label: "Oasis OS", to: "/oasis-os" },
+    
     { label: "Contacto", to: "/contacto" },
   ];
 

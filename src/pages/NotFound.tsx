@@ -15,7 +15,7 @@ export default function NotFound() {
         <div className="h-8 w-8 rounded-lg bg-foreground text-background flex items-center justify-center font-bold text-sm">
           O
         </div>
-        <span className="text-lg font-bold tracking-tight">OasisOS</span>
+        <span className="text-lg font-bold tracking-tight">Estudio Oasis</span>
       </div>
       <p className="text-6xl font-bold text-muted-foreground/30">404</p>
       <h2 className="text-xl font-semibold text-foreground">Esta página no existe</h2>
@@ -23,8 +23,9 @@ export default function NotFound() {
         La URL que buscas no se encontró. Puede que haya sido movida o eliminada.
       </p>
       <Button asChild>
-        <Link to="/home">Volver al inicio</Link>
+        <Link to="/">Volver al inicio</Link>
       </Button>
+
     </div>
   );
 }
