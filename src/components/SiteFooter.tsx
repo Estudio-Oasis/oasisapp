@@ -113,12 +113,7 @@ export function SiteFooter() {
           >
             Aviso de Privacidad
           </Link>
-          <Link
-            to="/login"
-            className="text-[11px] text-[#A8A29E]/30 hover:text-white transition-colors"
-          >
-            Acceso equipo
-          </Link>
+
         </div>
       </div>
     </footer>
