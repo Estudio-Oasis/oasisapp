@@ -52,7 +52,27 @@ export function PainPointsSection() {
           })}
         </div>
 
-        <InlineAnswer answer={active} onClose={() => setActive(null)} />
+        <InlineAnswer
+          answer={active}
+          onClose={() => setActive(null)}
+          nextLabel={
+            active
+              ? PAIN_POINTS[
+                  (PAIN_POINTS.findIndex((p) => p.id === active.id) + 1) % PAIN_POINTS.length
+                ].label
+              : undefined
+          }
+          onNext={
+            active
+              ? () =>
+                  setActive(
+                    PAIN_POINTS[
+                      (PAIN_POINTS.findIndex((p) => p.id === active.id) + 1) % PAIN_POINTS.length
+                    ],
+                  )
+              : undefined
+          }
+        />
       </div>
     </section>
   );

@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { BrutalistHero } from "@/components/home/BrutalistHero";
 import { PainPointsSection } from "@/components/home/PainPointsSection";
 import { ToolsMarqueeSection } from "@/components/home/ToolsMarqueeSection";
+import { useSmoothScroll, useScrollReveal } from "@/hooks/useSmoothScroll";
 
 
 
@@ -25,6 +26,9 @@ const PORTFOLIO_ITEMS = [
 ];
 
 export default function LandingPage() {
+  useSmoothScroll();
+  useScrollReveal();
+
   useEffect(() => {
     if (!landingTrackedRef.current) {
       trackEvent("landing_view");
@@ -34,6 +38,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen font-body">
+      <div className="grain-overlay" aria-hidden />
       <SiteNavbar />
 
       {/* SECTION 1 — HERO BRUTALISTA */}
@@ -50,7 +55,7 @@ export default function LandingPage() {
 
 
       {/* SECTION 2 — MÉTRICAS */}
-      <section className="py-16 bg-[#1C1917]">
+      <section data-reveal className="py-16 bg-[#1C1917]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
@@ -69,7 +74,7 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 3 — SERVICIOS */}
-      <section className="py-20 md:py-28 bg-[#FAF7F2]">
+      <section data-reveal className="py-20 md:py-28 bg-[#FAF7F2]">
         <div className="max-w-6xl mx-auto px-6">
           <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Nuestros servicios</p>
           <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] leading-tight text-[#1C1917]">Lo que hacemos.</h2>
@@ -109,7 +114,7 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 4 — PORTAFOLIO PREVIEW */}
-      <section className="py-20 md:py-28 bg-[#1a1a1a]">
+      <section data-reveal className="py-20 md:py-28 bg-[#1a1a1a]">
         <div className="max-w-6xl mx-auto px-6">
           <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-4">Portafolio</p>
           <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] leading-tight text-white mb-12">Trabajo seleccionado.</h2>
@@ -145,7 +150,7 @@ export default function LandingPage() {
       </section>
 
       {/* SECTION 5 — CLIENTES MARQUEE */}
-      <section className="py-16 bg-[#FAF7F2] overflow-hidden">
+      <section data-reveal className="py-16 bg-[#FAF7F2] overflow-hidden">
         <p className="text-center font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#A8A29E] mb-8">
           Marcas que han confiado en nosotros
         </p>
@@ -156,7 +161,7 @@ export default function LandingPage() {
 
 
       {/* SECTION 7 — CTA FINAL */}
-      <section className="py-20 md:py-28 bg-[#FAF7F2]">
+      <section data-reveal className="py-20 md:py-28 bg-[#FAF7F2]">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="font-serif-display text-[clamp(32px,5vw,56px)] leading-tight text-[#1C1917]">
             ¿Tienes un proyecto?
