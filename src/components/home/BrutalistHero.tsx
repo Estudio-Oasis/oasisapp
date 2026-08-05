@@ -113,7 +113,23 @@ export function BrutalistHero() {
           ))}
         </p>
 
-        <InlineAnswer answer={active} onClose={() => setActive(null)} />
+        <InlineAnswer
+          answer={active}
+          onClose={() => setActive(null)}
+          nextLabel={
+            active
+              ? PILLARS[(PILLARS.findIndex((p) => p.id === active.id) + 1) % PILLARS.length].label
+              : undefined
+          }
+          onNext={
+            active
+              ? () =>
+                  setActive(
+                    PILLARS[(PILLARS.findIndex((p) => p.id === active.id) + 1) % PILLARS.length],
+                  )
+              : undefined
+          }
+        />
       </div>
 
 

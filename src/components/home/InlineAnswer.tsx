@@ -1,13 +1,17 @@
 import { useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 import type { Answer } from "./heroContent";
 
 export function InlineAnswer({
   answer,
   onClose,
+  onNext,
+  nextLabel,
 }: {
   answer: Answer | null;
   onClose: () => void;
+  onNext?: () => void;
+  nextLabel?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -53,14 +57,27 @@ export function InlineAnswer({
           ) : null}
         </div>
 
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Cerrar"
-          className="self-start shrink-0 h-10 w-10 flex items-center justify-center border-2 border-[#111110]/15 hover:border-[#111110] transition-colors"
-        >
-          <X className="h-4 w-4 text-[#111110]" />
-        </button>
+        <div className="shrink-0 self-start flex items-center gap-2">
+          {onNext && nextLabel ? (
+            <button
+              type="button"
+              onClick={onNext}
+              className="group h-10 inline-flex items-center gap-2 px-3 border-2 transition-colors font-mono-label text-[10px] md:text-[11px] tracking-[0.2em] uppercase"
+              style={{ borderColor: answer.color, color: answer.color }}
+            >
+              Siguiente: {nextLabel}
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="h-10 w-10 flex items-center justify-center border-2 border-[#111110]/15 hover:border-[#111110] transition-colors"
+          >
+            <X className="h-4 w-4 text-[#111110]" />
+          </button>
+        </div>
       </div>
     </div>
   );
