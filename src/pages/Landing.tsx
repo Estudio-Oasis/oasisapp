@@ -42,6 +42,11 @@ export default function LandingPage() {
       {/* SECTION 1.5 — ROMPECABEZAS DE DOLORES */}
       <PainPointsSection />
 
+      {/* SECTION 1.6 — TODO LO QUE USAMOS */}
+      <ToolsMarqueeSection />
+
+
+
 
 
       {/* SECTION 2 — MÉTRICAS */}
