@@ -6,6 +6,8 @@ import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { BrutalistHero } from "@/components/home/BrutalistHero";
 import { PainPointsSection } from "@/components/home/PainPointsSection";
+import { ToolsMarqueeSection } from "@/components/home/ToolsMarqueeSection";
+
 
 
 const landingTrackedRef = { current: false };
