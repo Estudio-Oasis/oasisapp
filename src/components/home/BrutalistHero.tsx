@@ -1,19 +1,10 @@
 import { useEffect, useState } from "react";
+import { PALETTE, PILLARS, type Answer } from "./heroContent";
+import { AnswerDialog } from "./AnswerDialog";
 
 const VERBS = ["Creamos", "Detonamos", "Arreglamos", "Diseñamos", "Auditamos", "Reparamos"];
 const TARGETS = ["Marcas", "Negocios", "Personas", "Organizaciones", "Gobiernos", "Startups", "Fundaciones"];
 const FIXERS = ["Brand", "Marketing", "Business", "Startups"];
-
-const PALETTE = [
-  "#1A73E8", // blue
-  "#E8453C", // red
-  "#F9AB00", // yellow
-  "#1E8E3E", // green
-  "#9334E6", // purple
-  "#00897B", // teal
-  "#E8710A", // orange
-  "#C5221F", // deep red
-];
 
 const SERVICES = [
   "Estrategia de Marca (Branding)",
@@ -37,7 +28,6 @@ const SERVICES = [
   "Eventos",
 ];
 
-const PILLARS = ["Adquisición", "Activación", "Retención", "Lifetime Value (LTV)"];
 
 function useRotator(length: number, interval: number, offset = 0) {
   const [i, setI] = useState(0);
@@ -54,7 +44,7 @@ function useRotator(length: number, interval: number, offset = 0) {
   return i;
 }
 
-function RotatingWord({
+export function RotatingWord({
   words,
   interval,
   offset = 0,
@@ -80,13 +70,15 @@ function RotatingWord({
 }
 
 export function BrutalistHero() {
+  const [active, setActive] = useState<Answer | null>(null);
+
   return (
     <section className="bg-[#FCFCFA] pt-20 md:pt-24 pb-0">
       {/* Headline — ultra condensed, edge to edge */}
       <div className="max-w-[1700px] mx-auto px-4 md:px-6">
         <h1 className="font-ultra text-[#111110] leading-[0.85] text-[clamp(64px,15.5vw,300px)]">
           <span className="block">
-            <RotatingWord words={VERBS} interval={2200} className="text-[#111110]" />
+            <RotatingWord words={VERBS} interval={2200} className="text-[#C5221F]" />
           </span>
           <span className="block">Crecimiento</span>
           <span className="block">basado en sistemas</span>
@@ -102,8 +94,15 @@ export function BrutalistHero() {
         <p className="font-ultra text-[clamp(34px,7.6vw,124px)] leading-[0.92] text-[#111110]">
           Expertos en{" "}
           {PILLARS.map((p, i) => (
-            <span key={p}>
-              <span style={{ color: PALETTE[i % PALETTE.length] }}>{p}</span>
+            <span key={p.id}>
+              <button
+                type="button"
+                onClick={() => setActive(p)}
+                className="underline decoration-[0.06em] decoration-transparent hover:decoration-current transition-colors"
+                style={{ color: p.color }}
+              >
+                {p.label}
+              </button>
               {i < PILLARS.length - 2 ? <span className="text-[#111110]/20">, </span> : null}
               {i === PILLARS.length - 2 ? <span className="text-[#111110]/30"> y </span> : null}
               {i === PILLARS.length - 1 ? <span className="text-[#111110]/20">.</span> : null}
@@ -111,6 +110,7 @@ export function BrutalistHero() {
           ))}
         </p>
       </div>
+
 
       {/* Expertise block */}
       <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-16 md:mt-24 pb-20 md:pb-28">
@@ -142,6 +142,9 @@ export function BrutalistHero() {
           Fixers.
         </p>
       </div>
+
+      <AnswerDialog answer={active} onClose={() => setActive(null)} />
     </section>
+
   );
 }
