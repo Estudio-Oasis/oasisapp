@@ -3,7 +3,7 @@ import { RotatingWord } from "./BrutalistHero";
 import { PAIN_POINTS, type Answer } from "./heroContent";
 import { AnswerDialog } from "./AnswerDialog";
 
-const QUESTION_WORDS = ["cómo", "qué", "cuándo", "por qué"];
+const QUESTION_WORDS = ["cómo", "qué"];
 
 export function PainPointsSection() {
   const [active, setActive] = useState<Answer | null>(null);

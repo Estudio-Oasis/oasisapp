@@ -21,10 +21,8 @@ export function AnswerDialog({
               >
                 {answer.kicker}
               </span>
-              <DialogTitle asChild>
-                <h3 className="font-ultra text-[clamp(30px,6vw,58px)] leading-[0.92] text-[#111110]">
-                  {answer.label}
-                </h3>
+              <DialogTitle className="font-ultra !text-[clamp(30px,6vw,54px)] !font-black leading-[0.92] text-[#111110] tracking-[-0.015em]">
+                {answer.label}
               </DialogTitle>
             </DialogHeader>
             <DialogDescription asChild>
