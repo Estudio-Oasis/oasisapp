@@ -81,7 +81,7 @@ function Lane({
   const paused = active?.key.startsWith(`${laneIndex}-`);
 
   return (
-    <div className="mt-6 md:mt-8">
+    <div className={`mt-6 md:mt-8 ${paused ? "relative z-30" : ""}`}>
       <p className="font-mono-label text-[10px] md:text-[11px] tracking-[0.28em] uppercase text-[#111110]/40 px-4 md:px-6">
         {lane.title}
       </p>
