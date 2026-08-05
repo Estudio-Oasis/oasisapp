@@ -103,8 +103,10 @@ export function BrutalistHero() {
             <span className="md:hidden"><br /></span>
             sistemas
           </span>
-          <span className="block">
-            <span className="text-[#1C1917]/25">para</span>{" "}
+          <span className="flex items-baseline gap-[0.25em] flex-wrap">
+            <span className="font-mono-label text-[0.13em] tracking-[0.3em] text-[#1C1917]/40 self-end pb-[0.14em]">
+              para
+            </span>
             <RotatingWord words={TARGETS} interval={2600} offset={700} className="text-[#E8453C]" />
           </span>
         </h1>
