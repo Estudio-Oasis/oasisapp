@@ -20,10 +20,16 @@ html {
   font-family: 'Playfair Display', serif;
 }
 .font-body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Archivo', 'DM Sans', sans-serif;
 }
 .font-mono-label {
   font-family: 'JetBrains Mono', monospace;
+}
+.font-condensed {
+  font-family: 'Anton', 'Archivo', sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
 }
 
 @tailwind base;
