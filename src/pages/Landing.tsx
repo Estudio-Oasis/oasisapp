@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
+import { BrutalistHero } from "@/components/home/BrutalistHero";
 
 const landingTrackedRef = { current: false };
 
