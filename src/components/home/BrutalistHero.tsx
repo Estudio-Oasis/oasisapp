@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { PALETTE, PILLARS, type Answer } from "./heroContent";
-import { AnswerDialog } from "./AnswerDialog";
+import { InlineAnswer } from "./InlineAnswer";
+
 
 const VERBS = ["Creamos", "Detonamos", "Arreglamos", "Diseñamos", "Auditamos", "Reparamos"];
 const TARGETS = ["Marcas", "Negocios", "Personas", "Organizaciones", "Gobiernos", "Startups", "Fundaciones"];
@@ -97,8 +98,10 @@ export function BrutalistHero() {
             <span key={p.id}>
               <button
                 type="button"
-                onClick={() => setActive(p)}
-                className="underline decoration-[0.06em] decoration-transparent hover:decoration-current transition-colors"
+                onClick={() => setActive(active?.id === p.id ? null : p)}
+                className={`underline decoration-[0.06em] transition-colors ${
+                  active?.id === p.id ? "decoration-current" : "decoration-transparent hover:decoration-current"
+                }`}
                 style={{ color: p.color }}
               >
                 {p.label}
@@ -109,7 +112,10 @@ export function BrutalistHero() {
             </span>
           ))}
         </p>
+
+        <InlineAnswer answer={active} onClose={() => setActive(null)} />
       </div>
+
 
 
       {/* Expertise block */}
@@ -142,8 +148,6 @@ export function BrutalistHero() {
           Fixers.
         </p>
       </div>
-
-      <AnswerDialog answer={active} onClose={() => setActive(null)} />
     </section>
 
   );
