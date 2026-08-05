@@ -98,8 +98,10 @@ export function BrutalistHero() {
             <span key={p.id}>
               <button
                 type="button"
-                onClick={() => setActive(p)}
-                className="underline decoration-[0.06em] decoration-transparent hover:decoration-current transition-colors"
+                onClick={() => setActive(active?.id === p.id ? null : p)}
+                className={`underline decoration-[0.06em] transition-colors ${
+                  active?.id === p.id ? "decoration-current" : "decoration-transparent hover:decoration-current"
+                }`}
                 style={{ color: p.color }}
               >
                 {p.label}
@@ -110,7 +112,10 @@ export function BrutalistHero() {
             </span>
           ))}
         </p>
+
+        <InlineAnswer answer={active} onClose={() => setActive(null)} />
       </div>
+
 
 
       {/* Expertise block */}
