@@ -153,7 +153,7 @@ export function BrutalistHero() {
           ))}
         </p>
 
-        <p className="mt-12 md:mt-20 font-ultra text-[clamp(36px,8vw,140px)] leading-[0.9] text-[#111110]">
+        <p className="mt-12 md:mt-16 font-ultra text-[clamp(36px,8vw,140px)] md:text-[min(7.5vw,13vh)] leading-[0.9] text-[#111110]">
           We're the ultimate{" "}
           <RotatingWord
             words={FIXERS}
