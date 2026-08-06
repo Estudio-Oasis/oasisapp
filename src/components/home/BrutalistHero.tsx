@@ -135,11 +135,11 @@ export function BrutalistHero() {
 
 
       {/* Expertise block */}
-      <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-16 md:mt-24 pb-20 md:pb-28">
-        <p className="font-ultra text-[clamp(22px,3.6vw,58px)] leading-[1] text-[#111110]/45 mb-6 md:mb-8">
+      <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-16 md:mt-20 pb-20 md:pb-24">
+        <p className="font-ultra text-[clamp(22px,3.6vw,58px)] md:text-[min(3.2vw,5vh)] leading-[1] text-[#111110]/45 mb-6 md:mb-8">
           Hasta ahora empleamos a más de 30 expertos en
         </p>
-        <p className="font-condensed text-[clamp(20px,3.4vw,46px)] leading-[1.12] tracking-normal">
+        <p className="font-condensed text-[clamp(20px,3.4vw,46px)] md:text-[min(2.9vw,4.4vh)] leading-[1.12] tracking-normal">
           {SERVICES.map((s, i) => (
             <span key={s} className="animate-rise-in" style={{ animationDelay: `${i * 55}ms` }}>
               <span
