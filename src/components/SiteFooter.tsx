@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 const NAV = [
   { label: "Inicio", to: "/" },
   { label: "Servicios", to: "/servicios" },
-  { label: "Portafolio", to: "/portfolio" },
-  { label: "About", to: "/about" },
+  { label: "Roger", to: "/roger" },
   { label: "Contacto", to: "/contacto" },
 ];
+
 
 export function SiteFooter() {
   return (
