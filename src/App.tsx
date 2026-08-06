@@ -8,13 +8,12 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 import LandingPage from "./pages/Landing";
-import AboutStudio from "./pages/AboutStudio";
 import AboutRoger from "./pages/AboutRoger";
-import Portfolio from "./pages/Portfolio";
 import ServiciosPage from "./pages/Servicios";
 import ContactoPage from "./pages/Contacto";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
 import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient();
 
@@ -30,9 +29,10 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/landing" element={<Navigate to="/" replace />} />
-                <Route path="/about" element={<AboutStudio />} />
+                <Route path="/about" element={<Navigate to="/roger" replace />} />
                 <Route path="/roger" element={<AboutRoger />} />
-                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/portfolio" element={<Navigate to="/servicios" replace />} />
+
                 <Route path="/servicios" element={<ServiciosPage />} />
                 <Route path="/contacto" element={<ContactoPage />} />
                 <Route path="/aviso-de-privacidad" element={<AvisoPrivacidadPage />} />

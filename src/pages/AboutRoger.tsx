@@ -177,7 +177,7 @@ function RogerNavbar({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void
             <a href="#about" className="text-[13px] font-medium text-[#57534E] hover:text-[#1C1917]">{t.navAbout}</a>
             <a href="#expertise" className="text-[13px] font-medium text-[#57534E] hover:text-[#1C1917]">{t.navExpertise}</a>
             <a href="#timeline" className="text-[13px] font-medium text-[#57534E] hover:text-[#1C1917]">{t.navTimeline}</a>
-            <Link to="/portfolio" className="text-[13px] font-medium text-[#57534E] hover:text-[#1C1917]">{t.navWork}</Link>
+            <Link to="/servicios" className="text-[13px] font-medium text-[#57534E] hover:text-[#1C1917]">{t.navWork}</Link>
             <a href={WA_URL} target="_blank" rel="noopener noreferrer" className="h-9 px-5 rounded-sm bg-[#1C1917] text-white text-[13px] font-semibold flex items-center gap-1.5 hover:bg-[#2D2D2D] transition-colors">
               {t.navContact}
             </a>
@@ -191,7 +191,7 @@ function RogerNavbar({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void
             <a href="#about" onClick={() => setMobileOpen(false)} className="block text-sm text-[#1C1917]">{t.navAbout}</a>
             <a href="#expertise" onClick={() => setMobileOpen(false)} className="block text-sm text-[#1C1917]">{t.navExpertise}</a>
             <a href="#timeline" onClick={() => setMobileOpen(false)} className="block text-sm text-[#1C1917]">{t.navTimeline}</a>
-            <Link to="/portfolio" onClick={() => setMobileOpen(false)} className="block text-sm text-[#1C1917]">{t.navWork}</Link>
+            <Link to="/servicios" onClick={() => setMobileOpen(false)} className="block text-sm text-[#1C1917]">{t.navWork}</Link>
             <a href={WA_URL} target="_blank" rel="noopener noreferrer" onClick={() => setMobileOpen(false)} className="block text-sm font-semibold text-[#C8A96E]">{t.navContact} →</a>
           </div>
         )}
@@ -281,7 +281,7 @@ export default function AboutRoger() {
               <span className="text-[11px] font-mono-label tracking-wider text-[#C8A96E]">{t.availabilityBadge}</span>
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/portfolio" className="h-11 px-6 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[13px] font-semibold flex items-center gap-2 hover:bg-[#D4B87A] transition-colors">
+              <Link to="/servicios" className="h-11 px-6 rounded-sm bg-[#C8A96E] text-[#1C1917] text-[13px] font-semibold flex items-center gap-2 hover:bg-[#D4B87A] transition-colors">
                 {t.ctaPortfolio} <ArrowRight className="h-4 w-4" />
               </Link>
               <a href={WA_URL} target="_blank" rel="noopener noreferrer" className="h-11 px-6 rounded-sm border border-white/20 text-white text-[13px] font-semibold flex items-center gap-2 hover:bg-white/5 transition-colors">
@@ -386,7 +386,7 @@ export default function AboutRoger() {
                 <p>{t.bio4}</p>
                 <p>{t.bio5}</p>
               </div>
-              <Link to="/portfolio" className="inline-block mt-6 text-[12px] font-semibold uppercase tracking-[0.15em] text-[#C8A96E] hover:text-[#D4B87A]">
+              <Link to="/servicios" className="inline-block mt-6 text-[12px] font-semibold uppercase tracking-[0.15em] text-[#C8A96E] hover:text-[#D4B87A]">
                 {t.seePortfolio}
               </Link>
             </Reveal>
@@ -510,7 +510,7 @@ export default function AboutRoger() {
           <div className="grid md:grid-cols-2 gap-6">
             {FEATURED_WORK.map((item, i) => (
               <Reveal key={item.cat} delay={i * 80} className={item.span ? "md:col-span-2" : ""}>
-                <Link to="/portfolio" className="block border border-[#E7E0D8] rounded-sm overflow-hidden bg-white group">
+                <Link to="/servicios" className="block border border-[#E7E0D8] rounded-sm overflow-hidden bg-white group">
                   <div className={`${item.span ? "aspect-[2/1]" : "aspect-[16/10]"} overflow-hidden`}>
                     <img src={item.img} alt={item.cat} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" loading="lazy" />
                   </div>

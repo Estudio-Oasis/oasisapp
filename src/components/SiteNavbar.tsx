@@ -14,10 +14,10 @@ export function SiteNavbar() {
 
   const links = [
     { label: "Servicios", to: "/servicios" },
-    { label: "Portafolio", to: "/portfolio" },
-    { label: "About", to: "/about" },
+    { label: "Roger", to: "/roger" },
     { label: "Contacto", to: "/contacto" },
   ];
+
 
   return (
     <nav

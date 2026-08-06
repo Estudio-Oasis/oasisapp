@@ -16,6 +16,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Nunca permitir desbordes horizontales en ninguna página */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+
 .font-serif-display {
   font-family: 'Playfair Display', serif;
 }

@@ -50,47 +50,70 @@ export default function ContactoPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.message) {
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const message = form.message.trim();
+
+    if (!name || !email || !message) {
       toast.error("Completa los campos requeridos");
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Escribe un email válido");
+      return;
+    }
+    if (name.length > 120 || email.length > 255 || message.length > 4000) {
+      toast.error("Algún campo es demasiado largo");
+      return;
+    }
+
     setSending(true);
     const submissionId = crypto.randomUUID();
     try {
-      // Send confirmation to the person who submitted
-      await supabase.functions.invoke("send-transactional-email", {
-        body: {
-          templateName: "contact-confirmation",
-          recipientEmail: form.email,
-          idempotencyKey: `contact-confirm-${submissionId}`,
-          templateData: { name: form.name, company: form.company, need: form.need },
-        },
+      // 1. Guardar el mensaje (fuente de verdad)
+      const { error } = await supabase.from("contact_submissions").insert({
+        name,
+        email,
+        company: form.company.trim() || null,
+        need: form.need || null,
+        budget: form.budget || null,
+        message,
       });
-      // Send internal notification to all team members
+      if (error) throw error;
+
+      // 2. Notificaciones por correo (mejor esfuerzo, no bloquea el envío)
       const internalRecipients = [
         "r@estudiooasis.com",
-        "carla@estudiooasis.com",
         "joserogelioteran@gmail.com",
       ];
-      await Promise.all(
-        internalRecipients.map((recipient, i) =>
+      void Promise.allSettled([
+        supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "contact-confirmation",
+            recipientEmail: email,
+            idempotencyKey: `contact-confirm-${submissionId}`,
+            templateData: { name, company: form.company, need: form.need },
+          },
+        }),
+        ...internalRecipients.map((recipient, i) =>
           supabase.functions.invoke("send-transactional-email", {
             body: {
               templateName: "contact-internal",
               recipientEmail: recipient,
               idempotencyKey: `contact-internal-${submissionId}-${i}`,
               templateData: {
-                name: form.name,
-                email: form.email,
+                name,
+                email,
                 company: form.company,
                 need: form.need,
                 budget: form.budget,
-                message: form.message,
+                message,
               },
             },
           })
-        )
-      );
+        ),
+      ]);
+
       toast.success("¡Mensaje enviado! Te contactaremos pronto.");
       setForm(INITIAL);
     } catch (err) {
@@ -100,6 +123,7 @@ export default function ContactoPage() {
       setSending(false);
     }
   };
+
 
   const prefillIntern = () => {
     setForm((p) => ({
