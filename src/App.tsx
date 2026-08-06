@@ -29,9 +29,10 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/landing" element={<Navigate to="/" replace />} />
-                <Route path="/about" element={<AboutStudio />} />
+                <Route path="/about" element={<Navigate to="/roger" replace />} />
                 <Route path="/roger" element={<AboutRoger />} />
-                <Route path="/portfolio" element={<Portfolio />} />
+                <Route path="/portfolio" element={<Navigate to="/servicios" replace />} />
+
                 <Route path="/servicios" element={<ServiciosPage />} />
                 <Route path="/contacto" element={<ContactoPage />} />
                 <Route path="/aviso-de-privacidad" element={<AvisoPrivacidadPage />} />
