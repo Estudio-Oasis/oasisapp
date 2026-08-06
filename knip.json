@@ -10,8 +10,7 @@
   "project": ["src/**/*.{ts,tsx}"],
   "ignore": [
     "src/test/**",
-    "playwright.config.ts",
-    "playwright-fixture.ts"
+    "playwright.config.ts"
   ],
   "ignoreDependencies": [
     "@playwright/test",
