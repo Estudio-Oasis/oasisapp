@@ -74,10 +74,10 @@ export function BrutalistHero() {
   const [active, setActive] = useState<Answer | null>(null);
 
   return (
-    <section className="bg-[#FCFCFA] pt-20 md:pt-24 pb-0">
+    <section className="bg-[#FCFCFA] pt-20 md:pt-16 pb-0">
       {/* Headline — ultra condensed, edge to edge */}
       <div className="max-w-[1700px] mx-auto px-4 md:px-6">
-        <h1 className="font-ultra text-[#111110] leading-[0.85] text-[clamp(64px,15.5vw,300px)]">
+        <h1 className="font-ultra text-[#111110] leading-[0.85] text-[clamp(64px,15.5vw,300px)] md:text-[min(13vw,18.5vh)]">
           <span className="block">
             <RotatingWord words={VERBS} interval={2200} className="text-[#C5221F]" />
           </span>
@@ -91,8 +91,8 @@ export function BrutalistHero() {
       </div>
 
       {/* Pillars — prominent statement */}
-      <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-12 md:mt-20 border-t-2 border-[#111110] pt-8 md:pt-12">
-        <p className="font-ultra text-[clamp(34px,7.6vw,124px)] leading-[0.92] text-[#111110]">
+      <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-12 md:mt-14 border-t-2 border-[#111110] pt-8 md:pt-10">
+        <p className="font-ultra text-[clamp(34px,7.6vw,124px)] md:text-[min(6.6vw,11vh)] leading-[0.92] text-[#111110]">
           Expertos en{" "}
           {PILLARS.map((p, i) => (
             <span key={p.id}>
@@ -135,11 +135,11 @@ export function BrutalistHero() {
 
 
       {/* Expertise block */}
-      <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-16 md:mt-24 pb-20 md:pb-28">
-        <p className="font-ultra text-[clamp(22px,3.6vw,58px)] leading-[1] text-[#111110]/45 mb-6 md:mb-8">
+      <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-16 md:mt-20 pb-20 md:pb-24">
+        <p className="font-ultra text-[clamp(22px,3.6vw,58px)] md:text-[min(3.2vw,5vh)] leading-[1] text-[#111110]/45 mb-6 md:mb-8">
           Hasta ahora empleamos a más de 30 expertos en
         </p>
-        <p className="font-condensed text-[clamp(20px,3.4vw,46px)] leading-[1.12] tracking-normal">
+        <p className="font-condensed text-[clamp(20px,3.4vw,46px)] md:text-[min(2.9vw,4.4vh)] leading-[1.12] tracking-normal">
           {SERVICES.map((s, i) => (
             <span key={s} className="animate-rise-in" style={{ animationDelay: `${i * 55}ms` }}>
               <span
@@ -153,7 +153,7 @@ export function BrutalistHero() {
           ))}
         </p>
 
-        <p className="mt-12 md:mt-20 font-ultra text-[clamp(36px,8vw,140px)] leading-[0.9] text-[#111110]">
+        <p className="mt-12 md:mt-16 font-ultra text-[clamp(36px,8vw,140px)] md:text-[min(7.5vw,13vh)] leading-[0.9] text-[#111110]">
           We're the ultimate{" "}
           <RotatingWord
             words={FIXERS}
