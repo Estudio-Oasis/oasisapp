@@ -74,10 +74,10 @@ export function BrutalistHero() {
   const [active, setActive] = useState<Answer | null>(null);
 
   return (
-    <section className="bg-[#FCFCFA] pt-20 md:pt-24 pb-0">
+    <section className="bg-[#FCFCFA] pt-20 md:pt-16 pb-0">
       {/* Headline — ultra condensed, edge to edge */}
       <div className="max-w-[1700px] mx-auto px-4 md:px-6">
-        <h1 className="font-ultra text-[#111110] leading-[0.85] text-[clamp(64px,15.5vw,300px)]">
+        <h1 className="font-ultra text-[#111110] leading-[0.85] text-[clamp(64px,15.5vw,300px)] md:text-[min(13vw,18.5vh)]">
           <span className="block">
             <RotatingWord words={VERBS} interval={2200} className="text-[#C5221F]" />
           </span>
