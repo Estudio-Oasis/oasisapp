@@ -1476,6 +1476,7 @@ export type Database = {
         Returns: boolean
       }
       disable_agency_invite_link: { Args: never; Returns: undefined }
+      email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
@@ -1512,7 +1513,6 @@ export type Database = {
         }
         Returns: number
       }
-      quote_token_matches: { Args: { qt: string }; Returns: boolean }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
