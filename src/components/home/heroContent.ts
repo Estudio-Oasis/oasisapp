@@ -266,18 +266,4 @@ export const TOOL_LANES: ToolLane[] = [
       { name: "PWA", desc: "Convertir una plataforma web en una experiencia similar a una aplicación instalable." },
     ],
   },
-  {
-    title: "Sistemas y productos propios de Oasis",
-    direction: "right",
-    items: [
-      { name: "Oasis OS", desc: "Ecosistema interno que reúne herramientas de operación, productividad, proyectos y desempeño." },
-      { name: "2026 Performance Manager", desc: "Sistema para registrar objetivos, resultados, desempeño y seguimiento del equipo." },
-      { name: "Money Guard", desc: "Herramienta para controlar finanzas, pagos, cobranza e información económica." },
-      { name: "Projects", desc: "Centralizar proyectos, clientes, responsables, documentos, entregables y pagos." },
-      { name: "Oasis Timer", desc: "Cronómetro interno para registrar el tiempo dedicado a cada cliente, proyecto y tarea." },
-      { name: "Work Log", desc: "Bitácora de actividades realizadas por cada integrante del equipo." },
-      { name: "Activity Tracking Layer", desc: "Capa que conecta actividad, tareas, horarios y reportes de productividad." },
-      { name: "Bitácora", desc: "Espacio para documentar avances, decisiones, pendientes y actividad diaria." },
-    ],
-  },
 ];

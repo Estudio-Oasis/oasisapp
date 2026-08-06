@@ -25,7 +25,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
             <div className="h-8 w-8 rounded-lg bg-foreground text-background flex items-center justify-center font-bold text-sm">
               O
             </div>
-            <span className="text-lg font-bold tracking-tight">OasisOS</span>
+            <span className="text-lg font-bold tracking-tight">Estudio Oasis</span>
           </div>
           <div className="text-4xl">⚠️</div>
           <h2 className="text-xl font-semibold text-foreground">Algo salió mal</h2>
@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
             <Button onClick={() => window.location.reload()} variant="outline">
               Recargar página
             </Button>
-            <Button onClick={() => (window.location.href = "/home")}>
+            <Button onClick={() => (window.location.href = "/")}>
               Volver al inicio
             </Button>
           </div>
