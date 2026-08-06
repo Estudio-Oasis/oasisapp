@@ -91,8 +91,8 @@ export function BrutalistHero() {
       </div>
 
       {/* Pillars — prominent statement */}
-      <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-12 md:mt-20 border-t-2 border-[#111110] pt-8 md:pt-12">
-        <p className="font-ultra text-[clamp(34px,7.6vw,124px)] leading-[0.92] text-[#111110]">
+      <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-12 md:mt-14 border-t-2 border-[#111110] pt-8 md:pt-10">
+        <p className="font-ultra text-[clamp(34px,7.6vw,124px)] md:text-[min(6.6vw,11vh)] leading-[0.92] text-[#111110]">
           Expertos en{" "}
           {PILLARS.map((p, i) => (
             <span key={p.id}>
