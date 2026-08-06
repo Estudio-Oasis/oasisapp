@@ -8,13 +8,12 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 import LandingPage from "./pages/Landing";
-import AboutStudio from "./pages/AboutStudio";
 import AboutRoger from "./pages/AboutRoger";
-import Portfolio from "./pages/Portfolio";
 import ServiciosPage from "./pages/Servicios";
 import ContactoPage from "./pages/Contacto";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
 import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient();
 

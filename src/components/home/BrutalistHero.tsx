@@ -88,10 +88,11 @@ export function BrutalistHero() {
           </span>
           <span className="block">Crecimiento</span>
           <span className="block">basado en sistemas</span>
-          <span className="flex items-baseline gap-[0.12em] flex-wrap">
+          <span className="flex items-baseline gap-[0.12em] flex-wrap text-[clamp(40px,12vw,240px)] md:text-[inherit]">
             <span className="text-[#111110]/25">Para</span>
             <RotatingWord words={TARGETS} interval={2600} offset={700} className="text-[#E8453C]" />
           </span>
+
         </h1>
       </div>
 
