@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-import { trackEvent } from "@/lib/analytics";
 import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { BrutalistHero } from "@/components/home/BrutalistHero";
@@ -11,18 +9,9 @@ import { ProcessSection } from "@/components/home/ProcessSection";
 import { ClosingCTA } from "@/components/home/ClosingCTA";
 import { useSmoothScroll, useScrollReveal } from "@/hooks/useSmoothScroll";
 
-const landingTrackedRef = { current: false };
-
 export default function LandingPage() {
   useSmoothScroll();
   useScrollReveal();
-
-  useEffect(() => {
-    if (!landingTrackedRef.current) {
-      trackEvent("landing_view");
-      landingTrackedRef.current = true;
-    }
-  }, []);
 
   return (
     <div className="min-h-screen font-body bg-[#FCFCFA]">

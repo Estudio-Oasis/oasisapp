@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowRight, Mail, Phone, Globe, MapPin } from "lucide-react";
 
@@ -68,60 +67,20 @@ export default function ContactoPage() {
     }
 
     setSending(true);
-    const submissionId = crypto.randomUUID();
-    try {
-      // 1. Guardar el mensaje (fuente de verdad)
-      const { error } = await supabase.from("contact_submissions").insert({
-        name,
-        email,
-        company: form.company.trim() || null,
-        need: form.need || null,
-        budget: form.budget || null,
-        message,
-      });
-      if (error) throw error;
+    const subject = encodeURIComponent(`Nuevo proyecto — ${name}`);
+    const body = encodeURIComponent([
+      `Nombre: ${name}`,
+      `Email: ${email}`,
+      `Empresa: ${form.company.trim() || "No indicada"}`,
+      `Necesidad: ${form.need || "No indicada"}`,
+      `Presupuesto: ${form.budget || "No indicado"}`,
+      "",
+      message,
+    ].join("\n"));
 
-      // 2. Notificaciones por correo (mejor esfuerzo, no bloquea el envío)
-      const internalRecipients = [
-        "r@estudiooasis.com",
-        "joserogelioteran@gmail.com",
-      ];
-      void Promise.allSettled([
-        supabase.functions.invoke("send-transactional-email", {
-          body: {
-            templateName: "contact-confirmation",
-            recipientEmail: email,
-            idempotencyKey: `contact-confirm-${submissionId}`,
-            templateData: { name, company: form.company, need: form.need },
-          },
-        }),
-        ...internalRecipients.map((recipient, i) =>
-          supabase.functions.invoke("send-transactional-email", {
-            body: {
-              templateName: "contact-internal",
-              recipientEmail: recipient,
-              idempotencyKey: `contact-internal-${submissionId}-${i}`,
-              templateData: {
-                name,
-                email,
-                company: form.company,
-                need: form.need,
-                budget: form.budget,
-                message,
-              },
-            },
-          })
-        ),
-      ]);
-
-      toast.success("¡Mensaje enviado! Te contactaremos pronto.");
-      setForm(INITIAL);
-    } catch (err) {
-      console.error("Contact form error:", err);
-      toast.error("Error al enviar. Intenta de nuevo.");
-    } finally {
-      setSending(false);
-    }
+    window.location.href = `mailto:r@oasistud.io?subject=${subject}&body=${body}`;
+    toast.success("Abriendo tu aplicación de correo…");
+    setSending(false);
   };
 
 
@@ -299,7 +258,7 @@ export default function ContactoPage() {
                 disabled={sending}
                 className="w-full h-12 rounded-sm bg-[#1C1917] text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#2D2D2D] transition-colors disabled:opacity-50"
               >
-                Enviar mensaje <ArrowRight className="h-4 w-4" />
+                Preparar correo <ArrowRight className="h-4 w-4" />
               </button>
             </form>
 
