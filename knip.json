@@ -9,11 +9,9 @@
   ],
   "project": ["src/**/*.{ts,tsx}"],
   "ignore": [
-    "src/test/**",
-    "playwright.config.ts"
+    "src/test/**"
   ],
   "ignoreDependencies": [
-    "@playwright/test",
     "autoprefixer",
     "postcss",
     "@tailwindcss/typography",
