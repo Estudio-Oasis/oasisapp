@@ -2,7 +2,7 @@ import { ThemeProvider } from "next-themes";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Provider as TooltipProvider } from "@radix-ui/react-tooltip";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
@@ -12,7 +12,6 @@ import ServiciosPage from "./pages/Servicios";
 import ContactoPage from "./pages/Contacto";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
 import NotFound from "./pages/NotFound";
-
 
 const App = () => (
   <ErrorBoundary>
