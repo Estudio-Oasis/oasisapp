@@ -13,7 +13,6 @@ import ContactoPage from "./pages/Contacto";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
 import NotFound from "./pages/NotFound";
 
-
 const App = () => (
   <ErrorBoundary>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
