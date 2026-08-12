@@ -81,10 +81,7 @@ function Lane({
   const paused = active?.key.startsWith(`${laneIndex}-`);
 
   return (
-    <div className={`mt-6 md:mt-8 ${paused ? "relative z-30" : ""}`}>
-      <p className="font-mono-label text-[10px] md:text-[11px] tracking-[0.28em] uppercase text-[#111110]/40 px-4 md:px-6">
-        {lane.title}
-      </p>
+    <div className={`mt-3 md:mt-4 ${paused ? "relative z-30" : ""}`}>
       <div className="mt-3 overflow-x-clip group">
         <div
           className={`flex w-max gap-2 md:gap-3 pb-[150px] -mb-[150px] ${
@@ -131,10 +128,10 @@ export function ToolsMarqueeSection() {
     >
       <div className="max-w-[1700px] mx-auto">
         <h2 className="px-4 md:px-6 font-ultra text-[clamp(44px,10vw,180px)] leading-[0.86] text-[#111110]">
-          Todo lo que usamos
+          Herramientas: <span className="text-[#111110]/30">ni te preocupes.</span>
         </h2>
-        <p className="px-4 md:px-6 mt-3 font-mono-label text-[10px] md:text-[11px] tracking-[0.24em] uppercase text-[#111110]/40">
-          Toca cualquiera para ver para qué la usamos
+        <p className="px-4 md:px-6 mt-4 font-condensed text-[clamp(19px,3vw,38px)] md:text-[min(2.4vw,4vh)] leading-[1.1] text-[#111110]/55 max-w-[46ch]">
+          Llevamos 12 años usando todas. Toca cualquiera para ver para qué la usamos.
         </p>
 
         <div className="mt-8 md:mt-12">
