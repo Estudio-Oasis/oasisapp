@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { CAPABILITIES, PALETTE } from "./heroContent";
+import { useLang } from "@/i18n/LanguageContext";
 
 export function CapabilitiesSection() {
+  const { t, pick } = useLang();
   const [openFixer, setOpenFixer] = useState(false);
 
   return (
@@ -18,15 +20,15 @@ export function CapabilitiesSection() {
 
         <p className="mt-8 font-condensed text-[clamp(19px,3.2vw,42px)] md:text-[min(2.7vw,4.2vh)] leading-[1.14]">
           {CAPABILITIES.map((s, i) => (
-            <span key={s}>
+            <span key={s.es}>
               <span
                 className="transition-colors duration-300 hover:text-[hsl(var(--ink))]"
                 style={{ color: PALETTE[i % PALETTE.length] }}
               >
-                {s}
+                {pick(s)}
               </span>
               <span className="text-[hsl(var(--ink)/0.20)]">
-                {i === CAPABILITIES.length - 1 ? ", etc." : ", "}
+                {i === CAPABILITIES.length - 1 ? t(", etc.", ", and more.") : ", "}
               </span>
             </span>
           ))}

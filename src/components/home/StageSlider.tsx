@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { STAGES } from "./heroContent";
+import { useLang } from "@/i18n/LanguageContext";
 
 export function StageSlider() {
+  const { t, pick } = useLang();
   const [i, setI] = useState(0);
   const [auto, setAuto] = useState(true);
   const stage = STAGES[i];
@@ -39,7 +41,7 @@ export function StageSlider() {
                   : "border-[hsl(var(--ink)/0.15)] text-[hsl(var(--ink)/0.50)] hover:border-[hsl(var(--ink))] hover:text-[hsl(var(--ink))]"
               }`}
             >
-              {s.n} · {s.label}
+              {s.n} · {pick(s.label)}
             </button>
           );
         })}
@@ -57,25 +59,25 @@ export function StageSlider() {
               className="font-label text-[10px] md:text-[11px] tracking-[0.28em] uppercase"
               style={{ color: stage.color }}
             >
-              {stage.kicker}
+              {pick(stage.kicker)}
             </span>
             <p
               className="mt-2 font-ultra leading-[0.9] text-[clamp(38px,10vw,110px)] md:text-[min(5.4vw,9vh)]"
               style={{ color: stage.color }}
             >
-              {stage.label}
+              {pick(stage.label)}
             </p>
             <p className="mt-3 font-label text-[10px] tracking-[0.2em] uppercase text-[hsl(var(--ink)/0.40)]">
-              {stage.proof}
+              {pick(stage.proof)}
             </p>
           </div>
 
           <div>
             <p className="font-condensed text-[clamp(19px,2.6vw,32px)] leading-[1.15] text-[hsl(var(--ink))]">
-              {stage.body}
+              {pick(stage.body)}
             </p>
             <p className="mt-4 font-body text-[15px] md:text-[17px] leading-relaxed text-[hsl(var(--ink)/0.60)] max-w-[62ch]">
-              {stage.detail}
+              {pick(stage.detail)}
             </p>
           </div>
         </div>
@@ -84,7 +86,7 @@ export function StageSlider() {
           <button
             type="button"
             onClick={() => go(i - 1)}
-            aria-label="Anterior"
+            aria-label={t("Anterior", "Previous")}
             className="h-11 w-11 flex items-center justify-center border-2 border-[hsl(var(--ink)/0.15)] hover:border-[hsl(var(--ink))] transition-colors"
           >
             <ArrowLeft className="h-4 w-4 text-[hsl(var(--ink))]" />
@@ -94,7 +96,7 @@ export function StageSlider() {
             onClick={() => go(i + 1)}
             className="h-11 px-5 flex items-center gap-2 border-2 border-[hsl(var(--ink))] text-[hsl(var(--ink))] hover:bg-[hsl(var(--ink))] hover:text-[hsl(var(--paper))] transition-colors font-label text-[10px] tracking-[0.2em] uppercase"
           >
-            Siguiente: {STAGES[(i + 1) % STAGES.length].label}
+            {t("Siguiente", "Next")}: {pick(STAGES[(i + 1) % STAGES.length].label)}
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>

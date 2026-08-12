@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      leads: {
+        Row: {
+          business: string | null
+          channels: string[] | null
+          company: string | null
+          contact: string | null
+          context: string | null
+          created_at: string
+          email: string | null
+          goals: string[] | null
+          id: string
+          lang: string | null
+          monthly_max: number | null
+          monthly_min: number | null
+          name: string | null
+          needs: string[] | null
+          page_path: string | null
+          project_max: number | null
+          project_min: number | null
+          referrer: string | null
+          revenue_range: string | null
+          source: string
+          stage: string | null
+          team_size: string | null
+          tried: string | null
+          website: string | null
+        }
+        Insert: {
+          business?: string | null
+          channels?: string[] | null
+          company?: string | null
+          contact?: string | null
+          context?: string | null
+          created_at?: string
+          email?: string | null
+          goals?: string[] | null
+          id?: string
+          lang?: string | null
+          monthly_max?: number | null
+          monthly_min?: number | null
+          name?: string | null
+          needs?: string[] | null
+          page_path?: string | null
+          project_max?: number | null
+          project_min?: number | null
+          referrer?: string | null
+          revenue_range?: string | null
+          source: string
+          stage?: string | null
+          team_size?: string | null
+          tried?: string | null
+          website?: string | null
+        }
+        Update: {
+          business?: string | null
+          channels?: string[] | null
+          company?: string | null
+          contact?: string | null
+          context?: string | null
+          created_at?: string
+          email?: string | null
+          goals?: string[] | null
+          id?: string
+          lang?: string | null
+          monthly_max?: number | null
+          monthly_min?: number | null
+          name?: string | null
+          needs?: string[] | null
+          page_path?: string | null
+          project_max?: number | null
+          project_min?: number | null
+          referrer?: string | null
+          revenue_range?: string | null
+          source?: string
+          stage?: string | null
+          team_size?: string | null
+          tried?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
