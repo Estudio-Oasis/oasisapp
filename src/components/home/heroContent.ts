@@ -23,130 +23,118 @@ export type Answer = {
   span: number;
 };
 
-export const PILLARS: Answer[] = [
+/** Las 5 etapas del sistema de crecimiento — se muestran como slider tipo app */
+export type Stage = {
+  id: string;
+  n: string;
+  label: string;
+  kicker: string;
+  body: string;
+  detail: string;
+  proof: string;
+  color: string;
+};
+
+export const STAGES: Stage[] = [
+  {
+    id: "datos",
+    n: "01",
+    label: "Datos y estrategia",
+    kicker: "Dónde estás parado",
+    body: "Primero medimos. Auditamos tus números, tus canales y tu operación para decirte dónde estás hoy, a dónde puedes llegar y cuánto te va a costar llegar ahí.",
+    detail:
+      "Analítica, experimentación y pruebas reales: no opinamos, probamos. Todo lo que sigue se decide con datos, no con corazonadas.",
+    proof: "Diagnóstico en días, no en meses.",
+    color: PALETTE[0],
+  },
   {
     id: "adquisicion",
+    n: "02",
     label: "Adquisición",
-    kicker: "Que te encuentren",
-    body: "Todo lo que te trae clientes y usuarios nuevos: branding que se entiende, Meta Ads, Google Ads, TikTok, LinkedIn, SEO, medios offline, alianzas y relaciones públicas.",
-    solution:
-      "Lo medimos con Google Analytics, Tag Manager y Looker Studio para saber exactamente de dónde viene cada venta.",
-    color: PALETTE[0],
-    span: 1,
+    kicker: "Que te encuentren y te compren",
+    body: "12 años corriendo pauta en todo lo que existe: Meta, Google, TikTok y TikTok Shop, LinkedIn, medios offline. B2B, B2C y D2C.",
+    detail:
+      "Desde ventas tradicionales y listas de leads para prospección en LinkedIn, hasta campañas de performance a escala. Siempre combinado con creatividad y marca: venimos de ser brand managers de Nivea, Spotify, San Francisco 49ers, 98 Coast Av., Caramela, Platzi, Rocketfy, Grupo Carso y Zoe Water.",
+    proof: "Marca + performance en el mismo equipo.",
+    color: PALETTE[1],
   },
   {
     id: "activacion",
+    n: "03",
     label: "Activación",
-    kicker: "Que compren la primera vez",
-    body: "Que quien llega no se pierda: landing pages, tienda en Shopify, checkout sin fricción, WhatsApp Business, ManyChat y flujos automáticos que responden en segundos.",
-    solution:
-      "Probamos oferta, precio y mensaje hasta que la primera compra deje de ser suerte.",
-    color: PALETTE[1],
-    span: 1,
+    kicker: "Que la primera compra no sea suerte",
+    body: "Activamos al usuario que ya llegó: programas de lealtad, CRMs a la medida, seguimiento por WhatsApp y email, newsletter y comunidad.",
+    detail:
+      "El objetivo es que la relación no termine en la primera venta: construimos la base para mandar campañas todo el año, mantener el negocio activo y convertir compradores en clientes de verdad.",
+    proof: "CRM propio, no plantillas.",
+    color: PALETTE[2],
   },
   {
     id: "retencion",
+    n: "04",
     label: "Retención",
-    kicker: "Que regresen",
-    body: "Que el cliente vuelva sin que le tengas que pagar otro anuncio: CRM en HubSpot o GoHighLevel, email con Resend, SMS, notificaciones, lealtad y comunidad.",
-    solution:
-      "Automatizamos el seguimiento con n8n y Make para que nada se caiga por olvido.",
-    color: PALETTE[2],
-    span: 1,
+    kicker: "Que no se vayan",
+    body: "No sólo traemos clientes nuevos: minimizamos el churn. Vemos conducta, cuánto gastan y cada cuánto, y actuamos antes de perderlos.",
+    detail:
+      "Usamos análisis RFM — Recencia (cuándo te compró por última vez), Frecuencia (cada cuánto compra) y Valor (cuánto deja). Con eso separamos a tus clientes champions de los dormidos y a cada grupo le hablamos distinto: lealtad, promociones y campañas para mover caja todo el año, no sólo en temporada.",
+    proof: "El negocio se mueve los 12 meses.",
+    color: PALETTE[3],
   },
   {
-    id: "ltv",
-    label: "Lifetime Value (LTV)",
-    kicker: "Que cada cliente valga más",
-    body: "Que cada persona deje más dinero con el tiempo: pricing, recompra, upsell, suscripciones y cuentas clave bien atendidas.",
-    solution:
-      "Lo vemos en dashboards propios: cuánto cuesta traer un cliente y cuánto te deja de verdad.",
-    color: PALETTE[3],
-    span: 1,
+    id: "escala",
+    n: "05",
+    label: "Escala",
+    kicker: "Cuando ya funciona, se multiplica",
+    body: "Equipo comercial y de negociación internacional. Cerramos contratos, alianzas y estructuras que hacen crecer el negocio completo, no sólo la campaña.",
+    detail:
+      "Fuimos los primeros en convencer a FedEx México de aceptar pago contra entrega. Acompañamos a Smart Bimo de pequeño negocio a startup con rondas de inversión de millones de dólares y miles de emprendedores formados. En Rocketfy reconstruimos el sistema de crecimiento completo: academia, sistema de señales por usuario y trabajo mano a mano dentro de su Shopify.",
+    proof: "Casos reales, no promesas.",
+    color: PALETTE[4],
   },
 ];
 
-export const PAIN_POINTS: Answer[] = [
-  {
-    id: "mas-ventas",
-    label: "Más ventas en mi tienda online",
-    kicker: "E-commerce",
-    body: "Sabemos la sensación: hay visitas, hay carritos, y aun así el mes no cierra. Casi nunca es el anuncio, es el embudo.",
-    solution:
-      "Auditamos tu Shopify, arreglamos las fugas de checkout, ordenamos la medición y escalamos con Meta y Google Ads. Hemos operado tiendas de 100m+ USD.",
-    color: PALETTE[0],
-    span: 3,
-  },
-  {
-    id: "conozcan",
-    label: "Quiero que me conozcan de verdad",
-    kicker: "Branding",
-    body: "Te entendemos: haces bien tu trabajo y aun así te confunden con cualquiera. Eso no se arregla con un logo nuevo.",
-    solution:
-      "Construimos identidad con posición: naming, sistema visual, narrativa, contenido y activaciones que la gente recuerda.",
-    color: PALETTE[3],
-    span: 3,
-  },
-  {
-    id: "agencia",
-    label: "Mi agencia me está viendo la cara",
-    kicker: "Auditoría",
-    body: "Reportes bonitos, cero claridad y nadie te explica a dónde se fue el presupuesto. Lo hemos visto muchas veces.",
-    solution:
-      "Revisamos cuentas, contratos, atribución y entregables. Te decimos qué sirve, qué no y qué estás pagando de más.",
-    color: PALETTE[7],
-    span: 2,
-  },
-  {
-    id: "ayuda",
-    label: "Tengo un problema, necesito ayuda",
-    kicker: "Fixers",
-    body: "Ya no quieres una propuesta de tres meses, quieres que alguien entre y lo resuelva.",
-    solution:
-      "Entramos rápido, diagnosticamos en días y ejecutamos. Somos el equipo al que llaman cuando ya urge.",
-    color: PALETTE[4],
-    span: 2,
-  },
-  {
-    id: "intente-todo",
-    label: "Ya intenté de todo",
-    kicker: "Diagnóstico",
-    body: "Cambiaste de agencia, de anuncios, de web, y sigue igual. Es agotador y es normal que estés harto.",
-    solution:
-      "Casi siempre el problema es el sistema, no el canal. Ordenamos oferta, medición y operación antes de gastar un peso más.",
-    color: PALETTE[2],
-    span: 2,
-  },
-  {
-    id: "no-vendo",
-    label: "No vendo nada",
-    kicker: "Revenue",
-    body: "Es la parte más incómoda de decir en voz alta. Y es la más fácil de diagnosticar bien.",
-    solution:
-      "Empezamos por oferta y precio, no por el anuncio. Después construimos la máquina de adquisición.",
-    color: PALETTE[1],
-    span: 2,
-  },
-  {
-    id: "arreglar",
-    label: "Tengo mucho que arreglar",
-    kicker: "Sistemas",
-    body: "Todo urge al mismo tiempo y no sabes por dónde empezar. Eso también lo entendemos.",
-    solution:
-      "Priorizamos por impacto: qué mueve caja este mes y qué construye marca los próximos tres años.",
-    color: PALETTE[5],
-    span: 2,
-  },
-  {
-    id: "unico",
-    label: "Soy el único que se preocupa",
-    kicker: "Equipo",
-    body: "Cargas el negocio solo, persigues a todos y nadie más ve los números. Cansa muchísimo.",
-    solution:
-      "Te damos un equipo de 30+ expertos que se comporta como socio: métricas a la vista y responsabilidad clara.",
-    color: PALETTE[6],
-    span: 2,
-  },
+export const BRANDS_MANAGED = [
+  "Nivea",
+  "Spotify",
+  "San Francisco 49ers",
+  "98 Coast Av.",
+  "Caramela",
+  "Platzi",
+  "Rocketfy",
+  "Grupo Carso",
+  "Zoe Water",
+  "Liverpool",
+  "BBVA",
+  "Baileys",
+  "Herbalife",
+  "SEDENA",
+  "Mundo Cuervo",
+  "Indumet",
+  "Miami Ad School",
+  "Koena",
+  "Maalob",
+];
+
+export const CAPABILITIES = [
+  "Estrategia de Marca (Branding)",
+  "Planeación Estratégica (Planning)",
+  "Dirección Comercial (Revenue y Ventas)",
+  "E-commerce (100m+ USD)",
+  "Relaciones Públicas (Alianzas & Sponsorships)",
+  "Compra de Medios (Digital Paid Media & Offline)",
+  "Activaciones de Marca (Real-time on-site)",
+  "Producción Audiovisual (Full-cycle)",
+  "DevOps & Infra",
+  "Product Design & Frontend",
+  "Desarrollo de Software",
+  "Data & Computer Science",
+  "CRM & Lifecycle",
+  "Sistemas de Atribución y Señales",
+  "Dashboards",
+  "IA",
+  "Agentes",
+  "Automatizaciones",
+  "Eventos",
 ];
 
 export type Tool = {
