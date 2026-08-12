@@ -1,166 +1,252 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
+import { PALETTE, STAGES } from "@/components/home/heroContent";
 
-const SERVICES = [
+type Need = {
+  id: string;
+  label: string;
+  diagnosis: string;
+  plan: string[];
+  stages: string[];
+  color: string;
+};
+
+const NEEDS: Need[] = [
   {
-    num: "01",
-    title: "Branding",
-    description:
-      "Creamos identidades memorables desde la narrativa hasta el diseño. Cada proyecto comienza con entender a fondo el negocio, el mercado y la audiencia para construir una marca que conecte y se distinga.",
-    deliverables:
-      "Logotipos · Sistemas de identidad visual · Naming · Paletas de color · Tipografía · Packaging · Señalética · Papelería · Brandbooks · Rediseños · Mockups · Merchandise",
-    dark: false,
-    imageRight: true,
-    placeholderBg: "#C9A96E",
-    placeholderLabel: "BRANDING",
+    id: "vender",
+    label: "Necesito vender más",
+    diagnosis:
+      "Casi nunca es el anuncio. Suele ser la oferta, el precio, la medición o el embudo. Antes de gastar más, revisamos de dónde viene cada peso.",
+    plan: [
+      "Auditoría de números, canales y embudo (1–2 semanas)",
+      "Arreglo de medición y atribución",
+      "Oferta y precio antes de campaña",
+      "Escalamiento de pauta con lectura semanal",
+    ],
+    stages: ["Datos y estrategia", "Adquisición"],
+    color: PALETTE[1],
   },
   {
-    num: "02",
-    title: "Marketing & Publicidad",
-    description:
-      "Desarrollamos campañas que generan resultados medibles. Desde la estrategia hasta la producción y distribución, trabajamos en medios digitales y tradicionales con un enfoque en ROI real.",
-    deliverables:
-      "Estrategia de contenido · Campañas Meta Ads · Google Ads · TikTok Ads · Community management · Producción foto y video · Email marketing · Influencer marketing · OOH y medios tradicionales · SEO",
-    dark: true,
-    imageRight: false,
-    placeholderBg: "#2D5A3D",
-    placeholderLabel: "MARKETING",
+    id: "marca",
+    label: "Quiero que me conozcan",
+    diagnosis:
+      "No se arregla con un logo nuevo. Se arregla con una posición clara y un sistema que la repita en todos lados.",
+    plan: [
+      "Posicionamiento y narrativa",
+      "Identidad y sistema visual aplicable",
+      "Sistema de contenido y producción",
+      "Activaciones y prensa cuando aplica",
+    ],
+    stages: ["Adquisición"],
+    color: PALETTE[3],
   },
   {
-    num: "03",
-    title: "Tecnología",
-    description:
-      "Construimos plataformas digitales a medida: desde un sitio de portafolio hasta un e-commerce completo o un sistema interno para tu equipo. Todo responsive, rápido y fácil de administrar.",
-    deliverables:
-      "Websites · Landing pages · E-commerce · Apps web y móvil · Webflow · Shopify · Sistemas internos · Intranets · Tiendas en MercadoLibre y Amazon · SEO técnico",
-    dark: false,
-    imageRight: true,
-    placeholderBg: "#1a3a5c",
-    placeholderLabel: "TECNOLOGÍA",
+    id: "retener",
+    label: "Mis clientes no regresan",
+    diagnosis:
+      "Estás pagando dos veces por el mismo cliente. Con análisis RFM vemos quién compra, cada cuánto y cuánto deja, y le hablamos distinto a cada grupo.",
+    plan: [
+      "Segmentación RFM de tu base",
+      "CRM, WhatsApp y email con flujos",
+      "Programa de lealtad y recompra",
+      "Calendario de campañas todo el año",
+    ],
+    stages: ["Activación", "Retención"],
+    color: PALETTE[2],
+  },
+  {
+    id: "sistema",
+    label: "Todo está desordenado",
+    diagnosis:
+      "Cuando todo urge al mismo tiempo, el problema es el sistema, no el canal. Priorizamos por impacto en caja.",
+    plan: [
+      "Diagnóstico operativo y de datos",
+      "Orden de oferta, precio y medición",
+      "Automatizaciones y dashboards",
+      "Roadmap de 90 días con dueños claros",
+    ],
+    stages: ["Datos y estrategia", "Escala"],
+    color: PALETTE[0],
+  },
+  {
+    id: "escalar",
+    label: "Ya funciona, quiero escalar",
+    diagnosis:
+      "Aquí el trabajo es comercial y estructural: alianzas, negociación, nuevos mercados y capacidad para sostener el crecimiento.",
+    plan: [
+      "Modelo de unidad económica y capacidad",
+      "Nuevos canales y mercados",
+      "Negociación y alianzas estratégicas",
+      "Preparación para inversión si aplica",
+    ],
+    stages: ["Escala"],
+    color: PALETTE[4],
+  },
+  {
+    id: "agencia",
+    label: "Mi agencia me está fallando",
+    diagnosis:
+      "Reportes bonitos y cero claridad. Revisamos cuentas, contratos y entregables y te decimos qué sirve, qué no y qué estás pagando de más.",
+    plan: [
+      "Acceso y revisión de cuentas reales",
+      "Revisión de contrato y entregables",
+      "Auditoría de atribución y creativos",
+      "Plan de transición sin apagar ventas",
+    ],
+    stages: ["Datos y estrategia"],
+    color: PALETTE[7],
   },
 ];
 
-const PROCESS = [
+const PRICING = [
   {
-    step: "01",
-    title: "Entender",
-    text: "Investigamos el problema, el mercado y la audiencia antes de diseñar nada.",
+    title: "Cotizamos capacidades, no entregables",
+    body: "No vendemos “12 posts y 6 reels”. Vendemos el equipo y el resultado: quién trabaja, cuánto tiempo y qué se espera mover. Los entregables salen de ahí.",
   },
   {
-    step: "02",
-    title: "Estrategia",
-    text: "Definimos el posicionamiento, el mensaje y el plan de trabajo.",
+    title: "Siempre hay tres rangos",
+    body: "Cada propuesta trae un rango mínimo, uno recomendado y uno ampliado. Sabes desde el día uno qué compra cada nivel y qué queda fuera.",
   },
   {
-    step: "03",
-    title: "Producción",
-    text: "Diseñamos, desarrollamos y producimos con atención al detalle.",
+    title: "Una célula cuesta menos que piezas sueltas",
+    body: "Un servicio aislado siempre es proporcionalmente más caro. Si varias áreas trabajan juntas, el costo por resultado baja.",
   },
   {
-    step: "04",
-    title: "Lanzamiento",
-    text: "Entregamos, medimos y optimizamos para maximizar resultados.",
+    title: "Empezamos por diagnóstico",
+    body: "Antes de un contrato largo hay un diagnóstico corto. Si no vemos cómo generar valor, te lo decimos y no seguimos.",
   },
 ];
 
 export default function ServiciosPage() {
+  const [active, setActive] = useState<Need>(NEEDS[0]);
+
   return (
-    <div className="min-h-screen font-body">
+    <div className="min-h-screen font-body bg-[#FCFCFA]">
+      <div className="grain-overlay" aria-hidden />
       <SiteNavbar />
 
-      {/* Hero */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-[#FAF7F2]">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#A8A29E] mb-4">
-            SERVICIOS
+      <section className="pt-24 md:pt-28 pb-14 md:pb-20">
+        <div className="max-w-[1700px] mx-auto px-4 md:px-6">
+          <p className="font-mono-label text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#111110]/40">
+            Servicios
           </p>
-          <h1 className="font-serif-display text-[clamp(36px,6vw,64px)] leading-[1.05] text-[#1C1917]">
-            Tres áreas.{" "}
-            <span className="italic text-[#C8A96E]">Un estudio.</span>
+          <h1 className="mt-5 font-ultra text-[clamp(40px,10vw,190px)] md:text-[min(8.6vw,14vh)] leading-[0.92] text-[#111110]">
+            Dinos qué te pasa.
+            <br />
+            <span className="text-[#C5221F]">Te decimos qué sigue.</span>
           </h1>
-          <p className="mt-5 text-[17px] text-[#57534E] max-w-xl mx-auto font-body leading-relaxed">
-            Branding, marketing y tecnología trabajando juntos para hacer crecer
-            tu marca.
+          <p className="mt-6 font-body text-[15px] md:text-[18px] leading-relaxed text-[#111110]/55 max-w-[66ch]">
+            Sin promesas infladas. Escoge tu situación y te mostramos el diagnóstico honesto, el
+            plan y qué etapas del sistema tocamos.
           </p>
         </div>
       </section>
 
-      {/* Services */}
-      {SERVICES.map((s) => {
-        const bgClass = s.dark ? "bg-[#1a1a1a]" : "bg-[#FAF7F2]";
-        const textColor = s.dark ? "text-white" : "text-[#1C1917]";
-        const subColor = s.dark ? "text-[#A8A29E]" : "text-[#57534E]";
+      {/* Selector interactivo */}
+      <section className="border-t-2 border-[#111110] py-10 md:py-16">
+        <div className="max-w-[1700px] mx-auto px-4 md:px-6">
+          <div className="flex flex-wrap gap-2">
+            {NEEDS.map((n) => {
+              const on = n.id === active.id;
+              return (
+                <button
+                  key={n.id}
+                  type="button"
+                  onClick={() => setActive(n)}
+                  style={{ borderColor: on ? n.color : undefined, backgroundColor: on ? n.color : undefined }}
+                  className={`font-condensed text-[clamp(16px,2vw,26px)] leading-none px-4 py-3 border-2 transition-colors ${
+                    on
+                      ? "text-[#FCFCFA]"
+                      : "border-[#111110]/15 text-[#111110]/55 hover:border-[#111110] hover:text-[#111110]"
+                  }`}
+                >
+                  {n.label}
+                </button>
+              );
+            })}
+          </div>
 
-        const image = (
           <div
-            className="h-[240px] md:h-[400px] rounded-sm flex items-center justify-center"
-            style={{ backgroundColor: s.placeholderBg }}
+            key={active.id}
+            className="mt-8 border-t-2 pt-8 grid md:grid-cols-[1.1fr_1fr] gap-8 md:gap-14 animate-rise-in"
+            style={{ borderColor: active.color }}
           >
-            <span className="text-white/80 text-[18px] md:text-[24px] font-mono-label tracking-[0.3em]">
-              {s.placeholderLabel}
-            </span>
-          </div>
-        );
-
-        const content = (
-          <div className="flex flex-col justify-center">
-            <p className="font-mono-label text-[11px] tracking-[0.3em] uppercase text-[#C8A96E] mb-2">
-              {s.num}
-            </p>
-            <h2
-              className={`font-serif-display text-[clamp(28px,3.5vw,44px)] leading-[1.1] ${textColor}`}
-            >
-              {s.title}
-            </h2>
-            <p className={`mt-4 text-[16px] leading-relaxed ${subColor} font-body`}>
-              {s.description}
-            </p>
-            <p
-              className={`mt-6 text-[13px] leading-loose ${subColor} opacity-70 font-body`}
-            >
-              {s.deliverables}
-            </p>
-          </div>
-        );
-
-        return (
-          <section key={s.num} className={`${bgClass} py-16 md:py-28`}>
-            <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-              {s.imageRight ? (
-                <>
-                  {content}
-                  {image}
-                </>
-              ) : (
-                <>
-                  <div className="order-2 md:order-1">{image}</div>
-                  <div className="order-1 md:order-2">{content}</div>
-                </>
-              )}
+            <div>
+              <span className="font-mono-label text-[10px] tracking-[0.28em] uppercase" style={{ color: active.color }}>
+                Diagnóstico honesto
+              </span>
+              <p className="mt-3 font-condensed text-[clamp(21px,2.8vw,38px)] leading-[1.12] text-[#111110]">
+                {active.diagnosis}
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {active.stages.map((s) => (
+                  <span
+                    key={s}
+                    className="font-mono-label text-[10px] tracking-[0.18em] uppercase px-3 py-2 border-2"
+                    style={{ borderColor: active.color, color: active.color }}
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
             </div>
-          </section>
-        );
-      })}
 
-      {/* Process */}
-      <section className="py-16 md:py-28 bg-[#1C1917]">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="font-serif-display text-[clamp(28px,4vw,44px)] text-white text-center mb-12 md:mb-16">
-            Nuestro <span className="italic text-[#C8A96E]">proceso.</span>
+            <div>
+              <span className="font-mono-label text-[10px] tracking-[0.28em] uppercase text-[#111110]/40">
+                Cómo lo trabajamos
+              </span>
+              <ol className="mt-4 border-t border-[#111110]/15">
+                {active.plan.map((p, i) => (
+                  <li key={p} className="py-4 border-b border-[#111110]/15 flex gap-4">
+                    <span
+                      className="font-ultra text-[clamp(22px,3vw,38px)] leading-none shrink-0"
+                      style={{ color: active.color }}
+                    >
+                      0{i + 1}
+                    </span>
+                    <span className="font-body text-[15px] md:text-[17px] leading-relaxed text-[#111110]/75">
+                      {p}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+              <Link
+                to="/#brief"
+                className="mt-7 inline-flex items-center gap-2 h-12 px-6 bg-[#111110] text-[#FCFCFA] hover:bg-[#C5221F] transition-colors font-mono-label text-[10px] tracking-[0.2em] uppercase"
+              >
+                Contar mi caso <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Las 5 etapas, resumidas */}
+      <section className="border-t-2 border-[#111110] py-14 md:py-20">
+        <div className="max-w-[1700px] mx-auto px-4 md:px-6">
+          <h2 className="font-ultra text-[clamp(30px,6.4vw,96px)] md:text-[min(5vw,8vh)] leading-[0.95] text-[#111110]">
+            El sistema completo <span className="text-[#111110]/30">en 5 etapas.</span>
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 md:gap-14">
-            {PROCESS.map((p) => (
-              <div key={p.step}>
-                <span className="font-serif-display text-[48px] font-bold text-[#C8A96E]/20 leading-none">
-                  {p.step}
+          <div className="mt-8 grid md:grid-cols-5 border-t-2 border-[#111110]">
+            {STAGES.map((s) => (
+              <div
+                key={s.id}
+                className="py-6 md:py-8 md:px-5 md:first:pl-0 border-b border-[#111110]/15 md:border-b-0 md:border-r md:border-r-[#111110]/15 md:last:border-r-0"
+              >
+                <span
+                  className="font-ultra text-[clamp(30px,7vw,64px)] md:text-[min(3.4vw,6vh)] leading-none"
+                  style={{ color: s.color }}
+                >
+                  {s.n}
                 </span>
-                <h3 className="mt-1 font-serif-display text-[22px] text-white">
-                  {p.title}
+                <h3 className="mt-2 font-condensed text-[clamp(18px,3.4vw,28px)] leading-none text-[#111110]">
+                  {s.label}
                 </h3>
-                <p className="mt-2 text-[15px] text-[#A8A29E] font-body leading-relaxed">
-                  {p.text}
+                <p className="mt-3 font-body text-[14px] md:text-[15px] leading-relaxed text-[#111110]/60">
+                  {s.body}
                 </p>
               </div>
             ))}
@@ -168,22 +254,30 @@ export default function ServiciosPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-16 md:py-28 bg-[#FAF7F2]">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="font-serif-display text-[clamp(28px,4.5vw,48px)] text-[#1C1917]">
-            ¿Tienes un proyecto{" "}
-            <span className="italic text-[#C8A96E]">en mente?</span>
-          </h2>
-          <p className="mt-4 text-[16px] text-[#57534E] font-body">
-            Cuéntanoslo. Respondemos en menos de 24 horas.
+      {/* Cómo cotizamos */}
+      <section className="bg-[#111110] py-16 md:py-24">
+        <div className="max-w-[1700px] mx-auto px-4 md:px-6">
+          <p className="font-mono-label text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#FCFCFA]/40">
+            Cómo cotizamos
           </p>
-          <Link
-            to="/contacto"
-            className="mt-8 inline-flex items-center gap-2 h-12 px-8 rounded-sm bg-[#1C1917] text-white text-[14px] font-semibold hover:bg-[#2D2D2D] transition-all"
-          >
-            Hablemos <ArrowRight className="h-4 w-4" />
-          </Link>
+          <h2 className="mt-5 font-ultra text-[clamp(32px,7vw,110px)] md:text-[min(5.6vw,9vh)] leading-[0.95] text-[#FCFCFA]">
+            Claro desde la primera junta.
+          </h2>
+          <div className="mt-10 grid md:grid-cols-2 gap-x-14 gap-y-8 border-t border-[#FCFCFA]/15 pt-8">
+            {PRICING.map((p, i) => (
+              <div key={p.title}>
+                <h3
+                  className="font-condensed text-[clamp(19px,2.6vw,32px)] leading-[1.05]"
+                  style={{ color: PALETTE[i % PALETTE.length] }}
+                >
+                  {p.title}
+                </h3>
+                <p className="mt-3 font-body text-[15px] md:text-[17px] leading-relaxed text-[#FCFCFA]/60 max-w-[58ch]">
+                  {p.body}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

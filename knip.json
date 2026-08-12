@@ -7,12 +7,18 @@
     "tailwind.config.ts",
     "vitest.config.ts"
   ],
-  "project": ["src/**/*.{ts,tsx}"],
-  "ignore": ["src/test/**"],
+  "project": [
+    "src/**/*.{ts,tsx}"
+  ],
+  "ignore": [
+    "src/test/**",
+    "src/integrations/**"
+  ],
   "ignoreDependencies": [
     "autoprefixer",
     "postcss",
     "@tailwindcss/typography",
-    "tailwindcss-animate"
+    "tailwindcss-animate",
+    "@supabase/supabase-js"
   ]
 }
