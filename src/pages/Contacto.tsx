@@ -1,294 +1,61 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
 import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
-import { toast } from "sonner";
-import { ArrowRight, Mail, Phone, Globe, MapPin } from "lucide-react";
+import { BriefSection } from "@/components/home/BriefSection";
 
-const NEED_OPTIONS = [
-  "Branding / Identidad de marca",
-  "Marketing y publicidad",
-  "Sitio web o app",
-  "Todo lo anterior",
-  "No sé, necesito orientación",
+const EMAIL = "r@oasistud.io";
+const WHATSAPP = "525667701206";
+const WA_URL = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+  "Hola, vi el sitio de Estudio Oasis y quiero platicar.",
+)}`;
+
+const CHANNELS = [
+  { label: "WhatsApp", value: "+52 56 6770 1206", href: WA_URL, external: true },
+  { label: "Correo", value: EMAIL, href: `mailto:${EMAIL}`, external: false },
+  { label: "Instagram", value: "@oasistud.io", href: "https://instagram.com/oasistud.io", external: true },
+  { label: "LinkedIn", value: "/in/rogerteran", href: "https://www.linkedin.com/in/rogerteran", external: true },
 ];
-
-const BUDGET_OPTIONS = [
-  "Menos de $20,000 MXN",
-  "$20,000 – $50,000 MXN",
-  "$50,000 – $150,000 MXN",
-  "Más de $150,000 MXN",
-  "Prefiero no decirlo",
-];
-
-interface FormState {
-  name: string;
-  email: string;
-  company: string;
-  need: string;
-  budget: string;
-  message: string;
-}
-
-const INITIAL: FormState = {
-  name: "",
-  email: "",
-  company: "",
-  need: "",
-  budget: "",
-  message: "",
-};
 
 export default function ContactoPage() {
-  const [form, setForm] = useState<FormState>(INITIAL);
-  const [sending, setSending] = useState(false);
-
-  const set = (field: keyof FormState) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => setForm((p) => ({ ...p, [field]: e.target.value }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const name = form.name.trim();
-    const email = form.email.trim();
-    const message = form.message.trim();
-
-    if (!name || !email || !message) {
-      toast.error("Completa los campos requeridos");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Escribe un email válido");
-      return;
-    }
-    if (name.length > 120 || email.length > 255 || message.length > 4000) {
-      toast.error("Algún campo es demasiado largo");
-      return;
-    }
-
-    setSending(true);
-    const subject = encodeURIComponent(`Nuevo proyecto — ${name}`);
-    const body = encodeURIComponent([
-      `Nombre: ${name}`,
-      `Email: ${email}`,
-      `Empresa: ${form.company.trim() || "No indicada"}`,
-      `Necesidad: ${form.need || "No indicada"}`,
-      `Presupuesto: ${form.budget || "No indicado"}`,
-      "",
-      message,
-    ].join("\n"));
-
-    window.location.href = `mailto:r@oasistud.io?subject=${subject}&body=${body}`;
-    toast.success("Abriendo tu aplicación de correo…");
-    setSending(false);
-  };
-
-
-  const prefillIntern = () => {
-    setForm((p) => ({
-      ...p,
-      need: "No sé, necesito orientación",
-      message:
-        "Hola, me interesa hacer prácticas profesionales en Estudio Oasis.",
-    }));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const inputCls =
-    "w-full h-11 px-4 rounded-sm border border-gray-300 bg-white text-[14px] text-gray-900 font-body focus:outline-none focus:border-[#C8A96E] transition-colors";
-  const selectCls = `${inputCls} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2378716c%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_12px_center] bg-[length:16px]`;
-
   return (
-    <div className="min-h-screen font-body">
+    <div className="min-h-screen font-body bg-[#FCFCFA]">
+      <div className="grain-overlay" aria-hidden />
       <SiteNavbar />
 
-      <div className="pt-16 min-h-screen flex flex-col lg:flex-row">
-        {/* Left — Info */}
-        <div className="lg:w-[40%] bg-[#1C1917] text-white px-6 md:px-12 py-10 lg:py-24 lg:sticky lg:top-0 lg:h-screen flex flex-col justify-center">
-          <h1 className="font-serif-display text-[clamp(32px,5vw,56px)] leading-[1.05]">
-            Hablemos<span className="text-[#C8A96E]">.</span>
+      <section className="pt-24 md:pt-28 pb-12 md:pb-16">
+        <div className="max-w-[1700px] mx-auto px-4 md:px-6">
+          <p className="font-mono-label text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#111110]/40">
+            Contacto
+          </p>
+          <h1 className="mt-5 font-ultra text-[clamp(46px,12vw,220px)] md:text-[min(9.6vw,15vh)] leading-[0.9] text-[#111110]">
+            Hablemos <span className="text-[#C5221F]">claro.</span>
           </h1>
-          <p className="mt-4 text-[15px] text-[#A8A29E] font-body leading-relaxed max-w-sm">
-            Cuéntanos tu proyecto. Respondemos en menos de 24 horas hábiles.
+          <p className="mt-6 font-body text-[15px] md:text-[18px] leading-relaxed text-[#111110]/55 max-w-[64ch]">
+            Escríbenos por donde te sea más fácil, o llena el brief de abajo si quieres que
+            lleguemos a la primera junta ya con diagnóstico.
           </p>
 
-          <div className="mt-8 space-y-3 text-[14px] text-[#A8A29E]">
-            <a
-              href="mailto:r@oasistud.io"
-              className="flex items-center gap-3 hover:text-white transition-colors"
-            >
-              <Mail className="h-4 w-4 text-[#C8A96E] shrink-0" /> r@oasistud.io
-            </a>
-            <a
-              href="tel:+524531090660"
-              className="flex items-center gap-3 hover:text-white transition-colors"
-            >
-              <Phone className="h-4 w-4 text-[#C8A96E] shrink-0" /> +52 453 109 0660
-            </a>
-            <a
-              href="https://www.oasistud.io"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 hover:text-white transition-colors"
-            >
-              <Globe className="h-4 w-4 text-[#C8A96E] shrink-0" /> www.oasistud.io
-            </a>
-            <div className="flex items-center gap-3">
-              <MapPin className="h-4 w-4 text-[#C8A96E] shrink-0" /> Ciudad de México
-            </div>
-          </div>
-
-          <div className="mt-8 flex gap-5 text-[13px] text-[#A8A29E]">
-            <a
-              href="https://instagram.com/oasistud.io"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              Instagram
-            </a>
-            <a
-              href="https://linkedin.com/company/oasistud"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              LinkedIn
-            </a>
-            <a
-              href="https://behance.net/rogertern"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition-colors"
-            >
-              Behance
-            </a>
+          <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 border-t-2 border-[#111110]">
+            {CHANNELS.map((c) => (
+              <a
+                key={c.label}
+                href={c.href}
+                target={c.external ? "_blank" : undefined}
+                rel={c.external ? "noopener noreferrer" : undefined}
+                className="group py-6 md:py-8 lg:px-6 lg:first:pl-0 border-b border-[#111110]/15 lg:border-b-0 lg:border-r lg:border-r-[#111110]/15 lg:last:border-r-0"
+              >
+                <span className="font-mono-label text-[10px] tracking-[0.24em] uppercase text-[#111110]/40">
+                  {c.label}
+                </span>
+                <p className="mt-2 font-condensed text-[clamp(20px,3vw,32px)] leading-none text-[#111110] group-hover:text-[#C5221F] transition-colors break-words">
+                  {c.value}
+                </p>
+              </a>
+            ))}
           </div>
         </div>
+      </section>
 
-        {/* Right — Form */}
-        <div className="lg:w-[60%] bg-[#FAF7F2] px-6 md:px-16 py-10 lg:py-24 flex items-start justify-center">
-          <div className="w-full max-w-lg">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
-                  Nombre completo *
-                </label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={set("name")}
-                  className={inputCls}
-                  placeholder="Tu nombre"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={set("email")}
-                  className={inputCls}
-                  placeholder="tu@email.com"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
-                  Empresa o marca
-                </label>
-                <input
-                  type="text"
-                  value={form.company}
-                  onChange={set("company")}
-                  className={inputCls}
-                  placeholder="Nombre de tu empresa (opcional)"
-                />
-              </div>
-
-              <div>
-                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
-                  ¿Qué necesitas?
-                </label>
-                <select value={form.need} onChange={set("need")} className={selectCls}>
-                  <option value="">Selecciona una opción</option>
-                  {NEED_OPTIONS.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
-                  Presupuesto aproximado
-                </label>
-                <select value={form.budget} onChange={set("budget")} className={selectCls}>
-                  <option value="">Selecciona un rango</option>
-                  {BUDGET_OPTIONS.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-[12px] font-semibold text-gray-900 mb-1.5 block">
-                  Cuéntanos de tu proyecto *
-                </label>
-                <textarea
-                  value={form.message}
-                  onChange={set("message")}
-                  rows={5}
-                  className="w-full px-4 py-3 rounded-sm border border-gray-300 bg-white text-[14px] text-gray-900 font-body focus:outline-none focus:border-[#C8A96E] transition-colors resize-none min-h-[120px]"
-                  placeholder="Describe tu proyecto, tus objetivos y tiempos..."
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={sending}
-                className="w-full h-12 rounded-sm bg-[#1C1917] text-white text-[14px] font-semibold flex items-center justify-center gap-2 hover:bg-[#2D2D2D] transition-colors disabled:opacity-50"
-              >
-                Preparar correo <ArrowRight className="h-4 w-4" />
-              </button>
-            </form>
-
-            <p className="mt-4 text-[12px] text-[#A8A29E]">
-              Al enviar este formulario aceptas nuestro{" "}
-              <Link
-                to="/aviso-de-privacidad"
-                className="underline hover:text-[#1C1917] transition-colors"
-              >
-                aviso de privacidad
-              </Link>
-              .
-            </p>
-
-            {/* Intern CTA */}
-            <div className="mt-12 pt-8 border-t border-[#E7E0D8]">
-              <p className="text-[14px] text-[#57534E] font-body">
-                ¿Eres estudiante y quieres hacer prácticas?
-              </p>
-              <button
-                type="button"
-                onClick={prefillIntern}
-                className="mt-3 text-[13px] font-semibold text-[#C8A96E] hover:text-[#1C1917] transition-colors flex items-center gap-1"
-              >
-                Postúlate aquí <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <BriefSection />
 
       <SiteFooter />
     </div>
