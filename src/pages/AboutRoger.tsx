@@ -12,7 +12,10 @@ const WA_URL = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
 )}`;
 
 const BIO: Bi[] = [
-  { es: 'Soy José Rogelio "Roger" Terán Bueno. Estudié Psicología en el Tec de Monterrey y después Dirección Creativa en Miami Ad School. Entender cómo piensan las personas y cómo comunicar ideas es lo que ha definido mi carrera.', en: 'I'm José Rogelio "Roger" Terán Bueno. I studied Psychology at Tec de Monterrey and then Creative Direction at Miami Ad School. Understanding how people think and how to communicate ideas is what has defined my career.' },
+  {
+    es: 'Soy José Rogelio "Roger" Terán Bueno. Estudié Psicología en el Tec de Monterrey y después Dirección Creativa en Miami Ad School. Entender cómo piensan las personas y cómo comunicar ideas es lo que ha definido mi carrera.',
+    en: 'I am José Rogelio "Roger" Terán Bueno. I studied Psychology at Tec de Monterrey and then Creative Direction at Miami Ad School. Understanding how people think and how to communicate ideas is what has defined my career.',
+  },
   { es: "He trabajado en agencias como Ogilvy, Leo Burnett, Havas, FCB, Media.Monks y VML. Fui Director Creativo de Nivea en FCB y llevé la estrategia de marca en español de los San Francisco 49ers, que se convirtieron en el equipo #1 de la NFL en redes sociales en México.", en: "I've worked at agencies like Ogilvy, Leo Burnett, Havas, FCB, Media.Monks, and VML. I was Creative Director for Nivea at FCB and ran the Spanish-language brand strategy for the San Francisco 49ers, who became the #1 NFL team on social media in Mexico." },
   { es: "Como Chief Growth Officer en Rocketfy escalé el revenue mensual de $1.5M a $4M USD en dos trimestres, liderando equipos de más de 40 personas entre Growth, Data, BI y Producto. En Platzi trabajé en el equipo de crecimiento enfocado en retención.", en: "As Chief Growth Officer at Rocketfy I scaled monthly revenue from $1.5M to $4M USD in two quarters, leading teams of 40+ people across Growth, Data, BI, and Product. At Platzi I worked on the growth team focused on retention." },
   { es: "Hoy doy clase en Miami Ad School México (Copywriting, Branding, Creative Direction y Paid Media) y dirijo Estudio Oasis.", en: "Today I teach at Miami Ad School Mexico (Copywriting, Branding, Creative Direction, and Paid Media) and run Estudio Oasis." },
