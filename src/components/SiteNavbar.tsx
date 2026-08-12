@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { SiteControls } from "@/components/SiteControls";
+import { useLang } from "@/i18n/LanguageContext";
 
 export function SiteNavbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 20);
@@ -13,58 +16,64 @@ export function SiteNavbar() {
   }, []);
 
   const links = [
-    { label: "Servicios", to: "/servicios" },
+    { label: t("Servicios", "Services"), to: "/servicios" },
     { label: "Roger", to: "/roger" },
-    { label: "Contacto", to: "/contacto" },
+    { label: t("Contacto", "Contact"), to: "/contacto" },
   ];
-
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 bg-[#FCFCFA] transition-all duration-300 ${
-        scrolled ? "border-b border-[#111110]/15" : "border-b border-transparent"
+      className={`fixed top-0 left-0 right-0 z-50 bg-[hsl(var(--paper))] transition-all duration-300 ${
+        scrolled ? "border-b border-[hsl(var(--ink)/0.15)]" : "border-b border-transparent"
       }`}
     >
-      <div className="max-w-[1700px] mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
-        <Link to="/" className="font-ultra text-[26px] md:text-[30px] leading-none text-[#111110]">
+      <div className="max-w-[1700px] mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+        <Link
+          to="/"
+          className="font-ultra text-[28px] md:text-[32px] leading-none text-[hsl(var(--ink))]"
+        >
           OASIS
         </Link>
 
-        <div className="hidden md:flex items-center gap-7">
+        <div className="hidden md:flex items-center gap-6">
           {links.map((l) => (
             <Link
               key={l.to}
               to={l.to}
-              className="font-mono-label text-[11px] tracking-[0.2em] uppercase text-[#111110]/55 hover:text-[#111110] transition-colors"
+              className="font-condensed text-[19px] leading-none text-[hsl(var(--ink)/0.55)] hover:text-[hsl(var(--ink))] transition-colors"
             >
               {l.label}
             </Link>
           ))}
+          <SiteControls />
           <Link
             to="/contacto"
-            className="font-mono-label text-[11px] tracking-[0.2em] uppercase px-5 py-2.5 bg-[#111110] text-[#FCFCFA] hover:bg-[#E8453C] transition-colors"
+            className="font-condensed text-[19px] leading-none h-10 px-5 flex items-center bg-[hsl(var(--ink))] text-[hsl(var(--paper))] hover:bg-[#E8453C] transition-colors"
           >
-            Hablemos
+            {t("Hablemos", "Let's talk")}
           </Link>
         </div>
 
-        <button
-          className="md:hidden text-[#111110]"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Menú"
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="md:hidden flex items-center gap-2">
+          <SiteControls />
+          <button
+            className="text-[hsl(var(--ink))] h-10 w-10 flex items-center justify-center"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={t("Menú", "Menu")}
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden bg-[#FCFCFA] border-b border-[#111110]/15 px-4 pb-5">
+        <div className="md:hidden bg-[hsl(var(--paper))] border-b border-[hsl(var(--ink)/0.15)] px-4 pb-5">
           {links.map((l) => (
             <Link
               key={l.to}
               to={l.to}
               onClick={() => setMobileOpen(false)}
-              className="block font-ultra text-[34px] leading-tight text-[#111110]"
+              className="block font-ultra text-[34px] leading-tight text-[hsl(var(--ink))]"
             >
               {l.label}
             </Link>
@@ -74,7 +83,7 @@ export function SiteNavbar() {
             onClick={() => setMobileOpen(false)}
             className="block mt-2 font-ultra text-[34px] leading-tight text-[#E8453C]"
           >
-            Hablemos →
+            {t("Hablemos", "Let's talk")} →
           </Link>
         </div>
       )}

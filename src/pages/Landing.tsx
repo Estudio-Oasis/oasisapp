@@ -5,6 +5,7 @@ import { BriefSection } from "@/components/home/BriefSection";
 import { ProofSection } from "@/components/home/ProofSection";
 import { CapabilitiesSection } from "@/components/home/CapabilitiesSection";
 import { ToolsMarqueeSection } from "@/components/home/ToolsMarqueeSection";
+import { QuoteBuilder } from "@/components/home/QuoteBuilder";
 import { CasesSection } from "@/components/home/CasesSection";
 import { ProcessSection } from "@/components/home/ProcessSection";
 import { ClosingCTA } from "@/components/home/ClosingCTA";
@@ -15,7 +16,7 @@ export default function LandingPage() {
   useScrollReveal();
 
   return (
-    <div className="min-h-screen font-body bg-[#FCFCFA]">
+    <div className="min-h-screen font-body bg-[hsl(var(--paper))]">
       <div className="grain-overlay" aria-hidden />
       <SiteNavbar />
 
@@ -23,6 +24,7 @@ export default function LandingPage() {
       <BriefSection />
       <ProofSection />
       <CasesSection />
+      <QuoteBuilder />
       <CapabilitiesSection />
       <ToolsMarqueeSection />
       <ProcessSection />

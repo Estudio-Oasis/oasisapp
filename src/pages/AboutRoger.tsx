@@ -40,19 +40,19 @@ const SKILLS = [
 
 export default function AboutRogerPage() {
   return (
-    <div className="min-h-screen font-body bg-[#FCFCFA]">
+    <div className="min-h-screen font-body bg-[hsl(var(--paper))]">
       <div className="grain-overlay" aria-hidden />
       <SiteNavbar />
 
       <section className="pt-24 md:pt-28 pb-14 md:pb-20">
         <div className="max-w-[1700px] mx-auto px-4 md:px-6">
-          <p className="font-mono-label text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#111110]/40">
+          <p className="font-label text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[hsl(var(--ink)/0.40)]">
             Hola, soy
           </p>
-          <h1 className="mt-5 font-ultra text-[clamp(52px,13vw,240px)] md:text-[min(10.5vw,16vh)] leading-[0.9] text-[#111110]">
+          <h1 className="mt-5 font-ultra text-[clamp(52px,13vw,240px)] md:text-[min(10.5vw,16vh)] leading-[0.9] text-[hsl(var(--ink))]">
             Roger <span className="text-[#C5221F]">Terán</span>
           </h1>
-          <p className="mt-6 font-condensed text-[clamp(20px,3.6vw,42px)] md:text-[min(2.6vw,4.4vh)] leading-[1.08] text-[#111110]/45 max-w-[46ch]">
+          <p className="mt-6 font-condensed text-[clamp(20px,3.6vw,42px)] md:text-[min(2.6vw,4.4vh)] leading-[1.08] text-[hsl(var(--ink)/0.45)] max-w-[46ch]">
             Product & growth con formación en psicología y dirección creativa. Fundador de Estudio
             Oasis.
           </p>
@@ -62,13 +62,13 @@ export default function AboutRogerPage() {
               href={WA_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="h-12 px-6 flex items-center font-mono-label text-[10px] tracking-[0.2em] uppercase bg-[#111110] text-[#FCFCFA] hover:bg-[#C5221F] transition-colors"
+              className="h-12 px-6 flex items-center font-label text-[10px] tracking-[0.2em] uppercase bg-[hsl(var(--ink))] text-[hsl(var(--paper))] hover:bg-[#C5221F] transition-colors"
             >
               WhatsApp
             </a>
             <a
               href={`mailto:${EMAIL}`}
-              className="h-12 px-6 flex items-center font-mono-label text-[10px] tracking-[0.2em] uppercase border-2 border-[#111110]/20 text-[#111110] hover:border-[#111110] transition-colors"
+              className="h-12 px-6 flex items-center font-label text-[10px] tracking-[0.2em] uppercase border-2 border-[hsl(var(--ink)/0.20)] text-[hsl(var(--ink))] hover:border-[hsl(var(--ink))] transition-colors"
             >
               Correo
             </a>
@@ -76,7 +76,7 @@ export default function AboutRogerPage() {
               href="https://www.linkedin.com/in/rogerteran"
               target="_blank"
               rel="noopener noreferrer"
-              className="h-12 px-6 flex items-center font-mono-label text-[10px] tracking-[0.2em] uppercase border-2 border-[#111110]/20 text-[#111110] hover:border-[#111110] transition-colors"
+              className="h-12 px-6 flex items-center font-label text-[10px] tracking-[0.2em] uppercase border-2 border-[hsl(var(--ink)/0.20)] text-[hsl(var(--ink))] hover:border-[hsl(var(--ink))] transition-colors"
             >
               LinkedIn
             </a>
@@ -84,7 +84,7 @@ export default function AboutRogerPage() {
               href="https://instagram.com/oasistud.io"
               target="_blank"
               rel="noopener noreferrer"
-              className="h-12 px-6 flex items-center font-mono-label text-[10px] tracking-[0.2em] uppercase border-2 border-[#111110]/20 text-[#111110] hover:border-[#111110] transition-colors"
+              className="h-12 px-6 flex items-center font-label text-[10px] tracking-[0.2em] uppercase border-2 border-[hsl(var(--ink)/0.20)] text-[hsl(var(--ink))] hover:border-[hsl(var(--ink))] transition-colors"
             >
               Instagram
             </a>
@@ -93,14 +93,14 @@ export default function AboutRogerPage() {
       </section>
 
       {/* Bio */}
-      <section className="border-t-2 border-[#111110] py-12 md:py-20">
+      <section className="border-t-2 border-[hsl(var(--ink))] py-12 md:py-20">
         <div className="max-w-[1700px] mx-auto px-4 md:px-6 grid md:grid-cols-[0.6fr_1.4fr] gap-8 md:gap-14">
-          <h2 className="font-ultra text-[clamp(28px,6vw,80px)] md:text-[min(4.4vw,7vh)] leading-[0.95] text-[#111110]">
-            Bio <span className="text-[#111110]/25">breve.</span>
+          <h2 className="font-ultra text-[clamp(28px,6vw,80px)] md:text-[min(4.4vw,7vh)] leading-[0.95] text-[hsl(var(--ink))]">
+            Bio <span className="text-[hsl(var(--ink)/0.25)]">breve.</span>
           </h2>
           <div className="space-y-5 max-w-[70ch]">
             {BIO.map((p) => (
-              <p key={p.slice(0, 24)} className="font-body text-[15px] md:text-[18px] leading-relaxed text-[#111110]/70">
+              <p key={p.slice(0, 24)} className="font-body text-[15px] md:text-[18px] leading-relaxed text-[hsl(var(--ink)/0.70)]">
                 {p}
               </p>
             ))}
@@ -109,18 +109,18 @@ export default function AboutRogerPage() {
       </section>
 
       {/* Trayectoria */}
-      <section className="border-t-2 border-[#111110] py-12 md:py-20">
+      <section className="border-t-2 border-[hsl(var(--ink))] py-12 md:py-20">
         <div className="max-w-[1700px] mx-auto px-4 md:px-6">
-          <h2 className="font-ultra text-[clamp(28px,6vw,80px)] md:text-[min(4.4vw,7vh)] leading-[0.95] text-[#111110]">
+          <h2 className="font-ultra text-[clamp(28px,6vw,80px)] md:text-[min(4.4vw,7vh)] leading-[0.95] text-[hsl(var(--ink))]">
             Trayectoria
           </h2>
-          <div className="mt-8 border-t-2 border-[#111110]">
+          <div className="mt-8 border-t-2 border-[hsl(var(--ink))]">
             {TIMELINE.map((t, i) => (
               <div
                 key={t.years + t.company}
-                className="py-6 border-b border-[#111110]/15 grid md:grid-cols-[160px_1fr_1.2fr] gap-2 md:gap-8"
+                className="py-6 border-b border-[hsl(var(--ink)/0.15)] grid md:grid-cols-[160px_1fr_1.2fr] gap-2 md:gap-8"
               >
-                <span className="font-mono-label text-[10px] md:text-[11px] tracking-[0.2em] uppercase text-[#111110]/40 pt-1">
+                <span className="font-label text-[10px] md:text-[11px] tracking-[0.2em] uppercase text-[hsl(var(--ink)/0.40)] pt-1">
                   {t.years}
                 </span>
                 <div>
@@ -130,9 +130,9 @@ export default function AboutRogerPage() {
                   >
                     {t.company}
                   </p>
-                  <p className="mt-1 font-body text-[14px] text-[#111110]/55">{t.role}</p>
+                  <p className="mt-1 font-body text-[14px] text-[hsl(var(--ink)/0.55)]">{t.role}</p>
                 </div>
-                <p className="font-body text-[15px] md:text-[16px] leading-relaxed text-[#111110]/65">
+                <p className="font-body text-[15px] md:text-[16px] leading-relaxed text-[hsl(var(--ink)/0.65)]">
                   {t.desc}
                 </p>
               </div>
@@ -142,21 +142,21 @@ export default function AboutRogerPage() {
       </section>
 
       {/* Skills */}
-      <section className="bg-[#111110] py-14 md:py-20">
+      <section className="bg-[hsl(var(--ink))] py-14 md:py-20">
         <div className="max-w-[1700px] mx-auto px-4 md:px-6">
-          <h2 className="font-ultra text-[clamp(28px,6vw,80px)] md:text-[min(4.4vw,7vh)] leading-[0.95] text-[#FCFCFA]">
+          <h2 className="font-ultra text-[clamp(28px,6vw,80px)] md:text-[min(4.4vw,7vh)] leading-[0.95] text-[hsl(var(--paper))]">
             Lo que sé hacer
           </h2>
-          <div className="mt-8 grid md:grid-cols-3 gap-8 border-t border-[#FCFCFA]/15 pt-8">
+          <div className="mt-8 grid md:grid-cols-3 gap-8 border-t border-[hsl(var(--paper)/0.15)] pt-8">
             {SKILLS.map((s, i) => (
               <div key={s.cat}>
                 <p
-                  className="font-mono-label text-[10px] tracking-[0.24em] uppercase"
+                  className="font-label text-[10px] tracking-[0.24em] uppercase"
                   style={{ color: PALETTE[i % PALETTE.length] }}
                 >
                   {s.cat}
                 </p>
-                <p className="mt-3 font-condensed text-[clamp(17px,2vw,26px)] leading-[1.2] text-[#FCFCFA]/70">
+                <p className="mt-3 font-condensed text-[clamp(17px,2vw,26px)] leading-[1.2] text-[hsl(var(--paper)/0.70)]">
                   {s.tags.join(" · ")}
                 </p>
               </div>
@@ -165,7 +165,7 @@ export default function AboutRogerPage() {
 
           <Link
             to="/#brief"
-            className="mt-12 inline-flex items-center gap-2 h-12 px-6 bg-[#FCFCFA] text-[#111110] hover:bg-[#C5221F] hover:text-[#FCFCFA] transition-colors font-mono-label text-[10px] tracking-[0.2em] uppercase"
+            className="mt-12 inline-flex items-center gap-2 h-12 px-6 bg-[hsl(var(--paper))] text-[hsl(var(--ink))] hover:bg-[#C5221F] hover:text-[hsl(var(--paper))] transition-colors font-label text-[10px] tracking-[0.2em] uppercase"
           >
             Cuéntame tu caso <ArrowRight className="h-4 w-4" />
           </Link>

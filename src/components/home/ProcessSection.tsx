@@ -25,17 +25,17 @@ const STEPS = [
 
 export function ProcessSection() {
   return (
-    <section data-reveal className="bg-[#FCFCFA] pb-20 md:pb-24">
+    <section data-reveal className="bg-[hsl(var(--paper))] pb-20 md:pb-24">
       <div className="max-w-[1700px] mx-auto px-4 md:px-6">
-        <p className="font-mono-label text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[#111110]/40">
+        <p className="font-label text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[hsl(var(--ink)/0.40)]">
           Cómo trabajamos
         </p>
 
-        <div className="mt-6 grid md:grid-cols-4 border-t-2 border-[#111110]">
+        <div className="mt-6 grid md:grid-cols-4 border-t-2 border-[hsl(var(--ink))]">
           {STEPS.map((s, i) => (
             <div
               key={s.n}
-              className="py-7 md:py-9 md:px-6 md:first:pl-0 border-b border-[#111110]/15 md:border-b-0 md:border-r md:border-r-[#111110]/15 md:last:border-r-0"
+              className="py-7 md:py-9 md:px-6 md:first:pl-0 border-b border-[hsl(var(--ink)/0.15)] md:border-b-0 md:border-r md:border-r-[hsl(var(--ink)/0.15)] md:last:border-r-0"
             >
               <span
                 className="font-ultra text-[clamp(38px,9vw,90px)] md:text-[min(4.6vw,8vh)] leading-none"
@@ -43,10 +43,10 @@ export function ProcessSection() {
               >
                 {s.n}
               </span>
-              <h3 className="mt-2 font-condensed text-[clamp(20px,4vw,34px)] md:text-[min(2vw,3.4vh)] leading-none text-[#111110]">
+              <h3 className="mt-2 font-condensed text-[clamp(20px,4vw,34px)] md:text-[min(2vw,3.4vh)] leading-none text-[hsl(var(--ink))]">
                 {s.title}
               </h3>
-              <p className="mt-3 text-[14px] md:text-[15px] leading-relaxed text-[#111110]/60">
+              <p className="mt-3 text-[14px] md:text-[15px] leading-relaxed text-[hsl(var(--ink)/0.60)]">
                 {s.body}
               </p>
             </div>
