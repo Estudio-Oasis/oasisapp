@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { ArrowRight, Check } from "lucide-react";
+import { toast } from "sonner";
 import { PALETTE } from "./heroContent";
-import { useLang } from "@/i18n/LanguageContext";
-
-type Bi = { es: string; en: string };
+import { submitLead } from "@/lib/leads";
+import { useLang, type Bi } from "@/i18n/LanguageContext";
 
 type Need = {
   id: string;
@@ -168,8 +168,7 @@ const STAGES: { id: string; label: Bi; factor: number }[] = [
 const money = (n: number) => `$${n.toLocaleString("en-US")}`;
 
 export function QuoteBuilder() {
-  const { lang, t } = useLang();
-  const pick = (v: Bi) => (lang === "en" ? v.en : v.es);
+  const { lang, t, pick } = useLang();
 
   const [selected, setSelected] = useState<string[]>([]);
   const [stage, setStage] = useState<string>("marcha");
@@ -178,6 +177,7 @@ export function QuoteBuilder() {
   const [company, setCompany] = useState("");
   const [context, setContext] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const chosen = NEEDS.filter((n) => selected.includes(n.id));
   const factor = STAGES.find((s) => s.id === stage)?.factor ?? 1;
@@ -200,31 +200,37 @@ export function QuoteBuilder() {
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const canSend = selected.length > 0 && emailValid;
 
-  const submit = () => {
-    if (!canSend) return;
-    const lines = [
-      `Nombre: ${name || "-"}`,
-      `Empresa: ${company || "-"}`,
-      `Correo: ${email}`,
-      `Momento: ${pick(STAGES.find((s) => s.id === stage)!.label)}`,
-      "",
-      "Necesidades:",
-      ...chosen.map((c) => `- ${pick(c.label)} (${money(c.min)}–${money(c.max)} USD / ${c.basis})`),
-      "",
-      totals.hasMonthly
-        ? `Rango mensual estimado: ${money(totals.monthlyMin)}–${money(totals.monthlyMax)} USD`
-        : "",
-      totals.hasProject
-        ? `Rango de proyecto estimado: ${money(totals.projectMin)}–${money(totals.projectMax)} USD`
-        : "",
-      "",
-      "Contexto:",
-      context || "-",
-    ].filter(Boolean);
-    window.location.href = `mailto:r@oasistud.io?subject=${encodeURIComponent(
-      `Cotización — ${company || name || email}`,
-    )}&body=${encodeURIComponent(lines.join("\n"))}`;
-    setSent(true);
+  const submit = async () => {
+    if (!canSend || sending) return;
+    setSending(true);
+    const res = await submitLead({
+      source: "cotizador",
+      lang,
+      name,
+      company,
+      email,
+      stage: STAGES.find((s) => s.id === stage)?.id,
+      needs: chosen.map((c) => c.id),
+      context,
+      monthly_min: totals.hasMonthly ? totals.monthlyMin : null,
+      monthly_max: totals.hasMonthly ? totals.monthlyMax : null,
+      project_min: totals.hasProject ? totals.projectMin : null,
+      project_max: totals.hasProject ? totals.projectMax : null,
+    });
+    setSending(false);
+    if (res.ok) {
+      setSent(true);
+      toast.success(
+        t("Recibido. Te escribimos pronto.", "Got it. We'll write to you soon."),
+      );
+    } else {
+      toast.error(
+        t(
+          "No pudimos enviarlo. Escríbenos a r@oasistud.io.",
+          "We couldn't send it. Email us at r@oasistud.io.",
+        ),
+      );
+    }
   };
 
   return (
@@ -254,7 +260,7 @@ export function QuoteBuilder() {
               {t("(escoge una o varias)", "(pick one or more)")}
             </span>
           </h3>
-          <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {NEEDS.map((n) => {
               const on = selected.includes(n.id);
               return (
@@ -264,7 +270,7 @@ export function QuoteBuilder() {
                   onClick={() =>
                     setSelected((p) => (on ? p.filter((x) => x !== n.id) : [...p, n.id]))
                   }
-                  className="text-left p-5 border-2 transition-colors"
+                  className="text-left p-4 md:p-5 border-2 transition-colors"
                   style={{
                     borderColor: on ? n.color : "hsl(var(--ink)/0.15)",
                     backgroundColor: on ? `${n.color}12` : "transparent",
@@ -433,12 +439,14 @@ export function QuoteBuilder() {
             <button
               type="button"
               onClick={submit}
-              disabled={!canSend}
+              disabled={!canSend || sending || sent}
               className="mt-5 w-full h-14 flex items-center justify-center gap-2 bg-[hsl(var(--paper))] text-[hsl(var(--ink))] font-condensed text-[21px] hover:bg-[#E8453C] hover:text-[hsl(var(--paper))] transition-colors disabled:opacity-35 disabled:hover:bg-[hsl(var(--paper))] disabled:hover:text-[hsl(var(--ink))]"
             >
               {sent
                 ? t("¡Listo, ya viene!", "Done, it's on its way!")
-                : t("Quiero mi propuesta", "Send me my proposal")}
+                : sending
+                  ? t("Enviando…", "Sending…")
+                  : t("Quiero mi propuesta", "Send me my proposal")}
               <ArrowRight className="h-5 w-5" />
             </button>
 

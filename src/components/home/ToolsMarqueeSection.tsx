@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { PALETTE, TOOL_LANES, type Tool, type ToolLane } from "./heroContent";
+import { useLang } from "@/i18n/LanguageContext";
 
 type ActiveTool = { tool: Tool; color: string; key: string };
 
@@ -17,6 +18,7 @@ function ToolChip({
   onToggle: () => void;
   onClose: () => void;
 }) {
+  const { t, pick } = useLang();
   return (
     <span className="relative shrink-0">
       <button
@@ -49,14 +51,14 @@ function ToolChip({
             <button
               type="button"
               onClick={onClose}
-              aria-label="Cerrar"
+              aria-label={t("Cerrar", "Close")}
               className="shrink-0 -mt-1 h-6 w-6 flex items-center justify-center border border-[hsl(var(--ink)/0.20)] hover:border-[hsl(var(--ink))] transition-colors"
             >
               <X className="h-3 w-3 text-[hsl(var(--ink))]" />
             </button>
           </span>
           <span className="mt-2 block font-body text-[13px] md:text-[14px] leading-relaxed text-[hsl(var(--ink)/0.70)] normal-case tracking-normal">
-            {tool.desc}
+            {pick(tool.desc)}
           </span>
         </span>
       ) : null}
@@ -113,6 +115,7 @@ function Lane({
 }
 
 export function ToolsMarqueeSection() {
+  const { t } = useLang();
   const [active, setActive] = useState<ActiveTool | null>(null);
 
   useEffect(() => {
@@ -128,16 +131,22 @@ export function ToolsMarqueeSection() {
     >
       <div className="max-w-[1700px] mx-auto">
         <h2 className="px-4 md:px-6 font-ultra text-[clamp(44px,10vw,180px)] leading-[0.86] text-[hsl(var(--ink))]">
-          Herramientas: <span className="text-[hsl(var(--ink)/0.30)]">ni te preocupes.</span>
+          {t("Herramientas:", "Tools:")}{" "}
+          <span className="text-[hsl(var(--ink)/0.30)]">
+            {t("ni te preocupes.", "don't worry about it.")}
+          </span>
         </h2>
         <p className="px-4 md:px-6 mt-4 font-condensed text-[clamp(19px,3vw,38px)] md:text-[min(2.4vw,4vh)] leading-[1.1] text-[hsl(var(--ink)/0.55)] max-w-[46ch]">
-          Llevamos 12 años usando todas. Toca cualquiera para ver para qué la usamos.
+          {t(
+            "Llevamos 12 años usando todas. Toca cualquiera para ver para qué la usamos.",
+            "We've been using all of them for 12 years. Tap any one to see what we use it for.",
+          )}
         </p>
 
         <div className="mt-8 md:mt-12">
           {TOOL_LANES.map((lane, i) => (
             <Lane
-              key={lane.title}
+              key={lane.id}
               lane={lane}
               laneIndex={i}
               offset={i * 3}

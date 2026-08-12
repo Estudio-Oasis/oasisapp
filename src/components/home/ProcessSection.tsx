@@ -1,34 +1,48 @@
 import { PALETTE } from "./heroContent";
+import { useLang, type Bi } from "@/i18n/LanguageContext";
 
-const STEPS = [
+const STEPS: { n: string; title: Bi; body: Bi }[] = [
   {
     n: "01",
-    title: "Diagnóstico",
-    body: "Entramos a tus números, tus canales y tu operación. En días, no en meses. Te decimos qué está roto y qué se puede cobrar antes.",
+    title: { es: "Diagnóstico", en: "Diagnosis" },
+    body: {
+      es: "Entramos a tus números, tus canales y tu operación. En días, no en meses. Te decimos qué está roto y qué se puede cobrar antes.",
+      en: "We get into your numbers, channels, and operation. In days, not months. We tell you what's broken and what can bring cash in sooner.",
+    },
   },
   {
     n: "02",
-    title: "Sistema",
-    body: "Ordenamos oferta, precio, medición y seguimiento. Sin sistema, cualquier campaña es una apuesta.",
+    title: { es: "Sistema", en: "System" },
+    body: {
+      es: "Ordenamos oferta, precio, medición y seguimiento. Sin sistema, cualquier campaña es una apuesta.",
+      en: "We put offer, pricing, tracking, and follow-up in order. Without a system, any campaign is a bet.",
+    },
   },
   {
     n: "03",
-    title: "Ejecución",
-    body: "Marca, contenido, pauta, tienda, software, automatizaciones. Lo hace el equipo que lo diseñó, no un tercero.",
+    title: { es: "Ejecución", en: "Execution" },
+    body: {
+      es: "Marca, contenido, pauta, tienda, software, automatizaciones. Lo hace el equipo que lo diseñó, no un tercero.",
+      en: "Brand, content, paid media, store, software, automations. Done by the team that designed it, not a third party.",
+    },
   },
   {
     n: "04",
-    title: "Escala",
-    body: "Lo que funciona se repite y se mide. Lo que no, se corta. Cada mes con números a la vista.",
+    title: { es: "Escala", en: "Scale" },
+    body: {
+      es: "Lo que funciona se repite y se mide. Lo que no, se corta. Cada mes con números a la vista.",
+      en: "What works gets repeated and measured. What doesn't gets cut. Every month with the numbers in plain sight.",
+    },
   },
 ];
 
 export function ProcessSection() {
+  const { t, pick } = useLang();
   return (
     <section data-reveal className="bg-[hsl(var(--paper))] pb-20 md:pb-24">
       <div className="max-w-[1700px] mx-auto px-4 md:px-6">
         <p className="font-label text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[hsl(var(--ink)/0.40)]">
-          Cómo trabajamos
+          {t("Cómo trabajamos", "How we work")}
         </p>
 
         <div className="mt-6 grid md:grid-cols-4 border-t-2 border-[hsl(var(--ink))]">
@@ -44,10 +58,10 @@ export function ProcessSection() {
                 {s.n}
               </span>
               <h3 className="mt-2 font-condensed text-[clamp(20px,4vw,34px)] md:text-[min(2vw,3.4vh)] leading-none text-[hsl(var(--ink))]">
-                {s.title}
+                {pick(s.title)}
               </h3>
               <p className="mt-3 text-[14px] md:text-[15px] leading-relaxed text-[hsl(var(--ink)/0.60)]">
-                {s.body}
+                {pick(s.body)}
               </p>
             </div>
           ))}
