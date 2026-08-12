@@ -9,20 +9,6 @@ export const PALETTE = [
   "#C5221F", // deep red
 ];
 
-export type Answer = {
-  id: string;
-  label: string;
-  /** Short category label (no numbering) */
-  kicker: string;
-  /** Main copy: everyday language, naming real tools */
-  body: string;
-  /** Optional second line: how we solve it */
-  solution?: string;
-  color: string;
-  /** Relative tile weight for the puzzle layout */
-  span: number;
-};
-
 /** Las 5 etapas del sistema de crecimiento — se muestran como slider tipo app */
 export type Stage = {
   id: string;

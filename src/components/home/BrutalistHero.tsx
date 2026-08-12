@@ -18,7 +18,7 @@ function useRotator(length: number, interval: number, offset = 0) {
   return i;
 }
 
-export function RotatingWord({
+function RotatingWord({
   words,
   interval,
   offset = 0,
