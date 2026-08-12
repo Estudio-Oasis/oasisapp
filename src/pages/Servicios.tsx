@@ -111,7 +111,7 @@ const PRICING = [
     body: "Cada propuesta trae un rango mínimo, uno recomendado y uno ampliado. Sabes desde el día uno qué compra cada nivel y qué queda fuera.",
   },
   {
-    title: "Una célula cuesta menos que piezas suertas",
+    title: "Una célula cuesta menos que piezas sueltas",
     body: "Un servicio aislado siempre es proporcionalmente más caro. Si varias áreas trabajan juntas, el costo por resultado baja.",
   },
   {
