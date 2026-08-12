@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Provider as TooltipProvider } from "@radix-ui/react-tooltip";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { LanguageProvider } from "@/i18n/LanguageContext";
 
 import LandingPage from "./pages/Landing";
 import AboutRoger from "./pages/AboutRoger";
@@ -16,6 +17,7 @@ import NotFound from "./pages/NotFound";
 const App = () => (
   <ErrorBoundary>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+      <LanguageProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -33,6 +35,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+    </LanguageProvider>
     </ThemeProvider>
   </ErrorBoundary>
 );

@@ -74,10 +74,10 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`font-mono-label text-[10px] md:text-[11px] tracking-[0.14em] uppercase px-3 md:px-4 py-2.5 border-2 transition-colors ${
+      className={`font-label text-[10px] md:text-[11px] tracking-[0.14em] uppercase px-3 md:px-4 py-2.5 border-2 transition-colors ${
         on
-          ? "border-[#C5221F] bg-[#C5221F] text-[#FCFCFA]"
-          : "border-[#111110]/15 text-[#111110]/60 hover:border-[#111110] hover:text-[#111110]"
+          ? "border-[#C5221F] bg-[#C5221F] text-[hsl(var(--paper))]"
+          : "border-[hsl(var(--ink)/0.15)] text-[hsl(var(--ink)/0.60)] hover:border-[hsl(var(--ink))] hover:text-[hsl(var(--ink))]"
       }`}
     >
       {label}
@@ -86,7 +86,7 @@ function Chip({
 }
 
 const inputClass =
-  "w-full bg-transparent border-b-2 border-[#111110]/15 focus:border-[#C5221F] outline-none py-3 font-condensed text-[clamp(20px,3vw,34px)] leading-none text-[#111110] placeholder:text-[#111110]/25 transition-colors";
+  "w-full bg-transparent border-b-2 border-[hsl(var(--ink)/0.15)] focus:border-[#C5221F] outline-none py-3 font-condensed text-[clamp(20px,3vw,34px)] leading-none text-[hsl(var(--ink))] placeholder:text-[hsl(var(--ink)/0.25)] transition-colors";
 
 export function BriefSection() {
   const [step, setStep] = useState(0);
@@ -125,13 +125,13 @@ export function BriefSection() {
   return (
     <section
       id="brief"
-      className="bg-[#FCFCFA] border-t-2 border-[#111110] pt-10 md:pt-16 pb-20 md:pb-28"
+      className="bg-[hsl(var(--paper))] border-t-2 border-[hsl(var(--ink))] pt-10 md:pt-16 pb-20 md:pb-28"
     >
       <div className="max-w-[1700px] mx-auto px-4 md:px-6">
-        <h2 className="font-ultra text-[clamp(38px,8.4vw,150px)] md:text-[min(7.4vw,12vh)] leading-[0.92] text-[#111110]">
+        <h2 className="font-ultra text-[clamp(38px,8.4vw,150px)] md:text-[min(7.4vw,12vh)] leading-[0.92] text-[hsl(var(--ink))]">
           ¿De qué trata <span className="text-[#C5221F]">tu negocio?</span>
         </h2>
-        <p className="mt-4 font-body text-[15px] md:text-[18px] leading-relaxed text-[#111110]/55 max-w-[68ch]">
+        <p className="mt-4 font-body text-[15px] md:text-[18px] leading-relaxed text-[hsl(var(--ink)/0.55)] max-w-[68ch]">
           No nos digas sólo “quiero más ventas”. Danos contexto real y te regresamos un diagnóstico y
           un plan, no una propuesta genérica.
         </p>
@@ -144,12 +144,12 @@ export function BriefSection() {
               type="button"
               onClick={() => setStep(i)}
               className={`flex-1 text-left border-t-4 pt-2 transition-colors ${
-                i <= step ? "border-[#C5221F]" : "border-[#111110]/12"
+                i <= step ? "border-[#C5221F]" : "border-[hsl(var(--ink)/0.12)]"
               }`}
             >
               <span
-                className={`font-mono-label text-[9px] md:text-[11px] tracking-[0.2em] uppercase ${
-                  i <= step ? "text-[#111110]" : "text-[#111110]/35"
+                className={`font-label text-[9px] md:text-[11px] tracking-[0.2em] uppercase ${
+                  i <= step ? "text-[hsl(var(--ink))]" : "text-[hsl(var(--ink)/0.35)]"
                 }`}
               >
                 0{i + 1} {s}
@@ -163,7 +163,7 @@ export function BriefSection() {
             <div className="grid md:grid-cols-2 gap-8 md:gap-12">
               <div className="space-y-8">
                 <label className="block">
-                  <span className="font-mono-label text-[10px] tracking-[0.24em] uppercase text-[#111110]/40">
+                  <span className="font-label text-[10px] tracking-[0.24em] uppercase text-[hsl(var(--ink)/0.40)]">
                     A qué se dedica
                   </span>
                   <input
@@ -174,7 +174,7 @@ export function BriefSection() {
                   />
                 </label>
                 <label className="block">
-                  <span className="font-mono-label text-[10px] tracking-[0.24em] uppercase text-[#111110]/40">
+                  <span className="font-label text-[10px] tracking-[0.24em] uppercase text-[hsl(var(--ink)/0.40)]">
                     Sitio o redes
                   </span>
                   <input
@@ -187,7 +187,7 @@ export function BriefSection() {
               </div>
               <div className="space-y-8">
                 <div>
-                  <span className="font-mono-label text-[10px] tracking-[0.24em] uppercase text-[#111110]/40">
+                  <span className="font-label text-[10px] tracking-[0.24em] uppercase text-[hsl(var(--ink)/0.40)]">
                     Tamaño del equipo
                   </span>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -197,7 +197,7 @@ export function BriefSection() {
                   </div>
                 </div>
                 <div>
-                  <span className="font-mono-label text-[10px] tracking-[0.24em] uppercase text-[#111110]/40">
+                  <span className="font-label text-[10px] tracking-[0.24em] uppercase text-[hsl(var(--ink)/0.40)]">
                     Ventas actuales
                   </span>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -218,7 +218,7 @@ export function BriefSection() {
           {step === 1 && (
             <div className="grid md:grid-cols-2 gap-8 md:gap-12">
               <div>
-                <span className="font-mono-label text-[10px] tracking-[0.24em] uppercase text-[#111110]/40">
+                <span className="font-label text-[10px] tracking-[0.24em] uppercase text-[hsl(var(--ink)/0.40)]">
                   Canales activos hoy
                 </span>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -233,7 +233,7 @@ export function BriefSection() {
                 </div>
               </div>
               <div>
-                <span className="font-mono-label text-[10px] tracking-[0.24em] uppercase text-[#111110]/40">
+                <span className="font-label text-[10px] tracking-[0.24em] uppercase text-[hsl(var(--ink)/0.40)]">
                   Qué necesitas primero
                 </span>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -254,24 +254,24 @@ export function BriefSection() {
             <div className="grid md:grid-cols-2 gap-8 md:gap-12">
               <div className="space-y-6">
                 <label className="block">
-                  <span className="font-mono-label text-[10px] tracking-[0.24em] uppercase text-[#111110]/40">
+                  <span className="font-label text-[10px] tracking-[0.24em] uppercase text-[hsl(var(--ink)/0.40)]">
                     Qué está pasando
                   </span>
                   <textarea
                     rows={4}
-                    className="mt-2 w-full bg-transparent border-2 border-[#111110]/15 focus:border-[#C5221F] outline-none p-4 font-body text-[15px] md:text-[17px] leading-relaxed text-[#111110] placeholder:text-[#111110]/30 transition-colors"
+                    className="mt-2 w-full bg-transparent border-2 border-[hsl(var(--ink)/0.15)] focus:border-[#C5221F] outline-none p-4 font-body text-[15px] md:text-[17px] leading-relaxed text-[hsl(var(--ink))] placeholder:text-[hsl(var(--ink)/0.30)] transition-colors"
                     value={f.context}
                     onChange={(e) => set("context", e.target.value)}
                     placeholder="Cuéntanos sin filtro: qué se cayó, qué te preocupa, qué números no cuadran."
                   />
                 </label>
                 <label className="block">
-                  <span className="font-mono-label text-[10px] tracking-[0.24em] uppercase text-[#111110]/40">
+                  <span className="font-label text-[10px] tracking-[0.24em] uppercase text-[hsl(var(--ink)/0.40)]">
                     Qué ya intentaste
                   </span>
                   <textarea
                     rows={3}
-                    className="mt-2 w-full bg-transparent border-2 border-[#111110]/15 focus:border-[#C5221F] outline-none p-4 font-body text-[15px] md:text-[17px] leading-relaxed text-[#111110] placeholder:text-[#111110]/30 transition-colors"
+                    className="mt-2 w-full bg-transparent border-2 border-[hsl(var(--ink)/0.15)] focus:border-[#C5221F] outline-none p-4 font-body text-[15px] md:text-[17px] leading-relaxed text-[hsl(var(--ink))] placeholder:text-[hsl(var(--ink)/0.30)] transition-colors"
                     value={f.tried}
                     onChange={(e) => set("tried", e.target.value)}
                     placeholder="Agencias, pauta, rediseños, gente nueva…"
@@ -280,7 +280,7 @@ export function BriefSection() {
               </div>
               <div className="space-y-8">
                 <label className="block">
-                  <span className="font-mono-label text-[10px] tracking-[0.24em] uppercase text-[#111110]/40">
+                  <span className="font-label text-[10px] tracking-[0.24em] uppercase text-[hsl(var(--ink)/0.40)]">
                     Tu nombre
                   </span>
                   <input
@@ -291,7 +291,7 @@ export function BriefSection() {
                   />
                 </label>
                 <label className="block">
-                  <span className="font-mono-label text-[10px] tracking-[0.24em] uppercase text-[#111110]/40">
+                  <span className="font-label text-[10px] tracking-[0.24em] uppercase text-[hsl(var(--ink)/0.40)]">
                     Correo o WhatsApp
                   </span>
                   <input
@@ -313,16 +313,16 @@ export function BriefSection() {
               type="button"
               onClick={() => setStep(step - 1)}
               aria-label="Anterior"
-              className="h-12 w-12 flex items-center justify-center border-2 border-[#111110]/15 hover:border-[#111110] transition-colors"
+              className="h-12 w-12 flex items-center justify-center border-2 border-[hsl(var(--ink)/0.15)] hover:border-[hsl(var(--ink))] transition-colors"
             >
-              <ArrowLeft className="h-4 w-4 text-[#111110]" />
+              <ArrowLeft className="h-4 w-4 text-[hsl(var(--ink))]" />
             </button>
           )}
           {step < STEPS.length - 1 ? (
             <button
               type="button"
               onClick={() => setStep(step + 1)}
-              className="h-12 px-6 flex items-center gap-2 bg-[#111110] text-[#FCFCFA] hover:bg-[#C5221F] transition-colors font-mono-label text-[10px] tracking-[0.2em] uppercase"
+              className="h-12 px-6 flex items-center gap-2 bg-[hsl(var(--ink))] text-[hsl(var(--paper))] hover:bg-[#C5221F] transition-colors font-label text-[10px] tracking-[0.2em] uppercase"
             >
               Siguiente: {STEPS[step + 1]}
               <ArrowRight className="h-4 w-4" />
@@ -331,13 +331,13 @@ export function BriefSection() {
             <button
               type="button"
               onClick={send}
-              className="h-12 px-6 flex items-center gap-2 bg-[#C5221F] text-[#FCFCFA] hover:bg-[#111110] transition-colors font-mono-label text-[10px] tracking-[0.2em] uppercase"
+              className="h-12 px-6 flex items-center gap-2 bg-[#C5221F] text-[hsl(var(--paper))] hover:bg-[hsl(var(--ink))] transition-colors font-label text-[10px] tracking-[0.2em] uppercase"
             >
               Enviar brief
               <Check className="h-4 w-4" />
             </button>
           )}
-          <span className="font-mono-label text-[10px] tracking-[0.2em] uppercase text-[#111110]/35">
+          <span className="font-label text-[10px] tracking-[0.2em] uppercase text-[hsl(var(--ink)/0.35)]">
             Respondemos en menos de 24 h
           </span>
         </div>
