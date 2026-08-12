@@ -63,7 +63,6 @@ export function BrutalistHero() {
       {/* Headline */}
       <div className="max-w-[1700px] mx-auto px-4 md:px-6">
         <h1 className="font-ultra text-[hsl(var(--ink))] leading-[0.9] text-[clamp(42px,11vw,220px)] md:text-[min(9.6vw,15vh)]">
-          {t("es", "en") === "en" ? null : null}
           <span className="block">{t("Somos una empresa", "We are a company")}</span>
           <span className="block">
             {t("dedicada al", "built for")}{" "}
