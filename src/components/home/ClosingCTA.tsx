@@ -1,18 +1,23 @@
 import { Link } from "react-router-dom";
+import { useLang } from "@/i18n/LanguageContext";
 
 export function ClosingCTA() {
+  const { t } = useLang();
   return (
     <section data-reveal className="bg-[hsl(var(--ink))] py-24 md:py-28">
       <div className="max-w-[1700px] mx-auto px-4 md:px-6">
         <p className="font-label text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[hsl(var(--paper)/0.40)]">
-          Siguiente paso
+          {t("Siguiente paso", "Next step")}
         </p>
         <h2 className="mt-6 font-ultra leading-[0.85] text-[clamp(56px,14vw,260px)] md:text-[min(11.5vw,17vh)] text-[hsl(var(--paper))]">
-          <span className="block">Cuéntanos</span>
-          <span className="block text-[#E8453C]">qué está roto.</span>
+          <span className="block">{t("Cuéntanos", "Tell us")}</span>
+          <span className="block text-[#E8453C]">{t("qué está roto.", "what's broken.")}</span>
         </h2>
         <p className="mt-8 font-condensed text-[clamp(18px,3.4vw,40px)] md:text-[min(2.4vw,4vh)] leading-[1.06] text-[hsl(var(--paper)/0.50)] max-w-[40ch]">
-          Respondemos en menos de 24 horas, con diagnóstico, no con propuesta genérica.
+          {t(
+            "Respondemos en menos de 24 horas, con diagnóstico, no con propuesta genérica.",
+            "We reply within 24 hours, with a diagnosis — not a generic proposal.",
+          )}
         </p>
 
         <div className="mt-10 flex flex-wrap gap-3">
@@ -20,7 +25,7 @@ export function ClosingCTA() {
             to="/contacto"
             className="font-label text-[11px] tracking-[0.2em] uppercase px-7 py-4 bg-[hsl(var(--paper))] text-[hsl(var(--ink))] hover:bg-[#E8453C] hover:text-[hsl(var(--paper))] transition-colors"
           >
-            Escribirnos
+            {t("Escribirnos", "Write to us")}
           </Link>
           <a
             href="https://wa.me/525667701206"
