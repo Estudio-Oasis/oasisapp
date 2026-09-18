@@ -6,6 +6,8 @@ import { QuoteBuilder } from "@/components/home/QuoteBuilder";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PALETTE, STAGES } from "@/components/home/heroContent";
 import { useLang, type Bi } from "@/i18n/LanguageContext";
+import { ExpertCTA } from "@/components/ExpertCTA";
+import { Seo } from "@/components/Seo";
 
 type Need = {
   id: string;
@@ -175,6 +177,14 @@ const PRICING: { title: Bi; body: Bi }[] = [
   },
 ];
 
+const PRACTICES: { title: string; label: Bi; items: string[]; soon?: boolean }[] = [
+  { title: "Strategy & Growth", label: { es: "Dirección", en: "Direction" }, items: ["Growth strategy", "Market research", "Offers", "Funnel design", "Analytics", "Experimentation"] },
+  { title: "Brand & Content", label: { es: "Significado", en: "Meaning" }, items: ["Brand strategy", "Creative direction", "Social content", "Video", "Copywriting", "Campaign creative"] },
+  { title: "Acquisition", label: { es: "Demanda", en: "Demand" }, items: ["Meta Ads", "Google Ads", "LinkedIn", "SEO", "AEO", "Influencers", "Outbound"] },
+  { title: "Digital Experience", label: { es: "Conversión", en: "Conversion" }, items: ["Websites", "E-commerce", "Landing pages", "CRO", "UX/UI"] },
+  { title: "Growth Infrastructure", label: { es: "Próximamente", en: "Coming soon" }, items: ["CRM", "Lead management", "Automations", "WhatsApp", "AI agents", "Reputation", "Sales pipelines", "Reactivation", "Dashboards"], soon: true },
+];
+
 export default function ServiciosPage() {
   const { t, pick } = useLang();
   const [active, setActive] = useState<Need>(NEEDS[0]);
@@ -182,6 +192,7 @@ export default function ServiciosPage() {
   return (
     <div className="min-h-screen font-body bg-[hsl(var(--paper))]">
       <div className="grain-overlay" aria-hidden />
+      <Seo title={{ es: "Servicios de growth | Estudio Oasis", en: "Growth services | Estudio Oasis" }} description={{ es: "Estrategia, marca, adquisición, experiencia digital e infraestructura conectadas alrededor de un sistema de crecimiento.", en: "Strategy, brand, acquisition, digital experience, and infrastructure connected around a growth system." }} path="/servicios" />
       <SiteNavbar />
 
       <section className="pt-24 md:pt-28 pb-12 md:pb-20">
@@ -202,6 +213,17 @@ export default function ServiciosPage() {
               "No inflated promises. Pick your situation and we'll show you the honest diagnosis, the plan, and which stages of the system we touch.",
             )}
           </p>
+        </div>
+      </section>
+
+      <section className="border-t-2 border-[hsl(var(--ink))] py-12 md:py-20">
+        <div className="mx-auto max-w-[1700px] px-4 md:px-6">
+          <p className="font-label text-[hsl(var(--ink)/.4)]">{t("Capacidades conectadas", "Connected capabilities")}</p>
+          <h2 className="mt-4 max-w-[15ch] font-ultra text-[clamp(34px,7vw,110px)] leading-[.92] text-[hsl(var(--ink))]">{t("No vendemos un menú. Armamos el sistema que el problema necesita.", "We do not sell a menu. We build the system the problem needs.")}</h2>
+          <div className="mt-10 grid gap-px bg-[hsl(var(--ink)/.16)] border border-[hsl(var(--ink)/.16)] md:grid-cols-2 lg:grid-cols-5">
+            {PRACTICES.map((practice) => <div key={practice.title} className={`p-5 md:p-6 ${practice.soon ? "bg-[hsl(var(--ink))] text-[hsl(var(--paper))]" : "bg-[hsl(var(--paper))] text-[hsl(var(--ink))]"}`}><p className={`font-label ${practice.soon ? "text-destructive" : "text-[hsl(var(--ink)/.42)]"}`}>{pick(practice.label)}</p><h3 className="mt-3 font-condensed text-[26px] leading-none">{practice.title}</h3><p className={`mt-5 text-[14px] leading-loose ${practice.soon ? "text-[hsl(var(--paper)/.58)]" : "text-[hsl(var(--ink)/.58)]"}`}>{practice.items.join(" · ")}</p></div>)}
+          </div>
+          <div className="mt-8"><ExpertCTA source="servicios-arquitectura" /></div>
         </div>
       </section>
 

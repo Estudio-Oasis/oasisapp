@@ -9,6 +9,7 @@ type Case = {
   headline: { es: string; en: string };
   body: { es: string; en: string };
   result: { es: string; en: string };
+  learning?: { es: string; en: string };
   color: string;
 };
 
@@ -163,20 +164,18 @@ export function CasesSection() {
                 {isOpen && (
                   <div className="pb-8 md:pb-10 grid md:grid-cols-[1.4fr_1fr] gap-6 md:gap-12 animate-rise-in">
                     <div>
-                      <p className="font-condensed text-[clamp(20px,3.4vw,40px)] md:text-[min(2.5vw,4vh)] leading-[1.08] text-[hsl(var(--ink))]">
-                        {pick(c.headline)}
-                      </p>
-                      <p className="mt-4 text-[15px] md:text-[17px] leading-relaxed text-[hsl(var(--ink)/0.65)] max-w-[62ch]">
-                        {pick(c.body)}
-                      </p>
+                      <p className="font-label text-[hsl(var(--ink)/.4)]">{t("Problema", "Problem")}</p>
+                      <p className="mt-2 font-condensed text-[clamp(20px,3.4vw,40px)] md:text-[min(2.5vw,4vh)] leading-[1.08] text-[hsl(var(--ink))]">{pick(c.headline)}</p>
+                      <p className="mt-5 font-label text-[hsl(var(--ink)/.4)]">{t("Hipótesis + sistema", "Hypothesis + system")}</p>
+                      <p className="mt-2 text-[15px] md:text-[17px] leading-relaxed text-[hsl(var(--ink)/0.65)] max-w-[62ch]">{pick(c.body)}</p>
                     </div>
                     <div className="border-l-2 pl-5" style={{ borderColor: c.color }}>
-                      <p className="font-label text-[hsl(var(--ink)/0.40)]">
-                        {t("Qué quedó", "What was left behind")}
-                      </p>
+                      <p className="font-label text-[hsl(var(--ink)/0.40)]">{t("Resultado", "Result")}</p>
                       <p className="mt-2 text-[15px] md:text-[17px] leading-relaxed text-[hsl(var(--ink))]">
                         {pick(c.result)}
                       </p>
+                      <p className="mt-5 font-label text-[hsl(var(--ink)/0.40)]">{t("Aprendizaje", "Learning")}</p>
+                      <p className="mt-2 text-[14px] leading-relaxed text-[hsl(var(--ink)/.58)]">{t("El crecimiento apareció al conectar las piezas, no al optimizar una sola actividad.", "Growth appeared by connecting the pieces, not by optimizing one isolated activity.")}</p>
                     </div>
                   </div>
                 )}
