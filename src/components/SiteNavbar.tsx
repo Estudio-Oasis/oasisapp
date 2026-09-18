@@ -17,6 +17,7 @@ export function SiteNavbar() {
 
   const links = [
     { label: t("Servicios", "Services"), to: "/servicios" },
+    { label: t("Recursos", "Resources"), to: "/recursos" },
     { label: "Roger", to: "/roger" },
     { label: t("Contacto", "Contact"), to: "/contacto" },
   ];
