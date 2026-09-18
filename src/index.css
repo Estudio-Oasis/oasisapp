@@ -33,6 +33,13 @@ body {
   overflow-x: hidden;
 }
 
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 
 .font-serif-display {
   font-family: 'Playfair Display', serif;

@@ -14,7 +14,10 @@ import ContactoPage from "./pages/Contacto";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
 import RecursosPage from "./pages/Recursos";
 import ColectivoAntiVendehumoPage from "./pages/ColectivoAntiVendehumo";
+import IntentPage from "./pages/IntentPage";
 import NotFound from "./pages/NotFound";
+
+const INTENT_ROUTES = ["growth", "performance-marketing", "automatizacion-de-marketing", "crm", "seo-aeo", "ecommerce-growth", "generacion-de-leads", "growth-para-b2b", "growth-para-ecommerce", "marketing-para-pymes"];
 
 const App = () => (
   <ErrorBoundary>
@@ -34,6 +37,7 @@ const App = () => (
             <Route path="/contacto" element={<ContactoPage />} />
             <Route path="/recursos" element={<RecursosPage />} />
             <Route path="/recursos/colectivo-anti-vendehumo" element={<ColectivoAntiVendehumoPage />} />
+            {INTENT_ROUTES.map((slug) => <Route key={slug} path={`/${slug}`} element={<IntentPage />} />)}
             <Route path="/aviso-de-privacidad" element={<AvisoPrivacidadPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

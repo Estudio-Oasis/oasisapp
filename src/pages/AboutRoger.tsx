@@ -4,6 +4,8 @@ import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PALETTE } from "@/components/home/heroContent";
 import { useLang, type Bi } from "@/i18n/LanguageContext";
+import { ExpertCTA } from "@/components/ExpertCTA";
+import { Seo } from "@/components/Seo";
 
 const EMAIL = "joserogelioteran@gmail.com";
 const WHATSAPP = "525667701206";
@@ -47,6 +49,7 @@ export default function AboutRogerPage() {
   return (
     <div className="min-h-screen font-body bg-[hsl(var(--paper))]">
       <div className="grain-overlay" aria-hidden />
+      <Seo title={{ es: "Roger Terán | Estudio Oasis", en: "Roger Terán | Estudio Oasis" }} description={{ es: "Founder & Growth Director de Estudio Oasis. Trayectoria entre growth, creatividad, tecnología y negocios.", en: "Founder & Growth Director at Estudio Oasis. A career across growth, creative, technology, and business." }} path="/roger" />
       <SiteNavbar />
 
       <section className="pt-24 md:pt-28 pb-14 md:pb-20">
@@ -59,8 +62,8 @@ export default function AboutRogerPage() {
           </h1>
           <p className="mt-6 font-condensed text-[clamp(20px,3.6vw,42px)] md:text-[min(2.6vw,4.4vh)] leading-[1.08] text-[hsl(var(--ink)/0.45)] max-w-[46ch]">
             {t(
-              "Product & growth con formación en psicología y dirección creativa. Fundador de Estudio Oasis.",
-              "Product & growth, trained in psychology and creative direction. Founder of Estudio Oasis.",
+               "Founder & Growth Director de Estudio Oasis. Más de una década trabajando entre growth, creatividad, tecnología y negocios.",
+               "Founder & Growth Director at Estudio Oasis. More than a decade working across growth, creative, technology, and business.",
             )}
           </p>
 
@@ -96,6 +99,17 @@ export default function AboutRogerPage() {
               Instagram
             </a>
           </div>
+        </div>
+      </section>
+
+      <section className="border-t-2 border-[hsl(var(--ink))] py-12 md:py-20">
+        <div className="mx-auto max-w-[1700px] px-4 md:px-6">
+          <p className="font-label text-[hsl(var(--ink)/.4)]">{t("Dirección", "Leadership")}</p>
+          <h2 className="mt-4 max-w-[16ch] font-ultra text-[clamp(34px,7vw,100px)] leading-[.92] text-[hsl(var(--ink))]">{t("Habla con alguien que entiende el negocio, no con un SDR.", "Talk to someone who understands the business, not an SDR.")}</h2>
+          <div className="mt-9 grid border-t-2 border-[hsl(var(--ink))] md:grid-cols-3">
+            {[{name:"Roger Terán",role:"Founder & Growth Director"},{name:"Victor Ornelas",role:"Director"},{name:"Camilo Quitian",role:"Director"}].map((person)=><div key={person.name} className="border-b border-[hsl(var(--ink)/.15)] py-6 md:border-b-0 md:border-r md:px-6 md:first:pl-0"><h3 className="font-condensed text-[clamp(24px,3vw,36px)] leading-none text-[hsl(var(--ink))]">{person.name}</h3><p className="mt-2 font-label text-[hsl(var(--ink)/.45)]">{person.role}</p></div>)}
+          </div>
+          <div className="mt-8"><ExpertCTA source="roger-equipo" /></div>
         </div>
       </section>
 

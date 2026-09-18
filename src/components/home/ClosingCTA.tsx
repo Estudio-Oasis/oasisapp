@@ -1,42 +1,13 @@
-import { Link } from "react-router-dom";
 import { useLang } from "@/i18n/LanguageContext";
+import { ExpertCTA } from "@/components/ExpertCTA";
 
 export function ClosingCTA() {
   const { t } = useLang();
-  return (
-    <section data-reveal className="bg-[hsl(var(--ink))] py-24 md:py-28">
-      <div className="max-w-[1700px] mx-auto px-4 md:px-6">
-        <p className="font-label text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-[hsl(var(--paper)/0.40)]">
-          {t("Siguiente paso", "Next step")}
-        </p>
-        <h2 className="mt-6 font-ultra leading-[0.85] text-[clamp(56px,14vw,260px)] md:text-[min(11.5vw,17vh)] text-[hsl(var(--paper))]">
-          <span className="block">{t("Cuéntanos", "Tell us")}</span>
-          <span className="block text-[#E8453C]">{t("qué está roto.", "what's broken.")}</span>
-        </h2>
-        <p className="mt-8 font-condensed text-[clamp(18px,3.4vw,40px)] md:text-[min(2.4vw,4vh)] leading-[1.06] text-[hsl(var(--paper)/0.50)] max-w-[40ch]">
-          {t(
-            "Respondemos en menos de 24 horas, con diagnóstico, no con propuesta genérica.",
-            "We reply within 24 hours, with a diagnosis — not a generic proposal.",
-          )}
-        </p>
-
-        <div className="mt-10 flex flex-wrap gap-3">
-          <Link
-            to="/contacto"
-            className="font-label text-[11px] tracking-[0.2em] uppercase px-7 py-4 bg-[hsl(var(--paper))] text-[hsl(var(--ink))] hover:bg-[#E8453C] hover:text-[hsl(var(--paper))] transition-colors"
-          >
-            {t("Escribirnos", "Write to us")}
-          </Link>
-          <a
-            href="https://wa.me/525667701206"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-label text-[11px] tracking-[0.2em] uppercase px-7 py-4 border border-[hsl(var(--paper)/0.25)] text-[hsl(var(--paper))] hover:border-[hsl(var(--paper))] transition-colors"
-          >
-            WhatsApp
-          </a>
-        </div>
-      </div>
-    </section>
-  );
+  return <section data-reveal className="bg-[hsl(var(--ink))] py-24 md:py-28"><div className="mx-auto max-w-[1700px] px-4 md:px-6">
+    <p className="font-label text-[hsl(var(--paper)/.4)]">{t("¿No sabes qué necesitas?", "Not sure what you need?")}</p>
+    <h2 className="mt-6 font-ultra text-[clamp(54px,13vw,230px)] leading-[.85] text-[hsl(var(--paper))] md:text-[min(10.5vw,16vh)]"><span className="block">{t("Perfecto.", "Perfect.")}</span><span className="block text-destructive">{t("Empecemos por diagnosticar.", "Let's start with a diagnosis.")}</span></h2>
+    <p className="mt-8 max-w-[42ch] font-condensed text-[clamp(18px,3.4vw,40px)] leading-[1.06] text-[hsl(var(--paper)/.5)]">{t("No necesitas llegar sabiendo si tu problema es pauta, marca, automatización, CRM, contenido o conversión.", "You do not need to know whether the problem is media, brand, automation, CRM, content, or conversion.")}</p>
+    <div className="mt-10"><ExpertCTA source="cierre" inverse /></div>
+    <p className="mt-10 max-w-[76ch] font-label leading-loose text-[hsl(var(--paper)/.42)]">{t("Estrategia antes que herramientas. Sistemas antes que campañas. Growth antes que actividad.", "Strategy before tools. Systems before campaigns. Growth before activity.")}</p>
+  </div></section>;
 }

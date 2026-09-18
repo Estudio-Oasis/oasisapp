@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useLang } from "@/i18n/LanguageContext";
+import { ExpertCTA } from "@/components/ExpertCTA";
 
 const NAV = [
   { label: { es: "Inicio", en: "Home" }, to: "/" },
@@ -30,6 +31,7 @@ export function SiteFooter() {
             <p className="mt-3 text-[13px] text-[hsl(var(--paper)/0.40)]">
               {t("Ciudad de México", "Mexico City")}
             </p>
+            <div className="mt-6"><ExpertCTA source="footer" inverse /></div>
           </div>
 
           <div>
