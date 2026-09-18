@@ -4,6 +4,7 @@ import { useLang } from "@/i18n/LanguageContext";
 const NAV = [
   { label: { es: "Inicio", en: "Home" }, to: "/" },
   { label: { es: "Servicios", en: "Services" }, to: "/servicios" },
+  { label: { es: "Recursos", en: "Resources" }, to: "/recursos" },
   { label: { es: "Roger", en: "Roger" }, to: "/roger" },
   { label: { es: "Contacto", en: "Contact" }, to: "/contacto" },
 ];

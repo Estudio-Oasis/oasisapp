@@ -12,7 +12,7 @@ const optionalText = (max: number) =>
 
 export const leadSchema = z
   .object({
-    source: z.enum(["cotizador", "brief"]),
+    source: z.enum(["cotizador", "brief", "colectivo"]),
     lang: z.enum(["es", "en"]),
     name: optionalText(120),
     company: optionalText(160),
@@ -38,6 +38,8 @@ export const leadSchema = z
     monthly_max: z.number().int().nonnegative().nullable().optional().default(null),
     project_min: z.number().int().nonnegative().nullable().optional().default(null),
     project_max: z.number().int().nonnegative().nullable().optional().default(null),
+    marketing_consent: z.boolean().optional().default(false),
+    consented_at: z.string().datetime().nullable().optional().default(null),
   })
   .refine((v) => Boolean(v.email) || Boolean(v.contact), {
     message: "contact-required",

@@ -346,4 +346,32 @@ body {
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] { opacity: 1; transform: none; transition: none; }
   .grain-overlay { animation: none; }
+  .animate-word-in,
+  .animate-rise-in,
+  .animate-hue-drift,
+  .animate-marquee-reverse { animation: none !important; }
+}
+
+/* Resource reading experience */
+.collective-black-sequence [data-reveal] {
+  transform: translateY(18px);
+}
+
+@media print {
+  nav,
+  footer,
+  .grain-overlay,
+  .collective-black-sequence,
+  aside,
+  button {
+    display: none !important;
+  }
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
 }

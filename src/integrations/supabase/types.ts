@@ -19,6 +19,7 @@ export type Database = {
           business: string | null
           channels: string[] | null
           company: string | null
+          consented_at: string | null
           contact: string | null
           context: string | null
           created_at: string
@@ -26,6 +27,7 @@ export type Database = {
           goals: string[] | null
           id: string
           lang: string | null
+          marketing_consent: boolean
           monthly_max: number | null
           monthly_min: number | null
           name: string | null
@@ -45,6 +47,7 @@ export type Database = {
           business?: string | null
           channels?: string[] | null
           company?: string | null
+          consented_at?: string | null
           contact?: string | null
           context?: string | null
           created_at?: string
@@ -52,6 +55,7 @@ export type Database = {
           goals?: string[] | null
           id?: string
           lang?: string | null
+          marketing_consent?: boolean
           monthly_max?: number | null
           monthly_min?: number | null
           name?: string | null
@@ -71,6 +75,7 @@ export type Database = {
           business?: string | null
           channels?: string[] | null
           company?: string | null
+          consented_at?: string | null
           contact?: string | null
           context?: string | null
           created_at?: string
@@ -78,6 +83,7 @@ export type Database = {
           goals?: string[] | null
           id?: string
           lang?: string | null
+          marketing_consent?: boolean
           monthly_max?: number | null
           monthly_min?: number | null
           name?: string | null

@@ -12,6 +12,8 @@ import AboutRoger from "./pages/AboutRoger";
 import ServiciosPage from "./pages/Servicios";
 import ContactoPage from "./pages/Contacto";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
+import RecursosPage from "./pages/Recursos";
+import ColectivoAntiVendehumoPage from "./pages/ColectivoAntiVendehumo";
 import NotFound from "./pages/NotFound";
 
 const App = () => (
@@ -30,6 +32,8 @@ const App = () => (
             <Route path="/portfolio" element={<Navigate to="/servicios" replace />} />
             <Route path="/servicios" element={<ServiciosPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
+            <Route path="/recursos" element={<RecursosPage />} />
+            <Route path="/recursos/colectivo-anti-vendehumo" element={<ColectivoAntiVendehumoPage />} />
             <Route path="/aviso-de-privacidad" element={<AvisoPrivacidadPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
