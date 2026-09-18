@@ -12,7 +12,7 @@ const optionalText = (max: number) =>
 
 export const leadSchema = z
   .object({
-    source: z.enum(["cotizador", "brief", "colectivo"]),
+    source: z.enum(["cotizador", "brief", "colectivo", "sistema"]),
     lang: z.enum(["es", "en"]),
     name: optionalText(120),
     company: optionalText(160),
