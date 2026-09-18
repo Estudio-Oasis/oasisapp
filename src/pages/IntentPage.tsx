@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowRight, Check } from "lucide-react";
 import { SiteNavbar } from "@/components/SiteNavbar";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -36,7 +36,8 @@ const data: IntentPageData[] = [
 const findIntent = (slug?: string) => data.find((item) => item.slug === slug);
 
 export default function IntentPage() {
-  const { slug } = useParams();
+  const { pathname } = useLocation();
+  const slug = pathname.replace(/^\//, "");
   const page = findIntent(slug);
   const { t, pick } = useLang();
   if (!page) return null;

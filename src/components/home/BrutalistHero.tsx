@@ -23,8 +23,8 @@ function RotatingWord({ words }: { words: string[] }) {
 
 export function BrutalistHero() {
   const { t, pick } = useLang();
-  return <section className="bg-[hsl(var(--paper))] pb-14 pt-32 md:pb-20 md:pt-28">
-    <div className="mx-auto max-w-[1700px] px-4 md:px-6">
+  return <section className="overflow-x-clip bg-[hsl(var(--paper))] pb-14 pt-32 md:pb-20 md:pt-28">
+    <div className="mx-auto min-w-0 max-w-[1700px] px-4 md:px-6">
       <h1 className="font-ultra text-[clamp(42px,11vw,220px)] leading-[.88] text-[hsl(var(--ink))] md:text-[min(9.6vw,15vh)]">
         <span className="block">{t("No necesitas", "You do not need")}</span>
         <span className="block text-destructive">{t("más marketing.", "more marketing.")}</span>
@@ -35,7 +35,7 @@ export function BrutalistHero() {
       <div className="mt-7"><ExpertCTA source="home-hero" /></div>
       <p className="mt-8 flex flex-wrap items-baseline gap-[.2em] font-condensed text-[clamp(20px,4.4vw,56px)] leading-[1.05] text-[hsl(var(--ink)/.35)] md:text-[min(3vw,5vh)]"><span>{t("Para", "For")}</span><RotatingWord words={TARGETS.map(pick)} /></p>
     </div>
-    <div className="mx-auto mt-10 max-w-[1700px] border-t-2 border-[hsl(var(--ink))] px-4 pt-7 md:mt-16 md:px-6 md:pt-10">
+    <div className="mx-auto mt-10 min-w-0 max-w-[1700px] overflow-hidden border-t-2 border-[hsl(var(--ink))] px-4 pt-7 md:mt-16 md:px-6 md:pt-10">
       <h2 className="font-ultra text-[clamp(28px,6.4vw,96px)] leading-[.95] text-[hsl(var(--ink))] md:text-[min(5vw,8vh)]">{t("Diseñamos crecimiento", "We design growth")} <span className="text-[hsl(var(--ink)/.3)]">{t("en 5 etapas.", "in 5 stages.")}</span></h2>
       <p className="mt-3 max-w-[70ch] text-[15px] leading-relaxed text-[hsl(var(--ink)/.55)] md:text-[18px]">{t("Cada etapa conecta criterio, especialistas, tecnología y datos. Toca cada una para ver cómo funciona.", "Each stage connects judgment, specialists, technology, and data. Tap any one to see how it works.")}</p>
       <StageSlider />
