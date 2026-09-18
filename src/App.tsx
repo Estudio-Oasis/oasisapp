@@ -14,8 +14,10 @@ import ContactoPage from "./pages/Contacto";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
 import RecursosPage from "./pages/Recursos";
 import ColectivoAntiVendehumoPage from "./pages/ColectivoAntiVendehumo";
-import IntentPage, { INTENT_ROUTES } from "./pages/IntentPage";
+import IntentPage from "./pages/IntentPage";
 import NotFound from "./pages/NotFound";
+
+const INTENT_ROUTES = ["growth", "performance-marketing", "automatizacion-de-marketing", "crm", "seo-aeo", "ecommerce-growth", "generacion-de-leads", "growth-para-b2b", "growth-para-ecommerce", "marketing-para-pymes"];
 
 const App = () => (
   <ErrorBoundary>
