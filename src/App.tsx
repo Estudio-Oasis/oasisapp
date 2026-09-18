@@ -14,6 +14,7 @@ import ContactoPage from "./pages/Contacto";
 import AvisoPrivacidadPage from "./pages/AvisoPrivacidad";
 import RecursosPage from "./pages/Recursos";
 import ColectivoAntiVendehumoPage from "./pages/ColectivoAntiVendehumo";
+import IntentPage, { INTENT_ROUTES } from "./pages/IntentPage";
 import NotFound from "./pages/NotFound";
 
 const App = () => (
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/contacto" element={<ContactoPage />} />
             <Route path="/recursos" element={<RecursosPage />} />
             <Route path="/recursos/colectivo-anti-vendehumo" element={<ColectivoAntiVendehumoPage />} />
+            {INTENT_ROUTES.map((slug) => <Route key={slug} path={`/${slug}`} element={<IntentPage />} />)}
             <Route path="/aviso-de-privacidad" element={<AvisoPrivacidadPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -4,99 +4,41 @@ import { useLang, type Bi } from "@/i18n/LanguageContext";
 import { ExpertCTA } from "@/components/ExpertCTA";
 
 const TARGETS: Bi[] = [
-  { es: "Marcas", en: "Brands" },
-  { es: "Negocios", en: "Businesses" },
-  { es: "Startups", en: "Startups" },
-  { es: "Organizaciones", en: "Organizations" },
-  { es: "Gobiernos", en: "Governments" },
-  { es: "Fundaciones", en: "Foundations" },
+  { es: "Marcas", en: "Brands" }, { es: "Negocios", en: "Businesses" },
+  { es: "Startups", en: "Startups" }, { es: "Organizaciones", en: "Organizations" },
+  { es: "Gobiernos", en: "Governments" }, { es: "Fundaciones", en: "Foundations" },
 ];
 
-function useRotator(length: number, interval: number, offset = 0) {
+function useRotator(length: number, interval: number) {
   const [i, setI] = useState(0);
-  useEffect(() => {
-    const start = setTimeout(() => {
-      setI((p) => (p + 1) % length);
-    }, offset);
-    const id = setInterval(() => setI((p) => (p + 1) % length), interval);
-    return () => {
-      clearTimeout(start);
-      clearInterval(id);
-    };
-  }, [length, interval, offset]);
+  useEffect(() => { const id = setInterval(() => setI((p) => (p + 1) % length), interval); return () => clearInterval(id); }, [length, interval]);
   return i;
 }
 
-function RotatingWord({
-  words,
-  interval,
-  offset = 0,
-  className = "",
-}: {
-  words: string[];
-  interval: number;
-  offset?: number;
-  className?: string;
-}) {
-  const i = useRotator(words.length, interval, offset);
+function RotatingWord({ words }: { words: string[] }) {
+  const i = useRotator(words.length, 2600);
   const longest = words.reduce((a, b) => (a.length >= b.length ? a : b));
-  return (
-    <span className="relative inline-grid align-top max-w-full leading-[1]">
-      {/* Ghost sizer keeps layout stable at the widest word */}
-      <span aria-hidden className="invisible col-start-1 row-start-1 whitespace-nowrap">
-        {longest}
-      </span>
-      <span
-        key={i}
-        className={`col-start-1 row-start-1 whitespace-nowrap animate-word-in ${className}`}
-      >
-        {words[i]}
-      </span>
-    </span>
-  );
+  return <span className="relative inline-grid max-w-full align-top leading-[1]"><span aria-hidden className="invisible col-start-1 row-start-1 whitespace-nowrap">{longest}</span><span key={i} className="col-start-1 row-start-1 whitespace-nowrap text-destructive animate-word-in">{words[i]}</span></span>;
 }
 
 export function BrutalistHero() {
   const { t, pick } = useLang();
-
-  return (
-    <section className="bg-[hsl(var(--paper))] pt-32 md:pt-28 pb-14 md:pb-20">
-      {/* Headline */}
-      <div className="max-w-[1700px] mx-auto px-4 md:px-6">
-        <h1 className="font-ultra text-[hsl(var(--ink))] leading-[0.9] text-[clamp(42px,11vw,220px)] md:text-[min(9.6vw,15vh)]">
-            <span className="text-[#C5221F]">revenue</span>,
-          </span>
-          <span className="block">{t("al crecimiento de", "business growth")}</span>
-          <span className="block">{t("negocio y de marca.", "and brand growth.")}</span>
-        </h1>
-
-        <p className="mt-6 md:mt-8 font-condensed text-[clamp(20px,4.4vw,56px)] md:text-[min(3vw,5vh)] leading-[1.05] text-[hsl(var(--ink)/0.35)] flex items-baseline gap-[0.2em] flex-wrap">
-          <span>{t("Para", "For")}</span>
-          <RotatingWord
-            words={TARGETS.map(pick)}
-            interval={2600}
-            className="text-[#E8453C]"
-          />
-        </p>
-      </div>
-
-      {/* Sistema en 5 etapas — slider */}
-      <div className="max-w-[1700px] mx-auto px-4 md:px-6 mt-10 md:mt-16 border-t-2 border-[hsl(var(--ink))] pt-7 md:pt-10">
-        <h2 className="font-ultra text-[clamp(28px,6.4vw,96px)] md:text-[min(5vw,8vh)] leading-[0.95] text-[hsl(var(--ink))]">
-          {t("Diseñamos crecimiento", "We design growth")}{" "}
-          <span className="text-[hsl(var(--ink)/0.30)]">
-            {t("en 5 etapas.", "in 5 stages.")}
-          </span>
-        </h2>
-        <p className="mt-3 font-body text-[15px] md:text-[18px] leading-relaxed text-[hsl(var(--ink)/0.55)] max-w-[70ch]">
-          {t(
-            "Cada etapa la ejecutan los mejores profesionales de la industria, con el mejor software y decisiones basadas en datos. Toca cada una para ver cómo funciona.",
-            "Every stage is run by the best professionals in the industry, with the best software and decisions based on data. Tap any one to see how it works.",
-          )}
-        </p>
-
-        <StageSlider />
-      </div>
-    </section>
-  );
+  return <section className="bg-[hsl(var(--paper))] pb-14 pt-32 md:pb-20 md:pt-28">
+    <div className="mx-auto max-w-[1700px] px-4 md:px-6">
+      <h1 className="font-ultra text-[clamp(42px,11vw,220px)] leading-[.88] text-[hsl(var(--ink))] md:text-[min(9.6vw,15vh)]">
+        <span className="block">{t("No necesitas", "You do not need")}</span>
+        <span className="block text-destructive">{t("más marketing.", "more marketing.")}</span>
+        <span className="mt-3 block max-w-[18ch] text-[.62em] leading-[.94] text-[hsl(var(--ink)/.42)]">{t("Necesitas un sistema que convierta atención en crecimiento.", "You need a system that turns attention into growth.")}</span>
+      </h1>
+      <p className="mt-7 max-w-[72ch] text-[15px] leading-relaxed text-[hsl(var(--ink)/.58)] md:text-[18px]">{t("Conectamos estrategia, creatividad, adquisición, tecnología, automatización y ventas para construir sistemas de crecimiento medibles.", "We connect strategy, creative, acquisition, technology, automation, and sales to build measurable growth systems.")}</p>
+      <p className="mt-4 font-label text-[hsl(var(--ink)/.42)]">Strategy · Brand · Content · Acquisition · Automation · Sales Infrastructure</p>
+      <div className="mt-7"><ExpertCTA source="home-hero" /></div>
+      <p className="mt-8 flex flex-wrap items-baseline gap-[.2em] font-condensed text-[clamp(20px,4.4vw,56px)] leading-[1.05] text-[hsl(var(--ink)/.35)] md:text-[min(3vw,5vh)]"><span>{t("Para", "For")}</span><RotatingWord words={TARGETS.map(pick)} /></p>
+    </div>
+    <div className="mx-auto mt-10 max-w-[1700px] border-t-2 border-[hsl(var(--ink))] px-4 pt-7 md:mt-16 md:px-6 md:pt-10">
+      <h2 className="font-ultra text-[clamp(28px,6.4vw,96px)] leading-[.95] text-[hsl(var(--ink))] md:text-[min(5vw,8vh)]">{t("Diseñamos crecimiento", "We design growth")} <span className="text-[hsl(var(--ink)/.3)]">{t("en 5 etapas.", "in 5 stages.")}</span></h2>
+      <p className="mt-3 max-w-[70ch] text-[15px] leading-relaxed text-[hsl(var(--ink)/.55)] md:text-[18px]">{t("Cada etapa conecta criterio, especialistas, tecnología y datos. Toca cada una para ver cómo funciona.", "Each stage connects judgment, specialists, technology, and data. Tap any one to see how it works.")}</p>
+      <StageSlider />
+    </div>
+  </section>;
 }
