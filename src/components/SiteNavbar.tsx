@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { SiteControls } from "@/components/SiteControls";
 import { useLang } from "@/i18n/LanguageContext";
+import { AnnouncementBar } from "@/components/AnnouncementBar";
+import { whatsappUrl } from "@/lib/contact";
 
 export function SiteNavbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 20);
@@ -28,6 +30,7 @@ export function SiteNavbar() {
         scrolled ? "border-b border-[hsl(var(--ink)/0.15)]" : "border-b border-transparent"
       }`}
     >
+      <AnnouncementBar />
       <div className="max-w-[1700px] mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
         <Link
           to="/"
@@ -47,12 +50,14 @@ export function SiteNavbar() {
             </Link>
           ))}
           <SiteControls />
-          <Link
-            to="/contacto"
+          <a
+            href={whatsappUrl("navegación", lang)}
+            target="_blank"
+            rel="noopener noreferrer"
             className="font-condensed text-[19px] leading-none h-10 px-5 flex items-center bg-[hsl(var(--ink))] text-[hsl(var(--paper))] hover:bg-[#E8453C] transition-colors"
           >
-            {t("Hablemos", "Let's talk")}
-          </Link>
+            {t("Habla con un experto", "Talk to an expert")}
+          </a>
         </div>
 
         <div className="md:hidden flex items-center gap-2">
@@ -79,13 +84,15 @@ export function SiteNavbar() {
               {l.label}
             </Link>
           ))}
-          <Link
-            to="/contacto"
+          <a
+            href={whatsappUrl("menú", lang)}
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={() => setMobileOpen(false)}
             className="block mt-2 font-ultra text-[34px] leading-tight text-[#E8453C]"
           >
-            {t("Hablemos", "Let's talk")} →
-          </Link>
+            {t("Habla con un experto", "Talk to an expert")} →
+          </a>
         </div>
       )}
     </nav>

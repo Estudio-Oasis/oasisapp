@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { StageSlider } from "./StageSlider";
 import { useLang, type Bi } from "@/i18n/LanguageContext";
+import { ExpertCTA } from "@/components/ExpertCTA";
 
 const TARGETS: Bi[] = [
   { es: "Marcas", en: "Brands" },
@@ -59,13 +60,10 @@ export function BrutalistHero() {
   const { t, pick } = useLang();
 
   return (
-    <section className="bg-[hsl(var(--paper))] pt-20 md:pt-16 pb-14 md:pb-20">
+    <section className="bg-[hsl(var(--paper))] pt-32 md:pt-28 pb-14 md:pb-20">
       {/* Headline */}
       <div className="max-w-[1700px] mx-auto px-4 md:px-6">
         <h1 className="font-ultra text-[hsl(var(--ink))] leading-[0.9] text-[clamp(42px,11vw,220px)] md:text-[min(9.6vw,15vh)]">
-          <span className="block">{t("Somos una empresa", "We are a company")}</span>
-          <span className="block">
-            {t("dedicada al", "built for")}{" "}
             <span className="text-[#C5221F]">revenue</span>,
           </span>
           <span className="block">{t("al crecimiento de", "business growth")}</span>
