@@ -1,0 +1,2 @@
+ALTER TABLE public.leads DROP CONSTRAINT leads_source_check;
+ALTER TABLE public.leads ADD CONSTRAINT leads_source_check CHECK (source = ANY (ARRAY['cotizador'::text, 'brief'::text, 'colectivo'::text, 'sistema'::text]));

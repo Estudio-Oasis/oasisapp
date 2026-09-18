@@ -63,6 +63,44 @@ export const framework: { title: Bi; body: Bi }[] = [
   { title: { es: "Retención", en: "Retention" }, body: { es: "¿Qué provoca que un cliente vuelva, compre más, recomiende o genere al siguiente?", en: "What makes a customer return, buy more, refer others, or generate the next customer?" } },
 ];
 
+export const paths: { title: Bi; status: Bi; body: Bi }[] = [
+  {
+    title: { es: "Te falta criterio", en: "You need judgment" },
+    status: { es: "Gratis · Disponible", en: "Free · Available" },
+    body: {
+      es: "Todavía no necesitas comprar nada. Lee el playbook, usa las herramientas y compara números con otros empresarios.",
+      en: "You do not need to buy anything yet. Read the playbook, use the tools, and compare numbers with other owners.",
+    },
+  },
+  {
+    title: { es: "Te falta infraestructura", en: "You need infrastructure" },
+    status: { es: "Próximamente", en: "Coming soon" },
+    body: {
+      es: "Ya llegan prospectos, pero el seguimiento se cae, nadie responde a tiempo y nadie sabe qué pasó. Aquí entra el sistema.",
+      en: "Prospects already arrive, but follow-up breaks, nobody answers in time, and nobody knows what happened. That is where the system comes in.",
+    },
+  },
+  {
+    title: { es: "Te falta estrategia o ejecución", en: "You need strategy or execution" },
+    status: { es: "Disponible", en: "Available" },
+    body: {
+      es: "Tienes producto, presupuesto y orden, pero hay un cuello de botella complejo. Ahí trabajamos contigo desde Estudio Oasis.",
+      en: "You have product, budget, and order, but there is a complex bottleneck. That is where Estudio Oasis works with you.",
+    },
+  },
+];
+
+export const systemCapabilities: Bi[] = [
+  { es: "Capturar la demanda que ya existe", en: "Capture the demand that already exists" },
+  { es: "Responder al instante, no al día siguiente", en: "Answer instantly, not the next day" },
+  { es: "Dar seguimiento sin depender de la memoria", en: "Follow up without relying on memory" },
+  { es: "Agendar y recuperar citas perdidas", en: "Book and recover missed appointments" },
+  { es: "Pedir reseñas y recomendaciones", en: "Ask for reviews and referrals" },
+  { es: "Reactivar clientes dormidos", en: "Reactivate dormant customers" },
+  { es: "Medir qué funciona y qué no", en: "Measure what works and what does not" },
+  { es: "Saber cuándo conviene pagar publicidad", en: "Know when paying for ads is worth it" },
+];
+
 export const sources = [
   ["Product–Market Fit", "Y Combinator Library", "https://www.ycombinator.com/library"],
   ["Growth Loops", "Reforge", "https://www.reforge.com/blog/growth-loops"],

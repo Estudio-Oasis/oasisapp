@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Check, Copy, Printer } from "lucide-react";
+import { Copy, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { useLang, type Bi } from "@/i18n/LanguageContext";
 
